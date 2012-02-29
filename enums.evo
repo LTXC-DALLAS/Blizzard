@@ -1,0 +1,54 @@
+enVisionObject:"b18:R14.4.8.WW0306:S3.1"; /* 5.7 */
+/******************************************************************************/
+/* Jazz Integrated Program : Bllizar                                          */
+/*                                                                            */
+/* Program Module : FusionProg/enums.evo                                      */
+/* Creation Date  : Tue Jan  3 17:12:26 2012                                  */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*	                        Revision Comments 			      */
+/*                                                                            */
+/* 1st char of Rev (0-Z) - major revisions               	              */
+/* 2nd char of Rev (0-Z) - minor revisions               		      */
+/*									      */
+/* Rev : Comment                                          : UserID   : Date   */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*  A0 : Initial version of the Fusion Test Program       : x0051755 :        */
+/*                                                                            */
+/******************************************************************************/
+/*  Jazz Version used: /vobs/ASP/jazz/release */
+/******************************************************************************/
+
+enum TITestTemp
+{
+   TEMP_N45_DEG,
+   TEMP_N40_DEG,
+   TEMP_0_DEG,
+   TEMP_25_DEG,
+   TEMP_27_DEG,
+   TEMP_30_DEG,
+   TEMP_50_DEG,
+   TEMP_75_DEG,
+   TEMP_85_DEG,
+   TEMP_90_DEG,
+   TEMP_100_DEG,
+   TEMP_105_DEG,
+   TEMP_125_DEG,
+   TEMP_135_DEG
+};
+
+enum TIDeviceType
+{
+   Bllizar_PB1
+};
+
+enum TITestType
+{
+   Probe,
+   Final,
+   Qual,
+   DPSE,
+   BoardChk
+};
+
