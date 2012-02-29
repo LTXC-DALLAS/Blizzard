@@ -118,7 +118,7 @@ __SubFlow BoardCheck_Bllizar_PB1 {
 		}
 		__InputPosition = 270;
 		__TestID = "1000000";
-		__Calibration = Bllizar_Calibration;
+		// __Calibration = Bllizar_Calibration;
 		__Exec =  ConnectDevice;
 	}
 	__Node  UserCheckLoadBoardID_Bllizar_PB1_1352 {
@@ -136,7 +136,7 @@ __SubFlow BoardCheck_Bllizar_PB1 {
             Globals_Meas = __Expression { __String = "0"; }
         }
 		__TestID = "2000000";
-		__Calibration = Bllizar_Calibration;
+		// __Calibration = Bllizar_Calibration;
 		__Exec =  UserCheckLoadBoardID_Bllizar_PB1;
 	}
 	__Node  SupplyCapChk_Bllizar_PB1_1353 {
@@ -163,7 +163,7 @@ __SubFlow BoardCheck_Bllizar_PB1 {
             Globals_Meas = __Expression { __String = "0"; }
         }
 		__TestID = "3000000";
-		__Calibration = Bllizar_Calibration;
+		// __Calibration = Bllizar_Calibration;
 		__Exec =  SupplyCapChk_Bllizar_PB1;
 	}
 	__Node  DisconnectDevice_1354 {
@@ -173,7 +173,7 @@ __SubFlow BoardCheck_Bllizar_PB1 {
 		}
 		__InputPosition = 270;
 		__TestID = "4000000";
-		__Calibration = Bllizar_Calibration;
+		// __Calibration = Bllizar_Calibration;
 		__Exec =  DisconnectDevice;
 	}
 	__NameFormat = "{Exec}_{GCounter}";

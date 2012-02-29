@@ -76,7 +76,7 @@ __SubFlow BoardChk_BoardCheck_S {
             DCSpecs = __Expression { __String = "DCDataSelect"; }
         }
 		__TestID = "1360";
-		__Calibration = Bllizar_Calibration;
+		// __Calibration = Bllizar_Calibration;
 		__Exec =  BoardCheck;
 	}
 	__Node FlowNode_4 {

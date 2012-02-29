@@ -245,7 +245,7 @@ __SubFlow UserOnUnload {
         }
         __TestID = "7";
         __Exec = DisconnectDevice;
-        __Calibration = Bllizar_Calibration;
+//        __Calibration = Bllizar_Calibration;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = DisconnectDevice_1363;
@@ -290,7 +290,7 @@ __SubFlow UserCalibration {
 /****************************************************************************/
 /*** SubFlow PreBinFlow_S                                                 ***/
 /****************************************************************************/
-__SubFlow PreBinFlow_S {
+/*__SubFlow PreBinFlow_S {
     __Node Cres_1366 {
         __XCoord = (50,150);
         __Port[0] {
@@ -306,7 +306,7 @@ __SubFlow PreBinFlow_S {
         }
         __TestID = "10";
         __Exec = Cres;
-        __Calibration = Bllizar_Calibration;
+//        __Calibration = Bllizar_Calibration;
     }
     __Node F_OS_CRES_1367 {
         __XCoord = (-15,295);
@@ -332,7 +332,7 @@ __SubFlow PreBinFlow_S {
         __Data = (0,0,235,130,0,0,23,0,0,4,0,0,1,0,0,0);
     }
 }
-    
+  */  
 /****************************************************************************/
 /*** SubFlow Continuity_S                                                 ***/
 /****************************************************************************/
