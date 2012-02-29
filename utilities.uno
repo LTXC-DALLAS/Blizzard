@@ -817,6 +817,4 @@ __LimitTable Blizzard_LimitTable {
         __Name = SupplyShorts_VddNWA;
         __SimulateValue = __Expression { __String = "10uA"; }
     }
-    __LimitStruct 0 {
-    }
 }
