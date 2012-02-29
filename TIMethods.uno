@@ -1,0 +1,33 @@
+Unison:U0.2:S4.3;
+__ApplicationLibrary TIMethods {
+   __LibraryPath = "./stdprogram_U10";
+   __BuildPath = "./stdprogram_U10/tmpfiles";
+   __LibraryType = __Debug;
+   __Source = "./stdprogram_U10/GetIOPins.cpp";
+   __Source = "./stdprogram_U10/PinGet.cpp";
+   __Source = "./stdprogram_U10/GetPowerPins.cpp";
+   __Source = "./stdprogram_U10/TIatoi.cpp";
+   __Source = "./stdprogram_U10/TIClearRestartFlow.cpp";
+   __Source = "./stdprogram_U10/TIGetBinName.cpp";
+   __Source = "./stdprogram_U10/TIGetHwBin.cpp";
+   __Source = "./stdprogram_U10/TIGetProgVars.cpp";
+   __Source = "./stdprogram_U10/TIGetSubString.cpp";
+   __Source = "./stdprogram_U10/TIGetThreadName.cpp";
+   __Source = "./stdprogram_U10/TIitob.cpp";
+   __Source = "./stdprogram_U10/TIInitializeVariables.cpp";
+   __Source = "./stdprogram_U10/TILoadBoardCheck.cpp";
+   __Source = "./stdprogram_U10/TIGetPinInstrument.cpp";
+   __Source = "./stdprogram_U10/TITestwareSupport.cpp";
+   __Source = "./stdprogram_U10/TWPDL.cpp";
+   __Source = "./stdprogram_U10/TI_DC.cpp";
+   __Source = "./stdprogram_U10/TIReadSCM.cpp";
+   __Source = "./stdprogram_U10/PinMakeArray.cpp";
+   __Source = "./stdprogram_U10/TILoadBoardCheck.cpp";
+   __IncludePath = "./stdprogram_U10";
+   __Include = "TWPDL.h";
+   __Include = "TI_DC.h";
+   __Include = "TIReadSCM.h";
+   __Include = "PinMakeArray.h";
+   __Include = "TILoadBoardCheck.h";
+   __CompilerFlags = "-g";
+}

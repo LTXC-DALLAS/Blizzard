@@ -1,0 +1,228 @@
+Unison:U0.2:S4.3;
+                            
+/******************************************************************************/
+/* Jazz Integrated Program : Bllizar                                          */
+/*                                                                            */
+/* Program Module : FusionProg/BllizarA0.eva                                  */
+/* Creation Date  : Tue Jan  3 17:12:31 2012                                  */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*	                        Revision Comments 			      */
+/*                                                                            */
+/* 1st char of Rev (0-Z) - major revisions               	              */
+/* 2nd char of Rev (0-Z) - minor revisions               		      */
+/*									      */
+/* Rev : Comment                                          : UserID   : Date   */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*  A0 : Initial version of the Fusion Test Program       : x0051755 :        */
+/*                                                                            */
+/******************************************************************************/
+/*  Jazz Version used: /vobs/ASP/jazz/release */
+/******************************************************************************/
+
+__ExternalRef  {/* --An ExternalRef was here... */}
+
+
+
+__TestProg BllizarA0{
+	__Comment = "converted with E2U source md5sum=b600b06c0f017fa0f0ca643f007a03db";
+	__ParamCheck =  0;
+	__OperatorVariable[0] = TIAdapterBoard;
+	__OperatorVariable[1] = TIFlow;
+	__OperatorVariable[2] = TIBinMap;
+	__OperatorVariable[3] = TIFocusCal;
+	__OperatorVariable[4] = TIPrintTimings;
+	__OperatorVariable[5] = printTWPDL;
+	__OperatorVariable[6] = printTWLimits;
+	__OperatorVariable[7] = RunAllTests;
+	__OperatorVariable[8] = CharacterizeDevice;
+	__OperatorVariable[9] = charMem;
+	__OperatorVariable[10] = charMemVdd;
+	__OperatorVariable[11] = charMemFreq;
+	__OperatorVariable[12] = FSearch_Vboxlo;
+	__OperatorVariable[13] = VSearch_Vboxlo;
+	__OperatorVariable[14] = FSearch_VboxloM;
+	__OperatorVariable[15] = VSearch_VboxloM;
+	__OperatorVariable[16] = FSearch_VboxloP;
+	__OperatorVariable[17] = VSearch_VboxloP;
+	__OperatorVariable[18] = FSearch_Vmin;
+	__OperatorVariable[19] = VSearch_Vmin;
+	__OperatorVariable[20] = FSearch_Vnom;
+	__OperatorVariable[21] = VSearch_Vnom;
+	__OperatorVariable[22] = FSearch_Vmax;
+	__OperatorVariable[23] = VSearch_Vmax;
+	__OperatorVariable[24] = FSearch_Vboxhi;
+	__OperatorVariable[25] = VSearch_Vboxhi;
+	__OperatorVariable[26] = FSearch_VboxhiM;
+	__OperatorVariable[27] = VSearch_VboxhiM;
+	__OperatorVariable[28] = FSearch_VboxhiP;
+	__OperatorVariable[29] = VSearch_VboxhiP;
+	__OperatorVariable[30] = FSearch_Vstress;
+	__OperatorVariable[31] = VSearch_Vstress;
+	__OperatorVariable[32] = FSearch_VEfuseP;
+	__OperatorVariable[33] = VSearch_VEfuseP;
+	__OperatorVariable[34] = FSearch_VEfuseR;
+	__OperatorVariable[35] = VSearch_VEfuseR;
+	__OperatorVariable[36] = FSearch_Vburnin;
+	__OperatorVariable[37] = VSearch_Vburnin;
+	__OperatorVariable[38] = EnaBistDlog;
+	__OperatorVariable[39] = EnaSolnDlog;
+	__OperatorVariable[40] = EnaReadOnly;
+	__OperatorVariable[41] = EnaEfuseDlog;
+	__AdapterBoard =  Blizard_HybridEVA_DmdX_x1_AdapterBoard;
+//	__AdapterBoard =  Bllizar_PB1_DmdX_x1_AdapterBoard;
+//	__AdapterBoard =  Bllizar_EVA_DmdX_x1_AdapterBoard;
+	__Flow =  Probe_FLOW;
+	__PatternMap =  DefaultPatternMap;
+	__BinMap =  ATSite_BinMap_Probe;
+	__FunctionalFails =  1;
+	__LotTypeSummary =  "Lot";
+	__ReportSummary =  "Final";
+	__SearchPaths {
+		"$CUSTOMER_DIR/unison/ltx/methods";
+		"$CUSTOMER_DIR/unison/ltx/libraries";
+		"$CUSTOMER_DIR/unison/site/methods";
+		"$CUSTOMER_DIR/unison/site/libraries";
+		"$CUSTOMER_DIR/../stdprogram/";
+		"./Libraries/";
+		}
+}
+
+/******************************************************************************/
+/* Jazz Integrated Program : Bllizar                                          */
+/*                                                                            */
+/* Program Module : FusionProg/externs.evo                                    */
+/* Creation Date  : Tue Jan  3 17:13:04 2012                                  */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*	                        Revision Comments 			      */
+/*                                                                            */
+/* 1st char of Rev (0-Z) - major revisions               	              */
+/* 2nd char of Rev (0-Z) - minor revisions               		      */
+/*									      */
+/* Rev : Comment                                          : UserID   : Date   */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/*									      */
+/*  A0 : Initial version of the Fusion Test Program       : x0051755 :        */
+/*                                                                            */
+/******************************************************************************/
+/*  Jazz Version used: /vobs/ASP/jazz/release */
+/******************************************************************************/
+
+/***********************************************************************/
+/***  All test program files                                         ***/
+/***********************************************************************/
+__ExternalRef  {   __File = "bins.uno";   }
+
+
+__ExternalRef  {   __File = "device.uno";   }
+
+
+__ExternalRef  {   __File = "pinlists.uno";   }
+
+
+__ExternalRef  {   __File = "dcdata.uno";   }
+
+
+__ExternalRef  {   __File = "dctable.uno";   }
+
+
+__ExternalRef  {   __File = "acdata.uno";   }
+
+
+__ExternalRef  {   __File = "actable.uno";   }
+
+
+__ExternalRef  {   __File = "masks.uno";   }
+
+
+__ExternalRef  {   __File = "testflow.uno";   }
+
+
+__ExternalRef  {   __File = "patterns.uno";   }
+
+
+ __ExternalRef  {   __File = "testsets_Bliz.uno";   }
+
+
+__ExternalRef  {   __File = "testware.uno";   }
+
+
+__ExternalRef  {   __File = "Global.uno";   }
+
+
+__ExternalRef  {   __File = "Probe_flow.uno";   }
+
+//Only interested in probe --BJP
+//__ExternalRef  {   __File = "Final_Flow.uno";   }
+
+
+//Only interested in probe --BJP
+//__ExternalRef  {   __File = "DPSE_Flow.uno";   }
+
+
+__ExternalRef  {   __File = "BoardChk_flow.uno";   }
+
+
+__ExternalRef  {   __File = "boardcheck.uno";   }
+
+
+__ExternalRef  {   __File = "cycletbl.uno";   }
+
+
+__ExternalRef  {   __File = "utilities.uno";   }
+
+  
+/***********************************************************************/
+/***  Call to TI standard modules. This is the only reference to     ***/
+/***  the standards necessary.                                       ***/
+/***********************************************************************/
+__ExternalRef {
+
+   __Path = "/u/ccook/gitRepo/Customers/TI/stdprogramP";
+//   __Path = "./stdprogram_U10";
+   __File = "TIexterns.uno";
+}
+
+/***********************************************************************/
+/***                                                                 ***/
+/***  Application library files                                      ***/
+/***                                                                 ***/
+/***********************************************************************/
+
+__ApplicationLibrary Blizzard_Library {
+   __LibraryPath = "./Blizzard_Library";
+   __BuildPath = "./Blizzard_Library/tmpfiles";
+   __LibraryType = __Debug;
+   __Source = "./Blizzard_Library/CbitCtrl.cpp";
+   __Source = "./Blizzard_Library/Blizzard.cpp";
+   __Source = "./Blizzard_Library/power_up.cpp";
+   __Source = "./Blizzard_Library/TI_DC.cpp";
+   __Source = "./Blizzard_Library/TWFuncTest.cpp";
+   __Source = "./Blizzard_Library/TestwareSupport.cpp";
+   __Source = "./Blizzard_Library/SearchUtilities.cpp";
+   __IncludePath = "./Blizzard_Library";
+   __Include = "CbitCtrl.h";
+   __Include = "globals.h";
+   __Include = "power_up.h";
+   __Include = "TI_DC.h";
+   __Include = "TWFuncTest.h";
+   __Include = "TestwareSupport.h";
+   __Include = "SearchUtilities.h";
+   __CompilerFlags = "-g";
+   __DependsOnLibrary = TIDependsLib;
+}
+
+//__ExternalRef {
+//   __File = "$CUSTOMER_DIR/../stdprogram/TIDepends.uno";
+//   __File = "TIDepends.uno";
+//}
+
+                            
+                            
+                            
+                            
+                            
+                           
+                            

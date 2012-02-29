@@ -1,0 +1,74 @@
+Unison:U0.2:S4.3;
+
+Pattern ssi0_loopback_pll_b_CPM {
+
+Mode Digital;
+Type Generic;
+
+Default SignalHeader DefaultSignalHeader;
+Default WaveformTable WFT23;
+
+" Processed by Jazz::Tvt::tvtFusion version 1.199.0, updated Nov 22, 2011 "
+" TDL:  TDLS/ssi0_loopback_pll_b.tdl.gz "
+" Generated:  Wed Dec 28 17:58:21 US/Central 2011 "
+" Jazz dir: /data/jazztest4/vikas/Phoenix_Unison/Blizzard_FX1 "
+
+" ASIC_VERSION = 7.0 "
+" "
+" ASIC_TITLE = 'LIBRARY_TYPE = GS60, "
+"                   CUSTOMER = TexasInstruments, "
+"             TI_PART_NUMBER = F771727B, "
+"           PATTERN_SET_NAME = ssi0_loopback_pll_b, "
+"           PATTERN_SET_TYPE = FUNC, "
+"    PATTERN_SET_DESCRIPTION = , "
+"                   REVISION = 2.2, "
+"                       DATE = 07/04/11'; "
+
+/*     Started Reset Mode Entry Sequence        */
+/*   Assert reset   */
+/*
+"AAAAPPrPPPAAAAPPPPPPPPPCCCCooPPPPPA"
+"IIIIQQbBBQIIIINHHHHHHHH0011__AAAAAI"
+"NNNN01i672NNNN276543210____cc23456N"
+"1111__a___1111_________nppnpp_____0"
+"543256s1116789222333344____uu445555"
+"____  _056____7890567014444__89014_"
+"1234  9   2222         2345df     1"
+"          3456             oa     9"
+"                           ni     2"
+"                           el      "
+"                           __      "
+"                           44      "
+"                           67      "
+"                                   "
+"                                   "
+"                                   "
+"                                   "
+*/
+$ssi0_loopback_pll_b_CPM_st
+"LOOP_FOR_MATCH FAIL, 6000000"
+"loop setup"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <LC2 38710> "Load counter and test pins prior entering match loop"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <MODE(IFAIL ON,TCI ON)> "ignore fail and inhibit count during loop for match"
+"outer loop control"
+$ssi0_loopback_pll_b_loop1
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <COND NZC2>
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <CJMP ssi0_loopback_pll_b_match1,DC2>
+"loop for match unmatch"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <MODE(IFAIL OFF)> "LOOP_FOR_MATCH failed at least on one site, enable fails"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <RPT 10> "test LOOP_FOR_MATCH pin on all sites with fails active"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <JMP ssi0_loopback_pll_b_continue1> "passing sites continue execution"
+"match block"
+$ssi0_loopback_pll_b_match1
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMM1MHLLLMM*; <FLAG(SEQF OFF)> "clear sequential fail flag"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMM1MHLLLMM*; <COND SEQF> "if vector fails then SEQF is set to on and match loop continues"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <RPT 150>
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <CJMP ssi0_loopback_pll_b_loop1>
+$ssi0_loopback_pll_b_continue1
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*; <MODE(IFAIL OFF,TCI OFF)> "matched so now switch back to normal mode"
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMHLLLMM*;
+"end of match loop"
+$ssi0_loopback_pll_b_CPM_end
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM----MM*;<RET>
+*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM----MM*;<RPT 512>
+}

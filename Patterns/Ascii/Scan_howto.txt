@@ -1,0 +1,10 @@
+search for regular expression ^\*.*\* parses out just regular vectors.  No
+comments or scan vectors.
+
+To grep out just vectors from a_st_tk_fles_1_v22_DPM.uno and put them in
+junk.txt:
+
+grep '^\*.*\*' a_st_tk_fles_1_v22_DPM.uno > junk.txt
+
+Open the text file in nedit and do a regular expression search/replace.  Search
+for '.' & replace it with '&,'.  This will change the file into a csv file.

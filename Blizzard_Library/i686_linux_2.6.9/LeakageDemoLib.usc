@@ -1,0 +1,23 @@
+#!LTX /opt/ltx/releases/UOP.SJ20120121/i686_linux_2.6.9
+#!LIB /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/libLeakageDemoLib.un.so
+#!BLD /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib
+#!ARC i686_linux_2.6.9
+#!TYP Debug
+#!HDR CbitCtrl.h
+#!HDR TI_DC.h
+#!HDR Test_value.h
+#!HDR FX_TMU.h
+#!HDR TestwareSupport.h
+#!HDR Enums.h
+#!HDR TWexterns.h
+#!GCF -g
+#!GIF -I../Libraries/AppsLib
+#!GIF -I/u/TI_apps/enVision/stdprogram
+#!GIF -I/opt/ltx/ltx_os/customer/include
+#!GIF -I/u/TI_apps/enVision/stdprogram
+#!GLF -L/u/TI_apps/enVision/stdprogram/i686_linux_2.6.9 -lTIDependsLib.un
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/TI_DC.cpp
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/Test_value.cpp
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/CbitCtrl.cpp
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/FX_TMU.cpp
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Log/Libraries/AppsLib/TestwareSupport.cpp

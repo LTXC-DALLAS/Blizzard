@@ -1,0 +1,9 @@
+#!LTX /opt/ltx/releases/UOP.SJ20120121/i686_linux_2.6.9
+#!LIB /u/jthacker/test_prog/Unison_TIDlog/Libraries/AppsLib/libJP048900_TestLibrary.un.so
+#!BLD /u/jthacker/test_prog/Unison_TIDlog/Libraries/AppsLib
+#!ARC i686_linux_2.6.9
+#!TYP Debug
+#!GLF -Wl,-R../Libraries/AppsLib/i686_linux_2.6.9
+#!GCF -g
+#!GIF -I../Libraries/AppsLib
+#!SRC /u/jthacker/test_prog/Unison_TIDlog/Libraries/AppsLib/JP048900.cpp
