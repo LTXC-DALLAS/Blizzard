@@ -123,11 +123,11 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
             __Waveform { }
         }
     }
-    __Cell "TDLStdPatGrp.Pins" i SCANDRIVE {
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" i SCANDRIVE {
         __Data 6 __Serial;
         __Color 3;
     }
-    __Cell "TDLStdPatGrp.Pins" o SCANSTROBE {
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" o SCANSTROBE {
         __Data 3 __Serial;
         __Color 3;
     }
@@ -338,10 +338,11 @@ __Thread SCAN_IDDQ_PG_Thrd {
 __PatternSequence SCAN_PATHDELAY_1_PG_PS {
     __Thread[0] = SCAN_PATHDELAY_1_PG_Thrd;
     __Zipper = __Zipper {
-        __Row { TDLStdPatGrp, WFT3 = { WFT3 } }
-        __Row { TDLStdPatGrp, WFT4 = { WFT4 } }
-        __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
-        __Row { TDLStdPatGrp, WFT6 = { WFT6 } }
+//Think we just need WFT7 for this thread
+//        __Row { TDLStdPatGrp, WFT3 = { WFT3 } }
+//        __Row { TDLStdPatGrp, WFT4 = { WFT4 } }
+//        __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
+//        __Row { TDLStdPatGrp, WFT6 = { WFT6 } }
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
     __AutoBasePeriod = __True;

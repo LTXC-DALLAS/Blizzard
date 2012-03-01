@@ -129,7 +129,7 @@ __WaveformTable WFT999 {
         __Data 7 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -157,11 +157,11 @@ WFT:WFT1 used in 24 patterns:
 *******************************************************************************/
 __WaveformTable WFT1 {
     __Period "tper";
-    __Cell "AC1_NR+AC1_NR_STB" L/H WFT1_NR1 {
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT1_NR1 {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
 //Duplicate timing merged into WFT1_NR1
@@ -173,11 +173,18 @@ __WaveformTable WFT1 {
 //        }
 //    }
 //Used to be WFT1_RZ1_OSC0_124 before merge with WFT1_RZ2_AIN10_183 & WFT1_RZ3_TCK_152
-    __Cell "OSC0_124+AIN10_183+TCK_152" L/C WFT1_RZ {
+    __Cell "OSC0_124+AIN10_183+TCK_152+o_cpu_done_46" L/C WFT1_RZ {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+        }
+    }
+    __Cell "o_cpu_done_46" H WFT1_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
 //Duplicate timing merged into WFT1_RZ
@@ -297,18 +304,28 @@ __WaveformTable WFT1 {
 //            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
 //        }
 //    }
-    __Cell "ALLPINS" i SCANDRIVE {
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" i SCANDRIVE {
         __Data 6 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __DriveOn @ "0ns"; __DriveData @ "0ns"; }
+            __Waveform { __DriveOn @ "0ns"; __DriveData @ "0ns + 1.5ns"; }
         }
     }
-    __Cell "ALLPINS" o SCANSTROBE {
+//    __Cell "ALLPINS" o SCANSTROBE {
+//        __Data 3 __Serial;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "0ns"; }
+//        }
+//    }
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" o SCANSTROBE {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -414,7 +431,7 @@ __WaveformTable WFT1_scan_SH3 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -1458,7 +1475,7 @@ __WaveformTable WFT16 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -2073,7 +2090,7 @@ __WaveformTable WFT2 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -2246,7 +2263,7 @@ __WaveformTable WFT20 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -2680,7 +2697,7 @@ __WaveformTable WFT23 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -2843,7 +2860,7 @@ __WaveformTable WFT24 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -3150,7 +3167,7 @@ __WaveformTable WFT26 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -3424,31 +3441,39 @@ WFT:WFT3 used in 2 patterns:
 *******************************************************************************/
 __WaveformTable WFT3 {
     __Period "tper";
-    __Cell "AC1_NR" L/H WFT3_NR1 {
+//Combined with WFT3_NR2
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT3_NR1 {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_NR_STB" L/H WFT3_NR2 {
-        __Data 6/7;
-        __Color 3/6;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
-        }
-    }
+//    __Cell "AC1_NR_STB" L/H WFT3_NR2 {
+//        __Data 6/7;
+//        __Color 3/6;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+//        }
+//    }
 //Combined with WFT3_RZ3_AIN10_183, WFT3_RZ4_TCK_152 --BJP
-    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152" L/C WFT3_RZ1_OSC0_124 {
+    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT3_RZ1_OSC0_124 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" </> WFT3_RZ2_Async_OSC0_124 {
-        __Data 6/7;
-        __Color 6/7;
+    __Cell "o_cpu_done_46" H WFT3_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "AC1_RZ_OSC0_124" < WFT3_RZ2_Async_OSC0_124 {
+        __Data 6;
+        __Color 6;
         __Drive {
             __EntryState __DriveLow;
             __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
@@ -3576,7 +3601,7 @@ __WaveformTable WFT3 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -3590,51 +3615,58 @@ WFT:WFT4 used in 1 patterns:
 *******************************************************************************/
 __WaveformTable WFT4 {
     __Period "tper";
-    __Cell "AC1_NR" L/H WFT4_NR1 {
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT4_NR1 {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_NR_STB" L/H WFT4_NR2 {
-        __Data 6/7;
-        __Color 3/6;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
-        }
-    }
-    __Cell "AC1_RZ_OSC0_124" L/C WFT4_RZ1_OSC0_124 {
+//    __Cell "AC1_NR_STB" L/H WFT4_NR2 {
+//        __Data 6/7;
+//        __Color 3/6;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT4_RZ1_OSC0_124 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" </> WFT4_RZ2_Async_OSC0_124 {
-        __Data 6/7;
-        __Color 6/7;
+    __Cell "o_cpu_done_46" H WFT4_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+//    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT4_RZ3_AIN10_183 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" L/C WFT4_RZ4_TCK_152 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124" < WFT4_RZ2_Async_OSC0_124 {
+        __Data 6;
+        __Color 6;
         __Drive {
             __EntryState __DriveLow;
             __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
                          __PeriodMarker @ D1 -> "2 * tperAsync"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT4_RZ3_AIN10_183 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" L/C WFT4_RZ4_TCK_152 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_NR_STB" 0/1/M WFT4_STB1 {
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT4_STB1 {
         __Data 0/1/2;
         __Color 8/10/3;
         __Drive {
@@ -3644,7 +3676,37 @@ __WaveformTable WFT4 {
             __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_NR_STB" Z WFT4_STB1_Z {
+//    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT4_STB2 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT4_STB3 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" 0/1/M WFT4_STB4 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT4_STB1_Z {
         __Data 2;
         __Color 3;
         __Drive {
@@ -3654,66 +3716,36 @@ __WaveformTable WFT4 {
             __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT4_STB2 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_AIN10_183" Z WFT4_STB2_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT4_STB3 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" Z WFT4_STB3_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" 0/1/M WFT4_STB4 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" Z WFT4_STB4_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
+//    __Cell "AC1_RZ_STB_AIN10_183" Z WFT4_STB2_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" Z WFT4_STB3_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" Z WFT4_STB4_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
     __Cell "ALLPINS" - HoldStateWF {
         __Data 6;
         __Color 7;
@@ -3739,7 +3771,7 @@ __WaveformTable WFT4 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -3753,51 +3785,58 @@ WFT:WFT5 used in 2 patterns:
 *******************************************************************************/
 __WaveformTable WFT5 {
     __Period "tper";
-    __Cell "AC1_NR" L/H WFT5_NR1 {
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT5_NR1 {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_NR_STB" L/H WFT5_NR2 {
-        __Data 6/7;
-        __Color 3/6;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
-        }
-    }
-    __Cell "AC1_RZ_OSC0_124" L/C WFT5_RZ1_OSC0_124 {
+//    __Cell "AC1_NR_STB" L/H WFT5_NR2 {
+//        __Data 6/7;
+//        __Color 3/6;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT5_RZ1_OSC0_124 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" </> WFT5_RZ2_Async_OSC0_124 {
-        __Data 6/7;
-        __Color 6/7;
+    __Cell "o_cpu_done_46" H WFT5_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+//    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT5_RZ3_AIN10_183 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" L/C WFT5_RZ4_TCK_152 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124" < WFT5_RZ2_Async_OSC0_124 {
+        __Data 6;
+        __Color 6;
         __Drive {
             __EntryState __DriveLow;
             __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
                          __PeriodMarker @ D1 -> "2 * tperAsync"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT5_RZ3_AIN10_183 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" L/C WFT5_RZ4_TCK_152 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_NR_STB" 0/1/M WFT5_STB1 {
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT5_STB1 {
         __Data 0/1/2;
         __Color 8/10/3;
         __Drive {
@@ -3807,7 +3846,37 @@ __WaveformTable WFT5 {
             __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_NR_STB" Z WFT5_STB1_Z {
+//    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT5_STB2 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT5_STB3 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" 0/1/M WFT5_STB4 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_RZ_STB_AIN10_183+AC1_NR_STB+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT5_STB2_Z {
         __Data 2;
         __Color 3;
         __Drive {
@@ -3817,66 +3886,36 @@ __WaveformTable WFT5 {
             __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT5_STB2 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_AIN10_183" Z WFT5_STB2_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT5_STB3 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" Z WFT5_STB3_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" 0/1/M WFT5_STB4 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" Z WFT5_STB4_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
+//    __Cell "AC1_NR_STB" Z WFT5_STB1_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" Z WFT5_STB3_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" Z WFT5_STB4_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
     __Cell "ALLPINS" - HoldStateWF {
         __Data 6;
         __Color 7;
@@ -3902,7 +3941,7 @@ __WaveformTable WFT5 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -3916,51 +3955,58 @@ WFT:WFT6 used in 1 patterns:
 *******************************************************************************/
 __WaveformTable WFT6 {
     __Period "tper";
-    __Cell "AC1_NR" L/H WFT6_NR1 {
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT6_NR1 {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_NR_STB" L/H WFT6_NR2 {
-        __Data 6/7;
-        __Color 3/6;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
-        }
-    }
-    __Cell "AC1_RZ_OSC0_124" L/C WFT6_RZ1_OSC0_124 {
+//    __Cell "AC1_NR_STB" L/H WFT6_NR2 {
+//        __Data 6/7;
+//        __Color 3/6;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT6_RZ1_OSC0_124 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" </> WFT6_RZ2_Async_OSC0_124 {
-        __Data 6/7;
-        __Color 6/7;
+    __Cell "o_cpu_done_46" H WFT6_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+//    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT6_RZ3_AIN10_183 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" L/C WFT6_RZ4_TCK_152 {
+//        __Data 6/7;
+//        __Color 3/4;
+//        __Drive {
+//            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_RZ_OSC0_124" < WFT6_RZ2_Async_OSC0_124 {
+        __Data 6;
+        __Color 6;
         __Drive {
             __EntryState __DriveLow;
             __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
                          __PeriodMarker @ D1 -> "2 * tperAsync"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT6_RZ3_AIN10_183 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" L/C WFT6_RZ4_TCK_152 {
-        __Data 6/7;
-        __Color 3/4;
-        __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_NR_STB" 0/1/M WFT6_STB1 {
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT6_STB1 {
         __Data 0/1/2;
         __Color 8/10/3;
         __Drive {
@@ -3970,7 +4016,37 @@ __WaveformTable WFT6 {
             __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_NR_STB" Z WFT6_STB1_Z {
+//    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT6_STB2 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT6_STB3 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" 0/1/M WFT6_STB4 {
+//        __Data 0/1/2;
+//        __Color 8/10/3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT6_STB1_Z {
         __Data 2;
         __Color 3;
         __Drive {
@@ -3980,66 +4056,36 @@ __WaveformTable WFT6 {
             __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" 0/1/M WFT6_STB2 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_AIN10_183" Z WFT6_STB2_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" 0/1/M WFT6_STB3 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_RZ_STB_TCK_152" Z WFT6_STB3_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref +0ps"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" 0/1/M WFT6_STB4 {
-        __Data 0/1/2;
-        __Color 8/10/3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
-    __Cell "AC1_STB" Z WFT6_STB4_Z {
-        __Data 2;
-        __Color 3;
-        __Drive {
-            __Waveform { __DriveOff @ "tref"; }
-        }
-        __Compare {
-            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
-        }
-    }
+//    __Cell "AC1_RZ_STB_AIN10_183" Z WFT6_STB2_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_RZ_STB_TCK_152" Z WFT6_STB3_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref +0ps"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
+//    __Cell "AC1_STB" Z WFT6_STB4_Z {
+//        __Data 2;
+//        __Color 3;
+//        __Drive {
+//            __Waveform { __DriveOff @ "tref"; }
+//        }
+//        __Compare {
+//            __Waveform { __CompareFloat @ "tref +9ns*(.Period/50ns)"; }
+//        }
+//    }
     __Cell "ALLPINS" - HoldStateWF {
         __Data 6;
         __Color 7;
@@ -4065,7 +4111,7 @@ __WaveformTable WFT6 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -4095,12 +4141,12 @@ WFT:WFT7 used in 46 patterns:
 __WaveformTable WFT7 {
     __Period "tper";
 //Consolidated WFT7_NR1 with WFT7_NR2 to create WFT7_NR
-//    __Cell "AC1_NR+AC1_NR_STB" L/H WFT7_NR1 {
-    __Cell "AC1_NR+AC1_NR_STB" L/H WFT7_NR {
+//    __Cell "AC1_NR+AC1_NR_STB+o_cpu_done_46" L/H WFT7_NR1 {
+    __Cell "AC1_NR+AC1_NR_STB-o_cpu_done_46" L/H WFT7_NR {
         __Data 6/7;
         __Color 3/6;
         __Drive {
-            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps"; }
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
 //    __Cell "AC1_NR_STB" L/H WFT7_NR2 {
@@ -4112,16 +4158,23 @@ __WaveformTable WFT7 {
 //    }
 //Consolidated WFT7_RZ1_OSC0_124, WFT7_RZ3_AIN10_183 & WFT7_RZ4_TCK_152 since timing is all the same
 //    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152" L/C WFT7_RZ1_OSC0_124 {
-    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152" L/C WFT7_RZ1_OSC {
+    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT7_RZ1_OSC {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" </> WFT7_RZ2_Async_OSC0_124 {
-        __Data 6/7;
-        __Color 6/7;
+    __Cell "o_cpu_done_46" H WFT7_NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "AC1_RZ_OSC0_124" < WFT7_RZ2_Async_OSC0_124 {
+        __Data 6;
+        __Color 6;
         __Drive {
             __EntryState __DriveLow;
             __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
@@ -4251,7 +4304,7 @@ __WaveformTable WFT7 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -4477,7 +4530,7 @@ __WaveformTable WFT8 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -4721,7 +4774,7 @@ __WaveformTable WFT99 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -4811,7 +4864,7 @@ __WaveformTable WFT99 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
@@ -4955,7 +5008,7 @@ __WaveformTable Test_scan_SH3 {
         __Data 3 __Serial;
         __Color 3;
         __Drive {
-            __Waveform { __EdgeMarker @ "0ns"; __DriveOff @ "0ns"; }
+            __Waveform { __DriveOff @ "0ns"; }
         }
         __Compare {
             __Waveform { __CompareData @ "0ns"; }
