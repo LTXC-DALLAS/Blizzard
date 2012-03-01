@@ -1,4 +1,4 @@
-Unison:U0.2:S4.3;
+Unison:U1.0c:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -803,4 +803,10 @@ __PinGroup DSH_PL {
 __PinGroup Probe_Only_Pins {
 	__Group = __Expression { __String = "rbias_9+FLASH3_70+FLASH4_71+FLASH5_72+PG3_78+PG2_79+
 	XOSC1_102+OSC1_125+PJ0_158+PJ2_160+PJ3_161+RAWPOR_N_TEST_162+PP6_163+AIN23_178+POR_ORIDE_164"; }
+}
+__PinGroup DMLED_INBUS {
+	__Group = __Expression { __String = "PA4_50+PA5_51+PA6_54+ia_ftestadc_132"; }
+}
+__PinGroup PMT_RAMBUS {
+	__Group = __Expression { __String = "TRD0_90+PB0_129+PF3_91+PB1_130"; }
 }
