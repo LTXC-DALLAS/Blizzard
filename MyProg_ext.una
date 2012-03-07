@@ -21,10 +21,6 @@ Unison:U0.2:S4.3;
 /*  Jazz Version used: /vobs/ASP/jazz/release */
 /******************************************************************************/
 
-__ExternalRef  {/* --An ExternalRef was here... */}
-
-
-
 __TestProg BllizarA0{
 	__Comment = "converted with E2U source md5sum=b600b06c0f017fa0f0ca643f007a03db";
 	__ParamCheck =  0;
@@ -191,27 +187,38 @@ __ExternalRef {
 /***                                                                 ***/
 /***********************************************************************/
 
-__ApplicationLibrary Blizzard_Library {
-   __LibraryPath = "./Blizzard_Library";
-   __BuildPath = "./Blizzard_Library/tmpfiles";
+__ApplicationLibrary TestWare_Library {
+   __LibraryPath = "./Libraries/TestWare_Library";
+   __BuildPath = "./Libraries/TestWare_Library";
    __LibraryType = __Debug;
-   __Source = "./Blizzard_Library/CbitCtrl.cpp";
-   __Source = "./Blizzard_Library/Blizzard.cpp";
-   __Source = "./Blizzard_Library/power_up.cpp";
-   __Source = "./Blizzard_Library/TI_DC.cpp";
-   __Source = "./Blizzard_Library/TWFuncTest.cpp";
-   __Source = "./Blizzard_Library/TestwareSupport.cpp";
-   __Source = "./Blizzard_Library/SearchUtilities.cpp";
-   __IncludePath = "./Blizzard_Library";
+   __Source = "./Libraries/TestWare_Library/TestwareSupport.cpp";
+   __IncludePath = "./Libraries/TestWare_Library";
+   __IncludePath = "/u/TI_apps/enVision/stdprogram";
+   __Include = "TestwareSupport.h";
+   __DependsOnLibrary = TIDependsLib;
+}
+
+__ApplicationLibrary Blizzard_Library {
+   __LibraryPath = "./Libraries/Blizzard_Library";
+   __BuildPath = "./Libraries/Blizzard_Library/tmpfiles";
+   __LibraryType = __Debug;
+   __Source = "./Libraries/Blizzard_Library/CbitCtrl.cpp";
+   __Source = "./Libraries/Blizzard_Library/Blizzard.cpp";
+   __Source = "./Libraries/Blizzard_Library/power_up.cpp";
+   __Source = "./Libraries/Blizzard_Library/TI_DC.cpp";
+   __Source = "./Libraries/Blizzard_Library/TWFuncTest.cpp";
+   __Source = "./Libraries/Blizzard_Library/SearchUtilities.cpp";
+   __IncludePath = "./Libraries/Blizzard_Library";
+   __IncludePath = "./Libraries/TestWare_Library";
    __Include = "CbitCtrl.h";
    __Include = "globals.h";
    __Include = "power_up.h";
    __Include = "TI_DC.h";
    __Include = "TWFuncTest.h";
-   __Include = "TestwareSupport.h";
    __Include = "SearchUtilities.h";
    __CompilerFlags = "-g";
    __DependsOnLibrary = TIDependsLib;
+   __DependsOnLibrary = TestWare_Library;
 }
 
 __ApplicationLibrary F021_Library {
@@ -223,12 +230,13 @@ __ApplicationLibrary F021_Library {
    __Source = "./Libraries/F021_Library/f021_func.cpp";
    __Source = "./Libraries/F021_Library/f021_flashtests.cpp";
    __IncludePath = "./Libraries/F021_Library";
-   __IncludePath = "/u/TI_apps/enVision/stdprogram";
+   __IncludePath = "./Libraries/TestWare_Library";
    __Include = "f021_flashglobal.h";
    __Include = "f021_flashtests.h";
    __Include = "f021_flashvar.h";
    __Include = "f021_func.h";
    __DependsOnLibrary = TIDependsLib;
+   __DependsOnLibrary = TestWare_Library;
 }
 
 //__ExternalRef {

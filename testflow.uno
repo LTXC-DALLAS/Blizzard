@@ -1072,14 +1072,14 @@ __SubFlow Iddq0_VboxLO_S {
 }
 __SubFlow F021FlashFlow_S {
     __Node FlowNode_1768 {
-        __XCoord = (289,103);
+        __XCoord = (634,103);
         __InputPosition = 265;
         __TestID = "";
         __PortSelect = "0";
         __PortNumber = 0;
     }
     __Node Test_0_1834 {
-        __XCoord = (174,102);
+        __XCoord = (519,102);
         __Port[0] {
             __PortPosition = 82;
         }
@@ -1091,18 +1091,48 @@ __SubFlow F021FlashFlow_S {
         __Exec = Flash_FUNC_LoadShellAndTestNum_T;
     }
     __Node F_FUNC_Vnom_1839 {
-        __XCoord = (172,244);
+        __XCoord = (517,244);
         __InputPosition = 0;
         __TestID = "";
         __Exec = F_FUNC_Vnom;
+    }
+    __Node F021_InitFLGlobalVars_317 {
+        __XCoord = (35,65);
+        __Port[0] {
+            __PortPosition = 84;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 0;
+        __TestID = "59000000";
+        __Exec = F021_InitFLGlobalVars;
+    }
+    __Node FlashEfuse_func_321 {
+        __XCoord = (154,65);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 277;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_VEfuseR"; __Type = INTEGER; }
+        }
+        __TestID = "60000000";
+        __Exec = FlashEfuse_func;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = Test_0_1834;
     __PortConnections {
         Test_0_1834 __Port[0] = FlowNode_1768;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
+        F021_InitFLGlobalVars_317 __Port[0] = FlashEfuse_func_321;
     }
-}__SubFlow SrchFrq_Vmin_Post_S {
+}
+
+__SubFlow SrchFrq_Vmin_Post_S {
     __Node FlowNode_1769 {
         __XCoord = (479,58);
         __InputPosition = 274;

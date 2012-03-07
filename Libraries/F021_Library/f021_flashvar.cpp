@@ -1422,7 +1422,7 @@ prepostcorner prepost_type;
     StringS GL_PREVIOUS_SHELL;
     MBoxRAMType GL_MBoxRAMTYPE;
 
-    BoolS GL_PLELL_FORMAT;
+//    BoolS GL_PLELL_FORMAT; // unused, instead use Unison datalogger controls
 
      /*reference variables*/
     FloatS IBIT_DESIGN_LIM, IBIT_CMPT_LIM;

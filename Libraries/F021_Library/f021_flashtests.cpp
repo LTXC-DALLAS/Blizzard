@@ -165,7 +165,7 @@
 // /*                                                                            */
 // /****************************************************************************/
 //
-#include <f021_flashvar.h>
+#include <f021_func.h>
 using namespace std; 
 
 //#include "$TYPES"
@@ -4063,7 +4063,7 @@ TMResultM Flash_IStdby_func()
 }   /* Flash_IStdby_func */
    
 
-//BoolS FlashEfuse_MP1_func();
+//TMResultM FlashEfuse_MP1_func();
 //{
 //   const IntS BANK_EF_LEN = 32; 
 //   const IntS PUMP_EF_LEN = 30; 
@@ -4079,11 +4079,11 @@ TMResultM Flash_IStdby_func()
 //   const IntS IND_VSA5CT_MSB = 27; 
 //   const IntS IND_VSA5CT_LSB = 30; 
 //   const IntS FOSC_MAXEFUSE = 6; 
-
-//   BoolM tmp_results,final_results;
+//
+//   TMResultM tmp_results,final_results;
 //   BoolM marg_results,cmp_results;
-//   BoolM logsites,savesites;
-//   IntS site;
+//   Sites logsites,savesites;
+//   SITE site;
 //   FloatS tdelay,ttimer1;
 //   StringS tname;
 //   StringS tmpstr3,tmpstr1,tmpstr2;
@@ -4107,15 +4107,19 @@ TMResultM Flash_IStdby_func()
 //   tdelay = 2ms;
 //   TIME.StartTimer();
 //
-//   tname = FlashEfuseRd_Test;
+//   tname = RunTime.GetActiveTest().GetName();
 //   writestring(tmpstr3,tname);
 //   TestOpen(tname);
 //
-//   final_results = v_dev_active;
-//   tmp_results = v_dev_active;
-//   logsites = v_dev_active;
+//   final_results = TM_NOTEST;
+//   tmp_results = TM_NOTEST; 
+////   final_results = v_dev_active;
+////   tmp_results = v_dev_active;
+////   logsites = v_dev_active;
+//   logsites = ActiveSites;
 //
-//   savesites = v_dev_active;
+//   savesites = ActiveSites;
+////   savesites = v_dev_active;
 //   GL_FLASH_RETEST = false;
 //   SITE_IPMOS_TRIMMED = false;
 //   MAINBG_TRIMSAVED = 0;
@@ -4127,8 +4131,8 @@ TMResultM Flash_IStdby_func()
 //    /*PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU);
 //    ClockSet(S_CLOCK1A, FALSE, FreqArr[ DMA ],
 //             v[vih_loose_osc_VEfuseR],v[vil_loose]);
-// clockpinset(s_clk_1c, s_clock);}{JRR*/
-//   PowerUpAtEfuseRead(DCsetup_LooseVmin, NORM_FMSU);
+// clockpinset(s_clk_1c, s_clock);JRR*/
+//   PowerUpAtEfuseRead(DCsetup_LooseVmin, NORM_FMSU);  powers up using VC_VEfuseR, so use EfuseR PSSpec Cat
 //   ClockSet(S_CLOCK1A, FALSE, FreqArr[Freq4], v[VIH_Loose_Vmin],
 //          v[VIL_Loose], S_POGOPIN);
 //   ClockSet(S_CLOCK2A, FALSE, FreqArr[ DMA ], v[VIH_Loose_Vmin],
@@ -4138,14 +4142,14 @@ TMResultM Flash_IStdby_func()
 //   
 //   /* discard(patternexecute(num_clks,jtag_reset_init)); {needed for A2 material JRR*/
 //   patternexecute(num_clks,ldo_bypass_init);  /*needed for A2 material JRR*/
+//   DIGITAL.ExecutePattern(ldo_bypass_init_thread);
+//   
 // }
-//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if(v_dev_active[site])  
-//         flnullstr[site] = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
+//
+//   flnullstr = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
 //   
 //   if(GL_EFUSE_RD_CODEOPTION <> '')  
 //   {
-//      site = *si;
 //      readData.codeOption = GL_EFUSE_RD_CODEOPTION;
 //   }
 //   else
@@ -4153,16 +4157,18 @@ TMResultM Flash_IStdby_func()
 //      readData.codeOption = 'F021';
 //      if(tistdscreenprint)  
 //      {
-//         IO.Print(IO.Stdout,"");
-//         IO.Print(IO.Stdout,"!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!");
-//         IO.Print(IO.Stdout,"!!! Setting it to "F021" not using SCRAM option    !!!");
-//         IO.Print(IO.Stdout,"");
+//         IO.Print(IO.Stdout,"\n");
+//         IO.Print(IO.Stdout,"!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!\n");
+//         IO.Print(IO.Stdout,"!!! Setting it to /"F021/" not using SCRAM option    !!!\n");
+//         IO.Print(IO.Stdout,"\n");
 //      } 
 //   } 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// :TODO: Implement ReadFuseROM...but I have no idea what STDReadFuseROM does!!!
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////   ReadFuseROM(NonMBist, MgN, flnullstr,margFlashChainStr,tmp_results);
 //
-//   ReadFuseROM(NonMBist, MgN, flnullstr,margFlashChainStr,tmp_results);
-//
-//   Arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//   DLOG.AccumulateResults(final_results, tmp_results);
 //
 //    /*reverse and save efuse str (lsb-msb) for later use*/
 //   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -4170,204 +4176,208 @@ TMResultM Flash_IStdby_func()
 //      {
 //         site = *si;
 //         dummstr1 = margFlashChainStr[site];
-//          /*dummstr2 := stringreverse(dummstr1); {lsb-msb*/
-//         SaveFlashProgString[site] = dummstr2;}
+//          /*dummstr2 := stringreverse(dummstr1); // lsb-msb
+//         SaveFlashProgString[site] = dummstr2; */
 //         SaveFlashProgString[site] = dummstr1;
-//         if(tmp_results[site])  
+//         if(tmp_results[site] == TM_PASS)  
 //            for (count = 0;count <= F021_Flash.MAXBANK;count++)
 //               BANK_TO_PMOS_TRIM[count][site] = true;  /*set for trim later*/
 //         if(tistdscreenprint and ti_flashdebug)  
-//            IO.Print(IO.Stdout,"Site",site:-4," margFlashChainStr = ",margFlashChainStr[site]);
+//            cout << "Site " << setw(4) << site << "margFlashChainStr = " << margFlashChainStr[site] << endl;
 //      } 
 //
 //    /*if any site fail, then extract & determine if failing site has*/
 //    /*valid trim solution & must passing marg rd as well.*/
 //    /*efuse bits can be either 0s or 1s are: main/aux bandgap,iref.*/
 //    /*remaining efuse bits should be 0s so compare them.*/
-//   if not(arraycompareboolean(logsites,tmp_results,v_sites))  
+//   
+//   if (tmp_results.AnyEqual(TM_FAIL))
 //   {
-//      arrayxorboolean(tmp_results,tmp_results,logsites,v_sites);
-//      devsetholdstates(tmp_results);
+//      // convoluted logic below
+//      // Any tmp_results which are !PASS return a true to that site
+//      // for DisableFailingSites. Then, DisableFailingSites disables 
+//      // any site with a false (ie, passing sites)
+//      ActiveSites.DisableFailingSites(tmp_results.NotEqual(TM_PASS));
 //
 //      marg_results = v_dev_active;
 //      cmp_results = v_dev_active;
 //      ipmos_cmp_results = v_dev_active;
 //      
 //      if(tistdscreenprint)  
-//         IO.Print(IO.Stdout,"Checking Flash eFuse Chain that has already",
-//                 ' trimmed for valid value and margin read ... ');
+//         IO.Print(IO.Stdout,"Checking Flash eFuse Chain that has already" +
+//                 " trimmed for valid value and margin read ... \n");
 //      
 //      banklen = (F021_Flash.MAXBANK+1)*BANK_EF_LEN;
 //      mainlen = PUMP_EF_LEN;  /*hdpump*/
 //      
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
+//      {
+//         site = *si;
+//         dummstr1 = margFlashChainStr[site];  /*msb-lsb*/
+//          /*dummstr2 := stringreverse(dummstr1);} {lsb-mbs*/
+//         reverse_expStr[site] = dummstr1;
+//
+//         if(tistdscreenprint and ti_flashdebug)  
+//            cout << "Site : " << site << "  Flash Chain (msb-lsb) : " << dummstr1 << endl;         
+//
+//          /*----- extract & compare BANK STR -----*/
+//         bank_expstr = BANK_EFSTR[site];  /*all 0s*/
+//         bank_str = dummstr1.Substring(mainlen+1, banklen);
+//         
+//          /*check if virgin bank*/
+//         if(bank_str==bank_expstr)  
 //         {
-//            site = *si;
-//            dummstr1 = margFlashChainStr[site];  /*msb-lsb*/
-//             /*dummstr2 := stringreverse(dummstr1);} {lsb-mbs*/
-//            reverse_expStr[site] = dummstr1;
+//             /*+++ all banks=0s +++*/
+//            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+//               BANK_TO_PMOS_TRIM[count][site] = true;  /*set for trim later*/
+//         }
+//         else if(!GL_DO_IREF_PMOS_TRIM)  
+//         {
+//             /*+++ all banks<>0s so failed +++*/
+//            ipmos_cmp_results[site] = false;
+//            final_results[site] = false;
+//            SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
+//            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+//               BANK_TO_PMOS_TRIM[count][site] = false;
+//         }
+//         else
+//         {
+//             /*+++ all banks<>0s but do pmos trim so check bit0:4, bit10:23, and bit5:9, bit24:28, bit29:31 for each bank +++*/
+//            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+//            {
+//               tmp_str = bank_str.Substring(1+(count*BANK_EF_LEN), BANK_EF_LEN); /*extract indiv bank actual bits*/
+//         
+//               if(tistdscreenprint)  
+//                  cout << "Site" << setw(5) << site << "Bank ", << setw(5) <<
+//                        count << " efstr " << tmp_str << endl;
+//               
+//               tmp_expstr = bank_expstr.Substring(1+(count*BANK_EF_LEN), BANK_EF_LEN); /*32 bits of 0s*/
 //
-//            if(tistdscreenprint and ti_flashdebug)  
-//               IO.Print(IO.Stdout,"Site : ",site:2,"  Flash Chain (msb-lsb) : ",dummstr1);
-//            
-//
-//             /*----- extract & compare BANK STR -----*/
-//            bank_expstr = BANK_EFSTR[site];  /*all 0s*/
-//            writestring(bank_str,mid(dummstr1,mainlen+1,banklen));
-//            
-//             /*check if virgin bank*/
-//            if(bank_str=bank_expstr)  
-//            {
-//                /*+++ all banks=0s +++*/
-//               for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  BANK_TO_PMOS_TRIM[count][site] = true;  /*set for trim later*/
-//            }
-//            else if(not GL_DO_IREF_PMOS_TRIM)  
-//            {
-//                /*+++ all banks<>0s so failed +++*/
-//               ipmos_cmp_results[site] = false;
-//               final_results[site] = false;
-//               SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
-//               for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  BANK_TO_PMOS_TRIM[count][site] = false;
-//            }
-//            else
-//            {
-//                /*+++ all banks<>0s but do pmos trim so check bit0:4, bit10:23, and bit5:9, bit24:28, bit29:31 for each bank +++*/
-//               for (count = 0;count <= F021_Flash.MAXBANK;count++)
+//                /*+++ individual bank has not trimmed, i.e. all 0s +++*/
+//               if(tmp_str=tmp_expstr)  
+//                  BANK_TO_PMOS_TRIM[count][site] = true  ; /*set for trim later*/
+//               else
 //               {
-//                  writestring(tmp_str,mid(bank_str,(1+(count*BANK_EF_LEN)),BANK_EF_LEN));  /*extract indiv bank actual bits*/
-//           if(tistdscreenprint)  
-//                IO.Print(IO.Stdout,"Site",site:-5,"Bank ",count:-5," efstr ",tmp_str);
-//                  writestring(tmp_expstr,mid(bank_expstr,(1+(count*BANK_EF_LEN)),BANK_EF_LEN));  /*32 bits of 0s*/
-//
-//                   /*+++ individual bank has not trimmed, i.e. all 0s +++*/
-//                  if(tmp_str=tmp_expstr)  
-//                     BANK_TO_PMOS_TRIM[count][site] = true  ; /*set for trim later*/
+//                   /*+++ non-0s so check for trim correctness +++*/
+//                   /*bit31=msb,bit0=lsb*/
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                 
+//                  writestring(bit0_4_str,mid(bank_str,(28+(count*BANK_EF_LEN)),5));
+//                  writestring(bit5_9_str,mid(bank_str,(23+(count*BANK_EF_LEN)),5));
+//                  writestring(bit10_23_str,mid(bank_str,(9+(count*BANK_EF_LEN)),14));
+//                  writestring(bit24_28_str,mid(bank_str,(4+(count*BANK_EF_LEN)),5));
+//                  writestring(bit29_31_str,mid(bank_str,(1+(count*BANK_EF_LEN)),3));
+//                  tmp_str=bit5_9_str;  /*msb-lsb*/
+//                   /*tmp_str:=stringreverse(bit5_9_str);} {msb-lsb*/
+//                  readstring('0b' + tmp_str) + pmos_trimsol;
+//                  
+//                  if((bit0_4_str=BANKEF_BIT0_4) and ((bit10_23_str=BANKEF_BIT10_23) or (bit10_23_str=BANKEF_BIT10_23_BANKNUM[count])) and
+//                     (bit29_31_str=BANKEF_BIT29_31))  
+//                  {
+//                     BANK_TO_PMOS_TRIM[count][site] = false;
+//                  }
 //                  else
 //                  {
-//                      /*+++ non-0s so check for trim correctness +++*/
-//                      /*bit31=msb,bit0=lsb*/
-//                     writestring(bit0_4_str,mid(bank_str,(28+(count*BANK_EF_LEN)),5));
-//                     writestring(bit5_9_str,mid(bank_str,(23+(count*BANK_EF_LEN)),5));
-//                     writestring(bit10_23_str,mid(bank_str,(9+(count*BANK_EF_LEN)),14));
-//                     writestring(bit24_28_str,mid(bank_str,(4+(count*BANK_EF_LEN)),5));
-//                     writestring(bit29_31_str,mid(bank_str,(1+(count*BANK_EF_LEN)),3));
-//                     tmp_str=bit5_9_str;  /*msb-lsb*/
-//                      /*tmp_str:=stringreverse(bit5_9_str);} {msb-lsb*/
-//                     readstring('0b' + tmp_str) + pmos_trimsol;
-//                     
-//                     if((bit0_4_str=BANKEF_BIT0_4) and ((bit10_23_str=BANKEF_BIT10_23) or (bit10_23_str=BANKEF_BIT10_23_BANKNUM[count])) and
-//                        (bit29_31_str=BANKEF_BIT29_31))  
-//                     {
-//                        BANK_TO_PMOS_TRIM[count][site] = false;
-//                     }
-//                     else
-//                     {
-//                        SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
-//                        BANK_TO_PMOS_TRIM[count][site] = false;
-//                        ipmos_cmp_results[site] = false;
-//                        final_results[site] = false;
-//                        if(not TIIgnoreFail)  
-//                           break;  /*out of for count loop*/
-//                     }   /*if-else trim correctness*/
-//                  }   /*if-else tmp_str/tmp_expstr*/
-//               }   /*for count*/
+//                     SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
+//                     BANK_TO_PMOS_TRIM[count][site] = false;
+//                     ipmos_cmp_results[site] = false;
+//                     final_results[site] = false;
+//                     if(not TIIgnoreFail)  
+//                        break;  /*out of for count loop*/
+//                  }   /*if-else trim correctness*/
+//               }   /*if-else tmp_str/tmp_expstr*/
+//            }   /*for count*/
 //
-//                /*determine if all banks trimmed*/
-//               if((not SITE_IPMOS_TRIMMED[site]) and (ipmos_cmp_results[site]))  
-//               {
-//                  all_bank_trimmed = true;
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                     if(BANK_TO_PMOS_TRIM[count][site])  
-//                     {
-//                        all_bank_trimmed = false;
-//                        break;
-//                     } 
-//                  if(all_bank_trimmed)  
-//                     SITE_IPMOS_TRIMMED[site] = true;
-//               } 
-//            }   /*if-else banks<>0 & gl_do_iref_pmos_trim*/
-//            
-//            
-//             /*----- extract & compare PUMP STR -----*/
-//            main_expstr = MAINBG_EFSTR[site];
-//            writestring(main_str,mid(dummstr1,1,mainlen));
-//           if(tistdscreenprint)  
-//           IO.Print(IO.Stdout,"Pump efstr ",main_str);
-//             /*bgap: bit0 is bgap soft trim enable, bit[1:6]=vbg*/
-//            for (count = IND_VBG_MSB;count <= IND_VBG_LSB;count++)
-//               main_expstr[count] = main_str[count];
-//            writestring(tmpstr1,mid(main_str,IND_VBG_MSB,GL_MAINBG_MAXEFUSE));
-//            readstring('0b' + tmpstr1) + tvalue;
-//            MAINBG_TRIMSAVED[site] = tvalue;
-//            
-//             /*iref: bit[15:19,21]*/
-//            for (count = IND_IREF_USB;count <= IND_IREF_LSB;count++)
-//               main_expstr[count] = main_str[count];
-//            main_expstr[IND_IREF_MSB] = main_str[IND_IREF_MSB];
-//            writestring(tmpstr1,mid(main_str,IND_IREF_USB,GL_MAINIREF_MAXEFUSE-1));
-//            writestring(tmpstr2,mid(main_str,IND_IREF_MSB,1));
-//            tmpstr1 = tmpstr2 + tmpstr1;
-//            readstring('0b' + tmpstr1) + tvalue;
-//            MAINIREF_TRIMSAVED[site] = tvalue;
-//
-//             /*need to add vhvslopect & vsa5ct check here*/
-//            for (count = IND_VHVSLCT_MSB;count <= IND_VHVSLCT_LSB;count++)
-//               main_expstr[count] = main_str[count];
-//            writestring(tmpstr1,mid(main_str,IND_VHVSLCT_MSB,GL_VHV_SLPCT_MAXEFUSE));
-//            readstring('0b' + tmpstr1) + tvalue;
-//            VHV_SLPCT_TRIMSAVED[site] = tvalue;
-//
-//            for (count = IND_VSA5CT_MSB;count <= IND_VSA5CT_LSB;count++)
-//               main_expstr[count] = main_str[count];
-//            writestring(tmpstr1,mid(main_str,IND_VSA5CT_MSB,GL_VSA5CT_MAXEFUSE));
-//            readstring('0b' + tmpstr1) + tvalue;
-//            VSA5CT_TRIMSAVED[site] = tvalue;
-//
-//             /*fosc: bit[8:13]*/
-//            for (count = IND_FOSC_MSB;count <= IND_FOSC_LSB;count++)
-//               main_expstr[count] = main_str[count];
-//            writestring(tmpstr1,mid(main_str,IND_FOSC_MSB,FOSC_MAXEFUSE));
-//            readstring('0b' + tmpstr1) + tvalue;
-//            FOSC_TRIMSAVED[site] = tvalue;
-//
-//            if(tistdscreenprint)  
-//               IO.Print(IO.Stdout,"Site",site:-5," MAINBG_TRIMSAVED = ",MAINBG_TRIMSAVED[site]:-5,
-//                       ' MAINIREF_TRIMSAVED = ',MAINIREF_TRIMSAVED[site]:-5,
-//                       ' FOSC_TRIMSAVED = ',FOSC_TRIMSAVED[site]:-5,
-//                       ' VHVSLPCT_TRIMSAVED = ',VHV_SLPCT_TRIMSAVED[site]:-5,
-//                       ' VSA5CT_TRIMSAVED = ',VSA5CT_TRIMSAVED[site]:-5);
-//            
-//            if(main_str<>main_expstr)  
+//             /*determine if all banks trimmed*/
+//            if((not SITE_IPMOS_TRIMMED[site]) and (ipmos_cmp_results[site]))  
 //            {
-//               final_results[site] = false;
-//               cmp_results[site] = false;
+//               all_bank_trimmed = true;
+//               for (count = 0;count <= F021_Flash.MAXBANK;count++)
+//                  if(BANK_TO_PMOS_TRIM[count][site])  
+//                  {
+//                     all_bank_trimmed = false;
+//                     break;
+//                  } 
+//               if(all_bank_trimmed)  
+//                  SITE_IPMOS_TRIMMED[site] = true;
 //            } 
+//         }   /*if-else banks<>0 & gl_do_iref_pmos_trim*/
+//         
+//         
+//          /*----- extract & compare PUMP STR -----*/
+//         main_expstr = MAINBG_EFSTR[site];
+//         writestring(main_str,mid(dummstr1,1,mainlen));
+//        if(tistdscreenprint)  
+//        IO.Print(IO.Stdout,"Pump efstr ",main_str);
+//          /*bgap: bit0 is bgap soft trim enable, bit[1:6]=vbg*/
+//         for (count = IND_VBG_MSB;count <= IND_VBG_LSB;count++)
+//            main_expstr[count] = main_str[count];
+//         writestring(tmpstr1,mid(main_str,IND_VBG_MSB,GL_MAINBG_MAXEFUSE));
+//         readstring('0b' + tmpstr1) + tvalue;
+//         MAINBG_TRIMSAVED[site] = tvalue;
+//         
+//          /*iref: bit[15:19,21]*/
+//         for (count = IND_IREF_USB;count <= IND_IREF_LSB;count++)
+//            main_expstr[count] = main_str[count];
+//         main_expstr[IND_IREF_MSB] = main_str[IND_IREF_MSB];
+//         writestring(tmpstr1,mid(main_str,IND_IREF_USB,GL_MAINIREF_MAXEFUSE-1));
+//         writestring(tmpstr2,mid(main_str,IND_IREF_MSB,1));
+//         tmpstr1 = tmpstr2 + tmpstr1;
+//         readstring('0b' + tmpstr1) + tvalue;
+//         MAINIREF_TRIMSAVED[site] = tvalue;
 //
-//             /*log to TW*/
-//            actlabel = 'FL_EFRD_ACT';
-//            explabel = 'FL_EFRD_EXP';
-//   
-//            hex_actstr = stringbintohex(dummstr1,s_pad_msb);
-//             /*hex_actstr := concat('0x',hex_actstr);*/
-//            TWPDLDatalogTextSite(actlabel,hex_actstr,site,TWMinimumData);
-//            
-//            writestring(dummstr3,main_expstr,bank_expstr);  /*Msb-Lsb*/
-//             /*dummstr4 := stringreverse(dummstr3); {msb-lsb}*/
-//            hex_expstr = stringbintohex(dummstr3,s_pad_msb);
-//             /*hex_expstr := concat('0x',hex_expstr);*/
-//            TWPDLDatalogTextSite(explabel,hex_expstr,site,TWMinimumData);
-//            
-//            if(tistdscreenprint and (not cmp_results[site]))  
-//            {
-//               IO.Print(IO.Stdout,"Site : ",site:2," Failed String Compare ");
-//               IO.Print(IO.Stdout,"   Expect : ",hex_expstr);
-//               IO.Print(IO.Stdout,"   Actual : ",hex_actstr);
-//            } 
-//               
-//         }   /*v_dev_active*/
+//          /*need to add vhvslopect & vsa5ct check here*/
+//         for (count = IND_VHVSLCT_MSB;count <= IND_VHVSLCT_LSB;count++)
+//            main_expstr[count] = main_str[count];
+//         writestring(tmpstr1,mid(main_str,IND_VHVSLCT_MSB,GL_VHV_SLPCT_MAXEFUSE));
+//         readstring('0b' + tmpstr1) + tvalue;
+//         VHV_SLPCT_TRIMSAVED[site] = tvalue;
+//
+//         for (count = IND_VSA5CT_MSB;count <= IND_VSA5CT_LSB;count++)
+//            main_expstr[count] = main_str[count];
+//         writestring(tmpstr1,mid(main_str,IND_VSA5CT_MSB,GL_VSA5CT_MAXEFUSE));
+//         readstring('0b' + tmpstr1) + tvalue;
+//         VSA5CT_TRIMSAVED[site] = tvalue;
+//
+//          /*fosc: bit[8:13]*/
+//         for (count = IND_FOSC_MSB;count <= IND_FOSC_LSB;count++)
+//            main_expstr[count] = main_str[count];
+//         writestring(tmpstr1,mid(main_str,IND_FOSC_MSB,FOSC_MAXEFUSE));
+//         readstring('0b' + tmpstr1) + tvalue;
+//         FOSC_TRIMSAVED[site] = tvalue;
+//
+//         if(tistdscreenprint)  
+//            IO.Print(IO.Stdout,"Site",site:-5," MAINBG_TRIMSAVED = ",MAINBG_TRIMSAVED[site]:-5,
+//                    ' MAINIREF_TRIMSAVED = ',MAINIREF_TRIMSAVED[site]:-5,
+//                    ' FOSC_TRIMSAVED = ',FOSC_TRIMSAVED[site]:-5,
+//                    ' VHVSLPCT_TRIMSAVED = ',VHV_SLPCT_TRIMSAVED[site]:-5,
+//                    ' VSA5CT_TRIMSAVED = ',VSA5CT_TRIMSAVED[site]:-5);
+//         
+//         if(main_str<>main_expstr)  
+//         {
+//            final_results[site] = false;
+//            cmp_results[site] = false;
+//         } 
+//
+//          /*log to TW*/
+//         actlabel = 'FL_EFRD_ACT';
+//         explabel = 'FL_EFRD_EXP';
+//
+//         hex_actstr = stringbintohex(dummstr1,s_pad_msb);
+//          /*hex_actstr := concat('0x',hex_actstr);*/
+//         TWPDLDatalogTextSite(actlabel,hex_actstr,site,TWMinimumData);
+//         
+//         writestring(dummstr3,main_expstr,bank_expstr);  /*Msb-Lsb*/
+//          /*dummstr4 := stringreverse(dummstr3); {msb-lsb}*/
+//         hex_expstr = stringbintohex(dummstr3,s_pad_msb);
+//          /*hex_expstr := concat('0x',hex_expstr);*/
+//         TWPDLDatalogTextSite(explabel,hex_expstr,site,TWMinimumData);
+//         
+//         if(tistdscreenprint and (not cmp_results[site]))  
+//         {
+//            IO.Print(IO.Stdout,"Site : ",site:2," Failed String Compare ");
+//            IO.Print(IO.Stdout,"   Expect : ",hex_expstr);
+//            IO.Print(IO.Stdout,"   Actual : ",hex_actstr);
+//         } 
 //
 //       /*PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU); 
 //       ClockSet(S_CLOCK1A, FALSE, FreqArr[ DMA ],
@@ -4984,52 +4994,60 @@ TMResultM Flash_IStdby_func()
 //}   /* MainBG_Trim_func */
 //
 //   
-//   
-//BoolS Pump_Iref_Vnom_func()
-//{
-//   const IntS TESTID = 15; 
-//
-//   BoolM final_results;
-//   BoolM tmp_results;
-//   StringS current_shell;
-//   FloatS tdelay;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//
-//
-//   GL_FLTESTID = TESTID;
-//   tdelay = 2ms;
+   
+TMResultM Pump_Iref_Vnom_func()
+{
+   const IntS TESTID = 15; 
+
+   TMResultM final_results;
+   FloatS tdelay;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   Sites initial_sites = ActiveSites;
+
+
+   GL_FLTESTID = TESTID;
+   tdelay = 2ms;
 //   PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
+// :TODO: make sure we do something for the clock stuff
 //   ClockSet(S_CLOCK1A,FALSE,GL_F021_PLLENA_SPEED1,
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1c,s_clock);
-//   TIME.Wait(tdelay);
+   TIME.Wait(tdelay);
 //   dcconnect(allpins, s_low, s_ldoff);  /*JRR*/
-//   F021_LoadFlashShell_func;
-//
+   F021_LoadFlashShell_func();
+
+/////////////////////////////////////////////////////////:HERE:///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// :TODO: :TODO: Work on RAM_Clear_SoftTrim_All...I only commented out to compile and 
+// hopefully start initial debug on iref measurement. If we're lucky, it isn't needed
+// for iref measurement
 //   RAM_Clear_SoftTrim_All;  /*KChau 09/10/10*/
-//   /* powerdownall;
-//    pwrupatvnom_1;
-//    discard(patternexecute(num_clks,f021_shell_loadpat));
-//    wait(10mS);}{temp JRR*/
-//   patternexecute(num_clks,f021_shell_loadpat); /*temp JRR*/
-//
-//   tcrnum = 126;
-//   tcrmode = ReadMode;
-//   vcorner = VNM;
-//   F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrnum = 125;
-//      F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode,final_results);
-//   }    
-//   
-//   Pump_Iref_Vnom_func = v_any_dev_active;
-//}   /* Pump_Iref_Vnom_func */
-//
-//
+   /* powerdownall;
+    pwrupatvnom_1;
+    discard(patternexecute(num_clks,f021_shell_loadpat));
+    wait(10mS);}{temp JRR*/
+   DIGITAL.ExecutePattern(f021_shell_loadpat);
+
+   tcrnum = 126;
+   tcrmode = ReadMode;
+   vcorner = VNM;
+   F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
+
+   ActiveSites.DisableFailingSites(final_results == TM_PASS); // disable failing sites (disables sites w/ false)
+   if(ActiveSites.GetNumSites() > 0)  
+   {
+      tcrnum = 125;
+      F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode, final_results);
+   }    
+   
+   // re-enable any sites we've messed around with 
+   // to report the results properly
+   RunTime.SetActiveSites(initial_sites);
+   return final_results;
+}   /* Pump_Iref_Vnom_func */
+
+
 //
 //BoolS Pump_BGap_Vmin_func()
 //{

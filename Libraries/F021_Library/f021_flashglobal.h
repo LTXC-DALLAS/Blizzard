@@ -50,14 +50,31 @@ extern BoolS TI_FlashDebug;
 extern BoolS TI_FlashCharEna; 
 extern BoolS TI_FlashESDAEna; 
 extern BoolS TI_FlashCOFEna; 
-extern BoolM v_dev_active;
+//extern BoolM v_dev_active;
+
+extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
+extern StringS ldo_bypass_init_thread;
+
+
 extern PinM F021_DONEPIN;
 extern PinM F021_NDONEPIN;
 extern PinM F021_PASSPIN;
 extern PinM F021_VCTRLPIN;
 extern PinM F021_VSTATPIN;
 extern PinM nporrst;
+extern PinM FLTP1;
+extern PinM FLTP2;
+#if $TP3_TO_TP5_PRESENT
+extern PinM FLTP3;
+extern PinM FLTP4;
+extern PinM FLTP5;
+#endif
+#if $TADC_PRESENT
+extern PinM P_TADC;
+#endif
+
+extern BoolS IsFastBinning;
 
    /*up to 8 banks, 8 blks/bank, 16 sectors per blk?*/
 struct F021_FlashRec {
@@ -102,7 +119,7 @@ enum TPMeasType {MeasNullType,MeasCurrType,MeasVoltType,ForceCurrType,ForceVoltT
 enum TPModeType {ReadMode,ProgMode,PvfyMode,ErsMode,EvfyMode,CvfyMode};
 
  /*vmin,nom,max,mineven,minodd,...*/
-enum VcornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
+enum VCornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
 
 
 struct F021_RunCodeRec {
@@ -110,7 +127,7 @@ struct F021_RunCodeRec {
   StringS1D FIRST_PROGPAT; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*1st (segment) write pattern*/
   StringS1D LAST_PROGPAT; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*last (segment) write pattern*/
   FloatS1D PROG_FREQ; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */       /*write frequency*/
-  VcornerType PROG_VDDCORNER[3];
+  VCornerType PROG_VDDCORNER[3];
   /* array[FlashCodeType] of VcornerType PROG_VDDCORNER; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */  /*write vdd core voltage corner*/
 
    /*+++ info for arbitrary psa read and VT +++*/
