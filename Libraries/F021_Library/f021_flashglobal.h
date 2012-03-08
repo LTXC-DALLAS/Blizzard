@@ -32,6 +32,7 @@
 #define F021_FLASHGLOBAL_H
 
 #include <Unison.h>
+#include <enums_noheader.evo>
 
  /*changed define statement below to 'TRUE' if your hardware has it*/
 #define $ADREFHI_PRESENT  false
@@ -42,6 +43,8 @@
  /*changed define statement below to 'TRUE' at wafer probe if TPAD3 to TPAD5 are avail*/
 #define $TP3_TO_TP5_PRESENT   false
 
+extern IntS SelectedTITestTemp;
+extern IntS SelectedTITestType;
 
 extern StringS NULL_TestName;
 extern BoolS tistdscreenprint;
@@ -55,6 +58,7 @@ extern BoolS TI_FlashCOFEna;
 extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
 extern StringS ldo_bypass_init_thread;
+extern StringS f021_shell_rcodepat;
 
 
 extern PinM F021_DONEPIN;
@@ -307,14 +311,14 @@ struct FlashVTBCCRec {
    FloatS1D UDELTA; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
    FloatS1D LDELTA_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
    FloatS1D UDELTA_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   vttype PREVTYPE[6];
+   vttype PREVTYPE[25];
    /* array[vttype] of vttype PREVTYPE; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
    
-   FlashVTBCCRec() : ENA(6,2), ENARED(6,2), DLOGONLY(6,2), SSTART(6,2),
-                     SSTOP(6,2), SRESOL(6,2), LLIM(6,2), ULIM(6,2), 
-                     LLIM_EMU(6,2), ULIM_EMU(6,2), TCRNUM(6,2), IRATIO(6,2),
-                     RDOPTION(6,2), MEMCFG(6), TDATA(6), LDELTA(6), UDELTA(6),
-                     LDELTA_EMU(6), UDELTA_EMU(6) {}
+   FlashVTBCCRec() : ENA(25,2), ENARED(25,2), DLOGONLY(25,2), SSTART(25,2),
+                     SSTOP(25,2), SRESOL(25,2), LLIM(25,2), ULIM(25,2), 
+                     LLIM_EMU(25,2), ULIM_EMU(25,2), TCRNUM(25,2), IRATIO(25,2),
+                     RDOPTION(25,2), MEMCFG(25), TDATA(25), LDELTA(25), UDELTA(25),
+                     LDELTA_EMU(25), UDELTA_EMU(25) {}
 };
 
 
@@ -322,7 +326,9 @@ struct FlashStressRec {
    IntS2D TPUPSEQ; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,1..5 */
    StringS1D STRESSNAME; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
    
-   FlashStressRec() : TPUPSEQ(6,5), STRESSNAME(6) {}
+   // :HACK: only need 5 values, but since converting over code, 
+   // make TPUPSEQ size 6 so loops in code are ok
+   FlashStressRec() : TPUPSEQ(25,6), STRESSNAME(25) {}
 };
 
 enum SCRAM_STORE_OPTION {TEMPLOG_ARR, TESTLOG_ARR, MBOXOTP_ARR, MBOXLOG_ARR};

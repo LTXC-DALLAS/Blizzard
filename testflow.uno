@@ -184,8 +184,10 @@ __SubFlow UserOnLoad {
     __Node SelectSpecs_1360 {
         __XCoord = (39,0);
         __Port[0] {
+            __PortPosition = 160;
         }
         __Port[1] {
+            __PortPosition = 180;
         }
         __InputPosition = 278;
         __SpecPairs {
@@ -195,21 +197,39 @@ __SubFlow UserOnLoad {
         __Exec = SelectSpecs;
     }
     __Node InitializeModules_1361 {
-        __XCoord = (319,0);
+        __XCoord = (167,14);
         __Port[0] {
-            __PortPosition = 160;
+            __PortPosition = 87;
+        }
+        __Port[1] {
+            __PortPosition = 64;
         }
         __InputPosition = 271;
         __TestID = "5";
         __Exec = InitializeModules;
     }
+    __Node F021_FlashConfig_test_492 {
+        __XCoord = (288,13);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 271;
+        __TestID = "62000000";
+        __Exec = F021_FlashConfig_test;
+    }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = SelectSpecs_1360;
+    __StartNode = F021_FlashConfig_test_492;
     __PortConnections {
         SelectSpecs_1360 __Port[0] = InitializeModules_1361;
         SelectSpecs_1360 __Port[1] = InitializeModules_1361;
+        InitializeModules_1361 __Port[0] = F021_FlashConfig_test_492;
+        InitializeModules_1361 __Port[1] = F021_FlashConfig_test_492;
     }
 }
+
 
 /*****************************/
 /*** UserOnPowerDown SubFlow ***/
@@ -1070,6 +1090,7 @@ __SubFlow Iddq0_VboxLO_S {
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = FlowNode_1767;
 }
+
 __SubFlow F021FlashFlow_S {
     __Node FlowNode_1768 {
         __XCoord = (634,103);
@@ -1109,7 +1130,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node FlashEfuse_func_321 {
-        __XCoord = (154,65);
+        __XCoord = (158,198);
         __Port[0] {
             __PortPosition = 160;
         }
@@ -1123,14 +1144,30 @@ __SubFlow F021FlashFlow_S {
         __TestID = "60000000";
         __Exec = FlashEfuse_func;
     }
+    __Node Pump_Iref_Vnom_560 {
+        __XCoord = (262,63);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 272;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+        }
+        __TestID = "63000000";
+        __Exec = Pump_Iref_Vnom;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = Test_0_1834;
     __PortConnections {
         Test_0_1834 __Port[0] = FlowNode_1768;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
-        F021_InitFLGlobalVars_317 __Port[0] = FlashEfuse_func_321;
+        F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
     }
 }
+
 
 __SubFlow SrchFrq_Vmin_Post_S {
     __Node FlowNode_1769 {

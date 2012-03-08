@@ -5,10 +5,14 @@
 
 #include <f021_flashglobal.h>
 
-StringS1D TestOptFieldArr;
+IntS SelectedTITestTemp;
+IntS SelectedTITestType;
+
+StringS1D TestOptFieldArr(21);
 StringS NULL_TestName = "";
 BoolS tistdscreenprint = false;
 BoolS tiprintpass = false;
+
 
 // VLCT 'Window' vars
 BoolS  TI_FlashDebug = false;     
@@ -20,6 +24,7 @@ BoolS  TI_FlashCOFEna = false;
 StringS f021_shell_loadpat = "Flash_Load_Thrd";
 StringS f021_shell_exepat = "Flash_Load_TestNum_Thrd";
 StringS ldo_bypass_init_thread = "ldo_bypass_init_v20";
+StringS f021_shell_rcodepat = "This is an unknown pattern thread";
 
 PinM F021_DONEPIN = "PB0_129";
 PinM F021_NDONEPIN = "o_cpu_done_46";
