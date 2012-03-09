@@ -21,8 +21,9 @@ BoolS  TI_FlashESDAEna = false;
 BoolS  TI_FlashCOFEna = false; 
 //BoolM  v_dev_active;
 
-StringS f021_shell_loadpat = "Flash_Load_Thrd";
+StringS f021_shell_loadpat = "Flash_Load_RevBShell_Thrd";
 StringS f021_shell_exepat = "Flash_Load_TestNum_Thrd";
+StringS f021_shell_exepat_name = "dmled_test_number_DPM"; // pattern name, not thread name
 StringS ldo_bypass_init_thread = "ldo_bypass_init_v20";
 StringS f021_shell_rcodepat = "This is an unknown pattern thread";
 

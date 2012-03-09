@@ -421,7 +421,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  VCornerType vcorner_type,
                                  IntS TCRnum,
                                  TPModeType TCRMode,
-                                 TMResultM test_results);
+                                 TMResultM &test_results);
 
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
 //                                 prepostcorner prepost_type,

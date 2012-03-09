@@ -26,27 +26,10 @@ __Test TW_NewUnit {
     __PortExpression[0] = __Expression { __String = "TRUE"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = TW_NewUnit_st;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __Title = Block1;
         __TestMethod {
-            __Name = LTXC::GenericTest;
-            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
-            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
-            SimulateRowResults = __Expression { __String = "FALSE"; }
-            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
-            CharacterizationEnable = __Expression { __String = "FALSE"; }
-        }
-    }
-    __Block[1] = {
-        __Title = TW_NewUnit_CharStuff_st;
-        __EnableExpression = __Expression { __String = "if(CharacterizeDevice OR (CharDevCount != CharDevCount.Typ),TRUE,FALSE)"; }
-        __TestMethod {
-            __Name = LTXC::GenericTest;
-            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
-            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
-            SimulateRowResults = __Expression { __String = "FALSE"; }
-            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
-            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            __Name = TWPDLDataLogNewUnit;
+            unitnum = __Expression { __String = "0"; }
         }
     }
 }

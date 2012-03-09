@@ -4197,6 +4197,7 @@ TMResultM Flash_IStdby_func()
 //      // Any tmp_results which are !PASS return a true to that site
 //      // for DisableFailingSites. Then, DisableFailingSites disables 
 //      // any site with a false (ie, passing sites)
+//      RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(tmp_results.NotEqual(TM_PASS));
 //      ActiveSites.DisableFailingSites(tmp_results.NotEqual(TM_PASS));
 //
 //      marg_results = v_dev_active;
@@ -5034,7 +5035,12 @@ TMResultM Pump_Iref_Vnom_func()
    vcorner = VNM;
    F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
 
-   ActiveSites.DisableFailingSites(final_results == TM_PASS); // disable failing sites (disables sites w/ false)
+   // disable failing sites (disables sites w/ false).
+   /////////////////////////////////////////////////////////////////////////////////////
+   // :TODO: :IMPORTANT: 
+   // I can't get DisableFailingSites to work. Get this to work.
+   //RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results == TM_PASS)); 
+   //ActiveSites.DisableFailingSites(final_results == TM_PASS);
    if(ActiveSites.GetNumSites() > 0)  
    {
       tcrnum = 125;

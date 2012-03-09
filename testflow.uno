@@ -107,20 +107,38 @@ __Flow BoardChk_FLOW {
 /***********************************************************************/
 
 __Test InitializeModules {
-    __Entry[0] = TW_Init_MF;
-    __Entry[1] = Initialize_EverySite_Array_MF;
     __PortExpression[0] = __Expression { __String = "TRUE"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = InitializeModules;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __Title = Block1;
         __TestMethod {
-            __Name = LTXC::GenericTest;
-            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
-            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
-            SimulateRowResults = __Expression { __String = "FALSE"; }
-            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
-            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            __Name = TWPDLInitialize;
+            frequency = __Expression { __String = "0"; }
+            TWdatatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[1] = {
+        __Title = Block1_3;
+        __TestMethod {
+            __Name = TWPDLInitialize;
+            frequency = __Expression { __String = "0"; }
+            TWdatatype = __Expression { __String = "TWDataType:TWNominalData"; }
+        }
+    }
+    __Block[2] = {
+        __Title = Block1_2;
+        __TestMethod {
+            __Name = TWPDLInitialize;
+            frequency = __Expression { __String = "0"; }
+            TWdatatype = __Expression { __String = "TWDataType:TWExtendedData"; }
+        }
+    }
+    __Block[3] = {
+        __Title = Block1_1;
+        __TestMethod {
+            __Name = TWPDLInitialize;
+            frequency = __Expression { __String = "0"; }
+            TWdatatype = __Expression { __String = "TWDataType:TWExhaustiveData"; }
         }
     }
 }
@@ -221,7 +239,7 @@ __SubFlow UserOnLoad {
         __Exec = F021_FlashConfig_test;
     }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = F021_FlashConfig_test_492;
+    __StartNode = InitializeModules_1361;
     __PortConnections {
         SelectSpecs_1360 __Port[0] = InitializeModules_1361;
         SelectSpecs_1360 __Port[1] = InitializeModules_1361;
@@ -1178,6 +1196,7 @@ __SubFlow F021FlashFlow_S {
         F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
     }
 }
+
 
 __SubFlow SrchFrq_Vmin_Post_S {
     __Node FlowNode_1769 {
