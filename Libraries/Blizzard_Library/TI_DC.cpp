@@ -127,16 +127,7 @@ void TI_DC::TestData (IntS row) {
         DLOG.AccumulateResults(row_test_result[row], shorts_result);
     }
     else {
-<<<<<<< HEAD
-        LimitStruct my_limit = LimitStruct(test_limits[row]);
-        row_test_result[row] = DLOG.ArrayLS(test_pins[row], row_results[row], my_limit);
-        
-        
-        
-        //row_test_result[row] = TIDlog.FloatValue (row_results[row], test_pins[row], test_limits[row], use_testware, testware_datatype[row], do_clo);
-=======
         row_test_result[row] = TIDlog.ValueLS (row_results[row], test_pins[row], test_limits[row], use_testware, testware_datatype[row], do_clo);
->>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
     }
 }
 
@@ -491,7 +482,8 @@ void TI_DC::SetSelectConnectDC (IntS row) {
         }
         if (fv_mode[row]) {
             if (2. * max_current[row] < 4.2mA) {
-                VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, -2.2mA, VI_FORCE_ENABLE);
+ //               VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, -2.2mA, VI_FORCE_ENABLE);
+                VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, 0mA, VI_FORCE_ENABLE);
             }
             else {
                 VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], max_current[row], -max_current[row], VI_FORCE_ENABLE);

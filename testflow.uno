@@ -1128,31 +1128,15 @@ __SubFlow F021FlashFlow_S {
         __TestID = "";
         __Exec = F_FUNC_Vnom;
     }
-<<<<<<< HEAD
-    __Node Test_0_309 {
-        __XCoord = (73,99);
-        __Port[0] {
-            __PortPosition = 90;
-=======
     __Node F021_InitFLGlobalVars_317 {
         __XCoord = (35,65);
         __Port[0] {
             __PortPosition = 84;
->>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
         }
         __Port[1] {
             __PortPosition = 180;
         }
         __InputPosition = 0;
-<<<<<<< HEAD
-        __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_11"; __Type = INTEGER; }
-            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
-        }
-        __TestID = "59000000";
-        __Exec = SinglePort_MapCol_T;
-=======
         __TestID = "59000000";
         __Exec = F021_InitFLGlobalVars;
     }
@@ -1185,7 +1169,6 @@ __SubFlow F021FlashFlow_S {
         }
         __TestID = "63000000";
         __Exec = Pump_Iref_Vnom;
->>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = Test_0_1834;
@@ -1196,10 +1179,6 @@ __SubFlow F021FlashFlow_S {
     }
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
 __SubFlow SrchFrq_Vmin_Post_S {
     __Node FlowNode_1769 {
         __XCoord = (479,58);

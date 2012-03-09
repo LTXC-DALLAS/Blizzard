@@ -1411,12 +1411,12 @@ __Thread FlashShellC_Thrd {
 __Thread FlashTestNum_0x00100000_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = dmled_test_number_0x00100000_DPM;
+        __PatternLabel = __Expression { __String = "dmled_test_number_0x00100000.dmled_test_number_DPM_st"; }
     }
 }
 __Thread FlashTestNum_0x00200000_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = dmled_test_number_0x00200000_DPM;
+        __PatternLabel = __Expression { __String = "dmled_test_number_0x00200000.dmled_test_number_DPM_st"; }
     }
 }

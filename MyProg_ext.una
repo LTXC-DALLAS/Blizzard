@@ -21,10 +21,6 @@ Unison:U1.0c:S5.3;
 /*  Jazz Version used: /vobs/ASP/jazz/release */
 /******************************************************************************/
 
-<<<<<<< HEAD
-
-
-
 __TestProg BllizarA0 {
     __Comment = "converted with E2U source md5sum=b600b06c0f017fa0f0ca643f007a03db";
     __ParamCheck = 0;
@@ -99,72 +95,7 @@ __TestProg BllizarA0 {
           "$CUSTOMER_DIR/../stdprogram/";
           "./Libraries/";
         }
-=======
-__TestProg BllizarA0{
-	__Comment = "converted with E2U source md5sum=b600b06c0f017fa0f0ca643f007a03db";
-	__ParamCheck =  0;
-	__OperatorVariable[0] = TIAdapterBoard;
-	__OperatorVariable[1] = TIFlow;
-	__OperatorVariable[2] = TIBinMap;
-	__OperatorVariable[3] = TIFocusCal;
-	__OperatorVariable[4] = TIPrintTimings;
-	__OperatorVariable[5] = printTWPDL;
-	__OperatorVariable[6] = printTWLimits;
-	__OperatorVariable[7] = RunAllTests;
-	__OperatorVariable[8] = CharacterizeDevice;
-	__OperatorVariable[9] = charMem;
-	__OperatorVariable[10] = charMemVdd;
-	__OperatorVariable[11] = charMemFreq;
-	__OperatorVariable[12] = FSearch_Vboxlo;
-	__OperatorVariable[13] = VSearch_Vboxlo;
-	__OperatorVariable[14] = FSearch_VboxloM;
-	__OperatorVariable[15] = VSearch_VboxloM;
-	__OperatorVariable[16] = FSearch_VboxloP;
-	__OperatorVariable[17] = VSearch_VboxloP;
-	__OperatorVariable[18] = FSearch_Vmin;
-	__OperatorVariable[19] = VSearch_Vmin;
-	__OperatorVariable[20] = FSearch_Vnom;
-	__OperatorVariable[21] = VSearch_Vnom;
-	__OperatorVariable[22] = FSearch_Vmax;
-	__OperatorVariable[23] = VSearch_Vmax;
-	__OperatorVariable[24] = FSearch_Vboxhi;
-	__OperatorVariable[25] = VSearch_Vboxhi;
-	__OperatorVariable[26] = FSearch_VboxhiM;
-	__OperatorVariable[27] = VSearch_VboxhiM;
-	__OperatorVariable[28] = FSearch_VboxhiP;
-	__OperatorVariable[29] = VSearch_VboxhiP;
-	__OperatorVariable[30] = FSearch_Vstress;
-	__OperatorVariable[31] = VSearch_Vstress;
-	__OperatorVariable[32] = FSearch_VEfuseP;
-	__OperatorVariable[33] = VSearch_VEfuseP;
-	__OperatorVariable[34] = FSearch_VEfuseR;
-	__OperatorVariable[35] = VSearch_VEfuseR;
-	__OperatorVariable[36] = FSearch_Vburnin;
-	__OperatorVariable[37] = VSearch_Vburnin;
-	__OperatorVariable[38] = EnaBistDlog;
-	__OperatorVariable[39] = EnaSolnDlog;
-	__OperatorVariable[40] = EnaReadOnly;
-	__OperatorVariable[41] = EnaEfuseDlog;
-	__AdapterBoard =  Blizard_HybridEVA_DmdX_x1_AdapterBoard;
-//	__AdapterBoard =  Bllizar_PB1_DmdX_x1_AdapterBoard;
-//	__AdapterBoard =  Bllizar_EVA_DmdX_x1_AdapterBoard;
-	__Flow =  Probe_FLOW;
-	__PatternMap =  DefaultPatternMap;
-	__BinMap =  ATSite_BinMap_Probe;
-	__FunctionalFails =  1;
-	__LotTypeSummary =  "Lot";
-	__ReportSummary =  "Final";
-	__SearchPaths {
-		"$CUSTOMER_DIR/unison/ltx/methods";
-		"$CUSTOMER_DIR/unison/ltx/libraries";
-		"$CUSTOMER_DIR/unison/site/methods";
-		"$CUSTOMER_DIR/unison/site/libraries";
-		"$CUSTOMER_DIR/../stdprogram/";
-		"./Libraries/";
-		}
->>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
 }
-
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
 /*                                                                            */
