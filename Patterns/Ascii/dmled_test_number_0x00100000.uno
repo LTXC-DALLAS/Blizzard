@@ -332,7 +332,27 @@ $dmled_test_number_DPM_st
 
 " end regular TDL patterns; start wrapup "
 
-*MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM---MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM-MMMMMMMMMMMMM--MMMMMM-MMMMMMMMMMM---MMMMMMMMMMMMMMMMM-MMMMM*;<RPT 40000>
+*MMMMMMM0MMMMMMMMMMMMMMMMMMM0MMMLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMLMMMMMMMMMMMMMLCMMMMMMLMMMMMMMMMMMLLLMMMMMMMMMMMMMMMMMLMMMMM*;<RPT 60000>
+*MMMMMMM0MMMMMMMMMMMMMMMMMMM0MMMLLLMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMLMMMMMMMMMMMMMLCMMMMMMLMMMMMMMMMMMLLLMMMMMMMMMMMMMMMMMLMMMMM*;<RPT 60000>
 $dmled_test_number_DPM_end
 *MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM---MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM-MMMMMMMMMMMMM--MMMMMM-MMMMMMMMMMM---MMMMMMMMMMMMMMMMM-MMMMM*;
+/*
+"AAAAPPrPPPAAAAPPPPPPPPPCCCCooPPPPPPPPPPRPPPPPFFFPPPPPPPPPTTTTPPPPPwhXXPPPPPPLLLLLLROOUUPPPiLLLLLLPPPPTTTTPPPPPRPPCCPPAAAAAAAAAAA"
+"IIIIQQbBBQIIIINHHHHHHHH0011__AAAAAAGGPPAQQQQQLLLGGGGGGFFFRRRRFNNNNaiOOPPPPMMPPPPPPSSSSSBBBaPPPPPPKKKKDDMCNJJJJAPO22JJIIIIIIIIIII"
+"NNNN01i672NNNN276543210____cc2345677625W34567AAA543210765DDDD37654kbSS341076CCCCCCTCCBB012_CCCCCC7654OISK30123W6R__67NNNNNNNNNNN"
+"1111__a___1111_________nppnpp__________P_____SSS_________3210_____e_CC______000000_0100___f000000_____________P__pn__22221100000"
+"543256s1116789222333344____uu4455555555O66666HHH777788888____99999_n01111111CSACSPn__DD111tRFAAAA1111111111111O1O__1132101098765"
+"____  _056____7890567014444__8901456789R12345345678901456888914567n___000011LE2LCD_11MP233eERDDDD4444455555566R6R1177___________"
+"1234  9   2222         2345df          _     ___         7890     _911678901KR0KI_122__901sSA01231234901238901_3I776711111111111"
+"          3456             oa          n     777                  9900      _I_R_n24511   tEM____             N D45  77888888999"
+"                           ni          _     012                  8 02      1R1Un_2  22   aTE1111             _ E    89012389012"
+"                           el          6                                    1Q1N_1   78   d__3334             T _               "
+"                           __          0                                    6_8_12        cnn7890             E 1               "
+"                           44                                                1 n21        ___                 S 6               "
+"                           67                                                1 _0         111                 T 4               "
+"                                                                             7 1          333                 _                 "
+"                                                                               1          256                 1                 "
+"                                                                               9                              6                 "
+"                                                                                                              2                 "
+*/
 }
