@@ -49,6 +49,13 @@ enum TITestType
    Final,
    Qual,
    DPSE,
-   BoardChk
+   BoardChk,
+   MP1,
+   MP2,
+   MP3,
+   PreBurnIn,
+   PostBurnIn1,
+   FT1,
+   FT2
 };
 

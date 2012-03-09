@@ -978,20 +978,20 @@ extern    IntS TNUM_OTP_WR_MISCLOC2;
 extern    IntS TNUM_BANK_RDSUPERM1S;
 
     /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][6]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][6]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
 extern    FloatM2D PUMP_PARA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,pre..post */
     /* array[0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BANK_PARA_VALUE[8][129][6][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BANK_PARA_VALUE[8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS BANK_PARA_TWSTR[129][6][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    StringS BANK_PARA_TWSTR[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     
      /*[bank,block,tcrnum,tcrmode,tpnum,prepost,vcorner]*/
     /*array[0..7,0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     
      /*[bank,even..odd,tcrnum,tcrmode,prepost,vcorner]*/
     /*array[0..7,0..1,TPModeType,pre..post,VCornerType] of */
@@ -999,26 +999,26 @@ extern    FloatM BANK_IREFARR_VALUE[8][2][6][2][9]; /* No SV type for > 2 dimens
 
 extern    FloatM2D PUMP_LEAK_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,VCornerType */
     /*array[TPModeType,pre..post,1..2] of */
-extern    FloatM TPAD_LEAK_VALUE[6][2][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM TPAD_LEAK_VALUE[6][2][3]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
 
     /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_VT_VALUE[8][16][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BANK_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_VT_VALUE[8][16][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM RED_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_VT_DELTA_VALUE[8][16][6]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_VT_VALUE[8][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM OTP_VT_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
 extern    FloatM2D OTP_VT_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
 
     /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_BCC_VALUE[8][16][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BANK_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_BCC_VALUE[8][16][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM RED_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_BCC_DELTA_VALUE[8][16][6]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
     /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_BCC_VALUE[8][6][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM OTP_BCC_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
 extern    FloatM2D OTP_BCC_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
 
 extern     BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;

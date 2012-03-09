@@ -21,6 +21,7 @@
 #define F021_FUNC_H
 
 #include <f021_flashvar.h>
+#include <TestwareSupport.h>
 
 //void F021_FlashConfig();
 //
@@ -83,9 +84,9 @@ void IntToVLSIDriveStr(IntS tmpint1, StringS &tmpstr1);
 //                            IntS startaddr, IntS  stopaddr);
 //
 //void DumpRamMailbox();
-//
-//BoolS F021_LoadFlashShell_func();
-//
+
+TMResultM F021_LoadFlashShell_func();
+
 //void GetRamContentDec_16Bit(    StringS tpatt,
 //                                     IntS addr_loc,
 //                                     IntM ret_val);
@@ -240,18 +241,16 @@ void IntToVLSIDriveStr(IntS tmpint1, StringS &tmpstr1);
 //                         FloatS rampstop,
 //                         FloatS iProg,
 //                         Option pgmMode);
-//
-//BoolS F021_Meas_TPAD_PMEX(    PinM TPAD,
-//                                 IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 FloatS test_llim,
-//                                 FloatS test_ulim,
-//                                 FloatM Meas_Value,
-//                                 BoolM Test_results);
-//
-BoolS F021_RunTestNumber_PMEX(    IntS testnum,
-                                     FloatS maxtimeout,
-                                     BoolM test_results);
+
+TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
+                                 IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 FloatS test_llim,
+                                 FloatS test_ulim,
+                                 FloatM &Meas_Value);
+
+TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
+                                     FloatS maxtimeout);
 
 //void MBox_Upload_IProg(IntS senampnum);
 //
@@ -416,14 +415,14 @@ BoolS F021_RunTestNumber_PMEX(    IntS testnum,
 //BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
 //                                      IntM ret_ctval);
 //void RAM_Upload_VHV_CT_TrimVal();
-//
-//BoolS F021_Pump_Para_func(    IntS start_testnum,
-//                                 prepostcorner prepost_type,
-//                                 VCornerType vcorner_type,
-//                                 IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolM test_results);
-//
+
+BoolS F021_Pump_Para_func(    IntS start_testnum,
+                                 prepostcorner prepost_type,
+                                 VCornerType vcorner_type,
+                                 IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 TMResultM test_results);
+
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
 //                                 prepostcorner prepost_type,
 //                                 VCornerType vcorner_type,
@@ -459,7 +458,7 @@ BoolS F021_RunTestNumber_PMEX(    IntS testnum,
 //                                    BoolS adaptiveEna,
 //                                    BoolM test_results);
 
-BoolS F021_InitFLGlobalvars_func();
+TMResultM F021_InitFLGlobalvars_func();
 
 //void Update_FLASH_RETEST_Var();
 //void Update_FLWBYTE_Var();
@@ -601,8 +600,8 @@ void F021_InitFLEfuseStr();
 //                              IntM FOSCVal,
 //                              IntM VHVSLPVal,
 //                              IntM VSA5CTVal);
-//void RAM_Clear_SoftTrim_All();
-//
+void RAM_Clear_SoftTrim_All();
+
 //BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results);

@@ -184,8 +184,10 @@ __SubFlow UserOnLoad {
     __Node SelectSpecs_1360 {
         __XCoord = (39,0);
         __Port[0] {
+            __PortPosition = 160;
         }
         __Port[1] {
+            __PortPosition = 180;
         }
         __InputPosition = 278;
         __SpecPairs {
@@ -195,21 +197,39 @@ __SubFlow UserOnLoad {
         __Exec = SelectSpecs;
     }
     __Node InitializeModules_1361 {
-        __XCoord = (319,0);
+        __XCoord = (167,14);
         __Port[0] {
-            __PortPosition = 160;
+            __PortPosition = 87;
+        }
+        __Port[1] {
+            __PortPosition = 64;
         }
         __InputPosition = 271;
         __TestID = "5";
         __Exec = InitializeModules;
     }
+    __Node F021_FlashConfig_test_492 {
+        __XCoord = (288,13);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 271;
+        __TestID = "62000000";
+        __Exec = F021_FlashConfig_test;
+    }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = SelectSpecs_1360;
+    __StartNode = F021_FlashConfig_test_492;
     __PortConnections {
         SelectSpecs_1360 __Port[0] = InitializeModules_1361;
         SelectSpecs_1360 __Port[1] = InitializeModules_1361;
+        InitializeModules_1361 __Port[0] = F021_FlashConfig_test_492;
+        InitializeModules_1361 __Port[1] = F021_FlashConfig_test_492;
     }
 }
+
 
 /*****************************/
 /*** UserOnPowerDown SubFlow ***/
@@ -1081,16 +1101,17 @@ __SubFlow Iddq0_VboxLO_S {
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = FlowNode_1767;
 }
+
 __SubFlow F021FlashFlow_S {
     __Node FlowNode_1768 {
-        __XCoord = (289,103);
+        __XCoord = (634,103);
         __InputPosition = 265;
         __TestID = "";
         __PortSelect = "0";
         __PortNumber = 0;
     }
     __Node Test_0_1834 {
-        __XCoord = (174,102);
+        __XCoord = (519,102);
         __Port[0] {
             __PortPosition = 82;
         }
@@ -1102,20 +1123,28 @@ __SubFlow F021FlashFlow_S {
         __Exec = Flash_FUNC_LoadShellAndTestNum_T;
     }
     __Node F_FUNC_Vnom_1839 {
-        __XCoord = (172,244);
+        __XCoord = (517,244);
         __InputPosition = 0;
         __TestID = "";
         __Exec = F_FUNC_Vnom;
     }
+<<<<<<< HEAD
     __Node Test_0_309 {
         __XCoord = (73,99);
         __Port[0] {
             __PortPosition = 90;
+=======
+    __Node F021_InitFLGlobalVars_317 {
+        __XCoord = (35,65);
+        __Port[0] {
+            __PortPosition = 84;
+>>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
         }
         __Port[1] {
             __PortPosition = 180;
         }
         __InputPosition = 0;
+<<<<<<< HEAD
         __SpecPairs {
             ACSpecs = __Expression { __String = "ACSpecs.AC_cat_11"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
@@ -1123,15 +1152,54 @@ __SubFlow F021FlashFlow_S {
         }
         __TestID = "59000000";
         __Exec = SinglePort_MapCol_T;
+=======
+        __TestID = "59000000";
+        __Exec = F021_InitFLGlobalVars;
+    }
+    __Node FlashEfuse_func_321 {
+        __XCoord = (158,198);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 277;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_VEfuseR"; __Type = INTEGER; }
+        }
+        __TestID = "60000000";
+        __Exec = FlashEfuse_func;
+    }
+    __Node Pump_Iref_Vnom_560 {
+        __XCoord = (262,63);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 272;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+        }
+        __TestID = "63000000";
+        __Exec = Pump_Iref_Vnom;
+>>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = Test_0_1834;
     __PortConnections {
         Test_0_1834 __Port[0] = FlowNode_1768;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
+        F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
     }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 01c3901198a8a3657d1336598d384a5a316ee9e2
 __SubFlow SrchFrq_Vmin_Post_S {
     __Node FlowNode_1769 {
         __XCoord = (479,58);

@@ -239,12 +239,93 @@ using namespace std;
 //#include "utility.h"
 //#include "$STD_PATH/stdMeas.h"
 //#include "efuse.h"
-//
+
+/* JAT  03/07/2012                                                */
+/******************************************************************/
+/* I think this is the equivalent of the VLCT STDSetVI, except    */
+/* ranging happens here as well. This will set the I clamps and   */
+/* range. It will set the force V and range and gate the          */
+/* instrument on (I don't see a gate in VLCT, so hope the force   */
+/* does it.)                                                      */
+/* I also didn't see that the VLCT could force current...or at    */
+/* least didn't in this procedure.                                */
+/*                                                                */
+/* If you don't pass the range, the previous range is kept        */
+/******************************************************************/
+void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI, const FloatM &vRange = UTL_VOID)
+{
+   VI.SetClampsI(viPin, setI);
+   VI.SetMeasureIRange(viPin, setI);
+   if (vRange == UTL_VOID) 
+      VI.ForceV(viPin, setV);
+   else
+      VI.ForceV(viPin, setV, vRange);
+
+   if (VI.GetGateState(viPin).AnyGreater(VI_GATE_ON)) // if any are gated off
+   {
+      VI.Gate(viPin, VI_GATE_ON);
+   }
+}
+
+bool STDGetConnect (const PinM &myPin, const BoolS &checkDCL = false)
+{
+   PinType my_type = myPin.GetPinType();
+   switch (my_type.GetBasicType())
+   {
+      case PINTYPE_DIGITAL_PIN:
+         if (checkDCL)
+            return (DIGITAL.GetConnectState(myPin, DIGITAL_DCL_TO_DUT).AnyEqual(CONNECT_OFF));
+            // fall through to the VI syntax for ppmu
+      case PINTYPE_ANALOG_PIN:
+      case PINTYPE_POWER_PIN:
+         return (!VI.GetConnectPath(myPin).AnyGreater(VI_TO_DUT));
+      default:
+         return (false);
+   }
+}
+
+void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_REMOTE, 
+               const BoolS &connectDCL = false)
+{
+   PinType my_type = myPin.GetPinType();
+   switch (my_type.GetBasicType())
+   {
+      case PINTYPE_DIGITAL_PIN:
+         if (connectDCL) 
+         {
+            DIGITAL.Connect(myPin, DIGITAL_DCL_TO_DUT);
+            break;
+         }
+      case PINTYPE_ANALOG_PIN:
+      case PINTYPE_POWER_PIN:
+         VI.Connect(myPin, VI_TO_DUT, connectMode);
+         break;
+      default:
+         return;
+   }
+}
+
+void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
+{
+   VI.InitializeMeasure(myPin);  //put in default delays, etc.
+   VI.SetMeasureSamples(myPin, averages);
+   VI.MeasureVAverage(myPin, measValue, simValue);
+   measValue.SetUnits("V");
+}
+
+void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
+{
+   VI.InitializeMeasure(myPin);
+   VI.SetMeasureSamples(myPin, averages);
+   VI.MeasureIAverage(myPin, measValue, simValue);
+   measValue.SetUnits("A");
+}
+
  /*KChau 12/21/07 - make IntToBinStr module level procedure.*/
  /******************************************************************/
  /* IntToBinStr : converts decimal number to 16-bit binary string. */
  /* the string array is pass-by-reference.                         */
- /******************************************************************/
+ /******************************************************************/ 
 void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
 {
    int strlength;
@@ -267,27 +348,47 @@ void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
   }
 }   /*proc IntToBinStr*/
 
-void IntToVLSIDriveStr(IntS tmpint1, StringS &tmpstr1)
+StringS IntToVLSIDriveStr(IntS tmpint1, IntS numBits, bool isMSBFirst)
+// numBits is the number of bits to convert. It is number of bits, NOT 
+// bit number. This means it is 1-based, not 0 based.
 {
-   int strlength;
    int bit_of_interest;
    int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
-   tmpstr1 = "";
+   int l_num_bits;
    
-   strlength = 16;  /*16-bit length*/
+   StringS drive_string = "";
+  
    bit_of_interest = 1;
+   if (numBits > 32) 
+   {
+      l_num_bits = 32; // we only deal with 32 bits max
+   } else {
+      l_num_bits = numBits;
+   }
    
-   for (int i = 0; i < strlength; ++i) 
+   for (int i = 0; i < l_num_bits; ++i) 
    {
       bit_of_interest << i;
       if ((my_int & bit_of_interest) == 0) 
       {
-         tmpstr1 = "L" + tmpstr1;
+         if (isMSBFirst) // LSBs come first in loop, so prepend for MSB first
+         {
+            drive_string = "L" + drive_string;
+         } else { // LSBs come first in loop and we want LSB first, so append
+            drive_string += "L";
+         }
       } else {
-         tmpstr1 = "H" + tmpstr1;
+         if (isMSBFirst) // LSBs come first in loop, so prepend for MSB first
+         {
+            drive_string = "H" + drive_string;
+         } else { // LSBs come first in loop and we want LSB first, so append
+            drive_string += "H";
+         }      
       }
-  }
-}   /*proc IntToBinStr*/
+   }
+   
+   return (drive_string);
+}   /* end IntToVLSIDriveStr */
 
 bool AllSitesEqual (TMResultM result, TMResultS expected_result) 
 {
@@ -377,7 +478,7 @@ bool AllSitesEqual (TMResultM result, TMResultS expected_result)
 //}   /* PrintDUTSetup */
 //
 //
-BoolS F021_InitFLGlobalvars_func()
+TMResultM F021_InitFLGlobalvars_func()
 {
    IntS bank;
    SITE site;
@@ -398,7 +499,7 @@ BoolS F021_InitFLGlobalvars_func()
             IO.Print(IO.Stdout,"GL_F021_LOG_FAILPAT[site] = false");
             IO.Print(IO.Stdout,"GL_F021_COF_PASS[site] = true");
             IO.Print(IO.Stdout,"GL_F021_COF_1STFAILTEST[site] = NULL_TestName");
-            IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = v_dev_active");
+            IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = true");
             IO.Print(IO.Stdout,"GL_FLASH_RETEST[site] = false");
             IO.Print(IO.Stdout,"GL_FLASH_RETEST_GEC[site] = false");
             IO.Print(IO.Stdout,"PUMP_PARA_VALUE[pre/post] = 0V");
@@ -458,11 +559,8 @@ BoolS F021_InitFLGlobalvars_func()
          BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNMO] = 13uV;
       } 
 
-      /* remember, assignment only works on active sites in Unison */
-      v_dev_active = true;
-
        /*init incoming flash active sites*/
-      GL_FLASH_SAVESITES = v_dev_active;
+      GL_FLASH_SAVESITES = true;
 
       GL_FLASH_RETEST = false;
       GL_FLASH_RETEST_GEC = false;
@@ -480,10 +578,10 @@ BoolS F021_InitFLGlobalvars_func()
             GL_BANK_TO_ESDA.SetValue(bank, index, false);
 
        /*added to log all drl data 0s/1s - then bin out prior write drl flowbyte*/
-      GL_VT0DRL_RESULT = v_dev_active;
-      GL_VT1DRL_RESULT = v_dev_active;
-      GL_BCC0DRL_RESULT = v_dev_active;
-      GL_BCC1DRL_RESULT = v_dev_active;
+      GL_VT0DRL_RESULT = true;
+      GL_VT1DRL_RESULT = true;
+      GL_BCC0DRL_RESULT = true;
+      GL_BCC1DRL_RESULT = true;
 
        /*added for fake repair*/
       GL_FAKEREP_ENA = false;   /*disable until reach sampling count*/
@@ -493,6 +591,8 @@ BoolS F021_InitFLGlobalvars_func()
       GL_DO_BCCVT_RCODE_ENA = false;
       
       GL_CHARZ_ESTAIRSTEP_SAVECOUNT = GL_CHARZ_ESTAIRSTEP_COUNT;
+      
+      IsFastBinning = "TestProgData.evFastBinning";
    
    }   /*if v_any_dev*/
 
@@ -523,7 +623,7 @@ BoolS F021_InitFLGlobalvars_func()
     /*null out shell loaded*/
    GL_PREVIOUS_SHELL = "";
 
-   return (true);
+   return (TM_PASS);
 }   /* F021_InitFLGlobalvars_func */
 
 //void SetFlashESDAVars(BoolM logsites,
@@ -7063,7 +7163,7 @@ void F021_SetTestNum(IntS testnum)
    StringS strhi,strlo;
    IntS offsetcyc,length;
    IntS tnumhi,tnumlo;
-   IntS strlength,site;
+   IntS strlength;
    PinML data_pins;
    StringS tpatt;
    
@@ -7080,8 +7180,8 @@ void F021_SetTestNum(IntS testnum)
    tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
    tnumlo = testnum & 0x0000ffff;
    
-   IntToVLSIDriveStr(tnumhi, strhi);
-   IntToVLSIDriveStr(tnumlo, strlo);
+   strhi = IntToVLSIDriveStr(tnumhi, strlength, false);
+   strlo = IntToVLSIDriveStr(tnumlo, strlength, false);
 
 #if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -7138,9 +7238,9 @@ void F021_SetTestNum(IntS testnum)
       for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
       {
          shiftbit = length*offsetcyc;
-         vector_data = strlo.Substring(eindex-shiftbit, length);
+         vector_data = strlo.Substring(shiftbit, length); // no need for eindex because we went LSB-first
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring(eindex-shiftbit, length);
+         vector_data = strhi.Substring(shiftbit, length);
          SourceArrHi += vector_data;
       }
       SourceArr = SourceArrLo + SourceArrHi;
@@ -7153,16 +7253,15 @@ void F021_SetTestNum(IntS testnum)
    tpatt = f021_shell_exepat;
    if(GL_USE_RAMPMT_X64)  
    {
-
       for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
       {
-         vector_data = strlo.Substring(13-(4*offsetcyc), 4);
+         vector_data = strlo.Substring((4*offsetcyc), 4); // no need for 13- because we went LSB-first
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring(13-(4*offsetcyc), 4);
+         vector_data = strhi.Substring((4*offsetcyc), 4);
          SourceArrHi += vector_data;
       } 
       SourceArr = SourceArrLo + SourceArrHi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
+      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr); 
 
    }
    else
@@ -7324,106 +7423,71 @@ void F021_SetTestNum(IntS testnum)
 //}   /* F021_RunTestNumber */
 //
 //
-//BoolS F021_LoadFlashShell_func()
-//{
-//   site = *si;
-//   const IntS TESTID = 1; 
-//
-//   BoolM final_results;
-//   IntS tmpint;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   IntS site;
-//   StringS tmpstr3,tmpstr4;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolM logsites;
-//   StringS fl_testname;
-//   StringM site_cof_inst_str;
-//
-//   if(v_any_dev_active)  
+TMResultM F021_LoadFlashShell_func()
+{
+   const IntS TESTID = 1; 
+
+   TMResultM pat_results;
+   FloatS ttimer;
+   StringS tw_prefix, tw_name;
+   StringS unitval;
+   StringM site_cof_inst_str;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      IO.Print(IO.Stdout,"+++++ F021_LoadFlashShell_func +++++");
+
+   GL_FLTESTID = TESTID;
+   tw_prefix = "LoadFlashShell";
+
+   TIME.StartTimer();
+
+// :TODO: come back to this, skipping for now
+//   if(TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+   
+   pat_results = DIGITAL.TestPattern(f021_shell_loadpat, false, TM_PASS);
+
+   ttimer = TIME.StopTimer();
+   tw_name = tw_prefix + "_TT";
+   unitval = "s";
+   //TWTRealToRealMS(tt_timer,realval,unitval);
+   TWPDLDataLogRealVariable(tw_name, unitval, ttimer, TWMinimumData);
+
+    /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
+   if (pat_results.AnyEqual(TM_FAIL)) 
+   {
+// :TODO: come back to the testware pattern logging...it's a doozy
+//      F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
+
+// :TODO: come back to the FlashCOFEna stuff as well
+//      if(TI_FlashCOFEna)  
+//         F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
+   } 
+
+// :TODO: fix the screen print stuff (Header and Result not implemented yet)
+//   if(tistdscreenprint)  
 //   {
-//      site = *si;
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         IO.Print(IO.Stdout,"+++++ F021_LoadFlashShell_func +++++");
-//
-//      GL_FLTESTID = TESTID;
-//      tmpstr3 = 'LoadFlashShell';
-//      fl_testname = LoadFlashShell_Test;
-//      TestOpen(fl_testname);
-//
-//      timernstart(ttimer1);
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//      
-//       /*KChau 12/21/07 - added logsites to use for compare if any site fails*/
-//      logsites = v_dev_active;
-//      final_results = v_dev_active;
-//      PatternExecute(tmpint,f021_shell_loadpat);
-//      ArrayAndBoolean(final_results,final_results,v_pf_status,v_sites);
-//
-//      ttimer2 = timernread(ttimer1);
-//      tt_timer = ttimer2;
-//      tmpstr4 = tmpstr3 + '_TT';
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,
-//                                 TWMinimumData);
-//
-//       /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
-//      if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//      {
-//         site = *si;
-//         F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
-//
-//         if(TI_FlashCOFEna)  
-//            F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
-//      } 
-//
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr3,0,final_results,GL_PLELL_FORMAT);
-//         IO.Print(IO.Stdout,"   TT ",timernread(ttimer1));
-//         IO.Print(IO.Stdout,"");
-//      } 
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info('',site_cof_inst_str,final_results);
-//      
-//       /*updated shell loaded*/
-//      GL_PREVIOUS_SHELL = 'FlashShell';
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         Devsetholdstates(final_results);
+//      PrintHeaderBool(GL_PLELL_FORMAT);
+//      PrintResultBool(tmpstr3,0,final_results,GL_PLELL_FORMAT);
+//      IO.Print(IO.Stdout,"   TT ",timernread(ttimer1));
+//      IO.Print(IO.Stdout,"");
 //   } 
-//
-//   F021_LoadFlashShell_func = v_any_dev_active;
-//}   /* F021_LoadFlashShell_func */
-//   
-//
-//void CmpTRealLULim(    FloatM test_val,
-//                            FloatS test_LLimit,
-//                            FloatS test_ULimit,
-//                            BoolM test_results)
-//{
-//   IntS site;
-//   BoolM results;
-//
-//   results = false;
-//   
-//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if(v_dev_active[site])  
-//         if((test_val[site]>=test_LLimit) and (test_val[site]<=test_ULimit))  
-//            results[site] = true;
-//   
-//   test_results = results;
-//}   /* CmpTRealLULim */
-//   
-//
+
+// :TODO: come back to the FlashCOFEna stuff
+//   if(TI_FlashCOFEna)  
+//      F021_Save_COF_Info('',site_cof_inst_str,final_results);
+   
+    /*updated shell loaded*/
+   GL_PREVIOUS_SHELL = "FlashShell";
+
+// do we need to worry about the TI_FlashCOFEna here?
+// or is this a flow-issue??
+//   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//      Devsetholdstates(final_results);
+
+   return pat_results;
+}   /* F021_LoadFlashShell_func */
+
 //BoolS F021_Meas_TPAD(    PinM TPAD,
 //                            IntS testnum,
 //                            BoolS Imeasure,
@@ -7535,253 +7599,242 @@ void F021_SetTestNum(IntS testnum)
 //
 //}   /* F021_Meas_TPAD */
 //   
-//
-//void F021_Set_TPADS(IntS TCRnum,
-//                         TPModeType TCRMode)
-//{
-//   site = *si;
-//   FloatS tdelay,iProg,vProg,vRange,vforce;
-//   IntS fdlen1,fdlen2;
-//   PinM tsupply;  /*PSSupplyName;*/
-//   IntS tpnum,special_opt;
-//   StringS str1;
-//   BoolS suppena;
-//   TPMeasType meastype;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         IO.Print(IO.Stdout,"");
-//
-//      if(tcrnum=52)  
-//        special_opt = 3;
-//      else
-//       special_opt = 0;
-//      
-//      for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
-//      {
-//         suppena = false;
-//         switch(tpnum) {
-//           case 1 :  
-//                  if(TCR.TP1_Ena[TCRnum])  
-//                   
-//                     meastype = TCR.TP1_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                      
-//                        vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                      
-//                     else
-//                      
-//                        vRange = TCR.TP1_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                      break; 
-//
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//                     tsupply  = FLTP1;
-//                     str1     = 'TP1';
-//                 if(special_opt=3)  
-//                        suppena = false;
-//                   else
-//                       suppena  = true;
-//                   break; 
-//                break; 
-//           case 2 :  
-//                  if(TCR.TP2_Ena[TCRnum])  
-//                   
-//                     meastype = TCR.TP2_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                      
-//                        vRange = 1.2*TCR.TP2_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                      
-//                     else
-//                      
-//                        vRange = TCR.TP2_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                      break; 
-//                        
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TP2_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TP2_IRange[TCRnum][TCRmode]);                        
-//                     tsupply  = FLTP2;
-//                     str1     = 'TP2';
-//                     suppena  = true;
-//                   break; 
-//               } 
-//#if $TP3_TO_TP5_PRESENT  
-//           3 : {
-//                  if(TCR.TP3_Ena[TCRnum])  
-//                  {
-//                     meastype = TCR.TP3_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                     {
-//                        vRange = 1.2*TCR.TP3_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                     }
-//                     else
-//                     {
-//                        vRange = TCR.TP3_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                     } 
-//
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TP3_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TP3_IRange[TCRnum][TCRmode]);
-//                     tsupply  = FLTP3;
-//                     str1     = 'TP3';
-//                     suppena  = true;
-//                  } 
-//               } 
-//           4 : {
-//                  if(TCR.TP4_Ena[TCRnum])  
-//                  {
-//                     meastype = TCR.TP4_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                     {
-//                        vRange = 1.2*TCR.TP4_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                     }
-//                     else
-//                     {
-//                        vRange = TCR.TP4_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                     } 
-//                     
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TP4_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TP4_IRange[TCRnum][TCRmode]);
-//                     tsupply  = FLTP4;
-//                     str1     = 'TP4';
-//                     suppena  = true;
-//                  } 
-//               } 
-//           5 : {
-//                  if(TCR.TP5_Ena[TCRnum])  
-//                  {
-//                     meastype = TCR.TP5_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                     {
-//                        vRange = 1.2*TCR.TP5_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                     }
-//                     else
-//                     {
-//                        vRange = TCR.TP5_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                     } 
-//                     
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TP5_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TP5_IRange[TCRnum][TCRmode]);
-//                     tsupply  = FLTP5;
-//                     str1     = 'TP5';
-//                     suppena  = true;
-//                  } 
-//               } 
-//#endif
-//#if $TADC_PRESENT  
-//           6 : {
-//                  if(TCR.TADC_Ena[TCRnum])  
-//                  {
-//                     meastype = TCR.TADC_MeasType[TCRnum];
-//                     if(meastype=MeasVoltType)  
-//                     {
-//                        vRange = 1.2*TCR.TADC_VRange[TCRnum][TCRmode];
-//                        vProg  = 0v;
-//                     }
-//                     else
-//                     {
-//                        vRange = TCR.TADC_VRange[TCRnum][TCRmode];
-//                        vProg  = vRange;
-//                     } 
-//
-//                     if(meastype=MeasCurrType)  
-//                        iProg = 1.2*abs(TCR.TADC_IRange[TCRnum][TCRmode]);
-//                     else
-//                        iProg = abs(TCR.TADC_IRange[TCRnum][TCRmode]);
-//                     tsupply  = P_TADC;
-//                     str1     = 'TADC';
-//                     suppena  = true;
-//                  } 
-//               } 
-//#endif
-//         }   /* case */
-//
-//         if(suppena)  
-//         {
-//            STDSetVRange(tsupply,vRange);
-//            if(not STDGetConnect(tsupply))  
-//           stdConnect(tsupply);
-//            STDSetVI(tsupply,vProg,iProg);
-//            if(tistdscreenprint and TI_FlashDebug)  
-//            {
-//               fdlen1 = 5;
-//               fdlen2 = 3;
-//               IO.Print(IO.Stdout,"Setting TPADs --  TCR ",tcrnum:-fdlen1);
-//               IO.Print(IO.Stdout,str1:-fdlen1," Vprog = ",vProg:-fdlen1:fdlen2,
-//                       ' VRange = ',vRange:-fdlen1:fdlen2,
-//                       ' Iprog = ',iProg:-fdlen1:fdlen2);
-//            } 
-//         }   /*if suppena*/
-//      }   /*for tpnum*/
-//
-//      if(special_opt=3)  
-//      {
-//   if(TCR.TP1_Ena[TCRnum])  
-//  {
-//           meastype = TCR.TP1_MeasType[TCRnum];
-//         if(meastype=MeasVoltType)  
-//          {
-//           vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRmode];
-//           vProg  = 0v;
-//            }
-//           else
-//          {
-//               vRange = TCR.TP1_VRange[TCRnum][TCRmode];
-//               vProg  = vRange;
-//           } 
-//       
-//         if(meastype=MeasCurrType)  
-//        iProg = 1.2*abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//           else
-//           iProg = abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//      tsupply  = FLTP1;
-//      str1     = 'TP1';
-//       suppena  = true;
-//   } 
-//
-//       if(suppena)  
-//         {
-//            STDSetVRange(tsupply,vRange);
-//            STDSetVI(tsupply,vProg,iProg);
-//            if(tistdscreenprint and TI_FlashDebug)  
-//            {
-//               fdlen1 = 5;
-//               fdlen2 = 3;
-//               IO.Print(IO.Stdout,"Setting TPADs --  TCR ",tcrnum:-fdlen1);
-//               IO.Print(IO.Stdout,str1:-fdlen1," Vprog = ",vProg:-fdlen1:fdlen2,
-//                       ' VRange = ',vRange:-fdlen1:fdlen2,
-//                       ' Iprog = ',iProg:-fdlen1:fdlen2);
-//            } 
-//         }   /*if suppena*/
-//      }   /*special_opt=3*/
-//      
-//      tdelay = 10us;
-//      TIME.Wait(tdelay);
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         IO.Print(IO.Stdout,"");
-//   } 
-//}   /* F021_Set_TPADS */
-//      
-//
+
+void F021_Set_TPADS(IntS TCRnum,
+                         TPModeType TCRMode)
+{
+   FloatS tdelay,iProg,vProg,vRange,vforce;
+   PinM tsupply;  /*PSSupplyName;*/
+   IntS tpnum,special_opt;
+   StringS str1;
+   BoolS suppena;
+   TPMeasType meastype;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      IO.Print(IO.Stdout,"\n");
+
+   if(TCRnum=52)  
+     special_opt = 3;
+   else
+     special_opt = 0;
+   
+   for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
+   {
+      suppena = false;
+      switch(tpnum) {
+        case 1 :  
+               if(TCR.TP1_Ena[TCRnum]) 
+               {
+                  meastype = TCR.TP1_MeasType[TCRnum];
+                  if(meastype==MeasVoltType) 
+                  {
+                     vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else
+                  { 
+                     vRange = TCR.TP1_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  }
+
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+                  tsupply  = FLTP1;
+                  str1     = "TP1";
+                  if(special_opt=3)  
+                     suppena = false;
+                  else
+                     suppena  = true;
+               }
+               break; 
+        case 2 :  
+               if(TCR.TP2_Ena[TCRnum])  
+               { 
+                  meastype = TCR.TP2_MeasType[TCRnum];
+                  if(meastype==MeasVoltType)  
+                  { 
+                     vRange = 1.2*TCR.TP2_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  } 
+                  else
+                  { 
+                     vRange = TCR.TP2_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  } 
+                     
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));                        
+                  tsupply  = FLTP2;
+                  str1     = "TP2";
+                  suppena  = true;
+                }
+                break;  
+#if $TP3_TO_TP5_PRESENT  
+        case 3 : 
+               if(TCR.TP3_Ena[TCRnum])  
+               {
+                  meastype = TCR.TP3_MeasType[TCRnum];
+                  if(meastype==MeasVoltType)  
+                  {
+                     vRange = 1.2*TCR.TP3_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else
+                  {
+                     vRange = TCR.TP3_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  } 
+
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MTH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
+                  tsupply  = FLTP3;
+                  str1     = "TP3";
+                  suppena  = true;
+               } 
+               break; 
+        4 :
+               if(TCR.TP4_Ena[TCRnum])  
+               {
+                  meastype = TCR.TP4_MeasType[TCRnum];
+                  if(meastype==MeasVoltType)  
+                  {
+                     vRange = 1.2*TCR.TP4_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else
+                  {
+                     vRange = TCR.TP4_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  } 
+                  
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
+                  tsupply  = FLTP4;
+                  str1     = "TP4";
+                  suppena  = true;
+               } 
+               break;
+        5 : 
+               if(TCR.TP5_Ena[TCRnum])  
+               {
+                  meastype = TCR.TP5_MeasType[TCRnum];
+                  if(meastype==MeasVoltType)  
+                  {
+                     vRange = 1.2*TCR.TP5_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else
+                  {
+                     vRange = TCR.TP5_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  } 
+                  
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
+                  tsupply  = FLTP5;
+                  str1     = "TP5";
+                  suppena  = true;
+               } 
+               break;
+#endif
+#if $TADC_PRESENT  
+        6 : 
+               if(TCR.TADC_Ena[TCRnum])  
+               {
+                  meastype = TCR.TADC_MeasType[TCRnum];
+                  if(meastype==MeasVoltType)  
+                  {
+                     vRange = 1.2*TCR.TADC_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else
+                  {
+                     vRange = TCR.TADC_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  } 
+
+                  if(meastype==MeasCurrType)  
+                     iProg = 1.2*MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
+                  else
+                     iProg = MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
+                  tsupply  = P_TADC;
+                  str1     = "TADC";
+                  suppena  = true;
+               } 
+               break; 
+#endif
+      }   /* case */
+
+      if(suppena)  
+      {
+         if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
+         { 
+            STDConnect(tsupply);
+         }
+         STDSetVI(tsupply, vProg, iProg, vRange);
+         if(tistdscreenprint and TI_FlashDebug)  
+         {
+            IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
+            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f",str1, 
+                     vProg,vRange,iProg);
+         } 
+      }   /*if suppena*/
+   }   /*for tpnum*/
+
+   if(special_opt==3)  
+   {
+      if(TCR.TP1_Ena[TCRnum])  
+      {
+         meastype = TCR.TP1_MeasType[TCRnum];
+         if(meastype==MeasVoltType)  
+         {
+            vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRMode];
+            vProg  = 0V;
+         }
+         else
+         {
+            vRange = TCR.TP1_VRange[TCRnum][TCRMode];
+            vProg  = vRange;
+         } 
+    
+         if(meastype==MeasCurrType)  
+            iProg = 1.2*MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+         else
+            iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+         tsupply  = FLTP1;
+         str1     = "TP1";
+         suppena  = true;
+      } 
+
+      if(suppena)  
+      {
+         STDSetVI(tsupply, vProg, iProg, vRange);
+         if(tistdscreenprint and TI_FlashDebug)  
+         {
+            IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
+            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f",str1, 
+                     vProg,vRange,iProg);
+         } 
+      }   /*if suppena*/
+   }   /*special_opt=3*/
+   
+   tdelay = 10us;
+   TIME.Wait(tdelay);
+   if(tistdscreenprint and TI_FlashDebug)  
+      IO.Print(IO.Stdout,"\n");
+}   /* F021_Set_TPADS */
+      
+
 //void F021_Set_TPADS_ByOrder(IntS TCRnum,
 //                                 TPModeType TCRMode,
 //                                 BoolS rampup)
@@ -8120,30 +8173,28 @@ void F021_SetTestNum(IntS testnum)
 //   } 
 //}   /* F021_UnSet_TPADS */
 //   
-//
-//void F021_TurnOff_AllTPADS()
-//{
-//   FloatS tdelay;
-//
-//   if(v_any_dev_active)  
-//   {
-//      STDSetVI(FLTP1,0v,1ma);
-//      STDSetVI(FLTP2,0v,1ma);
-//#if $TP3_TO_TP5_PRESENT  
-//      STDSetVI(FLTP3,0v,1ma);
-//      STDSetVI(FLTP4,0v,1ma);
-//      STDSetVI(FLTP5,0v,1ma);
-//#endif
-//#if $TADC_PRESENT  
-//      STDSetVI(P_TADC,0v,1ma);
-//#endif
-//      
-//      tdelay = 2ms;
-//      TIME.Wait(tdelay);
-//   } 
-//}   /* F021_TurnOff_AllTPADS */
-//   
-//
+
+void F021_TurnOff_AllTPADS()
+{
+   FloatS tdelay;
+
+   STDSetVI(FLTP1,0V,1mA);
+   STDSetVI(FLTP2,0V,1mA);
+#if $TP3_TO_TP5_PRESENT  
+   STDSetVI(FLTP3,0V,1mA);
+   STDSetVI(FLTP4,0V,1mA);
+   STDSetVI(FLTP5,0V,1mA);
+#endif
+#if $TADC_PRESENT  
+   STDSetVI(P_TADC,0V,1mA);
+#endif
+      
+   tdelay = 2ms;
+   TIME.Wait(tdelay);
+   
+}   /* F021_TurnOff_AllTPADS */
+   
+
 //void F021_Ramp_TPAD(PinM TPAD,
 //                         FloatS rampstart,
 //                         FloatS rampstop,
@@ -8235,157 +8286,169 @@ void F021_SetTestNum(IntS testnum)
 //      
 //   }   /*if v_any_dev_active*/
 //}   /* F021_Ramp_TPAD */
-//   
-//   
-//BoolS F021_Meas_TPAD_PMEX(    PinM TPAD,
-//                                 IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 FloatS test_llim,
-//                                 FloatS test_ulim,
-//                                 FloatM Meas_Value,
-//                                 BoolM Test_results)
-//{
-//   option read_opt;
-//   PinM tsupply;
-//   BoolM final_results,tmp_results;
-//   FloatS ulim,llim,tmpval,tdelay;
-//   BoolS validsupp,validpgm;
-//   IntS count,site;
-//   FloatS vProg, iProg;
-//   option iGainMode,pgmMode;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      validsupp = false;
-//      tsupply = TPAD;
-//      
-//      if((TPAD=FLTP1) and TCR.TP1_Ena[TCRnum] and
-//         ((TCR.TP1_MeasType[TCRnum]=MeasCurrType) or (TCR.TP1_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TP1_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TP1_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      }
-//      else if((TPAD=FLTP2) and TCR.TP2_Ena[TCRnum] and
-//         ((TCR.TP2_MeasType[TCRnum]=MeasCurrType) or (TCR.TP2_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TP2_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TP2_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      } 
-//      
-//      if(not validsupp)  
-//      {
-//       
-//#if $TP3_TO_TP5_PRESENT  
-//      if((TPAD=FLTP3) and TCR.TP3_Ena[TCRnum] and
-//         ((TCR.TP3_MeasType[TCRnum]=MeasCurrType) or (TCR.TP3_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TP3_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TP3_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      }
-//      else if((TPAD=FLTP4) and TCR.TP4_Ena[TCRnum] and
-//         ((TCR.TP4_MeasType[TCRnum]=MeasCurrType) or (TCR.TP4_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TP4_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TP4_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      }
-//      else if((TPAD=FLTP5) and TCR.TP5_Ena[TCRnum] and
-//         ((TCR.TP5_MeasType[TCRnum]=MeasCurrType) or (TCR.TP5_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TP5_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TP5_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      } 
-//#endif
-//      } 
-//      
-//      if(not validsupp)  
-//      {
-//       
-//#if $TADC_PRESENT  
-//      if((TPAD=P_TADC) and TCR.TADC_Ena[TCRnum] and
-//         ((TCR.TADC_MeasType[TCRnum]=MeasCurrType) or (TCR.TADC_MeasType[TCRnum]=MeasVoltType)))  
-//      {
-//         if(TCR.TADC_MeasType[TCRnum]=MeasCurrType)  
-//            read_opt = S_CURRENT;
-//         else if(TCR.TADC_MeasType[TCRnum]=MeasVoltType)  
-//            read_opt = S_VOLTAGE;
-//         validsupp = true;
-//      } 
-//#endif
-//      } 
-//
-//      if(validsupp)  
-//      {
-//         final_results = v_dev_active;
-//         count = 10;
-//         ulim = test_ulim;
-//         llim = test_llim;
-//
-//         switch(read_opt) {
-//           case S_Current : STDMeasI(tsupply,count,Meas_Value);
-//           case S_Voltage : STDMeasV(tsupply,count,Meas_Value);
-//         }   /* case */
-//
-//         CmpTRealLULim(Meas_Value,llim,ulim,tmp_results);
-//
-//         debugprint = false;
-//         if(debugprint and tistdscreenprint)  
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//                  IO.Print(IO.Stdout,"Site ",site:5," Meas_Value=",meas_value[site]:5:3);
-//
-// /* KChau - temp commented out since stdmeas doesn't have get vrange stment         
-//          {check make sure supply is proper pgmed}
-//          for site := 1 to v_sites do
-//             if(v_dev_active[site]) then
-//             begin
-//                STDGetVI(tsupply,vProg,iProg);
-//                case read_opt of
-//                  S_Current : tmpval := iProg;
-//                  S_Voltage : tmpval := vProg;
-//                end; { case }
-//                
-//                if(ulim > tmpval) then
-//                begin
-//                   validpgm := false;
-//                   if(tistdscreenprint) then
-//                      writeln(tiwindow,'*** WARNING: ULim is greater than clamp value ***');
-//                end
-//                else
-//                   validpgm := true;
-//                break;
-//             end;
-// 
-//          if(not validpgm) then
-//             ArraySetBoolean(tmp_results,false);
-//          */
-//                     
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//         Test_results = final_results;
-//      }   /*if validsupp*/
-//      
-//   }   /*v_any_dev_active*/
-//
-//   F021_Meas_TPAD_PMEX = V_any_dev_active;
-//
-//}   /* F021_Meas_TPAD_PMEX */
-//   
-//   
+   
+   
+TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
+                                 IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 FloatS test_llim,
+                                 FloatS test_ulim,
+                                 FloatM &Meas_Value)
+{
+   BoolS read_voltage;
+   PinM tsupply;
+   TMResultM final_results;
+   FloatS ulim,llim;
+   BoolS validsupp,validpgm;
+   UnsignedS count;
+   BoolS debugprint;
+   FloatM Sim_Value;
+   
+   if (SYS.TesterSimulated()) {
+      if ((test_llim != UTL_VOID) && (test_ulim != UTL_VOID))
+      {
+         Sim_Value = (test_ulim - test_llim) / 2. + test_llim;
+      } 
+      else if (test_llim != UTL_VOID) 
+      {
+         Sim_Value = test_llim + MATH.Abs(test_llim) / 10.; // create passing sim value
+      }
+      else
+      {
+         Sim_Value = test_ulim - MATH.Abs(test_ulim) / 10.;
+      }
+   }
+
+   validsupp = false;
+   tsupply = TPAD;
+   
+   if((TPAD==FLTP1) and TCR.TP1_Ena[TCRnum] and
+      ((TCR.TP1_MeasType[TCRnum]==MeasCurrType) or (TCR.TP1_MeasType[TCRnum]==MeasVoltType)))  
+   {
+      if(TCR.TP1_MeasType[TCRnum]==MeasCurrType)  
+         read_voltage = false;
+      else if(TCR.TP1_MeasType[TCRnum]==MeasVoltType)  
+         read_voltage = true;
+      validsupp = true;
+   }
+   else if((TPAD==FLTP2) and TCR.TP2_Ena[TCRnum] and
+      ((TCR.TP2_MeasType[TCRnum]==MeasCurrType) or (TCR.TP2_MeasType[TCRnum]==MeasVoltType)))  
+   {
+      if(TCR.TP2_MeasType[TCRnum]==MeasCurrType)  
+         read_voltage = false;
+      else if(TCR.TP2_MeasType[TCRnum]==MeasVoltType)  
+         read_voltage = true;
+      validsupp = true;
+   } 
+   
+   if(not validsupp)  
+   {
+    
+#if $TP3_TO_TP5_PRESENT  
+      if((TPAD==FLTP3) and TCR.TP3_Ena[TCRnum] and
+         ((TCR.TP3_MeasType[TCRnum]==MeasCurrType) or (TCR.TP3_MeasType[TCRnum]==MeasVoltType)))  
+      {
+         if(TCR.TP3_MeasType[TCRnum]==MeasCurrType)  
+            read_voltage = false;
+         else if(TCR.TP3_MeasType[TCRnum]==MeasVoltType)  
+            read_voltage = true;
+         validsupp = true;
+      }
+      else if((TPAD==FLTP4) and TCR.TP4_Ena[TCRnum] and
+         ((TCR.TP4_MeasType[TCRnum]==MeasCurrType) or (TCR.TP4_MeasType[TCRnum]==MeasVoltType)))  
+      {
+         if(TCR.TP4_MeasType[TCRnum]==MeasCurrType)  
+            read_voltage = false;
+         else if(TCR.TP4_MeasType[TCRnum]==MeasVoltType)  
+            read_voltage = true;
+         validsupp = true;
+      }
+      else if((TPAD==FLTP5) and TCR.TP5_Ena[TCRnum] and
+         ((TCR.TP5_MeasType[TCRnum]==MeasCurrType) or (TCR.TP5_MeasType[TCRnum]==MeasVoltType)))  
+      {
+         if(TCR.TP5_MeasType[TCRnum]==MeasCurrType)  
+            read_voltage = false;
+         else if(TCR.TP5_MeasType[TCRnum]==MeasVoltType)  
+            read_voltage = true;
+         validsupp = true;
+      } 
+#endif
+   } 
+   
+   if(not validsupp)  
+   {
+    
+#if $TADC_PRESENT  
+      if((TPAD==P_TADC) and TCR.TADC_Ena[TCRnum] and
+         ((TCR.TADC_MeasType[TCRnum]==MeasCurrType) or (TCR.TADC_MeasType[TCRnum]==MeasVoltType)))  
+      {
+         if(TCR.TADC_MeasType[TCRnum]==MeasCurrType)  
+            read_voltage = false;
+         else if(TCR.TADC_MeasType[TCRnum]==MeasVoltType)  
+            read_voltage = true;
+         validsupp = true;
+      } 
+#endif
+   } 
+
+   if(validsupp)  
+   {
+      count = 10;
+      ulim = test_ulim;
+      llim = test_llim;
+
+      if (read_voltage) 
+      {
+         STDMeasV(tsupply, count, Meas_Value, Sim_Value);
+      } else {
+         STDMeasI(tsupply, count, Meas_Value, Sim_Value);
+      }
+
+      // use DLOG.Value to do the limit comparison - set DLOGEnable to false
+      // so it doesn't go the datalog stream, however.
+      final_results = DLOG.Value(tsupply, Meas_Value, llim, ulim, UTL_VOID, UTL_VOID, 
+                                 UTL_VOID, UTL_VOID, UTL_VOID, ER_PASS, false);
+
+      // since other messages go to stdout and not the datalog stream buffer, we
+      // should probably keep the debug data here in stdout instead of using 
+      // the datalog stream from DLOG.Value.
+      debugprint = false;
+      if(debugprint and tistdscreenprint)  
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            cout << "Site " << *si << " Meas_Value=" << Meas_Value[*si] << endl;
+
+/* KChau - temp commented out since stdmeas doesn't have get vrange stment         
+       {check make sure supply is proper pgmed}
+       for site := 1 to v_sites do
+          if(v_dev_active[site]) then
+          begin
+             STDGetVI(tsupply,vProg,iProg);
+             case read_opt of
+               S_Current : tmpval := iProg;
+               S_Voltage : tmpval := vProg;
+             end; { case }
+             
+             if(ulim > tmpval) then
+             begin
+                validpgm := false;
+                if(tistdscreenprint) then
+                   writeln(tiwindow,'*** WARNING: ULim is greater than clamp value ***');
+             end
+             else
+                validpgm := true;
+             break;
+          end;
+
+       if(not validpgm) then
+          ArraySetBoolean(tmp_results,false);
+       */
+   }   /*if validsupp*/
+
+   return final_results;
+
+}   /* F021_Meas_TPAD_PMEX */
+   
+   
  /*execute tnumber w/ pmex enable and remain w/o disable pmex*/
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
                                      FloatS maxtimeout)
@@ -13439,202 +13502,198 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   } 
 //}   /* RAM_Upload_PMOS_TrimCode */
 //
-//
-//
-//BoolS F021_Pump_Para_func(    IntS start_testnum,
-//                                 prepostcorner prepost_type,
-//                                 VCornerType vcorner_type,
-//                                 IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolM test_results)
-//{
-//   site = *si;
-//   FloatS tdelay,maxtime;
-//   BoolM savesites,logsites,rtest_results;
-//   BoolM tmp_results,final_results;
-//   IntS site,length;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname,first_tname;
-//   IntS testnum,pattype;
-//   IntS tpnum,tpstart,tpstop,tpcount;
-//   prepostcorner prepost;
-//   PinM testpad,testpad2;
-//   FloatM meas_value;
-//   BoolS x64soft;
-//   StringM site_cof_inst_str;
-//   BoolS done,once,ovride_lim,parmena;
-//   FloatS ovride_llim,ovride_ulim;
-//   FloatS llim,ulim;
-//   vcornertype vcorner;
-//   BoolS binout_ena;
-//
-//   parmena = false;
-//   binout_ena = false;
-//   vcorner = vcorner_type;
-//   
-//   if(v_any_dev_active)  
-//   {
-//      tpstart = 0;
-//      tpstop  = 0;
-//      for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
-//         if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRmode][tpnum])  
-//         {
-//            if(not parmena)  
-//               parmena = true;
-//            if(tpstart=0)  
-//               tpstart = tpnum;
-//            tpstop = tpnum;
-//         } 
-//      if(tpstart=0)  
-//         tpstop = -1;
-//   } 
-//
-//   if(V_any_dev_active and parmena)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         IO.Print(IO.Stdout,"+++++ F021_Pump_Para_func +++++");
-//
-//#if $TP3_TO_TP5_PRESENT  
-//      if(TCRnum=115)  
-//         STDDisconnect(FLTP3);
-//#endif
-//      
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay  = 10ms;
-//      testnum = start_testnum;
-//      
-//      timernstart(ttimer1);      
-//
-//      savesites = V_dev_active;
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//      rtest_results = V_dev_active;
-//
-//      prepost = prepost_type;
-//
-//      once = false;
-//      first_tname = NULL_TestName;
-//
-//      for (tpnum = tpstart;tpnum <= tpstop;tpnum++)
-//      {
-//         if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
-//         {
-//            timernstart(ttimer2);
+
+
+BoolS F021_Pump_Para_func(    IntS start_testnum,
+                                 prepostcorner prepost_type,
+                                 VCornerType vcorner_type,
+                                 IntS TCRnum,
+                                 TPModeType TCRMode, 
+                                 TMResultM test_results)
+{
+   FloatS tdelay,maxtime;
+   TMResultM final_results, rtest_results, tmp_results;
+   IntS length;
+   FloatS ttimer2_start, ttimerS;
+   FloatM tt_timer;
+   StringS test_name,tw_name, dlog_comment;
+   StringS unitval;
+   StringS fl_testname;
+   IntS testnum,pattype;
+   IntS tpnum,tpstart,tpstop,tpcount;
+   prepostcorner prepost;
+   PinM testpad,testpad2;
+   FloatM meas_value;
+   StringM site_cof_inst_str;
+   BoolS done,once,ovride_lim,parmena;
+   FloatS llim,ulim;
+   VCornerType vcorner;
+   Sites savesites;
+   int int_site;
+
+   parmena = false;
+   vcorner = vcorner_type;
+   
+   tpstart = 0;
+   tpstop  = 0;
+   for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
+      if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
+      {
+         if(!parmena)  
+            parmena = true;
+         if(tpstart==0)  
+            tpstart = tpnum;
+         tpstop = tpnum;
+      } 
+   if(tpstart=0)  
+      tpstop = -1;
+
+   if(parmena)  
+   {
+      if(tistdscreenprint and TI_FlashDebug)  
+         IO.Print(IO.Stdout,"+++++ F021_Pump_Para_func +++++");
+
+#if $TP3_TO_TP5_PRESENT  
+      if(TCRnum=115) 
+      {
+         VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
+         VI.Disconnect(FLTP3);
+      }
+#endif
+      
+      maxtime = GL_F021_PARAM_MAXTIME;
+      tdelay  = 10ms;
+      testnum = start_testnum;
+      
+      TIME.StartTimer(); //ttimer1
+
+      savesites = ActiveSites;
+
+      prepost = prepost_type;
+
+      once = false;
+
+      for (tpnum = tpstart;tpnum <= tpstop;tpnum++)
+      {
+         if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
+         {
+            ttimer2_start = TIME.GetTimer();
 //            logsites = v_dev_active;
-//            
-//            fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRMode][tpnum][prepost][vcorner];
-//            writestring(tmpstr1,fl_testname);
-//            length = len(tmpstr1);
-//            writestring(tmpstr1,mid(tmpstr1,2,length-6));
-//
+            
+            fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRMode][tpnum][prepost][vcorner];
+            length = fl_testname.Length();
+            // strip off _Test
+            test_name = fl_testname.Substring(0,length-5); // don't know why VLCT started at 2 must be something w/ their naming
+
 //            TestOpen(fl_testname);
-//            
+  
+   // :TODO: come back and fix the print headers
 //            if(tistdscreenprint)  
 //               PrintHeaderParam(GL_PLELL_FORMAT);
-//         
+         
+   // :TODO: come back and do this, it's an OpVar...for now we'll say it's false and move on
 //            if(TI_FlashCOFEna)  
 //               F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//            if(not once)  
-//            {
-//               F021_Set_TPADS(tcrnum,tcrmode);
-//               F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//               TIME.Wait(tdelay);
-//               if(tcrnum=0)  
-//                  TIME.Wait(2*tdelay);
-//               once = true;
-//            } 
-//            
-//            switch(tpnum) {
-//              case 1 :  
-//                     testpad = FLTP1;
-//                     llim = TCR.TP1_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TP1_ULim[TCRnum][TCRMode];
-//                   break; 
-//              case 2 :  
-//                     testpad = FLTP2;
-//                     llim = TCR.TP2_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TP2_ULim[TCRnum][TCRMode];
-//                   break; 
-//#if $TP3_TO_TP5_PRESENT  
-//              case 3 :  
-//                     testpad = FLTP3;
-//                     llim = TCR.TP3_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TP3_ULim[TCRnum][TCRMode];
-//                   break; 
-//              case 4 :  
-//                     testpad = FLTP4;
-//                     llim = TCR.TP4_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TP4_ULim[TCRnum][TCRMode];
-//                   break; 
-//              case 5 :  
-//                     testpad = FLTP5;
-//                     llim = TCR.TP5_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TP5_ULim[TCRnum][TCRMode];
-//                   break; 
-//#endif
-//#if $TADC_PRESENT  
-//              case 6 :  
-//                     testpad = P_TESTADC;
-//                     llim = TCR.TADC_LLim[TCRnum][TCRMode];
-//                     ulim = TCR.TADC_ULim[TCRnum][TCRMode];
-//                   break; 
-//#endif
-//            }   /*case tpnum*/
-//
-//            TIME.Wait(tdelay);
-//            discard(F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,
-//                    llim,ulim,meas_value,tmp_results));
-//
-//            ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-//         
-//             /*store/copy to global var vhv params*/
-//            if(TCRnum=0)  
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                     TPAD_LEAK_VALUE[TCRMode][prepost][tpnum][site] = meas_value[site];
-//            }
-//            else if(((TCRnum=115) or (TCRnum=120)) and (vcorner=VMN) and (testpad=FLTP1))  
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                     PUMP_PARA_VALUE[TCRMode][prepost][site] = meas_value[site];
-//            
-//            ttimer2 = timernread(ttimer2);
-//            tt_timer = ttimer2;
-//            
-//             /*log to TW*/
-//            tmpstr3 = tmpstr1;
-//            tmpstr4 = tmpstr3 + '_TT';
-//            TWTRealToRealMS(tt_timer,realval,unitval);
-//            TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//            tmpstr4 = tmpstr3;
-//            TWTRealToRealMS(meas_value,realval,unitval);
-//            TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//            
-//            if(tistdscreenprint)  
-//               PrintResultParam(tmpstr3,testnum,tmp_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
-//            
-//             /*bin out on post meas/efuse trim only*/
-//            if((prepost = post) and (PUMP_BANK_PARA_BINOUT[TCRnum][TCRMode][tpnum]))then
-//            {
-//               site = *si;
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               ResultsRecordActive(final_results, S_NULL);
-//                /*if(first_tname=NULL_TestName) then
-//                begin
-//                   first_tname := fl_testname;        
-//                   binout_ena := true;
-//                end;*/
-//               
-//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//               {
-//                  site = *si;
+
+            if(not once)  
+            {
+               F021_Set_TPADS(TCRnum,TCRMode);
+               rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+               TIME.Wait(tdelay);
+               if(TCRnum=0)  
+                  TIME.Wait(2*tdelay);
+               once = true;
+            } 
+            
+            switch(tpnum) {
+              case 1 :  
+                     testpad = FLTP1;
+                     llim = TCR.TP1_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TP1_ULim[TCRnum][TCRMode];
+                   break; 
+              case 2 :  
+                     testpad = FLTP2;
+                     llim = TCR.TP2_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TP2_ULim[TCRnum][TCRMode];
+                   break; 
+#if $TP3_TO_TP5_PRESENT  
+              case 3 :  
+                     testpad = FLTP3;
+                     llim = TCR.TP3_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TP3_ULim[TCRnum][TCRMode];
+                   break; 
+              case 4 :  
+                     testpad = FLTP4;
+                     llim = TCR.TP4_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TP4_ULim[TCRnum][TCRMode];
+                   break; 
+              case 5 :  
+                     testpad = FLTP5;
+                     llim = TCR.TP5_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TP5_ULim[TCRnum][TCRMode];
+                   break; 
+#endif
+#if $TADC_PRESENT  
+              case 6 :  
+                     testpad = P_TESTADC;
+                     llim = TCR.TADC_LLim[TCRnum][TCRMode];
+                     ulim = TCR.TADC_ULim[TCRnum][TCRMode];
+                   break; 
+#endif
+            }   /*case tpnum*/
+
+            TIME.Wait(tdelay);
+
+            tmp_results = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode,
+                           llim,ulim,meas_value);
+
+            tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
+         
+             /*store/copy to global var vhv params*/
+            if(TCRnum==0)  
+            {
+               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               {
+                  // site enum doesn't work like others, evidently, have
+                  // to explicitly convert to int here to use as index
+                  // remember, array starts at 0
+                  int_site = int(*si);
+                  TPAD_LEAK_VALUE[TCRMode][prepost][tpnum][*si] = meas_value[*si];
+               }
+            }
+            else if(((TCRnum==115) || (TCRnum==120)) && (vcorner==VMN) && (testpad==FLTP1))  
+               PUMP_PARA_VALUE.SetValue(TCRMode, prepost, meas_value);
+
+
+            ttimerS = TIME.GetTimer() - ttimer2_start;
+            tt_timer = ttimerS;
+            
+             /*log test time to TW*/
+            tw_name = test_name + "_TT";
+            unitval = "s";
+            TWPDLDataLogRealVariable(tw_name, unitval, tt_timer,TWMinimumData);
+
+            unitval = meas_value.GetUnits(); // V or A set during F021_Meas_TPAD_PMEX
+
+// making this a TIDLOG statement...was a separate TWPDL call and a 'Print Result Param'
+// Also...why is the test done inside F021_Meas_TPAD_PMEX and not here...do we want 
+// to double-test?? :TODO: Check if F021_Meas_TPAD_PMEX is always called with a 
+// print and twpdl afterwards...if so, remove the 'test' portion from F021_Meas_TPAD_PMEX
+// and have it just return the measurement            
+            IO.Print(dlog_comment, "F021_Pump_Para_func testnum is %x.\n", testnum);
+            DLOG.Text(dlog_comment);
+            TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, 
+                         UTL_VOID, true, TWMinimumData);
+            
+             /*bin out on post meas/efuse trim only*/
+            if((prepost == post) && (PUMP_BANK_PARA_BINOUT[TCRnum][TCRMode][tpnum]))
+            {
+               final_results = tmp_results; // no need for and, only works on active sites
+
+               // if any site has failed
+               if(final_results.AnyEqual(TM_FAIL))  
+               {
+               // :TODO: come back and fix this stuff
 //                  F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
 //                  if(TI_FlashCOFEna)  
 //                  {
@@ -13642,50 +13701,50 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
 //                     F021_Save_COF_Info('',site_cof_inst_str,tmp_results);
 //                  } 
-//               } 
-//               
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                  Devsetholdstates(final_results);
-//            }
-//            else
-//               ResultsRecordActive(savesites, S_NULL);
-//            
-//            TestClose;
-//            
-//            if(tistdscreenprint)  
-//               IO.Print(IO.Stdout,"   TT ",ttimer2);
-//         }   /*if pump_para_enable*/
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for tpnum*/
-//
+               } 
+               
+               if(IsFastBinning && (!TI_FlashCOFEna))  
+                  ActiveSites.DisableFailingSites(final_results == TM_PASS);
+            }
+            
+            if(tistdscreenprint)  
+               cout << "   TT " << ttimerS << endl;
+         }   /*if pump_para_enable*/
+
+         if(ActiveSites.GetNumSites() == 0)  
+            break;
+      }   /*for tpnum*/
+
 //      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//
-//       /*devsetholdstates(savesites);*/
-//
-//      if(v_any_dev_active and TI_FlashDebug)  
+      F021_TurnOff_AllTPADS();
+
+       /*devsetholdstates(savesites);*/
+
+// :TODO: come back and fix this, skipped for now b/c debug 
+//      if((ActiveSites.GetNumSites() > 0) && TI_FlashDebug)  
 //      {
 //          /*check for valid tnum and re-binning any fail*/
 //         Check_RAM_TNUM(testnum,tmp_results);
 //      }   /*v_any_dev_active*/
-//
-//      if(tistdscreenprint)  
-//      {
-//         ttimer1 = timernread(ttimer1);
-//         IO.Print(IO.Stdout,"F021_Pump_Para_func  TT ",ttimer1);
-//         IO.Print(IO.Stdout,"");
-//      } 
-//      
-//      test_results = final_results;
-//      
-//   }   /*if v_any_dev_active and parmena*/
-//
-//   F021_Pump_Para_func = V_any_dev_active;
-//}   /*F021_Pump_Para_func*/
-//
-//
+
+      tt_timer = TIME.StopTimer();
+      if(tistdscreenprint)  
+      {
+         IO.Print(IO.Stdout,"F021_Pump_Para_func  TT ",tt_timer);
+         IO.Print(IO.Stdout,"");
+      } 
+      
+      // want to turn on any sites that we turned off during the loop 
+      // so that results get reported
+      RunTime.SetActiveSites(savesites);
+      test_results = final_results;
+      
+   }   /*if parmena*/
+
+   return (true);
+}   /*F021_Pump_Para_func*/
+
+
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
 //                                 prepostcorner prepost_type,
 //                                 VCornerType vcorner,
@@ -26228,21 +26287,20 @@ void F021_InitFLEfuseStr()
    if(tistdscreenprint and debugprint)  
       IO.Print(IO.Stdout,"INIT FLASH EFUSE STRING LSB-MSB : MAIN/BANK\n");
 
-   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   BANK_EFSTR = "";
+   MAINBG_EFSTR = "";
+   for (maxbank = 0; maxbank <= F021_Flash.MAXBANK; ++maxbank) 
    {
-      site = *si;
-      BANK_EFSTR[site] = "";
-       /*lsb-msb*/
-      for (maxbank = 0;maxbank <= F021_Flash.MAXBANK;maxbank++)
-         BANK_EFSTR[site] = BANK_EFSTR[site] + tmpstr1;
-
-       /*--- HDPUMP ---*/
-      MAINBG_EFSTR[site] = "";
-      MAINBG_EFSTR[site] = MAINBG_EFSTR[site] + hdpstr;
-      MAINBG_EFSTR_SHORT[site] = "000000";
+      BANK_EFSTR += tmpstr1;
+      BANK_EFSTR += hdpstr;
+      MAINBG_EFSTR_SHORT = "000000";
+   }    
       
-      if(tistdscreenprint and debugprint)  
+   if(tistdscreenprint and debugprint)  
+   {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       {
+         site = *si;
          cout << "Site :  " << site << endl;
          IO.Print(IO.Stdout,"%s\n", BANK_EFSTR[site]);
          IO.Print(IO.Stdout,"%s\n", MAINBG_EFSTR[site]);
@@ -26341,44 +26399,43 @@ void F021_InitFLEfuseStr()
 //      } 
 //   } 
 //}   /* RAM_Upload_SoftTrim */
-//
-//
+
+
 //void RAM_Clear_SoftTrim_All()
 //{
-//   site = *si;
-//   IntS site,addr_loc,trimenakey,i;
+//   SITE site;
+//   IntS addr_loc,i;
 //   IntM msw_data,lsw_data;
 //   BoolS bcd_format,hexvalue;
 //   BoolS debugprint;
 //
-//   if(v_any_dev_active)  
+//   if(tistdscreenprint)  
+//      IO.Print(IO.Stdout,"+++++ RAM_Clear_SoftTrim_All +++++");
+//
+//   bcd_format  = true;
+//   hexvalue    = true;
+//   addr_loc = ADDR_RAM_EFSOFTTRIM;
+//   msw_data = 0;  /*msword*/
+//   lsw_data = 0;  /*lsword*/
+//   for (i = 0;i <= 1;i++)
 //   {
-//      if(tistdscreenprint)  
-//         IO.Print(IO.Stdout,"+++++ RAM_Clear_SoftTrim_All +++++");
 //
-//      bcd_format  = true;
-//      hexvalue    = true;
+//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+//      addr_loc = addr_loc+ADDR_RAM_INC;
+//   } 
+//
+//   debugprint = false;
+//   if(tistdscreenprint and debugprint)  
+//   {
 //      addr_loc = ADDR_RAM_EFSOFTTRIM;
-//      msw_data = 0;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//      for (i = 0;i <= 1;i++)
-//      {
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//      } 
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_EFSOFTTRIM;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(3*ADDR_RAM_INC));
-//      } 
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//         site = *si;
+//         readramaddress(site,addr_loc,addr_loc+(3*ADDR_RAM_INC));
+//      }
 //   } 
 //}   /* RAM_Clear_SoftTrim_All */
-//
-//
+
+
 // /*meas and trim bgap w/o using vrd override*/
 //BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
