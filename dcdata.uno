@@ -1,4 +1,4 @@
-Unison:U0.2:S4.3;
+Unison:U1.0c:S5.3;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /*									      */
@@ -67,9 +67,6 @@ __Spec DCSpecs {
         vohCal = "2V";
         volCal = "1V";
         vloadCal = "1.5V";
-// Not sure what to do with these.  FX1 is not a valid tester w/in the context of this program.  Placeholding 20mA & -20mA for now. --BJP
-//        iolCal = "if(evConfig.TestHeadType = testhead_type:EX, if(evConfig.DigitalType = Dig:FX1, 20mA, 10mA), 20mA)";
-//        iohCal = "if(evConfig.TestHeadType = testhead_type:EX, if(evConfig.DigitalType = Dig:FX1, -20mA, -10mA), -20mA)";
         iolCal = "20mA";
         iohCal = "-20mA";
         Domain_3P3V_VEfuseP = "3.63V";
@@ -326,30 +323,17 @@ __Spec DCSpecs {
         VOL_Iddq = "(Domain_3P3V_PS/2)-0.2V";
         VOL_Loose = "(Domain_3P3V_PS/2)-0.2V";
         VOL_Spec = "Domain_3P3V_PS*0.2-ccf";
-// This is a PB1 program.  TITestType:Qual will always be false. --BJP
-//        IIHIO_Max = "if((TITestType=value(TITestType:Qual)),10uA,350nA)";
         IIHIO_Max = "350nA";
-//        IIHIO_Min = "if((TITestType=value(TITestType:Qual)),-5uA,-175nA)";
         IIHIO_Min = "-175nA";
-//        IIH_Max = "if((TITestType=value(TITestType:Qual)),1uA,70nA)";
         IIH_Max = "70nA";
-//        IIH_Min = "if((TITestType=value(TITestType:Qual)),-1uA,-35nA)";
         IIH_Min = "-35nA";
-//        IILIO_Max = "if((TITestType=value(TITestType:Qual)),5uA,175nA)";
         IILIO_Max = "175nA";
-//        IILIO_Min = "if((TITestType=value(TITestType:Qual)),-10uA,-350nA)";
         IILIO_Min = "-350nA";
-//        IIL_Max = "if((TITestType=value(TITestType:Qual)),1uA,35nA)";
         IIL_Max = "35nA";
-//        IIL_Min = "if((TITestType=value(TITestType:Qual)),-1uA,-70nA)";
         IIL_Min = "-70nA";
-//        IOZH_Max = "if((TITestType=value(TITestType:Qual)),20uA,350nA)";
         IOZH_Max = "350nA";
-//        IOZH_Min = "if((TITestType=value(TITestType:Qual)),-20uA,-175nA)";
         IOZH_Min = "-175nA";
-//        IOZL_Max = "if((TITestType=value(TITestType:Qual)),20uA,175nA)";
         IOZL_Max = "175nA";
-//        IOZL_Min = "if((TITestType=value(TITestType:Qual)),-20uA,-350nA)";
         IOZL_Min = "-350nA";
         MAX_RTERM = "55Ohm";
         MIN_RTERM = "45Ohm";

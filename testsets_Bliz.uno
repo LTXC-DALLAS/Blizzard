@@ -118,7 +118,7 @@ __Test SupplyShorts {
         __WrapCells = __True;
         __TestMethod {
             __Name = TI_DC;
-            debug = __Expression { __String = "TRUE"; }
+            debug = __Expression { __String = "FALSE"; }
             force_type = __Expression { __String = "DcType:ForceVTestI"; }
             cbit_type = __Expression { __String = "CbitType:NO_CBIT"; }
             setup_pattern = __Expression { __String = "ExecPattern:EP_None"; }
@@ -1046,20 +1046,33 @@ __Test ConnectDevice {
         __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::Connections;
-            TestPins = __Expression { __String = "ALLSUPPLIES-Probe_Only_Pins"; }
-            PinControl = __Expression { __String = "CONNECTION_ENUM:NO_ACTION"; }
+            TestPins = __Expression { __String = "ALLSUPPLIES-Probe_Only_Pins-VDDAR"; }
+            PinControl = __Expression { __String = "CONNECTION_ENUM:CONNECT_TO_DUT"; }
             ShowAdditionalArgs = __Expression { __String = "TRUE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
         }
     }
     __Block[1] = {
+        __Title = ConnectAnaSupplies;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::Connections;
+            TestPins = __Expression { __String = "AnalogPower_Pins+DCREF_Pins-Probe_Only_Pins"; }
+            PinControl = __Expression { __String = "CONNECTION_ENUM:CONNECT_TO_DUT"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
         __Title = ConnectPins;
         __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::Connections;
             TestPins = __Expression { __String = "ALLPINS-Probe_Only_Pins"; }
-            PinControl = __Expression { __String = "CONNECTION_ENUM:NO_ACTION"; }
+            PinControl = __Expression { __String = "CONNECTION_ENUM:CONNECT_TO_DUT"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
@@ -1082,6 +1095,17 @@ __Test DisconnectDevice {
         }
     }
     __Block[1] = {
+        __Title = DisconnectDCREFAndAnaSupplyPins;
+        __TestMethod {
+            __Name = LTXC::Connections;
+            TestPins = __Expression { __String = "AnalogPower_Pins+DCREF_Pins"; }
+            PinControl = __Expression { __String = "CONNECTION_ENUM:DISCONNECT_FROM_DUT"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
         __Title = DisconnectSupplies;
         __TestMethod {
             __Name = LTXC::Connections;
@@ -1100,6 +1124,7 @@ __Test FocusCalibration {
     __Block[0] = {
         __Title = Blizzard_Calibration;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FocusCalibration;
             TestPins = __Expression { __String = "ALLPINS"; }
@@ -1112,23 +1137,25 @@ __Test FocusCalibration {
 }
 
 __Test SelectSpecs {
-	__Mask[0] = Globals_Typ_Mask;
-	__Mask[1] = Globals_Meas_Mask;
-	__Mask[2] = DCSpecsMask;
-	__Mask[3] = ACSpecsMask;
-	__Entry[0] = SetTyp_To_Meas_MF;
-	__PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
-	__PortExpression[1] = __Expression { __String = "TRUE"; }
-	__Block[0] = {
-		__EnableExpression = __Expression { __String = "TRUE"; }
-		__Result = __Expression { __String = "#"; __Mode = Output; }
-		__Title = MyBlock0;
-		__TestMethod {
-			__Name = LTXC::GenericTest;
-			
-			
-		}
-	}
+    __Mask[0] = Globals_Typ_Mask;
+    __Mask[1] = Globals_Meas_Mask;
+    __Mask[2] = DCSpecsMask;
+    __Mask[3] = ACSpecsMask;
+    __Entry[0] = SetTyp_To_Meas_MF;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = MyBlock0;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::GenericTest;
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            SimulateRowResults = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
 }
 __Test Flash_FUNC_LoadShellAndTestNum_T {
     __Mask[0] = ACSpecsMask;
@@ -1175,6 +1202,131 @@ __Test Flash_FUNC_LoadShellAndTestNum_T {
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
             TestPatterns = __Expression { __String = "'Flash_Load_TestNum_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+}
+__Test SinglePort_MapCol_T {
+    __Mask[0] = PSSpecsMask;
+    __Mask[1] = ACSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = pb_pb_mapcol_1p_PS;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = SinglePort_MapCol;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'pb_pb_mapcol_1p_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+}
+__Test FF_InitCheck_T {
+    __Mask[0] = DCSpecsMask;
+    __Mask[1] = PSSpecsMask;
+    __Mask[2] = ACSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FuseFarm_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = FF_InitCheck;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_InitCheck_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+}
+
+__Test FlashTestNum_T {
+    __Mask[0] = DCSpecsMask;
+    __Mask[1] = PSSpecsMask;
+    __Mask[2] = ACSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Load_Flash_ShellC;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashShellC_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = Load_Flash_ShellB;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashShellB_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
+        __Title = LoadTestNumber_0x00100000;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashTestNum_0x00100000_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[3] = {
+        __Title = LoadTestNumber_0x00200000;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashTestNum_0x00200000_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[4] = {
+        __Title = LoadTestNumber_Blank;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashTestNum_Thrd'"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             DisablePatternDatalog = __Expression { __String = "FALSE"; }

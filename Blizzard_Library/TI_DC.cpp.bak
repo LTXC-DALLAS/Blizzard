@@ -128,7 +128,7 @@ void TI_DC::TestData (IntS row) {
     }
     else {
         LimitStruct my_limit = LimitStruct(test_limits[row]);
-        row_test_result[row] = DLOG.ArrayLS(row_results[row], my_limit);
+        row_test_result[row] = DLOG.ArrayLS(test_pins[row], row_results[row], my_limit);
         
         
         

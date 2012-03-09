@@ -487,7 +487,8 @@ void TI_DC::SetSelectConnectDC (IntS row) {
         }
         if (fv_mode[row]) {
             if (2. * max_current[row] < 4.2mA) {
-                VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, -2.2mA, VI_FORCE_ENABLE);
+//                VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, -2.2mA, VI_FORCE_ENABLE);
+                VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], 2.1mA, 0.0mA, VI_FORCE_ENABLE);
             }
             else {
                 VI.Force (ps_pins[row], VI_FORCE_V, force_value[row], max_voltage[row], max_current[row], max_current[row], -max_current[row], VI_FORCE_ENABLE);

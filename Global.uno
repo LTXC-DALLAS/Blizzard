@@ -1,4 +1,4 @@
-Unison:U0.2:S4.3;
+Unison:U1.0c:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -363,7 +363,7 @@ __Spec Globals_Meas {
         GlobalNotBinned = "TRUE";
         BinName = "'GOOD_UNIT'";
         GlobalResult = "FALSE";
-        CurResult = "tm_rslt:PASS";
+//        CurResult = "tm_rslt:PASS";
         CurThread = "-1";
         rowsPerThread = "0";
         CharCurColumnIndex = "0";
@@ -447,7 +447,7 @@ __Spec Globals_Meas {
             GlobalNotBinned { __Type = BOOLEAN; __Comment = "Track if binned yet - used for binning inside the flow"; }
             BinName { __Type = STRING; __Comment = "The Name of the Bin device will end up in.  Set upon the first fail?"; }
             GlobalResult { __Type = BOOLEAN; __Comment = "Whether we have already FAILED yet - globally."; }
-            CurResult { __Type = tm_rslt:; __Comment = "Result of current testColumn - only availiable in PostProcessExpr, not in characterization."; }
+//            CurResult { __Type = tm_rslt; __Comment = "Result of current testColumn - only availiable in PostProcessExpr, not in characterization."; }
             CurThread { __Type = INTEGER; __Comment = "The current thread for characterization, -1=no thread"; }
             rowsPerThread { __Type = INTEGER; __Comment = "The number of rows in a thread"; }
             CharCurColumnIndex { __Type = INTEGER; __Comment = "The id-number for the current column for characterization tracking"; }
@@ -529,5 +529,3 @@ __Spec Globals_Meas {
             Iddq_Vmax_VDDS { __Type = A[INTEGER]; }
     }
 }
-                            
-                            
