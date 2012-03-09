@@ -7452,6 +7452,9 @@ TMResultM F021_LoadFlashShell_func()
    unitval = "s";
    //TWTRealToRealMS(tt_timer,realval,unitval);
    TWPDLDataLogRealVariable(tw_name, unitval, ttimer, TWMinimumData);
+   
+   // very temporary debug stuff
+   cout << tw_prefix << " pattern results " << pat_results << endl;
 
     /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
    if (pat_results.AnyEqual(TM_FAIL)) 
@@ -8453,11 +8456,11 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
                                      FloatS maxtimeout)
 {
-//   IntS site,pmstop,tmpint;
    FloatS maxtime,tdelay,ttimer1,timer2_start;
    TMResultM done_results,ndone_results, test_results;
-//   BoolM pass_results;
    BoolS done,debugprint;
+   bool using_pattern_match = false;
+   bool using_cpu_loop = false;
 //   option databit_1, databit_2, databit_3;
 //   option config_1, config_2, config_3;
 //   BoolS drv_1, drv_2, drv_3;
@@ -8466,14 +8469,14 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   BoolS upmu_1, upmu_2, upmu_3;
 //   BoolS statmask_1, statmask_2, statmask_3;
 //   DCSetUp prevDCSU;
+//   IntS site,pmstop,tmpint;
+//   BoolM pass_results;
+   
 
-//   timernstart(ttimer1);    
    TIME.StartTimer();
    debugprint = TI_FlashDebug and tiprintpass;      
    if(tistdscreenprint and debugprint)  
       IO.Print(IO.Stdout,"Running Test Number PMEX %x",testnum);
-
-//   final_results = v_dev_active;
 
    if(maxtimeout>0s)  
       maxtime = maxtimeout;
@@ -8489,50 +8492,56 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    
 //   pmstop = 1;
 //   Enable(S_pmexit);
-//   PMExSetdelay(S_PFLAGS,pmstop);
+//   PMExSetdelay(S_PFLAGS,pmstop);  // don't understand all this pmstop stuff
    F021_SetTestNum(testnum);
-//   patternexecute(tmpint,f021_shell_exepat);
-   DIGITAL.ExecutePattern(f021_shell_exepat);
-   DIGITAL.SetDriveMode(nporrst, DIGITAL_DRV_MODE_OFF);
-   DIGITAL.SetLoadMode(nporrst, DIGITAL_LD_MODE_OFF);
-   DIGITAL.Connect(nporrst, DIGITAL_DCL_TO_DUT);
-//   dcconnect(nporrst,s_high,s_ldoff);  // RST_n_122
 
-// what all does vlct dcconnect do?
-   DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
-   DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
-   DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
-   DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
-   DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
-   DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
-   
-//   DCConnect(F021_DONEPIN,S_High,S_ldoff);  /*strobe hi*/
-//   DCConnect(F021_NDONEPIN,S_Low,S_ldoff);  /*strobe low*/
-//   DCConnect(F021_PASSPIN,s_High,s_ldoff);  /*strobe hi*/
-   TIME.Wait(tdelay);
-   done = false;
-   test_results = TM_NOTEST;
-   timer2_start = TIME.GetTimer();
-
-   while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+   if (using_pattern_match) 
    {
-//      VoltageCompareOpt(S_DATA);
+      test_results = DIGITAL.TestPattern(f021_shell_exepat, true);
+   } 
+   else // using external match with sync clock or cpu loop in pattern
+   {
+      DIGITAL.ExecutePattern(f021_shell_exepat);
+      DIGITAL.SetDriveMode(nporrst, DIGITAL_DRV_MODE_OFF);
+      DIGITAL.SetLoadMode(nporrst, DIGITAL_LD_MODE_OFF);
+      DIGITAL.Connect(nporrst, DIGITAL_DCL_TO_DUT);
+
+   // what all does vlct dcconnect do?
+      DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
+      DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
+      DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
+      DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
+      DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
+      DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
       
-      done_results = DIGITAL.TestCompareState(F021_DONEPIN, DIGITAL_CMP_STATE_HIGH);
-      DLOG.AccumulateResults(test_results, done_results);
-      ndone_results = DIGITAL.TestCompareState(F021_NDONEPIN, DIGITAL_CMP_STATE_LOW);
-      DLOG.AccumulateResults(test_results, ndone_results);
+      TIME.Wait(tdelay);
+      done = false;
+      test_results = TM_NOTEST;
+      timer2_start = TIME.GetTimer();
 
-       /*KChau 02/08/10 - removed passpin strobe on param tests*/
-       /*if(TI_FlashDebug) then
-          discard(CompareGet(F021_PASSPIN));*/
+      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+      {      
+         done_results = DIGITAL.TestCompareState(F021_DONEPIN, DIGITAL_CMP_STATE_HIGH);
+         test_results = DLOG.AccumulateResults(test_results, done_results);
+         ndone_results = DIGITAL.TestCompareState(F021_NDONEPIN, DIGITAL_CMP_STATE_LOW);
+         test_results = DLOG.AccumulateResults(test_results, ndone_results);
 
-      done = AllSitesEqual(test_results, TM_PASS);
-      if (!done)
-      {
-         TIME.Wait(tdelay);
-      }
-   }   /*while*/
+          /*KChau 02/08/10 - removed passpin strobe on param tests*/
+          /*if(TI_FlashDebug) then
+             discard(CompareGet(F021_PASSPIN));*/
+
+         done = AllSitesEqual(test_results, TM_PASS);
+         if (!done)
+         {
+            TIME.Wait(tdelay);
+         }
+      }   /*while*/
+   } // end else (if !using_pattern_match)
+   
+   if (using_cpu_loop) // let's end the loop
+   {
+      DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
+   }
 
    ttimer1 = TIME.StopTimer();
 
@@ -13595,7 +13604,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            if(TI_FlashCOFEna)  
 //               F021_Init_COF_Inst_Str(site_cof_inst_str);
 
-            if(not once)  
+            if(!once)  
             {
                F021_Set_TPADS(TCRnum,TCRMode);
                rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
