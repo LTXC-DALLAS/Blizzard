@@ -7175,7 +7175,7 @@ void F021_SetTestNum(IntS testnum)
 
    strlength = 16;  /*16-bit length data string*/
    offsetcyc = 0;
-   bitlabel = "MOD_TESTNUM";
+   bitlabel = f021_shell_exepat_name + ".MOD_TESTNUM";
 
    tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
    tnumlo = testnum & 0x0000ffff;
@@ -13518,7 +13518,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  VCornerType vcorner_type,
                                  IntS TCRnum,
                                  TPModeType TCRMode, 
-                                 TMResultM test_results)
+                                 TMResultM &test_results)
 {
    FloatS tdelay,maxtime;
    TMResultM final_results, rtest_results, tmp_results;
@@ -13539,6 +13539,8 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
    VCornerType vcorner;
    Sites savesites;
    int int_site;
+
+   final_results = TM_NOTEST;
 
    parmena = false;
    vcorner = vcorner_type;
@@ -13713,6 +13715,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
                } 
                
                if(IsFastBinning && (!TI_FlashCOFEna))  
+//                  RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results == TM_PASS));
                   ActiveSites.DisableFailingSites(final_results == TM_PASS);
             }
             

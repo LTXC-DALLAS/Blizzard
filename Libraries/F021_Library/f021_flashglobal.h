@@ -57,6 +57,7 @@ extern BoolS TI_FlashCOFEna;
 
 extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
+extern StringS f021_shell_exepat_name;
 extern StringS ldo_bypass_init_thread;
 extern StringS f021_shell_rcodepat;
 
