@@ -230,6 +230,14 @@ __PatternMap DefaultPatternMap {
 //        __File "jtag_reset_init";
 //        __Path "./Patterns/Ascii";
 //    }
+    __Pattern dmled_test_number_NoRPT2 {
+        __File "dmled_test_number_NoRPT2";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern dmled_test_number_NoRPT1 {
+        __File "dmled_test_number_NoRPT1";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern dmled_test_number_0x00100000 {
         __File "dmled_test_number_0x00100000";
         __Path "./Patterns/Ascii";

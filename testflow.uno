@@ -1111,7 +1111,7 @@ __SubFlow F021FlashFlow_S {
         __PortNumber = 0;
     }
     __Node Test_0_1834 {
-        __XCoord = (519,102);
+        __XCoord = (409,103);
         __Port[0] {
             __PortPosition = 82;
         }
@@ -1123,7 +1123,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = Flash_FUNC_LoadShellAndTestNum_T;
     }
     __Node F_FUNC_Vnom_1839 {
-        __XCoord = (517,244);
+        __XCoord = (470,258);
         __InputPosition = 0;
         __TestID = "";
         __Exec = F_FUNC_Vnom;
@@ -1170,12 +1170,36 @@ __SubFlow F021FlashFlow_S {
         __TestID = "63000000";
         __Exec = Pump_Iref_Vnom;
     }
+    __Node FlashTestNum_T_321 {
+        __XCoord = (526,103);
+        __Port[0] {
+            __PortPosition = 85;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 278;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
+        __TestID = "61000000";
+        __Exec = FlashTestNum_T;
+    }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = Test_0_1834;
+    __StartNode = FlashTestNum_T_321;
     __PortConnections {
-        Test_0_1834 __Port[0] = FlowNode_1768;
+        Test_0_1834 __Port[0] = FlashTestNum_T_321;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
         F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
+        FlashTestNum_T_321 __Port[0] = FlowNode_1768;
+        FlashTestNum_T_321 __Port[1] = F_FUNC_Vnom_1839;
     }
 }
 

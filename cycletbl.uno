@@ -1387,9 +1387,10 @@ __Thread DC_Para_Thrd {
 __PatternSequence FlashTestNum_SEQ {
     __Thread[0] = FlashShellB_Thrd;
     __Thread[1] = FlashShellC_Thrd;
-    __Thread[2] = FlashTestNum_Thrd;
-    __Thread[3] = FlashTestNum_0x00100000_Thrd;
-    __Thread[4] = FlashTestNum_0x00200000_Thrd;
+    __Thread[2] = FlashTestNum_0x00100000_Thrd;
+    __Thread[3] = FlashTestNum_0x00200000_Thrd;
+    __Thread[4] = FlashTestNum_NoRPT1_Thrd;
+    __Thread[5] = FlashTestNum_NoRPT2_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1418,5 +1419,17 @@ __Thread FlashTestNum_0x00200000_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "dmled_test_number_0x00200000.dmled_test_number_DPM_st"; }
+    }
+}
+__Thread FlashTestNum_NoRPT1_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "dmled_test_number_NoRPT1.dmled_test_number_NoRPT1_st"; }
+    }
+}
+__Thread FlashTestNum_NoRPT2_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "dmled_test_number_NoRPT2.dmled_test_number_NoRPT2_st"; }
     }
 }
