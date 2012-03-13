@@ -202,9 +202,8 @@ __ExternalRef {
 }
 
 
-__ExternalRef {
-   __File = "boardcheck.uno";
-}
+//Only interested in probe --BJP
+//__ExternalRef { __File = "boardcheck.uno"; }
 
 
 __ExternalRef {

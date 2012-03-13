@@ -246,6 +246,22 @@ __PatternMap DefaultPatternMap {
         __File "dmled_test_number_0x00200000";
         __Path "./Patterns/Ascii";
     }
+    __Pattern dmled_test_number_0x10000000 {
+        __File "dmled_test_number_0x10000000";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern dmled_test_number_0x11200000 {
+        __File "dmled_test_number_0x11200000";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern dmled_TstNum_0x11200000_trunc {
+        __File "dmled_TstNum_0x11200000_trunc";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern dmled_TstNum_0x10000000_trunc {
+        __File "dmled_TstNum_0x10000000_trunc";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern ldo_bypass_init_DSH {
         __File "ldo_bypass_init_DSH";
         __Path "./Patterns/Ascii";
