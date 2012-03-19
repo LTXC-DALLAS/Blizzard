@@ -92,7 +92,7 @@ __TestProg BllizarA0 {
           "$CUSTOMER_DIR/unison/ltx/libraries";
           "$CUSTOMER_DIR/unison/site/methods";
           "$CUSTOMER_DIR/unison/site/libraries";
-          "$CUSTOMER_DIR/../stdprogram/";
+          "/u/TI_apps/enVision/stdprogram/";
           "./Libraries/";
         }
 }
