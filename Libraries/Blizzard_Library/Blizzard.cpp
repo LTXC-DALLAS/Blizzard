@@ -516,4 +516,16 @@ void RestoreDrivers(PinML pins)
     DIGITAL.SetDriveMode(pins, DIGITAL_DRV_MODE_PATTERN);
     DIGITAL.SetLoadMode(pins, DIGITAL_LD_MODE_OFF);
 }
+IntS ClearCPUFlag()
+{
+   BoolM FlagStatus;
+   DigitalPatternStatusM PatRunning;
+   FlagStatus = true;
+   DIGITAL.ReadFlag(DIGITAL_FLAG_CPU,FlagStatus,true);
+   DIGITAL.ReadPatternStatus(PatRunning,DIGITAL_PATTERN_RUNNING);
+	 DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
+   DIGITAL.ReadPatternStatus(PatRunning,DIGITAL_PATTERN_RUNNING);
+   DIGITAL.ReadFlag(DIGITAL_FLAG_CPU,FlagStatus,true);
+    return 0;
+}
 

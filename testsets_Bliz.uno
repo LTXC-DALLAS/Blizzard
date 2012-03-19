@@ -1395,6 +1395,7 @@ __Test FlashTestNum_T {
             OverridePatternFails = __Expression { __String = "FALSE"; }
             MethodOfTest = __Expression { __String = "MEASURE_METHOD:MEASURE_PARALLEL"; }
             MakeBeforeBreakRelays = __Expression { __String = "VI_CONNECT_SEQUENCE:VI_MAKE_BEFORE_BREAK"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
             PresetPatternMinorID = __Expression { __String = "60"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             MeasurementAverages = __Expression { __String = "1"; }
@@ -1409,7 +1410,7 @@ __Test FlashTestNum_T {
     __Block[8] = {
         __Title = TPad2_MeasV;
         __WrapCells = __True;
-        __EnableExpression = __Expression { __String = "FALSE"; }
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::DCTest;
             TestPins = __Expression { __String = "FLTP2"; }
@@ -1425,6 +1426,7 @@ __Test FlashTestNum_T {
             OverridePatternFails = __Expression { __String = "FALSE"; }
             MethodOfTest = __Expression { __String = "MEASURE_METHOD:MEASURE_PARALLEL"; }
             MakeBeforeBreakRelays = __Expression { __String = "VI_CONNECT_SEQUENCE:VI_MAKE_BEFORE_BREAK"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
             PresetPatternMinorID = __Expression { __String = "60"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             MeasurementAverages = __Expression { __String = "1"; }
@@ -1471,6 +1473,127 @@ __Test Pump_Iref_Vnom {
         __Title = Block1;
         __TestMethod {
             __Name = Pump_Iref_Vnom_func;
+        }
+    }
+}
+__Test FTN_LoopCPU_T {
+    __Mask[0] = DCSpecsMask;
+    __Mask[1] = PSSpecsMask;
+    __Mask[2] = ACSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Load_Flash_ShellB;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashShellB_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = LoadTestNumber_0x10000000;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashTestNum_0x10000000_Thrd'"; }
+            CallAtEnd = __Expression { }
+            MinorID = __Expression { __String = "40"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
+        __Title = TPad2_MeasV_1_1;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::DCTest;
+            TestPins = __Expression { __String = "FLTP2"; }
+            TestLimitSource = __Expression { __String = "DC_LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "50"; }
+            ForceValue = __Expression { __String = "10nA"; }
+            ForceRange = __Expression { __String = "10mA"; }
+            MeasureRange = __Expression { __String = "2V"; }
+            LowLimit = __Expression { __String = "1.174V -500mV"; }
+            HighLimit = __Expression { __String = "1.271V+650mV"; }
+            LowClamp = __Expression { __String = "0.1V"; }
+            HighClamp = __Expression { __String = "2.5V"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            MeasurementDelay = __Expression { __String = "10ms"; }
+            MethodOfTest = __Expression { __String = "MEASURE_METHOD:MEASURE_PARALLEL"; }
+            MakeBeforeBreakRelays = __Expression { __String = "VI_CONNECT_SEQUENCE:VI_MAKE_BEFORE_BREAK"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "60"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "1"; }
+            OptimizationMethod = __Expression { __String = "OPTIMIZATION_METHOD:OPTIMIZE_FOR_SPEED"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[3] = {
+        __Title = LoadTestNumber_0x11200000;
+        __EnableExpression = __Expression { __String = "FALSE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FlashTestNum_0x11200000_Thrd'"; }
+            MinorID = __Expression { __String = "40"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[4] = {
+        __Title = TPad1_MeasV_1;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
+        __TestMethod {
+            __Name = LTXC::DCTest;
+            TestPins = __Expression { __String = "FLTP1"; }
+            TestLimitSource = __Expression { __String = "DC_LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "50"; }
+            ForceValue = __Expression { __String = "0.0A"; }
+            ForceRange = __Expression { __String = "10mA"; }
+            MeasureRange = __Expression { __String = "6V"; }
+            LowLimit = __Expression { __String = "5.1V"; }
+            HighLimit = __Expression { __String = "5.35V"; }
+            LowClamp = __Expression { __String = "4V"; }
+            HighClamp = __Expression { __String = "6.5V"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            MethodOfTest = __Expression { __String = "MEASURE_METHOD:MEASURE_PARALLEL"; }
+            MakeBeforeBreakRelays = __Expression { __String = "VI_CONNECT_SEQUENCE:VI_MAKE_BEFORE_BREAK"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "60"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "1"; }
+            OptimizationMethod = __Expression { __String = "OPTIMIZATION_METHOD:OPTIMIZE_FOR_SPEED"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
         }
     }
 }
