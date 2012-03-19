@@ -230,6 +230,10 @@ __PatternMap DefaultPatternMap {
 //        __File "jtag_reset_init";
 //        __Path "./Patterns/Ascii";
 //    }
+    __Pattern ShellB_Tnum0x00100000 {
+        __File "ShellB_Tnum0x00100000";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern dmled_test_number_NoRPT2 {
         __File "dmled_test_number_NoRPT2";
         __Path "./Patterns/Ascii";
@@ -392,6 +396,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern FF_CheckROM_Mg0_DPM {
         __File "FF_CheckROM_Mg0_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern FF_CheckROM_Mg0_ENG {
+        __File "FF_CheckROM_Mg0_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_CheckROM_norm_DPM {
@@ -656,6 +664,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern pb_pb_march13n_1p_DPM {
         __File "pb_pb_march13n_1p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_march13n_1p_ENG {
+        __File "pb_pb_march13n_1p_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_march13n_2p_DPM {

@@ -917,6 +917,10 @@ __FunctionCall FUNC_BIST_Srch_Fnctn {
     __Function = LTXC::SearchStepPatterns;
     TestPatterns = __Expression { __String = "'PBIST_2P_PROD_PG_Thrd'"; }
 }
+__FunctionCall Clear_CPU_Flag {
+    __WrapCells = __True;
+    __Function = ClearCPUFlag;
+}
 __Axis CharAxis_SrchFrq_Vmin_BIST_PROD {
     __NumberSteps = __Expression { __String = "11"; }
     __ParameterVariance {
