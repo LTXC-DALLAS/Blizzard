@@ -1198,7 +1198,6 @@ __SubFlow F021FlashFlow_S {
         }
         __InputPosition = 278;
         __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
@@ -1206,9 +1205,27 @@ __SubFlow F021FlashFlow_S {
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
         }
         __TestID = "61000000";
         __Exec = FlashTestNum_T;
+    }
+    __Node FTN_LoopCPU_T_303 {
+        __XCoord = (748,37);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 0;
+        __SpecPairs {
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+        }
+        __TestID = "65000000";
+        __Exec = FTN_LoopCPU_T;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = FlashTestNum_T_321;

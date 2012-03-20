@@ -526,6 +526,7 @@ IntS ClearCPUFlag()
 	 DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
    DIGITAL.ReadPatternStatus(PatRunning,DIGITAL_PATTERN_RUNNING);
    DIGITAL.ReadFlag(DIGITAL_FLAG_CPU,FlagStatus,true);
+   TIME.Wait(0.0s);
     return 0;
 }
 

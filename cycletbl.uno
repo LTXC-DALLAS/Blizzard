@@ -1291,6 +1291,9 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[6] = FlashTestNum_0x10000000_Thrd;
     __Thread[7] = FlashTestNum_0x11200000_Thrd;
     __Thread[8] = ShellB_Tnum0x00100000_Thrd;
+    __Thread[9] = Garnet_Shell064_T072C008S007_A2_Thrd;
+    __Thread[10] = f021_shell_exepat_pll_v3p0_Thrd;
+    __Thread[11] = f021_shell_exepat_pll_NCPU_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1365,6 +1368,24 @@ __Thread ShellB_Tnum0x00100000_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "ShellB_Tnum0x00100000.fl_sw_dl_a2_2_DPM_st"; }
+    }
+}
+__Thread Garnet_Shell064_T072C008S007_A2_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "Garnet_Shell064_T072C008S007_A2.Garnet_Shell064_T072C008S007_A2_start"; }
+    }
+}
+__Thread f021_shell_exepat_pll_v3p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_v3p0.f021_shell_exepat_pll_v3p0_start"; }
+    }
+}
+__Thread f021_shell_exepat_pll_NCPU_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_NCPU.f021_shell_exepat_pll_v3p0_start"; }
     }
 }
 __Thread a_st_tk_10_v22_Thrd {

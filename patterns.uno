@@ -230,6 +230,33 @@ __PatternMap DefaultPatternMap {
 //        __File "jtag_reset_init";
 //        __Path "./Patterns/Ascii";
 //    }
+
+/*********************************************************/
+/***    Trevor's debugged flash shell pattern          ***/
+
+    __Pattern Garnet_Shell064_T072C008S007_A2 {
+        __File "Garnet_Shell064_T072C008S007_A2";
+        __Path "./Patterns/Ascii";
+    }
+
+/*********************************************************/
+
+/*********************************************************/
+/***    Trevor's debugged flash Tnum pattern           ***/
+
+    //RPT_CPU at the end
+    __Pattern f021_shell_exepat_pll_v3p0 {
+        __File "f021_shell_exepat_pll_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    //RPT 600k at the end
+    __Pattern f021_shell_exepat_pll_NCPU {
+        __File "f021_shell_exepat_pll_NCPU";
+        __Path "./Patterns/Ascii";
+    }
+/*********************************************************/
+
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";
         __Path "./Patterns/Ascii";
