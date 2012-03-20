@@ -1122,14 +1122,14 @@ __SubFlow Iddq0_VboxLO_S {
 
 __SubFlow F021FlashFlow_S {
     __Node FlowNode_1768 {
-        __XCoord = (634,103);
+        __XCoord = (848,85);
         __InputPosition = 265;
         __TestID = "";
         __PortSelect = "0";
         __PortNumber = 0;
     }
     __Node Test_0_1834 {
-        __XCoord = (409,103);
+        __XCoord = (623,85);
         __Port[0] {
             __PortPosition = 82;
         }
@@ -1141,7 +1141,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = Flash_FUNC_LoadShellAndTestNum_T;
     }
     __Node F_FUNC_Vnom_1839 {
-        __XCoord = (470,258);
+        __XCoord = (684,240);
         __InputPosition = 0;
         __TestID = "";
         __Exec = F_FUNC_Vnom;
@@ -1159,7 +1159,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node FlashEfuse_func_321 {
-        __XCoord = (158,198);
+        __XCoord = (595,213);
         __Port[0] {
             __PortPosition = 160;
         }
@@ -1176,7 +1176,7 @@ __SubFlow F021FlashFlow_S {
     __Node Pump_Iref_Vnom_560 {
         __XCoord = (262,63);
         __Port[0] {
-            __PortPosition = 160;
+            __PortPosition = 91;
         }
         __Port[1] {
             __PortPosition = 180;
@@ -1184,12 +1184,14 @@ __SubFlow F021FlashFlow_S {
         __InputPosition = 272;
         __SpecPairs {
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
         }
         __TestID = "63000000";
         __Exec = Pump_Iref_Vnom;
     }
     __Node FlashTestNum_T_321 {
-        __XCoord = (526,103);
+        __XCoord = (740,85);
         __Port[0] {
             __PortPosition = 85;
         }
@@ -1211,7 +1213,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = FlashTestNum_T;
     }
     __Node FTN_LoopCPU_T_303 {
-        __XCoord = (748,37);
+        __XCoord = (962,19);
         __Port[0] {
             __PortPosition = 160;
         }
@@ -1227,12 +1229,30 @@ __SubFlow F021FlashFlow_S {
         __TestID = "65000000";
         __Exec = FTN_LoopCPU_T;
     }
+    __Node Pump_BGAP_Vnom_304 {
+        __XCoord = (391,63);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 272;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+        }
+        __TestID = "66000000";
+        __Exec = Pump_BGAP_Vnom;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = FlashTestNum_T_321;
     __PortConnections {
         Test_0_1834 __Port[0] = FlashTestNum_T_321;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
         F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
+        Pump_Iref_Vnom_560 __Port[0] = Pump_BGAP_Vnom_304;
         FlashTestNum_T_321 __Port[0] = FlowNode_1768;
         FlashTestNum_T_321 __Port[1] = F_FUNC_Vnom_1839;
     }
