@@ -1486,7 +1486,7 @@ __Test FTN_LoopCPU_T {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Load_Flash_ShellB;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
@@ -1503,12 +1503,12 @@ __Test FTN_LoopCPU_T {
     __Block[1] = {
         __Title = LoadTestNumber_0x10000000;
         __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'FlashTestNum_0x10000000_Thrd'"; }
-            CallAtEnd = __Expression { }
+            TestPatterns = __Expression { __String = "'ShellB_Tnum0x00100000_Thrd'"; }
             MinorID = __Expression { __String = "40"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }

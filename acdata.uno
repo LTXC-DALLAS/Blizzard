@@ -91,6 +91,11 @@ __Spec ACSpecs {
         charEn_tfreqAsync = "FALSE";
         charStep_tfreqAsync = "1MHz";
     }
+    __Category AC_cat_FTN {
+        __Inherit CommonACdata;
+        ACTableIndex = "99";
+        tper.Max = "62.5ns";
+    }
     __Category AC_cat_1 {
         __Inherit CommonACdata;
         ACTableIndex = "1";
