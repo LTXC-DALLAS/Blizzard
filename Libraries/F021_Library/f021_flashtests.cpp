@@ -1,170 +1,170 @@
-// /****************************************************************************/
-// /*  F021 VLCT STD LIB                                                         */
-// /*  A01 : Initial version of F021 Flash VLCT Codes.            KChau 08/03/09 */
-// /*                                                                            */
-// /* 11/03/09  KChau                                                            */
-// /*           -Use TNUM_BANK_ERS_PRECON_SW instead of TNUM_BANK_ERS_PRECON due */
-// /*            to bank sm issue.                                               */
-// /*                                                                            */
-// /*  A1.1 : Released with VT/BCC enable.                        KChau 11/10/09 */
-// /*                                                                            */
-// /* 11/12/09  KChau                                                            */
-// /*           -Added selective site in EraseRefArray_func so not to run on     */
-// /*            re-probe site.                                                  */
-// /* 11/16/09  KChau                                                            */
-// /*           -Added Charz_Icmp10_Iref,Charz_TCR84_Stress4,Charz_TCR84_Stress4b*/
-// /*            Charz_TCR52_Stress10,Charz_TCR52_Stress11,Charz_TCR53_Stress2,  */
-// /*            Charz_TCR54_Stress3 for validation.                             */
-// /*                                                                            */
-// /*  A1.2 : Released with using new OTP format.                 KChau 11/19/09 */
-// /*                                                                            */
-// /*  A1.3 : Released with new OTP format with 8us ppw.          KChau 11/30/09 */
-// /*                                                                            */
-// /* 12/09/09  KChau                                                            */
-// /*           -Added Charz_EraseRefArray,Charz_EraseRefArray_Main and enable   */
-// /*            in EraseRefArray_func.                                          */
-// /*           -Added Charz_ProgramPW and enable in PgmMain_func (vnom),        */
-// /*            PgmMain_PreEGFG_LF1_func (vmax),PgmMain_PreEGFG_LF3_func (vmin).*/
-// /*           -Added Charz_BCC0/1 and enable in PreEGFGVT0_LF1_func and        */
-// /*            PreFGWLVT1_func.                                                */
-// /*           -Added Charz_Iref_Repeat and enable in all Iref/IPMOS_*_func.    */
-// /*           -Added configurable to select either tcr5,6,39 for VT, and       */
-// /*            tcr6,38,39 for BCC tests via GL_DO_VT/BCC_WITH_TCRNUM.          */
-// /*           -Modified EraseRefArray_func so retest site is taken care in     */
-// /*            F021_RefArr_Erase_func (f021_func) instead here.                */
-// /*                                                                            */
-// /*  A1.4 : Released for Charz Enable.                          KChau 12/18/09 */
-// /* 01/13/10  KChau                                                            */
-// /*           -Bug fix WebID Flash_Test.BTS_F021_VLCTSTD.1 .                   */
-// /*            Used correct testname (for precon) in bank erase tests.         */
-// /*           -Added Charz_VBG_VRD_Soft to collect data in MainBG_Trim_func.   */
-// /*           -Added ESDA in Cycle9X, PgmMain, BankErs tests.                  */
-// /*                                                                            */
-// /*  A1.5 : Released for bug fix.                               KChau 01/21/10 */
-// /*                                                                            */
-// /* 02/17/10  KChau                                                            */
-// /*           -Added and enable direct bgap trim method.                       */
-// /*           -Added and enable RdSCycle, Pipe min/max tests.                  */
-// /*           -Added and enable PgmRCode test to pgm echk at mp3 as RCode not  */
-// /*            yet available.                                                  */
-// /*           -Changed all pre-stress prog/ers to Vnom, all VT/BCC to Vmax.    */
-// /* 03/12/10  KChau                                                            */
-// /*           -Modified DRL_Flowbyte_WR_func to disable site failed drl test   */
-// /*            due to addition of WEBS:Flash_Test.BTS_F021_VLCTSTD.4 .         */
-// /*                                                                            */
-// /*  A1.6 : Released with PMOS Trim.                            KChau 03/15/10 */
-// /*                                                                            */
-// /* 03/19/10  KChau                                                            */
-// /*           -Modified PgmOTPTemplate to upload/update fake repair solution.  */
-// /*           -Added gl_fakerep_count tracking in WrEngRow.                    */
-// /*                                                                            */
-// /*  A1.7 : Released with Redundancy, fake repair, flash PBIST. KChau 04/09/10 */
-// /*                                                                            */
-// /* 05/17/10  KChau                                                            */
-// /*           -Update EGFG1/2 to datalog only and removed soft bins.           */
-// /*                                                                            */
-// /* 05/25/10  KChau                                                            */
-// /*           -Added FOSC soft trim datalog test only.                         */
-// /*                                                                            */
-// /*  A1.8 : Released for EFR.                                   KChau 05/25/10 */
-// /*                                                                            */
-// /* 06/04/10  KChau                                                            */
-// /*           -Added masking data 1s in echk/ochk on BCC0 PBIST tests.         */
-// /*           -Added FlashCyle1X w/ temporary prog limit 50, ers limit 300.    */
-// /*           -Added TP1/TP2 Leak Delta (datalog only).                        */
-// /* 06/10/10  KChau                                                            */
-// /*           -Removed precon in BankErs_PreTunOx/PrePGMFF tests.              */
-// /*                                                                            */
-// /*  A1.9 : Released for Yield Learning.                        KChau 06/08/10 */
-// /*                                                                            */
-// /* 06/25/10  KChau                                                            */
-// /*           -Corrected PgmOTP_func to remove shell reload which overwrite    */
-// /*            pmos & vhv ct soft trim values in RAM.                          */
-// /*                                                                            */
-// /****************************************************************************/
-// /* 07/22/10  KChau                                                            */
-// /*           -Making changes for TV2.0                                        */
-// /*           -Modified Pump_Iref_Vnom_func,pgmff,tunox,csfg,fgwl              */
-// /*           -Implemented esda for bcc & delta tests.                         */
-// /*                                                                            */
-// /* 09/21/10  KChau                                                            */
-// /*           -Modified to use TNUM_OTP_ERS_PRECON (tv1 was _PRECON_SW), and   */
-// /*            use TNUM_BANK_ERS_PRECON (tv1 was _PRECON_SW).                  */
-// /* 11/11/10  KChau                                                            */
-// /*           -Added data collection internal vt0 precsfg, predrl mp1.         */
-// /*           -Modified IrefPMOS_Trim_func to perform ipmos trim based on pmos,*/
-// /*            nmos irefRd, nmos irefEv.                                       */
-// /*                                                                            */
-// /*  A2.3.2 : Released with baseline ipmos trim.                KChau 11/22/10 */
-// /*                                                                            */
-// /* 01/12/11  KChau                                                            */
-// /*           -Updated FlashEfuse_MP1, FlashEfuse_Trim, EraseRefArray_func,    */
-// /*            IrefPMOS_Trim_func to do one pass efuse programming.            */
-// /*                                                                            */
-// /*  A2.4 : Released with one pass flash efuse pgm.             KChau 01/15/11 */
-// /*                                                                            */
-// /*                                                                            */
-// /* 02/24/11  psk                                                              */
-// /*           -Changed PMOS trim to use NMOS read current instead of PMOS      */
-// /*                                                                            */
-// /* 03/07/11  KChau                                                            */
-// /*           -Enabled iref PMOS/NMOS charz at vmin for qual.                  */
-// /*           -Implemented FOSC DCC (post-trim) test.                          */
-// /*                                                                            */
-// /*  A2.5 : Released with changes for qual.                     KChau 03/14/11 */
-// /*                                                                            */
-// /* 03/15/11  KChau                                                            */
-// /*           -Modified stress tests to use MMS tcr mode as running CSFG stress*/
-// /*            with both TCR84 & TCR110.                                       */
-// /* 03/30/11  KChau                                                            */
-// /*           -Added esda in RdM0/1DRL tests.                                  */
-// /* 04/05/11  KChau                                                            */
-// /*           -Added data collection pre/post DRL BCC0 w/ VCG=1.8v .           */
-// /* 04/07/11  KChau                                                            */
-// /*           -Changed RdM0DRL to Vnom (was Vmin).                             */
-// /* 04/13/11  KChau                                                            */
-// /*           -Changed data collection pre/post DRL BCC0 w/ VCG=1.825v .       */
-// /*                                                                            */
-// /*  A2.7 : Released with changes for qual revG.                KChau 04/15/11 */
-// /*                                                                            */
-// /* 04/21/11  KChau                                                            */
-// /*           -Modified BankErs_PreRandCode_func,RdM1_PreRandCode_func,        */
-// /*            and various functions to support non-auto device and/or device  */
-// /*            with 1S state at the end of MP3 (via GL_MP3PKG_FLOW=false).     */
-// /* 04/28/11  KChau                                                            */
-// /*           -Added option for Stellaris/C2000 so not doing sector ers.       */
-// /* 04/29/11  KChau                                                            */
-// /*           -Changed flash efuse read/prog reference by NonMBist type        */
-// /*            instead of Custom type, and using device specific rd/pg option  */
-// /*            defined in f021_config.p, i.e. GL_EFUSE_RD/PG_CODEOPTION.       */
-// /*                                                                            */
-// /****************************************************************************/
-// /*                                                                            */
-// /* 05/25/11  KChau                                                            */
-// /*           -Added SenAmpNoise_Screen_func.                                  */
-// /*           -Added special screen of PPmax=1 and softbin in 1st cycle9x.     */
-// /*           -Removed precon in PreThinOx/PunchThru/TunOx/PgmFF erase.        */
-// /*                                                                            */
-// /*  B1.0 : Released for qual with internal VT0 enabled.        KChau 05/27/11 */
-// /*                                                                            */
-// /* 05/31/11  KChau                                                            */
-// /*           -Added VT/BCC for Random code.                                   */
-// /* 06/21/11  KChau                                                            */
-// /*           -Added Charz_Ers_StairStep_* for stair step erase DOE.           */
-// /*           -WEBS: VLCTSTD.36 -- disable IPMOS Odd tests on FLES bank.       */
-// /* 07/08/11  KChau                                                            */
-// /*           -Added Charz_FreqSchmoo_RandCode in PgmChkboard_func.            */
-// /*           -Added Charz_SenAmpNoise_RPC_EF (rd precharge vs. efuse).        */
-// /*                                                                            */
-// /*  B1.1 : Released to support C2000 and Stellaris platforms.  KChau 06/29/11 */
-// /*                                                                            */
-// /* 07/13/11  KChau                                                            */
-// /*           -Used TNUM_OTP_PRECON instead of TNUM_OTP_PROG(sm) for TTR.      */
-// /* 07/20/11  KChau                                                            */
-// /*           -Updated Charz_SenAmpNoise_RPC_EF with override efuse22/17.      */
-// /*                                                                            */
-// /****************************************************************************/
-//
+/******************************************************************************/
+/*  F021 VLCT STD LIB                                                         */
+/*  A01 : Initial version of F021 Flash VLCT Codes.            KChau 08/03/09 */
+/*                                                                            */
+/* 11/03/09  KChau                                                            */
+/*           -Use TNUM_BANK_ERS_PRECON_SW instead of TNUM_BANK_ERS_PRECON due */
+/*            to bank sm issue.                                               */
+/*                                                                            */
+/*  A1.1 : Released with VT/BCC enable.                        KChau 11/10/09 */
+/*                                                                            */
+/* 11/12/09  KChau                                                            */
+/*           -Added selective site in EraseRefArray_func so not to run on     */
+/*            re-probe site.                                                  */
+/* 11/16/09  KChau                                                            */
+/*           -Added Charz_Icmp10_Iref,Charz_TCR84_Stress4,Charz_TCR84_Stress4b*/
+/*            Charz_TCR52_Stress10,Charz_TCR52_Stress11,Charz_TCR53_Stress2,  */
+/*            Charz_TCR54_Stress3 for validation.                             */
+/*                                                                            */
+/*  A1.2 : Released with using new OTP format.                 KChau 11/19/09 */
+/*                                                                            */
+/*  A1.3 : Released with new OTP format with 8us ppw.          KChau 11/30/09 */
+/*                                                                            */
+/* 12/09/09  KChau                                                            */
+/*           -Added Charz_EraseRefArray,Charz_EraseRefArray_Main and enable   */
+/*            in EraseRefArray_func.                                          */
+/*           -Added Charz_ProgramPW and enable in PgmMain_func (vnom),        */
+/*            PgmMain_PreEGFG_LF1_func (vmax),PgmMain_PreEGFG_LF3_func (vmin).*/
+/*           -Added Charz_BCC0/1 and enable in PreEGFGVT0_LF1_func and        */
+/*            PreFGWLVT1_func.                                                */
+/*           -Added Charz_Iref_Repeat and enable in all Iref/IPMOS_*_func.    */
+/*           -Added configurable to select either tcr5,6,39 for VT, and       */
+/*            tcr6,38,39 for BCC tests via GL_DO_VT/BCC_WITH_TCRNUM.          */
+/*           -Modified EraseRefArray_func so retest site is taken care in     */
+/*            F021_RefArr_Erase_func (f021_func) instead here.                */
+/*                                                                            */
+/*  A1.4 : Released for Charz Enable.                          KChau 12/18/09 */
+/* 01/13/10  KChau                                                            */
+/*           -Bug fix WebID Flash_Test.BTS_F021_VLCTSTD.1 .                   */
+/*            Used correct testname (for precon) in bank erase tests.         */
+/*           -Added Charz_VBG_VRD_Soft to collect data in MainBG_Trim_func.   */
+/*           -Added ESDA in Cycle9X, PgmMain, BankErs tests.                  */
+/*                                                                            */
+/*  A1.5 : Released for bug fix.                               KChau 01/21/10 */
+/*                                                                            */
+/* 02/17/10  KChau                                                            */
+/*           -Added and enable direct bgap trim method.                       */
+/*           -Added and enable RdSCycle, Pipe min/max tests.                  */
+/*           -Added and enable PgmRCode test to pgm echk at mp3 as RCode not  */
+/*            yet available.                                                  */
+/*           -Changed all pre-stress prog/ers to Vnom, all VT/BCC to Vmax.    */
+/* 03/12/10  KChau                                                            */
+/*           -Modified DRL_Flowbyte_WR_func to disable site failed drl test   */
+/*            due to addition of WEBS:Flash_Test.BTS_F021_VLCTSTD.4 .         */
+/*                                                                            */
+/*  A1.6 : Released with PMOS Trim.                            KChau 03/15/10 */
+/*                                                                            */
+/* 03/19/10  KChau                                                            */
+/*           -Modified PgmOTPTemplate to upload/update fake repair solution.  */
+/*           -Added gl_fakerep_count tracking in WrEngRow.                    */
+/*                                                                            */
+/*  A1.7 : Released with Redundancy, fake repair, flash PBIST. KChau 04/09/10 */
+/*                                                                            */
+/* 05/17/10  KChau                                                            */
+/*           -Update EGFG1/2 to datalog only and removed soft bins.           */
+/*                                                                            */
+/* 05/25/10  KChau                                                            */
+/*           -Added FOSC soft trim datalog test only.                         */
+/*                                                                            */
+/*  A1.8 : Released for EFR.                                   KChau 05/25/10 */
+/*                                                                            */
+/* 06/04/10  KChau                                                            */
+/*           -Added masking data 1s in echk/ochk on BCC0 PBIST tests.         */
+/*           -Added FlashCyle1X w/ temporary prog limit 50, ers limit 300.    */
+/*           -Added TP1/TP2 Leak Delta (datalog only).                        */
+/* 06/10/10  KChau                                                            */
+/*           -Removed precon in BankErs_PreTunOx/PrePGMFF tests.              */
+/*                                                                            */
+/*  A1.9 : Released for Yield Learning.                        KChau 06/08/10 */
+/*                                                                            */
+/* 06/25/10  KChau                                                            */
+/*           -Corrected PgmOTP_func to remove shell reload which overwrite    */
+/*            pmos & vhv ct soft trim values in RAM.                          */
+/*                                                                            */
+/****************************************************************************/
+/* 07/22/10  KChau                                                            */
+/*           -Making changes for TV2.0                                        */
+/*           -Modified Pump_Iref_Vnom_func,pgmff,tunox,csfg,fgwl              */
+/*           -Implemented esda for bcc & delta tests.                         */
+/*                                                                            */
+/* 09/21/10  KChau                                                            */
+/*           -Modified to use TNUM_OTP_ERS_PRECON (tv1 was _PRECON_SW), and   */
+/*            use TNUM_BANK_ERS_PRECON (tv1 was _PRECON_SW).                  */
+/* 11/11/10  KChau                                                            */
+/*           -Added data collection internal vt0 precsfg, predrl mp1.         */
+/*           -Modified IrefPMOS_Trim_func to perform ipmos trim based on pmos,*/
+/*            nmos irefRd, nmos irefEv.                                       */
+/*                                                                            */
+/*  A2.3.2 : Released with baseline ipmos trim.                KChau 11/22/10 */
+/*                                                                            */
+/* 01/12/11  KChau                                                            */
+/*           -Updated FlashEfuse_MP1, FlashEfuse_Trim, EraseRefArray_func,    */
+/*            IrefPMOS_Trim_func to do one pass efuse programming.            */
+/*                                                                            */
+/*  A2.4 : Released with one pass flash efuse pgm.             KChau 01/15/11 */
+/*                                                                            */
+/*                                                                            */
+/* 02/24/11  psk                                                              */
+/*           -Changed PMOS trim to use NMOS read current instead of PMOS      */
+/*                                                                            */
+/* 03/07/11  KChau                                                            */
+/*           -Enabled iref PMOS/NMOS charz at vmin for qual.                  */
+/*           -Implemented FOSC DCC (post-trim) test.                          */
+/*                                                                            */
+/*  A2.5 : Released with changes for qual.                     KChau 03/14/11 */
+/*                                                                            */
+/* 03/15/11  KChau                                                            */
+/*           -Modified stress tests to use MMS tcr mode as running CSFG stress*/
+/*            with both TCR84 & TCR110.                                       */
+/* 03/30/11  KChau                                                            */
+/*           -Added esda in RdM0/1DRL tests.                                  */
+/* 04/05/11  KChau                                                            */
+/*           -Added data collection pre/post DRL BCC0 w/ VCG=1.8v .           */
+/* 04/07/11  KChau                                                            */
+/*           -Changed RdM0DRL to Vnom (was Vmin).                             */
+/* 04/13/11  KChau                                                            */
+/*           -Changed data collection pre/post DRL BCC0 w/ VCG=1.825v .       */
+/*                                                                            */
+/*  A2.7 : Released with changes for qual revG.                KChau 04/15/11 */
+/*                                                                            */
+/* 04/21/11  KChau                                                            */
+/*           -Modified BankErs_PreRandCode_func,RdM1_PreRandCode_func,        */
+/*            and various functions to support non-auto device and/or device  */
+/*            with 1S state at the end of MP3 (via GL_MP3PKG_FLOW=false).     */
+/* 04/28/11  KChau                                                            */
+/*           -Added option for Stellaris/C2000 so not doing sector ers.       */
+/* 04/29/11  KChau                                                            */
+/*           -Changed flash efuse read/prog reference by NonMBist type        */
+/*            instead of Custom type, and using device specific rd/pg option  */
+/*            defined in f021_config.p, i.e. GL_EFUSE_RD/PG_CODEOPTION.       */
+/*                                                                            */
+/****************************************************************************/
+/*                                                                            */
+/* 05/25/11  KChau                                                            */
+/*           -Added SenAmpNoise_Screen_func.                                  */
+/*           -Added special screen of PPmax=1 and softbin in 1st cycle9x.     */
+/*           -Removed precon in PreThinOx/PunchThru/TunOx/PgmFF erase.        */
+/*                                                                            */
+/*  B1.0 : Released for qual with internal VT0 enabled.        KChau 05/27/11 */
+/*                                                                            */
+/* 05/31/11  KChau                                                            */
+/*           -Added VT/BCC for Random code.                                   */
+/* 06/21/11  KChau                                                            */
+/*           -Added Charz_Ers_StairStep_* for stair step erase DOE.           */
+/*           -WEBS: VLCTSTD.36 -- disable IPMOS Odd tests on FLES bank.       */
+/* 07/08/11  KChau                                                            */
+/*           -Added Charz_FreqSchmoo_RandCode in PgmChkboard_func.            */
+/*           -Added Charz_SenAmpNoise_RPC_EF (rd precharge vs. efuse).        */
+/*                                                                            */
+/*  B1.1 : Released to support C2000 and Stellaris platforms.  KChau 06/29/11 */
+/*                                                                            */
+/* 07/13/11  KChau                                                            */
+/*           -Used TNUM_OTP_PRECON instead of TNUM_OTP_PROG(sm) for TTR.      */
+/* 07/20/11  KChau                                                            */
+/*           -Updated Charz_SenAmpNoise_RPC_EF with override efuse22/17.      */
+/*                                                                            */
+/****************************************************************************/
+
 #include <f021_func.h>
 using namespace std; 
 
@@ -4994,7 +4994,7 @@ TMResultM Flash_IStdby_func()
 //   MainBG_Trim_func = v_any_dev_active;
 //}   /* MainBG_Trim_func */
 //
-//   
+   
    
 TMResultM Pump_Iref_Vnom_func()
 {
@@ -5054,7 +5054,6 @@ TMResultM Pump_Iref_Vnom_func()
 }   /* Pump_Iref_Vnom_func */
 
 
-//
 //BoolS Pump_BGap_Vmin_func()
 //{
 //   BoolM final_results;
@@ -5083,36 +5082,35 @@ TMResultM Pump_Iref_Vnom_func()
 //   Pump_BGap_Vmin_func = v_any_dev_active;
 //}   /* Pump_BGap_Vmin_func */
 //
-//
-//BoolS Pump_BGap_Vnom_func()
-//{
-//   const IntS TESTID = 16; 
-//
-//   BoolM final_results;
-//   BoolM tmp_results;
-//   StringS current_shell;
-//   FloatS tdelay;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//
-//   GL_FLTESTID = TESTID;
-//   tdelay = 2ms;
-//   tcrnum = 124;
-//   tcrmode = ReadMode;
-//   vcorner = VNM;
-//
-//   PwrupAtVnom_1;
-//   current_shell = 'FlashShell';
-//   if(GL_PREVIOUS_SHELL <> current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_BGap_Vnom_func = v_any_dev_active;
-//}   /* Pump_BGap_Vnom_func */
-//
-//
+
+
+TMResultM Pump_BGap_Vnom_func()
+{
+   const IntS TESTID = 16; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   FloatS tdelay;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+
+   GL_FLTESTID = TESTID;
+   tdelay = 2ms;
+   tcrnum = 124;
+   tcrmode = ReadMode;
+   vcorner = VNM;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode,final_results);
+
+   return(final_results);
+}   /* Pump_BGap_Vnom_func */
+
+
 //BoolS Pump_VHV_Vmin_func()
 //{
 //   const IntS TESTID = 17; 
