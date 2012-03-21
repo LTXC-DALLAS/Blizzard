@@ -1250,6 +1250,7 @@ __Thread Flash_Load_TestNum_Thrd {
 __PatternSequence FuseFarm_SEQ {
     __Thread[0] = FF_InitCheck_Thrd;
     __Thread[1] = FF_CheckROM_Mg0_ENG_Thrd;
+    __Thread[2] = FF_RunAutoload_ENG_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
     }
@@ -1260,6 +1261,12 @@ __Thread FF_InitCheck_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = FF_InitCheck_eng_DPM;
+    }
+}
+__Thread FF_RunAutoload_ENG_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = FF_RunAutoload_ENG;
     }
 }
 __Thread FF_CheckROM_Mg0_ENG_Thrd {
@@ -1294,6 +1301,7 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[9] = Garnet_Shell064_T072C008S007_A2_Thrd;
     __Thread[10] = f021_shell_exepat_pll_v3p0_Thrd;
     __Thread[11] = f021_shell_exepat_pll_NCPU_Thrd;
+    __Thread[12] = f021_shell_exepat_pll_Both_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1386,6 +1394,12 @@ __Thread f021_shell_exepat_pll_NCPU_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_NCPU.f021_shell_exepat_pll_v3p0_start"; }
+    }
+}
+__Thread f021_shell_exepat_pll_Both_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_Both.f021_shell_exepat_pll_v3p0_start"; }
     }
 }
 __Thread a_st_tk_10_v22_Thrd {
