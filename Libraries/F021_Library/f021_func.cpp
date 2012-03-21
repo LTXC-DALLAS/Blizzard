@@ -321,6 +321,22 @@ void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 
    measValue.SetUnits("A");
 }
 
+void STDMeasVSampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
+{
+   VI.InitializeMeasure(myPin);  //put in default delays, etc.
+   VI.SetMeasureSamples(myPin, samples);
+   VI.MeasureVSamples(myPin, measValues, simValue);
+   measValues.SetUnits("V");
+}
+
+void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
+{
+   VI.InitializeMeasure(myPin);
+   VI.SetMeasureSamples(myPin, samples);
+   VI.MeasureISamples(myPin, measValues, simValue);
+   measValues.SetUnits("A");
+}
+
  /*KChau 12/21/07 - make IntToBinStr module level procedure.*/
  /******************************************************************/
  /* IntToBinStr : converts decimal number to 16-bit binary string. */
@@ -7180,8 +7196,8 @@ void F021_SetTestNum(IntS testnum)
    tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
    tnumlo = testnum & 0x0000ffff;
    
-   strhi = IntToVLSIDriveStr(tnumhi, strlength, false);
-   strlo = IntToVLSIDriveStr(tnumlo, strlength, false);
+   strhi = IntToVLSIDriveStr(tnumhi, strlength, true); //nibbles are msb to lsb
+   strlo = IntToVLSIDriveStr(tnumlo, strlength, true); //nibbles are msb to lsb
 
 #if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -7238,9 +7254,9 @@ void F021_SetTestNum(IntS testnum)
       for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
       {
          shiftbit = length*offsetcyc;
-         vector_data = strlo.Substring(shiftbit, length); // no need for eindex because we went LSB-first
+         vector_data = strlo.Substring(eindex - shiftbit, length);
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring(shiftbit, length);
+         vector_data = strhi.Substring(eindex - shiftbit, length);
          SourceArrHi += vector_data;
       }
       SourceArr = SourceArrLo + SourceArrHi;
@@ -7255,9 +7271,9 @@ void F021_SetTestNum(IntS testnum)
    {
       for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
       {
-         vector_data = strlo.Substring((4*offsetcyc), 4); // no need for 13- because we went LSB-first
+         vector_data = strlo.Substring(13 - (4*offsetcyc), 4); 
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring((4*offsetcyc), 4);
+         vector_data = strhi.Substring(13 - (4*offsetcyc), 4);
          SourceArrHi += vector_data;
       } 
       SourceArr = SourceArrLo + SourceArrHi;
@@ -7825,7 +7841,7 @@ void F021_Set_TPADS(IntS TCRnum,
          if(tistdscreenprint and TI_FlashDebug)  
          {
             IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
-            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f",str1, 
+            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f\n",str1, 
                      vProg,vRange,iProg);
          } 
       }   /*if suppena*/
@@ -8307,6 +8323,8 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
    BoolS debugprint;
    FloatM Sim_Value;
    
+   bool debug_sample_repeatability = true;
+   
    if (SYS.TesterSimulated()) {
       if ((test_llim != UTL_VOID) && (test_ulim != UTL_VOID))
       {
@@ -8399,11 +8417,26 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
       count = 10;
       ulim = test_ulim;
       llim = test_llim;
+      
+      // remove after debug
+      FloatM1D meas_values(1000,0);
 
       if (read_voltage) 
       {
+         // remove after debug!!
+         if (debug_sample_repeatability)
+         {
+            STDMeasVSampled(tsupply, 1000, meas_values, Sim_Value);
+         }
+         
          STDMeasV(tsupply, count, Meas_Value, Sim_Value);
       } else {
+         // remove after debug!!
+         if (debug_sample_repeatability)
+         {
+            STDMeasISampled(tsupply, 1000, meas_values, Sim_Value);
+         }
+         
          STDMeasI(tsupply, count, Meas_Value, Sim_Value);
       }
 
@@ -8476,7 +8509,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    TIME.StartTimer();
    debugprint = TI_FlashDebug and tiprintpass;      
    if(tistdscreenprint and debugprint)  
-      IO.Print(IO.Stdout,"Running Test Number PMEX %x",testnum);
+      IO.Print(IO.Stdout,"Running Test Number PMEX 0x%x\n",testnum);
 
    if(maxtimeout>0s)  
       maxtime = maxtimeout;
@@ -8571,13 +8604,13 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //         else
 //            IO.Print(IO.Stdout,,"X":5);
       IO.Print(IO.Stdout,"\n");
-      IO.Print(IO.Stdout,"F021_RunTestNumber_PMEX TT : %f\n",ttimer1);
+      IO.Print(IO.Stdout,"F021_RunTestNumber_PMEX TT : %e\n",ttimer1);
       IO.Flush(IO.Stdout);
    } 
    
    if(tistdscreenprint and TI_FlashDebug)  
    {
-      IO.Print(IO.Stdout,"RunTestNumber_PMEX %12x",testnum);
+      IO.Print(IO.Stdout,"RunTestNumber_PMEX 0x%12x\n",testnum);
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
          if(test_results[*si] == TM_PASS)  
             IO.Print(IO.Stdout,"  /  ");
