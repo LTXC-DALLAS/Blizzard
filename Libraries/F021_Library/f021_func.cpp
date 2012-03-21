@@ -345,16 +345,19 @@ void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &mea
 void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
 {
    int strlength;
-   int bit_of_interest;
+   int bit_of_interest = 1;
    int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
    tmpstr1 = "";
    
    strlength = 16;  /*16-bit length*/
-   bit_of_interest = 1;
    
    for (int i = 0; i < strlength; ++i) 
    {
-      bit_of_interest << i;
+      if (i > 0)
+      {
+         bit_of_interest = bit_of_interest << 1;
+      }
+         
       if ((my_int & bit_of_interest) == 0) 
       {
          tmpstr1 = "0" + tmpstr1;
@@ -368,13 +371,12 @@ StringS IntToVLSIDriveStr(IntS tmpint1, IntS numBits, bool isMSBFirst)
 // numBits is the number of bits to convert. It is number of bits, NOT 
 // bit number. This means it is 1-based, not 0 based.
 {
-   int bit_of_interest;
+   int bit_of_interest = 1;
    int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
    int l_num_bits;
    
    StringS drive_string = "";
   
-   bit_of_interest = 1;
    if (numBits > 32) 
    {
       l_num_bits = 32; // we only deal with 32 bits max
@@ -384,7 +386,11 @@ StringS IntToVLSIDriveStr(IntS tmpint1, IntS numBits, bool isMSBFirst)
    
    for (int i = 0; i < l_num_bits; ++i) 
    {
-      bit_of_interest << i;
+      if (i > 0)
+      {
+         bit_of_interest = bit_of_interest << 1;
+      }
+
       if ((my_int & bit_of_interest) == 0) 
       {
          if (isMSBFirst) // LSBs come first in loop, so prepend for MSB first
@@ -7196,8 +7202,8 @@ void F021_SetTestNum(IntS testnum)
    tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
    tnumlo = testnum & 0x0000ffff;
    
-   strhi = IntToVLSIDriveStr(tnumhi, strlength, true); //nibbles are msb to lsb
-   strlo = IntToVLSIDriveStr(tnumlo, strlength, true); //nibbles are msb to lsb
+   strhi = IntToVLSIDriveStr(tnumhi, strlength, false); //nibbles are lsb to msb
+   strlo = IntToVLSIDriveStr(tnumlo, strlength, false); //nibbles are lsb to msb
 
 #if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -7206,7 +7212,7 @@ void F021_SetTestNum(IntS testnum)
    maxiter = 15;
    maskbit = 0x1;
    maxsrccount = 32;
-   eindex = 16;
+   eindex = 15;
    length = 1;
    hindex = 17;
 #else
@@ -7214,7 +7220,7 @@ void F021_SetTestNum(IntS testnum)
    maxiter = 3;
    maskbit = 0xF;
    maxsrccount = 8;
-   eindex = 13;
+   eindex = 12;
    length = 4;
    hindex = 5;
 #endif
@@ -7254,9 +7260,9 @@ void F021_SetTestNum(IntS testnum)
       for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
       {
          shiftbit = length*offsetcyc;
-         vector_data = strlo.Substring(eindex - shiftbit, length);
+         vector_data = strlo.Substring(shiftbit, length);  // don't need eindex- because we are lsb first
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring(eindex - shiftbit, length);
+         vector_data = strhi.Substring(shiftbit, length); // don't need eindex- because we are lsb first
          SourceArrHi += vector_data;
       }
       SourceArr = SourceArrLo + SourceArrHi;
@@ -7271,9 +7277,9 @@ void F021_SetTestNum(IntS testnum)
    {
       for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
       {
-         vector_data = strlo.Substring(13 - (4*offsetcyc), 4); 
+         vector_data = strlo.Substring((4*offsetcyc), 4); // don't need 13- because we are lsb first
          SourceArrLo += vector_data;
-         vector_data = strhi.Substring(13 - (4*offsetcyc), 4);
+         vector_data = strhi.Substring((4*offsetcyc), 4); // don't need 13- because we are lsb first
          SourceArrHi += vector_data;
       } 
       SourceArr = SourceArrLo + SourceArrHi;
