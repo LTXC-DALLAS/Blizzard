@@ -255,6 +255,11 @@ __PatternMap DefaultPatternMap {
         __File "f021_shell_exepat_pll_NCPU";
         __Path "./Patterns/Ascii";
     }
+    //RPT 500k at the end followed by RPT_CPU w/ clock turned off
+    __Pattern f021_shell_exepat_pll_Both {
+        __File "f021_shell_exepat_pll_Both";
+        __Path "./Patterns/Ascii";
+    }
 /*********************************************************/
 
     __Pattern ShellB_Tnum0x00100000 {
@@ -455,6 +460,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern FF_RunAutoload_DPM {
         __File "FF_RunAutoload_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern FF_RunAutoload_ENG {
+        __File "FF_RunAutoload_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern OTG_ChgdischgVbusM_DPM {
