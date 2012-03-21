@@ -1253,6 +1253,7 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[2] = FF_RunAutoload_ENG_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
+        __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
     }
     __AutoBasePeriod = __True;
 }

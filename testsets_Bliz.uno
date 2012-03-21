@@ -1247,6 +1247,37 @@ __Test FF_InitCheck_T {
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
             TestPatterns = __Expression { __String = "'FF_InitCheck_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = FF_InitCheck_1;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_RunAutoload_ENG_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
+        __Title = FF_InitCheck_2;
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_CheckROM_Mg0_ENG_Thrd'"; }
+            MinorID = __Expression { __String = "20"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             DisablePatternDatalog = __Expression { __String = "FALSE"; }
@@ -1607,18 +1638,6 @@ __Test FTN_LoopCPU_T {
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             CharacterizationEnable = __Expression { __String = "FALSE"; }
-        }
-    }
-}
-__Test Pump_BGAP_Vnom {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = Flash_Shell_TestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
-    __PortExpression[1] = __Expression { __String = "TRUE"; }
-    __Block[0] = {
-        __Title = Block1;
-        __TestMethod {
-            __Name = Pump_BGap_Vnom_func;
         }
     }
 }
