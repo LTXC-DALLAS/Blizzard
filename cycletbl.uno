@@ -1535,6 +1535,12 @@ __Thread a_st_tk_fles_2_v22_Thrd {
         __PatternLabel = __Expression { __String = "a_st_tk_fles_2_v22.a_st_tk_fles_2_v22_st"; }
     }
 }
+__Thread ScanDebug_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ScanDebug.ScanDebug_st"; }
+    }
+}
 
 __PatternSequence SCAN_SA_PG_PS {
     __Thread[0] = a_st_tk_1_v22_Thrd;
@@ -1548,7 +1554,7 @@ __PatternSequence SCAN_SA_PG_PS {
     __Thread[8] = a_st_tk_9_v22_Thrd;
     __Thread[9] = a_st_tk_10_v22_Thrd;
     __Thread[10] = a_st_tk_12_v22_Thrd;
-    __Thread[10] = a_st_tk_13_v22_Thrd;
+    __Thread[11] = a_st_tk_13_v22_Thrd;
     __Thread[12] = a_st_tk_14_v22_Thrd;
     __Thread[13] = a_st_tk_15_v22_Thrd;
     __Thread[14] = a_st_tk_16_v22_Thrd;
@@ -1557,8 +1563,9 @@ __PatternSequence SCAN_SA_PG_PS {
     __Thread[17] = a_st_tk_19_v22_Thrd;
     __Thread[18] = a_st_tk_20_v22_Thrd;
     __Thread[19] = a_st_tk_21_v22_Thrd;
-    __Thread[19] = a_st_tk_fles_1_v22_Thrd;
-    __Thread[19] = a_st_tk_fles_2_v22_Thrd;
+    __Thread[20] = a_st_tk_fles_1_v22_Thrd;
+    __Thread[21] = a_st_tk_fles_2_v22_Thrd;
+    __Thread[22] = ScanDebug_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
     }

@@ -261,6 +261,9 @@ __Test SupplyShorts {
     }
 }
 __Test ATPG_CPU_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = SCAN_SA_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
@@ -272,7 +275,7 @@ __Test ATPG_CPU_T {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'SCAN_SA_PG_Thrd'"; }
+            TestPatterns = __Expression { __String = "'ScanDebug_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -1256,7 +1259,7 @@ __Test FF_InitCheck_T {
         }
     }
     __Block[1] = {
-        __Title = FF_InitCheck_1;
+        __Title = FF_RunAutoload;
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
@@ -1271,7 +1274,7 @@ __Test FF_InitCheck_T {
         }
     }
     __Block[2] = {
-        __Title = FF_InitCheck_2;
+        __Title = FF_CheckROM_Mg0;
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }

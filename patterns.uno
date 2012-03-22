@@ -226,6 +226,10 @@ __PatternMap DefaultPatternMap {
         __File "TestPatScan";
         __Path "./Patterns/Ascii";
     }
+    __Pattern ScanDebug {
+        __File "ScanDebug";
+        __Path "./Patterns/Ascii";
+    }
 //    __Pattern jtag_reset_init {
 //        __File "jtag_reset_init";
 //        __Path "./Patterns/Ascii";
