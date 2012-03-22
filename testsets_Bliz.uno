@@ -1641,9 +1641,9 @@ __Test FTN_LoopCPU_T {
         }
     }
 }
-__Test Pump_BGAP_Vnom_T {
+__Test Pump_BGAP_Vnom {
     __Entry[0] = DCsetup_Loose;
-    __Entry[1] = Flash_Shell_TestNum_SEQ;
+    __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
