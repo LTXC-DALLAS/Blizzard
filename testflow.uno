@@ -1239,7 +1239,7 @@ __SubFlow F021FlashFlow_S {
         }
         __InputPosition = 272;
         __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
         }
@@ -1247,11 +1247,11 @@ __SubFlow F021FlashFlow_S {
         __Exec = Pump_BGAP_Vnom;
     }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = FlashTestNum_T_321;
+    __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
         Test_0_1834 __Port[0] = FlashTestNum_T_321;
         Test_0_1834 __Port[1] = F_FUNC_Vnom_1839;
-        F021_InitFLGlobalVars_317 __Port[0] = Pump_Iref_Vnom_560;
+        F021_InitFLGlobalVars_317 __Port[0] = Pump_BGAP_Vnom_304;
         Pump_Iref_Vnom_560 __Port[0] = Pump_BGAP_Vnom_304;
         FlashTestNum_T_321 __Port[0] = FlowNode_1768;
         FlashTestNum_T_321 __Port[1] = F_FUNC_Vnom_1839;

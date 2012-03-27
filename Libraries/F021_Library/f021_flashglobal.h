@@ -126,7 +126,6 @@ enum TPModeType {ReadMode,ProgMode,PvfyMode,ErsMode,EvfyMode,CvfyMode};
  /*vmin,nom,max,mineven,minodd,...*/
 enum VCornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
 
-
 struct F021_RunCodeRec {
   BoolS1D DO_RUNCODE_ENA; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*use for flow control, true=enable*/
   StringS1D FIRST_PROGPAT; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*1st (segment) write pattern*/

@@ -252,15 +252,35 @@ using namespace std;
 /*                                                                */
 /* If you don't pass the range, the previous range is kept        */
 /******************************************************************/
-void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI, const FloatM &vRange = UTL_VOID)
+void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI, const TPMeasType &measType, const FloatM &vRange = UTL_VOID)
 {
-   VI.SetClampsI(viPin, setI);
-   VI.SetMeasureIRange(viPin, setI);
-   if (vRange == UTL_VOID) 
-      VI.ForceV(viPin, setV);
-   else
-      VI.ForceV(viPin, setV, vRange);
-
+//   SITE active_site = ActiveSites.Begin().GetValue();
+   
+   switch (measType)
+   {
+      case ForceCurrType: // force current
+      case MeasVoltType:  // we force current and measure voltage
+         if (vRange != UTL_VOID)
+         {
+            VI.SetMeasureVRange(viPin, vRange);
+            VI.SetClampsV(viPin, vRange, -vRange);
+         } else {
+            VI.SetClampsV(viPin, setV, -setV);
+         }
+         VI.ForceI(viPin, setI, setI);
+         break;
+      case ForceVoltType: // force voltage
+      case MeasCurrType: // we force voltage and measure current
+         VI.SetClampsI(viPin, setI);
+         VI.SetMeasureIRange(viPin, setI);
+         if (vRange == UTL_VOID) 
+            VI.ForceV(viPin, setV);
+         else
+            VI.ForceV(viPin, setV, vRange);
+         break;
+      default:
+         return; // do nothing, don't gate on
+   }
    if (VI.GetGateState(viPin).AnyGreater(VI_GATE_ON)) // if any are gated off
    {
       VI.Gate(viPin, VI_GATE_ON);
@@ -296,6 +316,7 @@ void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_R
             DIGITAL.Connect(myPin, DIGITAL_DCL_TO_DUT);
             break;
          }
+         // fall through to connect PPMU
       case PINTYPE_ANALOG_PIN:
       case PINTYPE_POWER_PIN:
          VI.Connect(myPin, VI_TO_DUT, connectMode);
@@ -307,7 +328,7 @@ void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_R
 
 void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
 {
-   VI.InitializeMeasure(myPin);  //put in default delays, etc.
+//   VI.InitializeMeasure(myPin);  //put in default delays, etc....it kills previous ranging, too, though
    VI.SetMeasureSamples(myPin, averages);
    VI.MeasureVAverage(myPin, measValue, simValue);
    measValue.SetUnits("V");
@@ -315,7 +336,7 @@ void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 
 
 void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
 {
-   VI.InitializeMeasure(myPin);
+//   VI.InitializeMeasure(myPin);
    VI.SetMeasureSamples(myPin, averages);
    VI.MeasureIAverage(myPin, measValue, simValue);
    measValue.SetUnits("A");
@@ -323,15 +344,22 @@ void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 
 
 void STDMeasVSampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
 {
-   VI.InitializeMeasure(myPin);  //put in default delays, etc.
-   VI.SetMeasureSamples(myPin, samples);
-   VI.MeasureVSamples(myPin, measValues, simValue);
+   FloatM measurement;
+//   VI.InitializeMeasure(myPin);  //put in default delays, etc....it kills previous ranging, too, though
+   VI.SetMeasureSamples(myPin, 1);
+//   VI.SetMeasureDelay(myPin, 200us);
+   for (int i = 0; i < samples; ++i)
+   {
+      VI.MeasureVAverage(myPin, measurement, simValue);
+      measValues.SetValue(i, measurement);
+      TIME.Wait(100us);
+   }
    measValues.SetUnits("V");
 }
 
 void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
 {
-   VI.InitializeMeasure(myPin);
+//   VI.InitializeMeasure(myPin);
    VI.SetMeasureSamples(myPin, samples);
    VI.MeasureISamples(myPin, measValues, simValue);
    measValues.SetUnits("A");
@@ -412,16 +440,35 @@ StringS IntToVLSIDriveStr(IntS tmpint1, IntS numBits, bool isMSBFirst)
    return (drive_string);
 }   /* end IntToVLSIDriveStr */
 
-bool AllSitesEqual (TMResultM result, TMResultS expected_result) 
+void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
+                           WordOrientationS wordOrientation = WORD_MSB_FIRST)
 {
-   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   BoolM timed_out;
+   
+   // if no wordSize is given, then we do parallel even if that means a 1-bit parallel
+   // if more than 1 capture pin, it has to be parallel
+   if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 0)) 
    {
-      if (result[*si] != expected_result) 
+      DIGITAL.DefineParallelCapture(capturePins, capName, maxCapCount);
+   } else {
+      DIGITAL.DefineSerialCapture(capturePins, capName, maxCapCount, wordSize, wordOrientation);
+   }
+   DIGITAL.StartCapture(capName);
+   DIGITAL.ExecutePattern(patternBurst);
+   timed_out = DIGITAL.WaitForCapture(capName);
+   DIGITAL.ReadCapture(capName, captureArr, simValue);
+   if (timed_out.AnyEqual(true)) 
+   {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       {
-         return false;
+         if (timed_out[*si])
+         {
+            cout << "Digital capture timed out on site " << *si << " for thread " 
+                 << patternBurst << " capture " << capName << endl;
+         }
       }
    }
-   return true;
 }
 
 // /******************************************************************/
@@ -515,16 +562,16 @@ TMResultM F021_InitFLGlobalvars_func()
    {
       if(tistdscreenprint)  
       {
-         IO.Print(IO.Stdout,"+++++ F021_InitFLGlobalvars_func +++++");
+         IO.Print(IO.Stdout,"+++++ F021_InitFLGlobalvars_func +++++\n");
          if(TI_FlashDebug)  
          {
-            IO.Print(IO.Stdout,"GL_F021_LOG_FAILPAT[site] = false");
-            IO.Print(IO.Stdout,"GL_F021_COF_PASS[site] = true");
-            IO.Print(IO.Stdout,"GL_F021_COF_1STFAILTEST[site] = NULL_TestName");
-            IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = true");
-            IO.Print(IO.Stdout,"GL_FLASH_RETEST[site] = false");
-            IO.Print(IO.Stdout,"GL_FLASH_RETEST_GEC[site] = false");
-            IO.Print(IO.Stdout,"PUMP_PARA_VALUE[pre/post] = 0V");
+            IO.Print(IO.Stdout,"GL_F021_LOG_FAILPAT[site] = false\n");
+            IO.Print(IO.Stdout,"GL_F021_COF_PASS[site] = true\n");
+            IO.Print(IO.Stdout,"GL_F021_COF_1STFAILTEST[site] = NULL_TestName\n");
+            IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = true\n");
+            IO.Print(IO.Stdout,"GL_FLASH_RETEST[site] = false\n");
+            IO.Print(IO.Stdout,"GL_FLASH_RETEST_GEC[site] = false\n");
+            IO.Print(IO.Stdout,"PUMP_PARA_VALUE[pre/post] = 0V\n");
          } 
       } 
 
@@ -2155,96 +2202,92 @@ TMResultM F021_InitFLGlobalvars_func()
 //   } 
 //}   /* DumpRamMailbox */
 //
-//
-// /*unified all platforms to use cpu byte address addr_loc*/
-//void GetRamContentDec_16Bit(    StringS tpatt,
-//                                     IntS addr_loc,
-//                                     IntM ret_val)
-//{
-//   site = *si;
-//   IntS tmpint,site,counter;
-//   IntS curraddr,offsetcyc,index;
-//   StringS addr_str,str1,str2;
-//   Array [1..NumSites] of IntS temp_value;
-//   Array [1..NumSites] of string[16] tmpArray;
-//   PinMLArrayType pl_arr,pl_failarr;
-//   IntS pl_len,plindex,pl_faillen;
-//   BoolS debugprint,tmpbool;
+
+void GetRamContentDec_16Bit(    StringS tpatt,
+                                     IntS addr_loc,
+                                     IntM ret_val)
+{
+   IntS tmpint,site,counter;
+   IntS curraddr,offsetcyc,index;
+   StringS addr_str,str1,str2, cap_name;
+   IntM temp_value;
+   StringM tmpArray;
+   PinML pl_arr,pl_failarr;
+   IntS pl_len,plindex,pl_faillen;
+   BoolS debugprint,tmpbool;
 //   option log_opt;
-//   IntS pm_addr,rpt_count,loop_count;
-//   IntS scan_block,cycles,src_line;
-//   IntS failcount,failindex,fails;
-//   IntS lsw_cycle,msw_cycle;
-//   IntS fail_cycle,data_nib,dead_cyc;
-//   IntS1D data_cycle(8);
-//   IntS2D CaptureArr,SourceArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..17 */
-//   BoolS SaveMemSetBistData;
-//   PinML data_pins,data_in;
-//   FloatS ttimer1;
-//   IntS maxcapcount,istep,count;
-//   IntS tnib0,tnib1,tnib2,tnib3;
-//   IntS maxsrccount,maskbit,maxiter;
-//   IntS shiftbit,evenodd,physaddr;
+   IntS pm_addr,rpt_count,loop_count;
+   IntS scan_block,cycles,src_line;
+   IntS failcount,failindex,fails;
+   IntS lsw_cycle,msw_cycle;
+   IntS fail_cycle,data_nib,dead_cyc;
+   IntS1D data_cycle(9);
+   UnsignedM1D CaptureArr(18);
+   UnsignedM1D sim_cap_arr(18, 0);
+   StringML SourceArr; 
+   BoolS SaveMemSetBistData;
+   PinML data_pins,data_in;
+   FloatS ttimer1;
+   IntS maxcapcount,istep,count;
+   IntS tnib0,tnib1,tnib2,tnib3;
+   IntS maxsrccount,maskbit,maxiter;
+   IntS shiftbit,evenodd,physaddr;
 //   DCSetUp prevDCSU;
-//
+
+// ????
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //   {
 //      SetupGet(prevDCSU);
 //      SetupSelect(prevDCSU,norm_fmsu);
 //   } 
-//   
-//   timernstart(ttimer1);
-//   debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
-//   offsetcyc = 0;
-//
-//   temp_value = 0;
-//
-//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if v_dev_active[site]  
-//         tmpArray[site] = '0000000000000000';
-//
-//#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
-//#if $GL_USE_JTAG_RAMPMT  
+   
+   TIME.StartTimer();
+   debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
+   offsetcyc = 0;
+
+   temp_value = 0;
+
+   tmpArray = "0000000000000000";
+
+#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
+#if $GL_USE_JTAG_RAMPMT  
+//  :TODO: come back and do the JTAG section...unneeded for Blizzard
 //    /*-------- use JTAG --------*/
 //   data_pins = JTAG_DOUT;
 //   data_in   = JTAG_DIN;
 //   maxcapcount = 16;
 //   istep = 1;
 //   
-//   IntToBinStr(addr_loc,addr_str);
+//   //IntToBinStr(addr_loc,addr_str);
+//   addr_str = IntToVLSIDriveStr(addr_loc, 16, true);
 //   
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //   {
-//      site = *si;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
 //      {
-//         site = *si;
-//         for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         {
-//            SourceArr[site][offsetcyc+1] = ((addr_loc & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*if(tistdscreenprint and TI_FlashDebug) then
-//                 write(tiwindow,'SourceArr[ ',(offsetcyc+1):-2,' ] = ',SourceArr[site,offsetcyc+1]:-2, '  ');
-//             */
-//         } 
-//          /*if(tistdscreenprint and TI_FlashDebug) then
+//         SourceArr += addr_str[15-offsetcyc]; // makes SourceArr LSB first
+//          /*if(tistdscreenprint and ti_flashdebug) then
+//              write(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
+//          */
+//      } 
+//          /*if(tistdscreenprint and ti_flashdebug) then
 //             writeln(tiwindow);
 //          */
-//         break;
-//      } 
 //   }
 //   else
 //   {
+//      StringML temp_arr;
 //      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,'MOD_ADDR',offsetcyc,
-//                                data_in,S_binary,
-//                                Mid(addr_str,16-(1*offsetcyc),1));
+//         temp_arr += addr_str[15-offsetcyc]; // LSB first
+//      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
+//      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, temp_arr);
 //   } 
 //
 //   if(GL_DO_ESDA_WITH_SCRAM)  
 //   {
 //      if(GL_DO_SOURCE_WITH_SCRAM)  
 //         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,
-//                                     False, SourceArr,CaptureArr)
+//                                     false, SourceArr,CaptureArr)
 //      else
 //         PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
 //
@@ -2253,18 +2296,17 @@ TMResultM F021_InitFLGlobalvars_func()
 //            if(v_dev_active[site])  
 //               temp_value[site] = temp_value[site]+(CaptureArr[site][count] << (count-1));
 //       /*
-//       if(tistdscreenprint and TI_FlashDebug) then
+//       if(tistdscreenprint and ti_flashdebug) then
 //       begin
 //          for site := 1 to v_sites do
 //             if(v_dev_active[site]) then
-//                writeln(tiwindow,'Site',site:-5,' addr = ',addr_loc:s_hex,'  data = ',temp_value[site]:s_hex);
+//                writeln(tiwindow,"Site",site:-5," addr = ",addr_loc:s_hex,"  data = ",temp_value[site]:s_hex);
 //       end;
 //       */
 //   }
 //   else
 //   {
-//      site = *si;
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,'LSW_DATA');
+//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
 //      lsw_cycle = data_cycle[1];
 //      for (counter = 2;counter <= maxcapcount;counter++)
 //         data_cycle[counter] = data_cycle[1]+counter-1;
@@ -2286,11 +2328,10 @@ TMResultM F021_InitFLGlobalvars_func()
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
 //               {
-//                  site = *si;
 //                  fail_cycle = v_cycle[site];
 //                  for (index = 1;index <= maxcapcount;index++)
 //                     if((data_cycle[index] = fail_cycle) and (pl_failarr[1]=pl_arr[1]))  
-//                        tmpArray[site][(maxcapcount+1)-index] = '1';
+//                        tmpArray[site][(maxcapcount+1)-index] = "1";
 //               } 
 //            failindex = failindex+1;
 //         }   /*for tmpint*/
@@ -2298,11 +2339,10 @@ TMResultM F021_InitFLGlobalvars_func()
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //            {
-//               site = *si;
-//               Readstring('0b' + tmpArray[site]) + temp_value[site];
+//               Readstring("0b" + tmpArray[site]) + temp_value[site];
 //                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,'Site',site:-5,' value = ',temp_value[site],'  ',temp_value[site]:s_hex);
+//                if(tistdscreenprint and ti_flashdebug) then
+//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
 //                 */
 //            } 
 //      }   /*tmpbool*/
@@ -2313,27 +2353,28 @@ TMResultM F021_InitFLGlobalvars_func()
 //      
 //   ret_val =  temp_value;
 //    /*-------- end of JTAG --------*/
-//#else
-//    /*-------- use DMLED --------*/
-//   data_in   = DMLED_INBUS;
-//   data_pins = DMLED_OUTBUS;
-//   maxcapcount = 4;
-//   maxsrccount = 17;
-//   istep = 4;
-//
-//   physaddr = addr_loc>>3;
-//   evenodd = (addr_loc>>2) & 0x1;
-//   
+#else
+    /*-------- use DMLED --------*/
+   data_in   = "DMLED_INBUS";
+   data_pins = "DMLED_OUTBUS";
+   cap_name = "CapRam16";
+   maxcapcount = 4;
+   maxsrccount = 17;
+   istep = 4;
+
+   physaddr = addr_loc>>3;
+   evenodd = (addr_loc>>2) & 0x1;
+   
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //   {
+   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //      {
-//         site = *si;
 //         for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
 //         {
 //            SourceArr[site][offsetcyc+1] = ((physaddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*if(tistdscreenprint and TI_FlashDebug) then
-//                 writeln(tiwindow,'SourceArr[ ',(offsetcyc+1):-2,' ] = ',SourceArr[site,offsetcyc+1]:-2, '  ');
+//             /*if(tistdscreenprint and ti_flashdebug) then
+//                 writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
 //             */
 //         } 
 //         SourceArr[site][maxsrccount] = evenodd;
@@ -2342,41 +2383,41 @@ TMResultM F021_InitFLGlobalvars_func()
 //   }
 //   else
 //   {
-//      IntToBinStr(physaddr,addr_str);
-//      for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-//      {
-//         str2 = '000' + Mid(addr_str + 16-offsetcyc + 1);
-//         Patternlabelsetpindata(tpatt,'MOD_ADDR',offsetcyc,data_in,S_binary,str2);
-//      } 
-//      
-//       /*control word*/
-//      writestring(str1,evenodd:1);
-//      while(len(str1)<4) do
-//      {
-//         str1 = '0' + str1;
-//      } 
-//      Patternlabelsetpindata(tpatt,'MOD_ADDR',36,data_in,S_binary,str1);
+      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
+      for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
+      {
+         SourceArr += "LLL" + addr_str[15-offsetcyc]; 
+      } 
+      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
+      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, SourceArr);      
+      
+       /*control word*/
+      str1 = IntToVLSIDriveStr(evenodd, 4, true);
+//      Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_in,S_binary,str1);
+      SourceArr.Erase();
+      SourceArr += str1;
+      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, 36, SourceArr, "L");
 //   } 
-//
+
 //   if(GL_DO_ESDA_WITH_SCRAM)  
 //   {
 //      if(GL_DO_SOURCE_WITH_SCRAM)  
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,False,SourceArr,CaptureArr);
+   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
+//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,false,SourceArr,CaptureArr);
 //      else
-//         PatternDigitalCapture(tpatt,data_pins,maxcapcount,CaptureArr);
-//
-//      for (count = 1;count <= maxcapcount;count++)
-//      {
-//         shiftbit = 4*(count-1);
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               temp_value[site] = temp_value[site] + (CaptureArr[site][count]<<shiftbit);
-//      } 
+         PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
+
+      for (count = 0;count < maxcapcount;count++)
+      {
+         shiftbit = 4*(count);
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            temp_value[*si] = temp_value[*si] + (CaptureArr[*si][count]<<shiftbit);
+      } 
 //   }
 //   else
 //   {
-//      site = *si;
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,'LSW_DATA');
+   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
+//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
 //      lsw_cycle = data_cycle[1];
 //      for (counter = 2;counter <= maxcapcount;counter++)
 //         data_cycle[counter] = data_cycle[1]+counter-1;
@@ -2398,7 +2439,6 @@ TMResultM F021_InitFLGlobalvars_func()
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
 //               {
-//                  site = *si;
 //                  FailGetSitePinList(site, failindex, pl_failarr,pl_faillen);
 //                  fail_cycle = v_cycle[site];
 //                  for (counter = 1;counter <= fails;counter++)
@@ -2408,7 +2448,7 @@ TMResultM F021_InitFLGlobalvars_func()
 //                  {
 //                     for (plindex = 1;plindex <= pl_len;plindex++)
 //                        if(pl_failarr[counter] = pl_arr[plindex])  
-//                           tmpArray[site][17-((data_nib-1)*4)-plindex] = '1';
+//                           tmpArray[site][17-((data_nib-1)*4)-plindex] = "1";
 //                  } 
 //               } 
 //            failindex = failindex+1;
@@ -2417,11 +2457,10 @@ TMResultM F021_InitFLGlobalvars_func()
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //            {
-//               site = *si;
-//               Readstring('0b' + tmpArray[site]) + temp_value[site];
+//               Readstring("0b" + tmpArray[site]) + temp_value[site];
 //                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,'Site',site:-5,' value = ',temp_value[site],'  ',temp_value[site]:s_hex);
+//                if(tistdscreenprint and ti_flashdebug) then
+//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
 //                 */
 //            } 
 //      }   /*tmpbool*/
@@ -2429,11 +2468,12 @@ TMResultM F021_InitFLGlobalvars_func()
 //      failresetmax;
 //      Disable(S_Fail_Memory);
 //   }    
-//      
-//   ret_val =  temp_value;
-//    /*-------- end of DMLED --------*/
-//#endif
-//#else
+      
+   ret_val =  temp_value;
+    /*-------- end of DMLED --------*/
+#endif
+#else
+// :TODO: Fix this. Unneeded for Blizzard.
 //   data_pins = PMT_RAMBUS;
 //
 //   IntToBinStr(addr_loc>>2,addr_str);
@@ -2446,13 +2486,13 @@ TMResultM F021_InitFLGlobalvars_func()
 //      if(not GL_DO_ESDA_WITH_SCRAM)  
 //      {
 //         dead_cyc = 0;
-//         data_cycle[1] = PatternLabelGetCycle(tpatt,'LSW_DATA');
+//         data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
 //         lsw_cycle = data_cycle[1];
 //         for (counter = 2;counter <= maxcapcount;counter++)
 //            data_cycle[counter] = data_cycle[1]+counter;
 //      } 
 //      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,'MOD_ADDR',offsetcyc,
+//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                data_pins,S_binary,
 //                                Mid(addr_str,13-(4*offsetcyc),4));
 //   }
@@ -2461,7 +2501,7 @@ TMResultM F021_InitFLGlobalvars_func()
 //      maxcapcount = 1;
 //      istep = 1;
 //      fails = 1;
-//      Patternlabelsetpindata(tpatt,'MOD_ADDR',offsetcyc,
+//      Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                             data_pins,S_binary,addr_str);
 //   } 
 //
@@ -2471,7 +2511,7 @@ TMResultM F021_InitFLGlobalvars_func()
 //   if(false )   /*GL_DO_ESDA_WITH_SCRAM*/
 //   {
 //      SaveMemsetBistData = V_MemSetBistData;
-//      V_MemSetBistData = FALSE;  /* Prevents SCRAM statements from giving error */
+//      V_MemSetBistData = false;  /* Prevents SCRAM statements from giving error */
 //
 //      PatternDigitalCapture(tpatt, data_pins, maxcapcount, CaptureArr);
 //
@@ -2483,7 +2523,6 @@ TMResultM F021_InitFLGlobalvars_func()
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site])  
 //               {
-//                  site = *si;
 //                  tnib0 = CaptureArr[site][count];    /*ls nibble*/
 //                  tnib1 = CaptureArr[site][count+1]<<4;
 //                  tnib2 = CaptureArr[site][count+2]<<8;
@@ -2499,7 +2538,6 @@ TMResultM F021_InitFLGlobalvars_func()
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site])  
 //               {
-//                  site = *si;
 //                  FL_SCRAM_CAPT_ARR[count][site] = CaptureArr[site][count];
 //               }   /*if v_dev_active*/
 //      } 
@@ -2531,7 +2569,6 @@ TMResultM F021_InitFLGlobalvars_func()
 //                  
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                  {
-//                     site = *si;
 //                     if(V_Fail_Count[site] >= tmpint)  
 //                     {
 //                        if (V_Dev_Active[site] and (not V_PF_Status[site]))  
@@ -2546,7 +2583,7 @@ TMResultM F021_InitFLGlobalvars_func()
 //                           {
 //                              for (plindex = 1;plindex <= pl_len;plindex++)
 //                                 if(pl_failarr[counter] = pl_arr[plindex])  
-//                                    tmpArray[site][17-((data_nib-1)*4)-plindex] = '1';
+//                                    tmpArray[site][17-((data_nib-1)*4)-plindex] = "1";
 //                              if(TIStdScreenPrint and debugprint)  
 //                                 writeln(TIWindow,"site ",site:2," Fail Pin  ",
 //                                         pl_failarr[counter], fail_cycle);
@@ -2560,13 +2597,12 @@ TMResultM F021_InitFLGlobalvars_func()
 //            
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            {
-//               site = *si;
 //                /*convert binary string to integer number*/
-//               ReadString('0b' + tmpArray[site]) + temp_value[site];
+//               ReadString("0b" + tmpArray[site]) + temp_value[site];
 //               
 //               if(tistdscreenprint and debugprint)  
 //                  IO.Print(IO.Stdout,"site ",site:2,"  value ",temp_value[site],
-//                          '  ',temp_value[site]:s_hex);
+//                          "  ",temp_value[site]:s_hex);
 //            }             
 //         }  /*X64*/
 //         else
@@ -2575,7 +2611,6 @@ TMResultM F021_InitFLGlobalvars_func()
 //                                   scan_block, cycles, src_line );
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            {
-//               site = *si;
 //               if (v_dev_active[site])  
 //               {
 //                  if not v_pf_status[site]  
@@ -2585,18 +2620,18 @@ TMResultM F021_InitFLGlobalvars_func()
 //                     {
 //                        for (plindex = 1;plindex <= pl_len;plindex++)
 //                           if(pl_failarr[index] = pl_arr[plindex])  
-//                              tmpArray[site][(17-plindex)] = '1';
+//                              tmpArray[site][(17-plindex)] = "1";
 //                        if(tistdscreenprint and debugprint)  
 //                           IO.Print(IO.Stdout,"site ",site:3,"Fail Pin  ",
 //                                   pl_failarr[index]);
 //                     } 
 //                     
 //                      /*convert binary string to integer number*/
-//                     ReadString('0b' + tmpArray[site]) + temp_value[site];
+//                     ReadString("0b" + tmpArray[site]) + temp_value[site];
 //                     
 //                     if(tistdscreenprint and debugprint)  
 //                        IO.Print(IO.Stdout,"site ",site:2,"  value ",temp_value[site],
-//                                '  ',temp_value[site]:s_hex);
+//                                "  ",temp_value[site]:s_hex);
 //                  }   /*if v_pf_status*/
 //               }   /*if v_dev_active*/
 //            }   /*for site*/
@@ -2607,16 +2642,16 @@ TMResultM F021_InitFLGlobalvars_func()
 //      Disable(S_Fail_Memory);
 //      ret_val =  temp_value;
 //   } 
-//#endif
-//
+#endif
+
+// ????
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //      SetupSelect(prevDCSU,norm_fmsu);
-//
-//   if(tistdscreenprint and debugprint)  
-//      IO.Print(IO.Stdout," GetRamContentDec_16bit TT : ",timernread(ttimer1));
-//}    /*GetRamContentDec_16bit*/
-//
-//
+
+   if(tistdscreenprint and debugprint)  
+      IO.Print(IO.Stdout," GetRamContentDec_16bit TT : %e",TIME.StopTimer());
+}    /*GetRamContentDec_16bit*/
+
 //
 // /*hexvalue: write decimal value 4660 (or 0x1234) into RAM as 1234*/
 // /*nothexvalue: write decimal value 751 (or 0x2EF) into RAM as 751*/
@@ -7456,7 +7491,7 @@ TMResultM F021_LoadFlashShell_func()
    StringM site_cof_inst_str;
 
    if(tistdscreenprint and TI_FlashDebug)  
-      IO.Print(IO.Stdout,"+++++ F021_LoadFlashShell_func +++++");
+      IO.Print(IO.Stdout,"+++++ F021_LoadFlashShell_func +++++\n");
 
    GL_FLTESTID = TESTID;
    tw_prefix = "LoadFlashShell";
@@ -7638,7 +7673,7 @@ void F021_Set_TPADS(IntS TCRnum,
    if(tistdscreenprint and TI_FlashDebug)  
       IO.Print(IO.Stdout,"\n");
 
-   if(TCRnum=52)  
+   if(TCRnum==52)  
      special_opt = 3;
    else
      special_opt = 0;
@@ -7806,11 +7841,11 @@ void F021_Set_TPADS(IntS TCRnum,
          { 
             STDConnect(tsupply);
          }
-         STDSetVI(tsupply, vProg, iProg, vRange);
+         STDSetVI(tsupply, vProg, iProg, meastype, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
             IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
-            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f",str1, 
+            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3e\n",str1, 
                      vProg,vRange,iProg);
          } 
       }   /*if suppena*/
@@ -7843,11 +7878,11 @@ void F021_Set_TPADS(IntS TCRnum,
 
       if(suppena)  
       {
-         STDSetVI(tsupply, vProg, iProg, vRange);
+         STDSetVI(tsupply, vProg, iProg, meastype, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
             IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
-            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3f\n",str1, 
+            IO.Print(IO.Stdout,"%5s Vprog = %5.3f VRange = %5.3f IProg = %5.3e\n",str1, 
                      vProg,vRange,iProg);
          } 
       }   /*if suppena*/
@@ -8203,15 +8238,21 @@ void F021_TurnOff_AllTPADS()
 {
    FloatS tdelay;
 
-   STDSetVI(FLTP1,0V,1mA);
-   STDSetVI(FLTP2,0V,1mA);
+   VI.Gate(FLTP1, VI_GATE_OFF_LOZ);
+   VI.Gate(FLTP2, VI_GATE_OFF_LOZ);
+//   STDSetVI(FLTP1,0V,1mA);
+//   STDSetVI(FLTP2,0V,1mA);
 #if $TP3_TO_TP5_PRESENT  
-   STDSetVI(FLTP3,0V,1mA);
-   STDSetVI(FLTP4,0V,1mA);
-   STDSetVI(FLTP5,0V,1mA);
+   VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
+   VI.Gate(FLTP4, VI_GATE_OFF_LOZ);
+   VI.Gate(FLTP5, VI_GATE_OFF_LOZ);
+//   STDSetVI(FLTP3,0V,1mA);
+//   STDSetVI(FLTP4,0V,1mA);
+//   STDSetVI(FLTP5,0V,1mA);
 #endif
 #if $TADC_PRESENT  
-   STDSetVI(P_TADC,0V,1mA);
+   VI.Gate(P_TADC, VI_GATE_OFF_LOZ);
+//   STDSetVI(P_TADC,0V,1mA);
 #endif
       
    tdelay = 2ms;
@@ -8429,6 +8470,7 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
 
       if (read_voltage) 
       {
+         cout << "I'm-a reading voltage!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
@@ -8437,6 +8479,7 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
          
          STDMeasV(tsupply, count, Meas_Value, Sim_Value);
       } else {
+         cout << "I'm-a reading current!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
@@ -8498,8 +8541,14 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    FloatS maxtime,tdelay,ttimer1,timer2_start;
    TMResultM done_results,ndone_results, test_results;
    BoolS done,debugprint;
+   // only enable one of the following 4 options
    bool using_pattern_match = false;
-   bool using_cpu_loop = false;
+   bool using_external_match = false;
+   bool using_fail_flag = true;
+   bool using_long_repeat = false;
+   
+   bool using_cpu_loop = true;
+   BoolM done_value;
 //   option databit_1, databit_2, databit_3;
 //   option config_1, config_2, config_3;
 //   BoolS drv_1, drv_2, drv_3;
@@ -8511,6 +8560,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   IntS site,pmstop,tmpint;
 //   BoolM pass_results;
    
+   test_results = TM_NOTEST;
 
    TIME.StartTimer();
    debugprint = TI_FlashDebug and tiprintpass;      
@@ -8533,12 +8583,12 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   Enable(S_pmexit);
 //   PMExSetdelay(S_PFLAGS,pmstop);  // don't understand all this pmstop stuff
    F021_SetTestNum(testnum);
-
+   
    if (using_pattern_match) 
    {
       test_results = DIGITAL.TestPattern(f021_shell_exepat, true);
    } 
-   else // using external match with sync clock or cpu loop in pattern
+   else if (using_external_match)// using external match with sync clock or cpu loop in pattern
    {
       DIGITAL.ExecutePattern(f021_shell_exepat);
       DIGITAL.SetDriveMode(nporrst, DIGITAL_DRV_MODE_OFF);
@@ -8555,13 +8605,12 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       
       TIME.Wait(tdelay);
       done = false;
-      test_results = TM_NOTEST;
       timer2_start = TIME.GetTimer();
 
       while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
       {      
          done_results = DIGITAL.TestCompareState(F021_DONEPIN, DIGITAL_CMP_STATE_HIGH);
-         test_results = DLOG.AccumulateResults(test_results, done_results);
+         test_results = done_results; // forget the history to remove past fails
          ndone_results = DIGITAL.TestCompareState(F021_NDONEPIN, DIGITAL_CMP_STATE_LOW);
          test_results = DLOG.AccumulateResults(test_results, ndone_results);
 
@@ -8569,18 +8618,72 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
           /*if(TI_FlashDebug) then
              discard(CompareGet(F021_PASSPIN));*/
 
-         done = AllSitesEqual(test_results, TM_PASS);
+         done = (test_results == TM_PASS);  // done will only be true if all sites passed
          if (!done)
          {
             TIME.Wait(tdelay);
          }
       }   /*while*/
-   } // end else (if !using_pattern_match)
+   } else if (using_fail_flag) {
+      DIGITAL.ExecutePattern(f021_shell_exepat);
+      
+      TIME.Wait(tdelay);
+      done = false;
+      timer2_start = TIME.GetTimer();
+
+      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+      {      
+         DIGITAL.ReadFlag(F021_DONEPIN, DIGITAL_FLAG_FAIL, done_value, true);
+         if (!(done_value == true)) // true is a fail and that's what we're looking for, pattern strobes low
+         {
+            TIME.Wait(tdelay);
+            cout << "waiting on donepin" << endl;
+         } else {
+            done = true;
+         }
+      }   /*while*/
+      // check for results
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if (done_value[*si])
+            test_results[*si] = TM_PASS;
+         else
+            test_results[*si] = TM_FAIL;
+      }     
+   } else if (using_long_repeat) {
+      DIGITAL.ExecutePattern(f021_shell_exepat);
+      test_results = TM_PASS; // just force a pass...this is debug :TODO: Remove this after debug
+   }
    
    if (using_cpu_loop) // let's end the loop
    {
       DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
-   }
+   } 
+
+//      DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
+//      DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
+//      DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
+//      DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
+//      DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
+//      DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
+      
+//      TIME.Wait(tdelay);
+//      done = false;
+//      test_results = TM_NOTEST;
+//      timer2_start = TIME.GetTimer();
+//
+//      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+//      {      
+//         DIGITAL.ReadCounter(F021_DONEPIN, DIGITAL_FAIL_COUNTER, done_value, 1);
+//         if (done_value.AllNotEqual(1))
+//         {
+//            TIME.Wait(tdelay);
+//            cout << "waiting on donepin" << endl;
+//         } else {
+//            done = true;
+//         }
+//
+//      }   /*while*/
 
    ttimer1 = TIME.StopTimer();
 
@@ -8588,7 +8691,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    
    if(tistdscreenprint and debugprint)  
    {
-      IO.Print(IO.Stdout,"F021_DONEPIN (H) : ");
+      IO.Print(IO.Stdout,"F021_DONEPIN  (H) : ");
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
          if(done_results[*si] == TM_PASS)  
             IO.Print(IO.Stdout,"  /  ");
@@ -8616,7 +8719,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    
    if(tistdscreenprint and TI_FlashDebug)  
    {
-      IO.Print(IO.Stdout,"RunTestNumber_PMEX 0x%12x\n",testnum);
+      IO.Print(IO.Stdout,"RunTestNumber_PMEX 0x%x\n",testnum);
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
          if(test_results[*si] == TM_PASS)  
             IO.Print(IO.Stdout,"  /  ");
@@ -13595,16 +13698,16 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
             tpstart = tpnum;
          tpstop = tpnum;
       } 
-   if(tpstart=0)  
+   if(tpstart==0)  
       tpstop = -1;
 
    if(parmena)  
    {
       if(tistdscreenprint and TI_FlashDebug)  
-         IO.Print(IO.Stdout,"+++++ F021_Pump_Para_func +++++");
+         IO.Print(IO.Stdout,"+++++ F021_Pump_Para_func +++++\n");
 
 #if $TP3_TO_TP5_PRESENT  
-      if(TCRnum=115) 
+      if(TCRnum==115) 
       {
          VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
          VI.Disconnect(FLTP3);
@@ -13650,7 +13753,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
                F021_Set_TPADS(TCRnum,TCRMode);
                rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
                TIME.Wait(tdelay);
-               if(TCRnum=0)  
+               if(TCRnum==0)  
                   TIME.Wait(2*tdelay);
                once = true;
             } 
@@ -13730,7 +13833,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 // to double-test?? :TODO: Check if F021_Meas_TPAD_PMEX is always called with a 
 // print and twpdl afterwards...if so, remove the 'test' portion from F021_Meas_TPAD_PMEX
 // and have it just return the measurement            
-            IO.Print(dlog_comment, "F021_Pump_Para_func testnum is %x.\n", testnum);
+            IO.Print(dlog_comment, "F021_Pump_Para_func testnum is 0x%x.\n", testnum);
             DLOG.Text(dlog_comment);
             TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, 
                          UTL_VOID, true, TWMinimumData);
@@ -13759,7 +13862,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
             }
             
             if(tistdscreenprint)  
-               cout << "   TT " << ttimerS << endl;
+               cout << test_name << " TT : " << ttimerS << endl;
          }   /*if pump_para_enable*/
 
          if(ActiveSites.GetNumSites() == 0)  
@@ -13781,8 +13884,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
       tt_timer = TIME.StopTimer();
       if(tistdscreenprint)  
       {
-         IO.Print(IO.Stdout,"F021_Pump_Para_func  TT ",tt_timer);
-         IO.Print(IO.Stdout,"");
+         IO.Print(IO.Stdout,"F021_Pump_Para_func TT : %e\n\n",tt_timer);
       } 
       
       // want to turn on any sites that we turned off during the loop 

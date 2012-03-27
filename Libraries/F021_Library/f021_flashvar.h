@@ -49,7 +49,8 @@ extern      IntM GL_SHELL_CONFIGREV;
 extern      IntM GL_SHELL_SUPPORTREV;
 
 extern      BoolS GL_USE_RAMPMT_X64;
-extern      BoolS GL_DO_ESDA_WITH_SCRAM, GL_DUMP_RAWESDA_TOFILE, GL_DO_SOURCE_WITH_SCRAM;
+// extern      BoolS GL_DO_ESDA_WITH_SCRAM,  GL_DO_SOURCE_WITH_SCRAM;
+extern      BoolS GL_DUMP_RAWESDA_TOFILE;
 extern      BoolM GL_SITE_TO_ESDA;
 extern      BoolM2D GL_BANK_TO_ESDA; /* array dimensions were : 0..7,0..15 */
 

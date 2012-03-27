@@ -221,8 +221,8 @@ void F021_FlashConfig()
 #endif
 
    /*+++ define whether to use source/capture ram +++*/
-   GL_DO_ESDA_WITH_SCRAM   = true;   /*true=using capture ram to read esda/tlog/mbox data*/
-   GL_DO_SOURCE_WITH_SCRAM = false;   /*true=using source ram to modify address/tnum data*/
+//   GL_DO_ESDA_WITH_SCRAM   = true;   /*true=using capture ram to read esda/tlog/mbox data*/
+//   GL_DO_SOURCE_WITH_SCRAM = false;   /*true=using source ram to modify address/tnum data*/
 
     /*+++ define efuse read/program option +++*/
     /*F021             = read flash efuse not using SCRAM*/
