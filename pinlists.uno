@@ -820,3 +820,6 @@ __PinGroup DCREF_Pins {
 __PinGroup EVASignalHeader_PL {
 	__Group = __Expression { __String = "DSH_PL-Probe_Only_Pins"; }
 }
+__PinGroup DMLED_OUTBUS {
+	__Group = __Expression { __String = "TRD0_90+PB0_129+PF3_91+PB1_130"; }
+}

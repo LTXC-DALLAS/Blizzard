@@ -6903,12 +6903,12 @@ void F021_FlashConfigInclude()
    TCR.TP2_Ena[124] = true;
    TCR.TP2_MeasType[124] = MeasVoltType;
    TCR.TP2_VRange[124][ReadMode] = MainBG_ULim;
-   TCR.TP2_IRange[124][ReadMode] = 10nA;
+   TCR.TP2_IRange[124][ReadMode] = 0nA;
    TCR.TP2_ULim[124][ReadMode]   = MainBG_ULim;
    TCR.TP2_LLim[124][ReadMode]   = MainBG_LLim;
     /*use progmode for pre trim w/ relaxed limits*/
    TCR.TP2_VRange[124][ProgMode] = MainBG_ULim+650mV;
-   TCR.TP2_IRange[124][ProgMode] = 10nA;
+   TCR.TP2_IRange[124][ProgMode] = 0nA;
    TCR.TP2_ULim[124][ProgMode]   = MainBG_ULim+500mV;
    TCR.TP2_LLim[124][ProgMode]   = MainBG_LLim-500mV;
 

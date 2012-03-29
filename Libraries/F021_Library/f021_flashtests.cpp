@@ -5010,13 +5010,8 @@ TMResultM Pump_Iref_Vnom_func()
 
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
-//   PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-// :TODO: make sure we do something for the clock stuff
-//   ClockSet(S_CLOCK1A,FALSE,GL_F021_PLLENA_SPEED1,
-//                  v[vih_loose_osc_vnom],v[vil_loose]);
-//      clockpinset(s_clk_1c,s_clock);
    TIME.Wait(tdelay);
-//   dcconnect(allpins, s_low, s_ldoff);  /*JRR*/
+
    F021_LoadFlashShell_func();
 
 /////////////////////////////////////////////////////////:HERE:///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -5111,40 +5106,43 @@ TMResultM Pump_BGap_Vnom_func()
 }   /* Pump_BGap_Vnom_func */
 
 
-//BoolS Pump_VHV_Vmin_func()
+//TMResultM Pump_VHV_Vmin_func()
 //{
 //   const IntS TESTID = 17; 
 //
-//   BoolM final_results,tmp_results;
-//   BoolM alldisable,savesites;
-//   Vcornertype vcorner;
+//   TMResultM final_results,tmp_results;
+//   BoolM alldisable;
+//   Sites savesites, disable_sites, initial_sites;
+//   VCornertype vcorner;
 //   StringS current_shell;
 //   IntS tcrnum,site;
 //   TPModeType tcrmode;
 //   IntM ctval;
+//   
+//   initial_sites = ActiveSites;
 //
 //    /*vhv ct trimming*/
 //   if(GL_DO_VHV_CT_TRIM)  
 //   {
-//      PwrupAtVnom_1;
+//      // Don't know how we'll do this yet...set levels different than our current category
+//      //PwrupAtVnom_1;
 //      current_shell = 'FlashShell';
 //      if(GL_PREVIOUS_SHELL <> current_shell)        
-//         F021_LoadFlashShell_func;
+//         F021_LoadFlashShell_func();
 //
 //      alldisable = false;
-//      if not(ArrayCompareBoolean(GL_FLASH_RETEST,alldisable,v_sites))  
+//      if !(alldisable == GL_FLASH_RETEST)  // all sites must match for this to be true (then negated by the !)
 //      {
-//         savesites = v_dev_active;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and (not GL_FLASH_RETEST[site]))  
-//               Devsetholdstate(site,false);
-//         if(v_any_dev_active)  
-//  {
-//     site = *si;
-//      TL_RunTestNum(TNUM_BANK_ERS_NOPRECON,'');
+//         savesites = ActiveSites;
+//         // Disable sites that have retest of false
+//         RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(GL_FLASH_RETEST)); 
+//               
+//         if(!ActiveSites.Begin().End())  // if there is an active site
+//         {
+//            TL_RunTestNum(TNUM_BANK_ERS_NOPRECON,'');
 //            TL_RunTestNum(TNUM_OTP_ERS_PRECON ,''); /*PROG*/
-//   } 
-//         Devsetholdstates(savesites);
+//         } 
+//         RunTime.SetActiveSites(savesites);
 //      } 
 //
 //      F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
@@ -5165,14 +5163,15 @@ TMResultM Pump_BGap_Vnom_func()
 //      VHV_PV_CT_TRIMSAVED_EMU = ctval;
 //#endif
 //
-//      RAM_Upload_VHV_CT_TrimVal;  /*KChau 09/10/10*/
+//      RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
 //   } 
 //   
-//   PwrupAtVmin_1;
+//   // Hmmm....
+//   // PwrupAtVmin_1;
 //
 //   current_shell = 'FlashShell';
 //   if(GL_PREVIOUS_SHELL <> current_shell)        
-//      F021_LoadFlashShell_func;
+//      F021_LoadFlashShell_func();
 //
 //   GL_FLTESTID = TESTID;
 //   vcorner = VMN;
@@ -5181,22 +5180,25 @@ TMResultM Pump_BGap_Vnom_func()
 //   tcrmode = ProgMode;
 //   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
 //
-//   if(v_any_dev_active)  
+//   RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS))); 
+//   if(!ActiveSites.Begin().End())  // we have an active site
 //   {
 //      tcrmode = PvfyMode;
 //      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
 //   } 
 //   
-//   if(v_any_dev_active)  
+//   RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS))); 
+//   if(!ActiveSites.Begin().End())  
 //   {
 //      tcrmode = ErsMode;
 //      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
 //   } 
 //   
-//   Pump_VHV_Vmin_func = v_any_dev_active;
+//   RunTime.SetActiveSites(initial_sites);
+//   return (final_results);
 //}   /* Pump_VHV_Vmin_func */
-//
-//
+
+
 //BoolS Pump_VHV_Vmax_func()
 //{
 //   const IntS TESTID = 18; 

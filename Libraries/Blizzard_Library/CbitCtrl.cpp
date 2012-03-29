@@ -1,14 +1,17 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                          //
 //                                CbitCtrl.cpp                                              //
-//                                  v1.4				                                              //     
+//                                  v1.5				                                    //     
 //                                                                                          //
 //  This is the source file to the Applications Cbit control drivers (CbitCtrl).            //
 // Control over ECBITs, CBOC, and wrappers for similar control of Tester Cbits is included. //
 //                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////
-//                                Revision Log			                                        //
+//                                Revision Log			                                    //
 //////////////////////////////////////////////////////////////////////////////////////////////
+//  2012-03-23 v1.5    : jat    Changed SYS.ReadDutBus to work with UOP.SJ20120316 and above//
+//                              This means that this version is only compatible with builds //
+//                              of Unison equivalent or newer than that!!!                  //
 //  2011-07-26 v1.4    : jat    Fixed issue in EcbitSet which would reset all cbits if you  //
 //                              called EcbitSet with the same cbits that were already closed//
 //  2011-06-13 v1.3    : jat    Added in Tester Cbit control                                //
@@ -182,12 +185,8 @@ UnsignedSL EcbitReadCpld ()
 {
     UnsignedSL cbits_closed;
     UnsignedS reg_data;
-    UnsignedM reg_data_read;
-    UnsignedM sim_data = 0;
-
-    SITE active_site = ActiveSites.Begin().GetValue(); // For some reason ReadDUTBus is multisite even when there is only one 
-                                                       // bus instance to read from, so I have to index the data, so grab first
-                                                       // active site    
+    UnsignedS reg_data_read;
+    UnsignedS sim_data = 0;
  
     for (UnsignedS cage_num = 0; cage_num < gCbitMaxCage; cage_num++)
     {
@@ -202,7 +201,7 @@ UnsignedSL EcbitReadCpld ()
         /////////////////////////////////////// :HACK: //////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////
         SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_REVISION_REGISTER_ADDRESS, reg_data_read, ECBIT_VALID_REVISION);
-        if (reg_data_read[active_site] == ECBIT_VALID_REVISION)  // we found a valid Ecbit module
+        if (reg_data_read == ECBIT_VALID_REVISION)  // we found a valid Ecbit module
         {
             for (IntS block_num = 0; block_num < 16; block_num++)
             {
@@ -213,7 +212,7 @@ UnsignedSL EcbitReadCpld ()
                     SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_CBIT_REGISTER_ADDRESSES[reg_num], reg_data_read, sim_data);
                     for (UnsignedS i = 0; i < 4; i++)
                     {
-                        if (reg_data_read[active_site] & (1 << (i*2)))
+                        if (reg_data_read & (1 << (i*2)))
                         {   // skip enable bits, only look at data bits
                             // 256 ECBITS per cage, 16 per block, 4 per reg, 1 per bit
                             cbits_closed += (cage_num * 256) + (block_num * 16) + (reg_num * 4) + i + 1; // Ecbits start at 1, not 0
