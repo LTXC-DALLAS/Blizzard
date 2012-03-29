@@ -124,6 +124,46 @@ __SignalHeader ScanHeader2 {
         PF3_91 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
     }
 }
+__SignalHeader ScanHeader1_261 {
+    __Signals {
+        PA2_48 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        C1_n_45 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PA3_49 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        C1_p_44 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PA4_50 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        C0_p_43 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PA5_51 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        C0_n_42 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PA6_54 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        TRD2_88 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PA7_55 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        TRD1_89 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PB0_129 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        TRD0_90 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+        PB1_130 { __Scan, __ScanLength = 261, __Fill = L, __PreFill; }
+        PF3_91 { __Scan, __ScanLength = 261, __Fill = M, __PostFill; }
+    }
+}
+__SignalHeader ScanHeader1_9682 {
+    __Signals {
+        PA2_48 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        C1_n_45 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PA3_49 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        C1_p_44 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PA4_50 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        C0_p_43 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PA5_51 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        C0_n_42 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PA6_54 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        TRD2_88 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PA7_55 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        TRD1_89 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PB0_129 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        TRD0_90 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+        PB1_130 { __Scan, __ScanLength = 9682, __Fill = L, __PreFill; }
+        PF3_91 { __Scan, __ScanLength = 9682, __Fill = M, __PostFill; }
+    }
+}
 
 __SignalHeader ScanHeader1 {
     __Signals {
@@ -228,6 +268,42 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern ScanDebug {
         __File "ScanDebug";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern ScanDebug_Osc0 {
+        __File "ScanDebug_Osc0";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern ScanDebug_Osc02 {
+        __File "ScanDebug_Osc02";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern ScanDebugVVS {
+        __File "ScanDebugVVS";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_DSH {
+        __File "a_st_tk_1_DSH";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_DSH1 {
+        __File "a_st_tk_1_DSH1";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_v22SH261 {
+        __File "a_st_tk_1_v22SH261";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_v22SH9682 {
+        __File "a_st_tk_1_v22SH9682";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_v22SH9682_Fail {
+        __File "a_st_tk_1_v22SH9682_Fail";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern st_tk_init_byhand {
+        __File "st_tk_init_byhand";
         __Path "./Patterns/Ascii";
     }
 //    __Pattern jtag_reset_init {
@@ -972,6 +1048,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern a_st_tk_1_v22 {
         __File "a_st_tk_1_v22";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_1_v22SH1 {
+        __File "a_st_tk_1_v22SH1";
         __Path "./Patterns/Ascii";
     }
     __Pattern a_st_tk_2_v22 {

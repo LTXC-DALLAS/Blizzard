@@ -331,7 +331,7 @@ __FunctionCall CurveTrace {
 
 __WaveformCapture ALLPINS_Capture {
   __ReferenceSegment "";
-  __Start "55000";
+  __Start "7945";
   __Stop "50";
   __Resolution "1.5nS";
   __Pins "ALLPINS-FLTP2-AIN04_193" {
@@ -341,11 +341,14 @@ __WaveformCapture ALLPINS_Capture {
 	__ScopeHi "3.3V";
 	__ScopeLo "0V";
   }
-  __Pins "RST_n_122+TCK_152+TDI_150+TDO_149+TMS_151+o_cpu_done_46+o_cpu_fail_47+OSC0_124+PA3_49+PA4_50+AIN10_183+PB6_10+PB0_129" {
+  __Pins "RST_n_122+TCK_152+TDI_150+TDO_149+TMS_151+o_cpu_done_46+o_cpu_fail_47+OSC0_124+PA3_49+PA4_50+AIN10_183+PB6_10+PB0_129+ScanHeader2_PL" {
 	__Enable __True;
 	__Merge EVW_Merge_All;
 	__DriveEnable __True;
+	__DriveSize "7";
 	__ResponseEnable __True;
+	__ResponseSize "7";
+	__ScopeDriveSize "7";
 	__ScopeHi "3.3V";
 	__ScopeLo "0V";
   }
@@ -991,6 +994,54 @@ __LimitTable Blizzard_LimitTable {
         __FailBin = F_OS_SHRT_VDD;
         __Name = SupplyShorts_VddNWA;
         __SimulateValue = __Expression { __String = "10uA"; }
+    }
+    __LimitStruct 6 {
+        __LowLimit = __Expression { __String = "-1V"; }
+        __HighLimit = __Expression { }
+        __Units = "V";
+        __DlogText = "DigCont_AllDigPins_Open";
+        __FailBin = F_OS_OPEN;
+        __Name = DigCont_AllDigPins_Open;
+        __SimulateValue = __Expression { __String = "-750mV"; }
+    }
+    __LimitStruct 7 {
+        __LowLimit = __Expression { __String = "-1V"; }
+        __HighLimit = __Expression { }
+        __Units = "V";
+        __DlogText = "DigCont_DigEvenPins_Open";
+        __FailBin = F_OS_OPEN;
+        __Name = DigCont_DigEvenPins_Open;
+        __SimulateValue = __Expression { __String = "-750mV"; }
+    }
+    __LimitStruct 8 {
+        __LowLimit = __Expression { __String = "-1V"; }
+        __HighLimit = __Expression { }
+        __Units = "V";
+        __DlogText = "DigCont_DigOddPins_Open";
+        __FailBin = F_OS_OPEN;
+        __Name = DigCont_DigOddPins_Open;
+        __SimulateValue = __Expression { __String = "-750mV"; }
+    }
+    __LimitStruct 9 {
+        __HighLimit = __Expression { __String = "-.1V"; }
+        __DlogText = "DigCont_AllDigPins_Short";
+        __FailBin = F_OS_SHRT_PIN;
+        __Name = DigCont_AllDigPins_Short;
+        __SimulateValue = __Expression { __String = "-750mV"; }
+    }
+    __LimitStruct 10 {
+        __HighLimit = __Expression { __String = "-.1V"; }
+        __DlogText = "DigCont_DigEvenPins_Short";
+        __FailBin = F_OS_SHRT_PIN;
+        __Name = DigCont_DigEvenPins_Short;
+        __SimulateValue = __Expression { __String = "-750mV"; }
+    }
+    __LimitStruct 11 {
+        __HighLimit = __Expression { __String = "-.1V"; }
+        __DlogText = "DigCont_DigOddPins_Short";
+        __FailBin = F_OS_SHRT_PIN;
+        __Name = DigCont_DigOddPins_Short;
+        __SimulateValue = __Expression { __String = "-750mV"; }
     }
 }
 __GraphicalDebug Bliz_GDT {

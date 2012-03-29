@@ -401,6 +401,20 @@ __SubFlow Continuity_S {
         }
         __TestID = "26";
         __Exec = Digital_Continuity;
+        __Block Conty_AllDigPins_1 { 
+            opens_limits[0] = __Expression { __String = "&DigCont_AllDigPins_Open"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+            shorts_limits[0] = __Expression { __String = "&DigCont_AllDigPins_Short"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+        }
+        __Block Conty_DigEvenPins_1 { 
+            opens_limits[0] = __Expression { __String = "&DigCont_DigEvenPins_Open"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+            shorts_limits[0] = __Expression { __String = "&DigCont_DigEvenPins_Short"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+            test_limits[0] = __Expression { __String = "&DigCont_DigEvenPins_Open"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+        }
+        __Block Conty_DigOddPins_1 { 
+            opens_limits[0] = __Expression { __String = "&DigCont_DigOddPins_Open"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+            shorts_limits[0] = __Expression { __String = "&DigCont_DigOddPins_Short"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+            test_limits[0] = __Expression { __String = "&DigCont_DigOddPins_Open"; __Type = EXPR_OBJECT_REF<LimitStruct>; }
+        }
     }
     __Node F_OS_OPEN_617 {
         __XCoord = (50,275);

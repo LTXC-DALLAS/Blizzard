@@ -260,7 +260,7 @@ __Spec ACSpecs {
         ACTableIndex = "16";
         twMCC_F = "'G'";
         tper.Min = "10ns";
-        tper.Max = "50ns";
+        tper.Max = "50ns*10";
         tperAsync.Min = "10ns";
         tperAsync.Max = "62.5ns";
         charEn_tper = "TRUE";
@@ -325,6 +325,40 @@ __Spec ACSpecs {
         tper.Min = "10ns";
         tper.Max = "166.66ns";
         charEn_tper = "TRUE";
+    }
+    __Category SlowScan {
+        ACTableIndex = "16";
+        twMCC_F = "'G'";
+        tfreq.Min = "1/tper.Max";
+        tfreq.Typ = "1/tper.Max";
+        tfreq.Max = "1/tper.Min";
+        tper.Min = "10ns";
+        tper.Typ = "1/tfreq";
+        tper.Max = "50ns*10";
+        tfreqAsync.Min = "1/tperAsync.Max";
+        tfreqAsync.Typ = "1/tperAsync.Max";
+        tfreqAsync.Max = "1/tperAsync.Min";
+        tperAsync.Min = "10ns";
+        tperAsync.Typ = "1/tfreqAsync";
+        tperAsync.Max = "62.5ns";
+        tH = "tper/2";
+        tQ = "tper/4";
+        t_8th = "tper/8";
+        tref = "0ps";
+        dtcf = "TIdtcf";
+        ctcf = "TIctcf";
+        charID_tper = "'A'";
+        charEn_tper = "TRUE";
+        charStep_tper = "1ns";
+        charID_tperAsync = "'B'";
+        charEn_tperAsync = "TRUE";
+        charStep_tperAsync = "1ns";
+        charID_tfreq = "'C'";
+        charEn_tfreq = "FALSE";
+        charStep_tfreq = "1MHz";
+        charID_tfreqAsync = "'D'";
+        charEn_tfreqAsync = "FALSE";
+        charStep_tfreqAsync = "1MHz";
     }
     __ParamGlobals {
             ACTableIndex { __Type = SCALAR; }
