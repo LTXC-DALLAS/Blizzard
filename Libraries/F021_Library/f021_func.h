@@ -75,9 +75,10 @@
 //                               IntS ersllim, IntS ersulim,
 //                               IntS cmptllim, IntS cmptulim,
 //                             BoolS paral_format);
-//
+
 void IntToBinStr(IntS tmpint1,     StringS &tmpstr1);
 void IntToVLSIDriveStr(IntS tmpint1, StringS &tmpstr1);
+
 //void ElimSpaceStr(    StringS inputstr);
 //
 //void ReadRamAddress(IntS log_site,
@@ -188,20 +189,24 @@ TMResultM F021_LoadFlashShell_func();
 //                                    FloatM ret_timer,
 //                                    BoolM test_results);
 //BoolS F021_MatchLoopByPMU_MS_loader(    StringS tpatt,
-//                                         PinML pass_pin,
-//                                         PinML done_pin,
-//                                         PinML ndone_pin,
-//                                         FloatS max_timeout,
-//                                         IntS pmstop,
-//                                         FloatM ret_timer,
-//                                         BoolM test_results);
+//                                    PinML pass_pin,
+//                                    PinML done_pin,
+//                                    PinML ndone_pin,
+//                                    FloatS max_timeout,
+//                                    IntS pmstop,
+//                                    FloatM ret_timer,
+//                                    BoolM test_results);
 //
 //void F021_SetTestNum(IntS testnum);
 //
 //void Check_RAM_TNUM(    IntS expTnum,
 //                             BoolM test_results);
 //
-//void MBox_Upload_RCODE_PSA(IntS banknum);
+//void MBox_Upload_RCODE_PSA(IntS banknum,
+//                                FlashCodeType code_type);
+//void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum,
+//                                       FlashCodeType code_type,
+//                                       IntS ovr_data);
 //
 //BoolS F021_RunTestNumber(IntS testnum,
 //                            FloatS maxtimeout,
@@ -241,8 +246,8 @@ TMResultM F021_LoadFlashShell_func();
 //                         FloatS rampstop,
 //                         FloatS iProg,
 //                         Option pgmMode);
-
-TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
+//
+TMResultM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  IntS TCRnum,
                                  TPModeType TCRMode,
                                  FloatS test_llim,
@@ -307,6 +312,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //void TL_EngOvride_VWL_CT(IntS ovr_data);
 //void TL_EngOvride_VRD_CT(IntS ovr_data);
 //void TL_EngOvride_VSA5_CT(IntS ovr_data);
+//void TL_EngOvride_RDM0_NMOS(IntS ovr_data);
 //void TL_EngOvride_VHV_ER_CT_MS(IntM ovr_data);
 //void TL_EngOvride_VHV_MAXEP_ESTART_ESTEP_CT(  IntM ovr_maxep, IntM ovr_startct, IntM ovr_estep, IntM ovr_ersct);
 //void TL_EngOvride_RPC_EF(IntS ovr_rpcval,
@@ -317,6 +323,15 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //void TL_EngOvride_BANK_EF22(IntS ovr_data);
 //void TL_EngOvride_BANK_EF17(IntS ovr_data);
 //void TL_EngOvride_BANK_EF22_17(  IntS ef22_val, IntS ef17_val);
+//void TL_EngOvride_RDM0_NMOS_EF(IntS ovr_nmosval,
+//                                    IntS ovr_efindex,
+//                                    IntS ovr_efval);
+//void TL_EngOvride_RDM0_NMOS_EF_PVCT(IntS ovr_nmosval,
+//                                         IntS ovr_efindex,
+//                                         IntS ovr_efval,
+//                                         IntS ovr_pvct);
+//void TL_EngOvride_RDM0_NMOS_PVCT(IntS ovr_data,
+//                                      IntS ovr_pvct);
 //
 //void TL_CpuToBankWordAddr(IntS msw_cpuaddr,
 //                               IntS lsw_cpuaddr);
@@ -328,7 +343,9 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                                                  IntM msw_mainaddr, IntM lsw_mainaddr,
 //                                                IntM SenAmpNum);
 //void TL_Get_PhysSenAmp_From_ESDA_WorstBit(IntS test_site,
-//                                                   IntS PhysSenAmp);
+//                                                   IntS PhysSenAmp,
+//                                                   IntS MBoxWdIndex,
+//                                                   IntS MBoxBitIndex);
 //
 //void TL_EngOvride_TIME_CT(  IntS ovr_psu, IntS ovr_esu, IntS ovr_pvsu, IntS ovr_evsu, IntS 
 //                               ovr_rptvsu, IntS ovr_cvsu, IntS ovr_aexezsu, IntS ovr_pvacc, IntS 
@@ -401,6 +418,8 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                          BoolS logena,
 //                          StringS logstr);
 //
+//void TL_Boost_RefArray();
+//
 //BoolS F021_RestoreOTPInfo_func(    StringS tname,
 //                                      BoolM test_results,
 //                                      BoolS dlogonly);
@@ -415,7 +434,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
 //                                      IntM ret_ctval);
 //void RAM_Upload_VHV_CT_TrimVal();
-
+//
 BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
                                  VCornerType vcorner_type,
@@ -478,13 +497,6 @@ TMResultM F021_InitFLGlobalvars_func();
 //                                    FloatM ret_timer,
 //                                    FloatM ret_values);
 //
-//BoolS F021_VT_func(    IntS start_testnum,
-//                          StringS tname,
-//                          vttype vt_type,
-//                          prepostcorner prepost_type,
-//                          BoolM test_results,
-//                          BoolS dlogonly);
-//
 //BoolS F021_VT_Delta_func(    IntS pattype,
 //                                vttype vt_type,
 //                                StringS tname,
@@ -507,13 +519,6 @@ TMResultM F021_InitFLGlobalvars_func();
 //                      BoolS IsBcc,
 //                      StringS logstr,
 //                          BoolM test_results);
-//
-//BoolS F021_BCC_func(    IntS start_testnum,
-//                           StringS tname,
-//                           vttype vt_type,
-//                           prepostcorner prepost_type,
-//                           BoolM test_results,
-//                           BoolS dlogonly);
 //
 //BoolS F021_BCC_Delta_func(    IntS pattype,
 //                                vttype vt_type,
@@ -575,7 +580,9 @@ TMResultM F021_InitFLGlobalvars_func();
 //void MBox_Upload_PgmRev();
 //void MBox_Upload_PkgMem();
 //void MBox_Upload_EFChkSum();
+//void MBox_Upload_EFChkSum_Pump_Trim();
 //void MBox_Upload_FlwByte(IntS flwbyte_option);
+//void MBox_Upload_LPO_CAL();
 //
 //BoolS F021_Write_OTP_MBox_func(    StringS tname,
 //                                      IntS wr_option,
@@ -586,9 +593,9 @@ TMResultM F021_InitFLGlobalvars_func();
 //BoolS GetShellInfo_func();
 //
 //BoolS F021_FlowCheck_func(    BoolM test_results);
-
-void F021_InitFLEfuseStr();
-
+//
+//void F021_InitFLEfuseStr();
+//
 //void RAM_Upload_SoftTrim_All(IntS BGapVal,
 //                                  IntS IRefVal,
 //                                  IntS FOSCVal,
@@ -600,8 +607,8 @@ void F021_InitFLEfuseStr();
 //                              IntM FOSCVal,
 //                              IntM VHVSLPVal,
 //                              IntM VSA5CTVal);
-void RAM_Clear_SoftTrim_All();
-
+//void RAM_Clear_SoftTrim_All();
+//
 //BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results);
@@ -650,78 +657,18 @@ void RAM_Clear_SoftTrim_All();
 //                                IntS ttarget,
 //                                FloatS force_vcg,
 //                                BoolS redundena,
-//                                    BoolM test_results);
+//                                    BoolM test_results,
+//                                BoolS dopgmbkgrnd,
+//                                IntS ovrideRPC_Val,
+//                                IntS ovrideEF_Index,
+//                                IntS ovrideEF_Val,
+//                                StringS twlogstr);
+//
+//BoolS F021_LPO_Trim_func(    StringS fl_tname,
+//                                BoolS dlogonly,
+//                                BoolM test_results);
+//
 // /*++++++++++++++++++++++++*/
-//
-//void ExtractTestOpt(    StringS instring,
-//                             TestOptFieldArr optstr,
-//                             IntS optnum);
-//
-//void PrintInvalidMsg(StringS str1);
-//
-//IntS Decode_Target_String_func(StringS tgetstr);
-//
-//IntS Decode_Freq_String_func(StringS frqstr);
-//
-//IntS Decode_SubType_String_func(StringS subtstr,
-//                                    IntS testtype_val);
-//
-//IntS Decode_DataType_String_func(StringS datastr);
-//
-//void Display_32Bit_Def_TestType();
-//void Display_32Bit_Def_FreqType();
-//void Display_32Bit_Def_DataType();
-//void Display_32Bit_Def_TargetType();
-//void Display_32Bit_Def_BankSectType();
-//
-//void Display_32Bit_Def();
-//void Display_Program_Options();
-//void Display_Erase_Options();
-//void Display_Read_Options();
-//void Display_VT_Options();
-//void Display_StressLeak_Options();
-//void Display_OTPData_Options();
-//
-//void Display_32Bit_Options();
-//
-//void Display_32Bit_Def_Ers();
-//void Display_32Bit_Def_Read();
-//void Display_32Bit_Def_Prog();
-//void Display_32Bit_Def_VT();
-//void Display_32Bit_Def_OTPData();
-//
-//BoolS FlashErase_func(      StringS erstname, StringS cmptname,
-//                             BoolM test_results,
-//                             StringS FreqStr,
-//                             StringS SubTypeStr,
-//                             StringS TestOptionsStr,
-//                             StringS TargetStr);
-//
-//BoolS FlashRead_func(    StringS readtname,
-//                            BoolM test_results,
-//                            StringS FreqStr,
-//                            StringS SubtypeStr,
-//                            StringS TestOptionsStr,
-//                            StringS DataTypeStr,
-//                            StringS TargetStr);
-//
-//BoolS FlashProgram_func(    StringS progtname,
-//                               BoolM test_results,
-//                               StringS FreqStr,
-//                               StringS SubtypeStr,
-//                               StringS TestOptionsStr,
-//                               StringS DataTypeStr,
-//                               StringS TargetStr);
-//
-//BoolS FlashVT_func(    StringS vttname,
-//                          BoolM test_results,
-//                          StringS FreqStr,
-//                          StringS SubtypeStr,
-//                          StringS TestOptionsStr, 
-//                          StringS DataTypeStr,
-//                          StringS TargetStr,
-//                          vttype vt_type,
-//                          prepostcorner prepost_type);
 //
 //void MyPATTEST_COF(StringS logstr,
 //                        StringS firstPatt,
@@ -744,6 +691,9 @@ void RAM_Clear_SoftTrim_All();
 //BoolS FlashCode_WR_EXE_func(StringS tname,
 //                               FlashCodeType code_type,
 //                               BoolM test_results);
+//BoolS FlashCode_RdPsa_func(StringS tname,
+//                              FlashCodeType code_type,
+//                              BoolM test_results);
 //
 //BoolS F021_Special_Program_func(IntS start_testnum,
 //                                   StringS tname,
@@ -752,6 +702,8 @@ void RAM_Clear_SoftTrim_All();
 //                                   BoolM soft_results);
 //
 //void TL_Display_W89();
+//void TL_Display_W34();
+//void TL_Display_Word8_9();
 //
 //void TL_Meas_VHV_ER_OvrCT(IntM ovr_ersct,
 //                               BoolS logena,
@@ -776,6 +728,34 @@ void RAM_Clear_SoftTrim_All();
 //void TL_SAMP_ACCY_IV(BoolS dobcc,
 //                          StringS logstr,
 //                          BoolS twlogena);
+//void TL_SWEEP_RDM0_NMOS_EF(IntS tdata,
+//                             BoolS ovrideEF,
+//                             IntS ovrideEF_Index,
+//                             IntS ovrideEF_Val,
+//                             BoolS doimeas,
+//                             BoolS twlogena,
+//                             StringS logstr);
+//void TL_SWEEP_RDM0_NMOS(IntS tdata,
+//                             BoolS twlogena,
+//                             StringS logstr);
+//void TL_PVFY_EF(IntS tdata,
+//                     BoolS ovrideEF,
+//                     IntS ovrideEF_Index,
+//                     IntS ovrideEF_Val,
+//                     BoolS twlogena,
+//                     StringS logstr);
+//
+//BoolS MeasPinTMU_func(PinML tpin,
+//                         StringS tStringS,
+//                         IntS meas_option,
+//                         FloatS time_llimit,
+//                         FloatS time_ulimit,
+//                             FloatM ret_values,
+//                             BoolM test_results);
+//
+//#if $FL_USE_DCC_TRIM_FOSC=FALSE then
+//BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
+//#endif
 
 #endif
 

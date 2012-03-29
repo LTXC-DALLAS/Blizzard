@@ -110,9 +110,9 @@ void F021_FlashConfig()
 
    
    switch(SelectedTITestType) {
-     case MP1         : GL_PGMREV = 0x0001; break;  /*program revision*/
+     case MP1         : GL_PGMREV = 0x0006; break;  /*program revision*/
      case MP2         : GL_PGMREV = 0x0001; break;  /*program revision*/
-     case MP3         : GL_PGMREV = 0x0001; break;  /*program revision*/
+     case MP3         : GL_PGMREV = 0x0006; break;  /*program revision*/
      case PreBurnIn   : GL_PGMREV = 0x0001; break;  /*program revision*/
      case PostBurnIn1 : GL_PGMREV = 0x0001; break;  /*program revision*/
      case FT2         : GL_PGMREV = 0x0001; break;  /*program revision*/
@@ -194,8 +194,71 @@ void F021_FlashConfig()
    F021_RunCode.BANK_PSA_MSW[Random][2]        = 0x5084;  /*16-bit word msb expect psa} {w/ ecc*/
    F021_RunCode.BANK_PSA_LSW[Random][2]        = 0x499C;  /*16-bit word lsb expect psa*/
 
+#if $GL_USE_DMLED_RAMPMT
+   /*+++++  OtpSCPL Record  +++++*/
+   /*used for writing SCPL code into customer OTP*/
+   F021_RunCode.DO_RUNCODE_ENA[OtpSCPL] = (SelectedTITestType==MP1);    /*true=enable Random code pgm/rd/exe in test flow*/
+   F021_RunCode.FIRST_PROGPAT[OtpSCPL]  = debug1;  /*1st write pattern, e.g. fl_otp_loader*/
+   F021_RunCode.LAST_PROGPAT[OtpSCPL]   = debug1;  /*last write pattern, e.g fl_otp_loader*/
+   F021_RunCode.PROG_FREQ[OtpSCPL]      = 16MHz;  /*write freq*/
+   F021_RunCode.PROG_VDDCORNER[OtpSCPL] = VNM;   /*write Vdd core voltage corner, e.g. VMN/VNM/VMX*/
    
+   /*use for read chksum of SCPL code in customer OTP*/
+   F021_RunCode.DO_RDPSA_ENA[OtpSCPL]          = true;   /*true=enable rd psa in test flow*/
+   /*+++ bank0 info +++*/
+   F021_RunCode.MEMCFG[OtpSCPL,0]              = 0x7;    /*customer otp target*/
+   F021_RunCode.TDATA[OtpSCPL,0]               = 0xA;    /*arbitrary data*/
+   F021_RunCode.BANK_START_ADDR_MSW[OtpSCPL,0] = 0x0210; /*16-bit word msb addr*/
+   F021_RunCode.BANK_START_ADDR_LSW[OtpSCPL,0] = 0x03C0; /*16-bit word lsb addr*/
+   F021_RunCode.BANK_LEN_MSW[OtpSCPL,0]        = 0x0000; /*16-bit word msb*/
+   F021_RunCode.BANK_LEN_LSW[OtpSCPL,0]        = 0x0040; /*64bytes, 16-bit word lsb*/
+   F021_RunCode.BANK_PSA_MSW[OtpSCPL,0]        = 0xf08d; /*16-bit word msb expect psa*/
+   F021_RunCode.BANK_PSA_LSW[OtpSCPL,0]        = 0x7563; /*16-bit word lsb expect psa*/
+   /*+++ bank1 info +++*/
+   F021_RunCode.MEMCFG[OtpSCPL,1]              = -1;     /*customer otp target, -1 means no running on bank1*/
+#endif
+
    
+   /*+++++ OTP offset address used for OTP restore at MP3 +++++*/
+   ADDR_TIOTP_HI[0] = 0x0212;  /*msw*/
+   ADDR_TIOTP_LO[0] = 0x0000;  /*lsw*/
+   ADDR_TIOTP_HI[1] = 0x0212;
+   ADDR_TIOTP_LO[1] = 0x2000;
+
+   /*+++++ VHV OTP template RAM location - used at MP1/3 +++++*/
+#if $FL_USE_NEW_VHV_TEMPL_ADDR
+#if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT
+#if $GL_USE_JTAG_RAMPMT
+   /*C2000*/
+   ADDR_RAM_TEMPL_VHVE_SM   = 0x2A10;
+   ADDR_RAM_TEMPL_VHVE_PMT  = 0x2A20;
+   ADDR_RAM_TEMPL_VHVPV_PMT = 0x2A24;
+   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x2A40;
+   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x2A50;
+   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x2A54;
+#else
+   /*Stellaris*/
+   ADDR_RAM_TEMPL_VHVE_SM   = 0x1690;
+   ADDR_RAM_TEMPL_VHVE_PMT  = 0x16A0;
+   ADDR_RAM_TEMPL_VHVPV_PMT = 0x16A4;
+   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x16C0;
+   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x16D0;
+   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x16D4;
+#endif
+#else
+   ADDR_RAM_TEMPL_VHVE_SM   = 0x2F10;
+   ADDR_RAM_TEMPL_VHVE_PMT  = 0x2F20;
+   ADDR_RAM_TEMPL_VHVPV_PMT = 0x2F24;
+   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x2F40;
+   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x2F50;
+   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x2F54;
+#endif
+#else
+   /*old vhv template*/
+   ADDR_RAM_TEMPL_VHVE_SM   = 0x3080;
+   ADDR_RAM_TEMPL_VHVE_PMT  = 0x3090;
+   ADDR_RAM_TEMPL_VHVPV_PMT = 0x3094;
+#endif   
    
     /*+++++  MBI Record  +++++*/
    F021_MBI.DO_MBI_ENA      = false;     /*true=enable MBI execute in test flow*/
@@ -232,8 +295,22 @@ void F021_FlashConfig()
     /*F021_ECC         = program flash efuse, with efuse ECC, not using SCRAM*/
     /*F021_ECC_SCRAM_1 = program flash efuse, with efuse ECC, using SCRAM*/
 
-   GL_EFUSE_RD_CODEOPTION = "F021";  /*changed because we don't have ECC JRR*/
-   GL_EFUSE_PG_CODEOPTION = "F021";  /*changed because we don't have ECC JRR*/
+   GL_EFUSE_RD_CODEOPTION = "F021";
+   GL_EFUSE_PG_CODEOPTION = "F021";
+
+   /*+++ define flash pump supply name (StdVIPinType), usually VDD3VFL +++*/
+   /*+++ but if gang with other tester resource like VDDIO then define as VDDIO +++*/
+   /*+++ it is used in ReadDisturb2 stress test +++*/
+   FL_PUMP_SUPPLY_NAME = "VDDS";
+   
+   /*+++ define pin and pattern to use with external FOSC trim/test +++*/
+   /*+++ device using DCC FOSC trim can ignore this +++*/
+   /*example of blizzard device*/
+#if !$FL_USE_DCC_TRIM_FOSC
+   FL_FOSC_EXTERNAL_PIN = "AIN11_182";
+   FL_FOSC_EXTERNAL_PATTERN = f021_shell_exepat_vco_kc;
+#endif
+
    
    F021_FlashConfigInclude();
 

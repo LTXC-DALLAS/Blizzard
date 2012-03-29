@@ -805,7 +805,7 @@ __PinGroup Probe_Only_Pins {
 	XOSC1_102+OSC1_125+PJ0_158+PJ2_160+PJ3_161+RAWPOR_N_TEST_162+PP6_163+AIN23_178+POR_ORIDE_164+VDDEEPROM"; }
 }
 __PinGroup DMLED_INBUS {
-	__Group = __Expression { __String = "PA4_50+PA5_51+PA6_54+ia_ftestadc_132"; }
+	__Group = __Expression { __String = "ia_ftestadc_132+PA6_54+PA5_51+PA4_50"; }
 }
 __PinGroup PMT_RAMBUS {
 	__Group = __Expression { __String = "TRD0_90+PB0_129+PF3_91+PB1_130"; }
@@ -821,5 +821,5 @@ __PinGroup EVASignalHeader_PL {
 	__Group = __Expression { __String = "DSH_PL-Probe_Only_Pins"; }
 }
 __PinGroup DMLED_OUTBUS {
-	__Group = __Expression { __String = "TRD0_90+PB0_129+PF3_91+PB1_130"; }
+	__Group = __Expression { __String = "PB1_130+PF3_91+PB0_129+TRD0_90"; }
 }

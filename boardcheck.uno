@@ -35,11 +35,6 @@ Unison:U1.0c:S5.3;
 /*** UserCheckLoadBoardID Test ***/
 /*********************************/
 __Test UserCheckLoadBoardID_Bllizar_PB1 {
-    __Mask[0] = TIGlobalVarsMask;
-    __PortExpression[0] = __Expression { __String = ".Result = TMResultM:TM_PASS"; }
-    __PortExpression[1] = __Expression { __String = "TRUE"; }
-    __PortAction[1] = __Expression { __String = "skip(0, FALSE -> TIBoardCheckResult, Warning_message('Did not find a valid loadboard.  Please reload the program after making sure that a valid loadboard is being used.'))"; }
-        __GlobalResult = __Expression { __String = "#"; __Type = TM_RESULT:; }
 }
 //end of __ETest
 
@@ -49,18 +44,6 @@ __Test UserCheckLoadBoardID_Bllizar_PB1 {
 /******************************/
 
 __Test SupplyCapChk_Bllizar_PB1 {
-    __PortExpression[0] = __Expression { __String = ".Result = TMResultM:TM_PASS"; }
-    __PortExpression[1] = __Expression { __String = "skip( SupplyCapChk_Bllizar_PB1.VDD.Result = TMResultM:TM_FAIL, FALSE->TIBoardCheckResult,Warning_message('Supply capacitance check failed. Please notify EE that VDD is not at correct value.'))"; }
-    __PortExpression[2] = __Expression { __String = "skip( SupplyCapChk_Bllizar_PB1.VDDAR.Result = TMResultM:TM_FAIL, FALSE->TIBoardCheckResult,Warning_message('Supply capacitance check failed. Please notify EE that VDDAR is not at correct value.'))"; }
-    __PortExpression[3] = __Expression { __String = "skip( SupplyCapChk_Bllizar_PB1.VDDS.Result = TMResultM:TM_FAIL, FALSE->TIBoardCheckResult,Warning_message('Supply capacitance check failed. Please notify EE that VDDS is not at correct value.'))"; }
-    __PortExpression[4] = __Expression { __String = "skip( TRUE {.Test_result.VDDA = TMResultM:TM_FAIL}, FALSE->TIBoardCheckResult,Warning_message('Supply capacitance check failed. Please notify EE that VDDA is not at correct value.'))"; }
-    __PortAction[0] = __Expression { __String = "skip(0, TRUE->TIBoardCheckResult)"; }
-        __GlobalResult = __Expression { __String = "#"; __Type = TM_RESULT:; }
-    __Block[0] = {
-        __Title = VDD;
-        __Value = __Expression { __String = "#"; __Mode = Output; }
-        __ContinueOnFail = __Expression { __String = "TRUE"; }
-    }
 }
 //end of __ETest
 

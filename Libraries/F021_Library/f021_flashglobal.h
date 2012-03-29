@@ -1,4 +1,4 @@
- /****************************************************************************/
+ /******************************************************************************/
  /*  A01 : Initial version of F021 Flash VLCT STD LIB.          KChau 10/09/09 */
  /*                                                                            */
  /*  A1.1 : Released with VT/BCC enable.                        KChau 11/10/09 */
@@ -26,7 +26,12 @@
  /*                                                                            */
  /*  B1.1 : Released to support C2000 and Stellaris platforms.  KChau 06/29/11 */
  /*                                                                            */
- /****************************************************************************/
+ /* 10/28/11  KChau                                                            */
+ /*           -Added OtpSCPL type in FlashCodeType for Stellaris.              */
+ /*                                                                            */
+ /*  B2.5 : Released for Stellaris.                             KChau 10/28/11 */
+ /*                                                                            */
+ /******************************************************************************/
 
 #ifndef F021_FLASHGLOBAL_H
 #define F021_FLASHGLOBAL_H
@@ -57,7 +62,8 @@ extern BoolS TI_FlashCOFEna;
 
 extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
-extern StringS f021_shell_exepat_name;
+//extern StringS f021_shell_exepat_name;
+extern StringS f021_shell_exepat_vco_kc;
 extern StringS ldo_bypass_init_thread;
 extern StringS f021_shell_rcodepat;
 
@@ -116,7 +122,7 @@ enum FlashPumpType {FPAPUMP,HDPUMP,ESPUMP};
 enum FlashBankType {FLEPBANK,FLESBANK};
 enum MBoxRAMType {RAMType1,RAMType2};
 
-enum FlashCodeType {TNI, Random, SingleCycle};
+enum FlashCodeType {TNI, Random, SingleCycle, OtpSCPL};
 
 enum FlashLeakType {BANK_GANG,BANK_ODDEVEN,BLOCK_GANG,BLOCK_ODDEVEN,SECT_GANG,SECT_ODDEVEN};
 
@@ -127,28 +133,33 @@ enum TPModeType {ReadMode,ProgMode,PvfyMode,ErsMode,EvfyMode,CvfyMode};
 enum VCornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
 
 struct F021_RunCodeRec {
-  BoolS1D DO_RUNCODE_ENA; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*use for flow control, true=enable*/
-  StringS1D FIRST_PROGPAT; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*1st (segment) write pattern*/
-  StringS1D LAST_PROGPAT; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */     /*last (segment) write pattern*/
-  FloatS1D PROG_FREQ; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */       /*write frequency*/
-  VCornerType PROG_VDDCORNER[3];
-  /* array[FlashCodeType] of VcornerType PROG_VDDCORNER; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType */  /*write vdd core voltage corner*/
+  /*+++ info for program & execute +++*/
+  BoolS1D DO_RUNCODE_ENA; /*use for flow control, true=enable*/
+  StringS1D FIRST_PROGPAT;  /*1st (segment) write pattern*/
+  StringS1D LAST_PROGPAT;  /*last (segment) write pattern*/
+  FloatS1D PROG_FREQ;   /*write frequency*/
+  VCornerType PROG_VDDCORNER[4];  /*write vdd core voltage corner*/
 
-   /*+++ info for arbitrary psa read and VT +++*/
-  BoolS2D DO_RUNCODE_VT0_ENA; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*use for bank selection, true=enable*/
-  BoolS2D DO_RUNCODE_VT1_ENA; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*use for bank selection, true=enable*/
-  IntS2D BANK_START_ADDR_MSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word msb addr*/
-  IntS2D BANK_START_ADDR_LSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word lsb addr*/
-  IntS2D BANK_LEN_MSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word msb*/
-  IntS2D BANK_LEN_LSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word lsb*/
-  IntS2D BANK_PSA_MSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word msb expect psa*/
-  IntS2D BANK_PSA_LSW; /* :MANUAL FIX REQUIRED: array dimensions are : FlashCodeType,0..7 */  /*16-bit word lsb expect psa*/
+   /*+++ info for arbitrary VT +++*/
+  BoolS2D DO_RUNCODE_VT0_ENA; /*use for bank selection, true=enable*/
+  BoolS2D DO_RUNCODE_VT1_ENA; /*use for bank selection, true=enable*/
+  IntS2D BANK_START_ADDR_MSW; /*16-bit word msb addr*/
+  IntS2D BANK_START_ADDR_LSW; /*16-bit word lsb addr*/
+  IntS2D BANK_LEN_MSW; /*16-bit word msb*/
+  IntS2D BANK_LEN_LSW; /*16-bit word lsb*/
+  IntS2D BANK_PSA_MSW; /*16-bit word msb expect psa*/
+  IntS2D BANK_PSA_LSW; /*16-bit word lsb expect psa*/
   
-  F021_RunCodeRec() : DO_RUNCODE_ENA(3), FIRST_PROGPAT(3), LAST_PROGPAT(3),
-                      PROG_FREQ(3), DO_RUNCODE_VT0_ENA(3,8), DO_RUNCODE_VT1_ENA(3,8),
-                      BANK_START_ADDR_MSW(3,8), BANK_START_ADDR_LSW(3,8),
-                      BANK_LEN_MSW(3,8), BANK_LEN_LSW(3,8), BANK_PSA_MSW(3,8),
-                      BANK_PSA_LSW(3,8) {}
+  /*+++ info for arbitrary psa read in conjunction with bank_tart/len above +++*/
+  BoolS1D DO_RDPSA_ENA;    /*use for flow control, true=enable*/
+  IntS2D TDATA; /*data type field, e.g. 0xA=arb data, 0xB=arb data/ecc, 0xc=arb ecc, 0xe=custom algo*/
+  IntS2D MEMCFG; /*target type field, e.g. 0x0=bank, 0x1=sector, 0x4=otp, 0x5=semi-otp, 0x6=data otp, 0x7=customer otp, 0xA=arbitrary} {also used as enable/disable for rdpsa in otpscpl type per bank*/
+
+  F021_RunCodeRec() : DO_RUNCODE_ENA(4), FIRST_PROGPAT(4), LAST_PROGPAT(4),
+                      PROG_FREQ(4), DO_RUNCODE_VT0_ENA(4,8), DO_RUNCODE_VT1_ENA(4,8),
+                      BANK_START_ADDR_MSW(4,8), BANK_START_ADDR_LSW(4,8),
+                      BANK_LEN_MSW(4,8), BANK_LEN_LSW(4,8), BANK_PSA_MSW(4,8),
+                      BANK_PSA_LSW(4,8), DO_RDPSA_ENA(4), TDATA(4,8), MEMCFG(4,8) {}
   };
 
 
@@ -349,5 +360,12 @@ enum SCRAM_STORE_OPTION {TEMPLOG_ARR, TESTLOG_ARR, MBOXOTP_ARR, MBOXLOG_ARR};
  /*True=using dmled addr/data pins. for device like blizzard/garnett*/
 #define $GL_USE_DMLED_RAMPMT true
  /*+++++++ NOTE +++++++*/
+
+/*True=use internal DCC module to trim FOSC, False=use external digital pin to trim FOSC via DMA TMU*/
+/*for device like Stellaris blizzard that doesn't have DCC module, set to false*/
+#define $FL_USE_DCC_TRIM_FOSC false
+
+/*True=use auto flash flow.  For Stellaris and C2000 devices need to set false to use catalog flow.*/
+#define $FL_USE_AUTO_FLOW false
 
 #endif
