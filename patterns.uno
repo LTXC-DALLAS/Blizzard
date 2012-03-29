@@ -266,6 +266,22 @@ __PatternMap DefaultPatternMap {
     }
 /*********************************************************/
 
+    __Pattern ramread_nburst_lsw_v3p0 {
+        __File "ramread_nburst_lsw_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_msw_v3p0 {
+        __File "ramread_nburst_msw_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_addr_v3p0 {
+        __File "ramread_nburst_addr_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
+
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";
         __Path "./Patterns/Ascii";

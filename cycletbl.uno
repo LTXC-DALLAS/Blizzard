@@ -1303,6 +1303,9 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[10] = f021_shell_exepat_pll_v3p0_Thrd;
     __Thread[11] = f021_shell_exepat_pll_NCPU_Thrd;
     __Thread[12] = f021_shell_exepat_pll_Both_Thrd;
+    __Thread[13] = ramread_nburst_lsw_Thrd;
+    __Thread[14] = ramread_nburst_msw_Thrd;
+    __Thread[15] = ramread_nburst_addr_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1401,6 +1404,24 @@ __Thread f021_shell_exepat_pll_Both_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_Both.f021_shell_exepat_pll_v3p0_start"; }
+    }
+}
+__Thread ramread_nburst_lsw_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_lsw_v3p0.ramread_nburst_lsw_v3p0_start"; }
+    }
+}
+__Thread ramread_nburst_msw_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_msw_v3p0.ramread_nburst_msw_v3p0_start"; }
+    }
+}
+__Thread ramread_nburst_addr_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_addr_v3p0.ramread_nburst_addr_v3p0_start"; }
     }
 }
 __Thread a_st_tk_10_v22_Thrd {

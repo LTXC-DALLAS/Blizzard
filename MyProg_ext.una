@@ -83,7 +83,7 @@ __TestProg BllizarA0 {
         __FunctionalFails = 1;
         __IOStreamList[0] {
            __IOStreamType = DataViewIO;
-           __IOStreamCode = 0x00001bff;
+           __IOStreamCode = 0x80001bff;
         }
         __LotTypeSummary = "Lot";
         __ReportSummary = "Final";
@@ -196,15 +196,7 @@ __ExternalRef {
 //Only interested in probe --BJP
 //__ExternalRef  {   __File = "DPSE_Flow.uno";   }
 
-
-__ExternalRef {
-   __File = "BoardChk_flow.uno";
-}
-
-
-//Only interested in probe --BJP
-//__ExternalRef { __File = "boardcheck.uno"; }
-
+__ExternalRef { __File = "boardcheck.uno"; }
 
 __ExternalRef {
    __File = "cycletbl.uno";
@@ -265,6 +257,8 @@ __ApplicationLibrary Blizzard_Library {
    __DependsOnLibrary = TestWare_Library;
 }
 
+/* The F021_Library being converted is the F021 code 
+   found in the Blizzard VLCT program V1PQ727C06 */
 __ApplicationLibrary F021_Library {
    __LibraryPath = "./Libraries/F021_Library";
    __BuildPath = "./Libraries/F021_Library";
