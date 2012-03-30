@@ -5148,10 +5148,8 @@ TMResultM Pump_BGap_Vnom_func()
    vcorner = VNM;
 
    current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
+   if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
-
-   DIGITAL.ExecutePattern(f021_shell_loadpat);
    
    F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode,final_results);
 

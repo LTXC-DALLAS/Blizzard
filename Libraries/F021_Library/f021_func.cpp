@@ -8774,7 +8774,7 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
 
       if (read_voltage) 
       {
-         cout << "I'm-a reading voltage!" << endl;
+//         cout << "I'm-a reading voltage!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
@@ -8783,7 +8783,7 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
          
          STDMeasV(tsupply, count, Meas_Value, Sim_Value);
       } else {
-         cout << "I'm-a reading current!" << endl;
+//         cout << "I'm-a reading current!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
@@ -8851,7 +8851,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    bool using_long_repeat = false;
    
    bool using_cpu_loop = true;
-   BoolM done_value;
+   BoolM done_value, ndone_value;
 //   option databit_1, databit_2, databit_3;
 //   option config_1, config_2, config_3;
 //   BoolS drv_1, drv_2, drv_3;
@@ -8937,10 +8937,12 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
       {      
          DIGITAL.ReadFlag(F021_DONEPIN, DIGITAL_FLAG_FAIL, done_value, true);
-         if (!(done_value == true)) // true is a fail and that's what we're looking for, pattern strobes low
+         DIGITAL.ReadFlag(F021_NDONEPIN, DIGITAL_FLAG_FAIL, ndone_value, true);
+         if (!((done_value == true) && (ndone_value == true))) // true is a fail and that's what we're looking for, pattern strobes low
+         // above will be true unless all sites are done
          {
             TIME.Wait(tdelay);
-            cout << "waiting on donepin" << endl;
+//            cout << "waiting on donepin" << endl;
          } else {
             done = true;
          }
@@ -8949,10 +8951,19 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       {
          if (done_value[*si])
-            test_results[*si] = TM_PASS;
+            done_results[*si] = TM_PASS;
          else
-            test_results[*si] = TM_FAIL;
-      }     
+            done_results[*si] = TM_FAIL;
+         
+         if (ndone_value[*si])
+            ndone_results[*si] = TM_PASS;
+         else
+            ndone_results[*si] = TM_FAIL;
+            
+      }
+      test_results = done_results;
+      test_results = DLOG.AccumulateResults(test_results, ndone_results);
+      
    } else if (using_long_repeat) {
       DIGITAL.ExecutePattern(f021_shell_exepat);
       test_results = TM_PASS; // just force a pass...this is debug :TODO: Remove this after debug
