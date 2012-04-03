@@ -76,34 +76,43 @@
 //                               IntS cmptllim, IntS cmptulim,
 //                             BoolS paral_format);
 
-void IntToBinStr(IntS tmpint1,     StringS &tmpstr1);
-void IntToVLSIDriveStr(IntS tmpint1, StringS &tmpstr1);
+
+// If needed, uncomment. However, I think the only use for this is when 
+// working with pattern modifications and we use 'L' & 'H', not '0' & '1'
+// so leaving this commented to see if we can just trash - JT
+//void IntToBinStr(IntS tmpint1,     StringS &tmpstr1);
+
+StringS IntToVLSIDriveStr(const IntS &tmpint1, const IntS &numBits, const bool &isMSBFirst);
 
 //void ElimSpaceStr(    StringS inputstr);
-//
-//void ReadRamAddress(IntS log_site,
-//                            IntS startaddr, IntS  stopaddr);
-//
-//void DumpRamMailbox();
+
+// ReadRamAddress is multi-site
+void ReadRamAddress(IntS startaddr, IntS  stopaddr);
+
+void DumpRamMailbox();
 
 TMResultM F021_LoadFlashShell_func();
 
-//void GetRamContentDec_16Bit(    StringS tpatt,
-//                                     IntS addr_loc,
-//                                     IntM ret_val);
-//
+void GetRamContentDec_16Bit(    StringS tpatt,
+                                     IntS addr_loc,
+                                     IntM ret_val);
+
+void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr, 
+                           StringM &binVlsiStr, const BoolS &hexValue);
+
+// I think IntToBCD_BinStr is useless for us. Use IntMToBcdBinVlsiStrM instead
 //void IntToBCD_BinStr(    IntM intdata,
 //                              StringM bcdStr,
 //                              StringM binStr,
 //                              BoolS hexvalue);
-//
-//void WriteRamContentDec_32Bit(IntS addr_loc,
-//                                   IntM src_data1,
-//                                   BoolS data1_hexvalue,
-//                                   IntM src_data2,
-//                                   BoolS data2_hexvalue,
-//                                   BoolS bcd_format);
-//
+
+void WriteRamContentDec_32Bit(IntS addr_loc,
+                                   IntM src_data1,
+                                   BoolS data1_hexvalue,
+                                   IntM src_data2,
+                                   BoolS data2_hexvalue,
+                                   BoolS bcd_format);
+
 //void GetRamContent_SCRAM(IntS start_addr,
 //                              IntS store_option);
 //void Get_Flash_TestLogSpace_SCRAM();

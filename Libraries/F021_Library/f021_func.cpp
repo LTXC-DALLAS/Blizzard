@@ -289,6 +289,7 @@
 
 
 #include <f021_func.h>
+#include <iomanip>
 using namespace std; 
 
 
@@ -375,6 +376,7 @@ void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_R
             DIGITAL.Connect(myPin, DIGITAL_DCL_TO_DUT);
             break;
          }
+         DIGITAL.Disconnect(myPin, DIGITAL_ALL_PATHS);
          // fall through to connect PPMU
       case PINTYPE_ANALOG_PIN:
       case PINTYPE_POWER_PIN:
@@ -400,6 +402,7 @@ void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 
 }
 
 // PPMU has no sampled mode, so do it manually
+// This is just for debug of stability/repeatability
 void STDMeasVSampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
 {
    FloatM measurement;
@@ -414,6 +417,7 @@ void STDMeasVSampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &mea
 }
 
 // PPMU has no sampled mode, so do it manually
+// This is just for debug of stability/repeatability
 void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
 {
    FloatM measurement;
@@ -427,37 +431,40 @@ void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &mea
    measValues.SetUnits("A");
 }
 
- /*KChau 12/21/07 - make IntToBinStr module level procedure.*/
- /******************************************************************/
- /* IntToBinStr : converts decimal number to 16-bit binary string. */
- /* the string array is pass-by-reference.                         */
- /******************************************************************/ 
-void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
-{
-   int strlength;
-   int bit_of_interest = 1;
-   int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
-   tmpstr1 = "";
-   
-   strlength = 16;  /*16-bit length*/
-   
-   for (int i = 0; i < strlength; ++i) 
-   {
-      if (i > 0)
-      {
-         bit_of_interest = bit_of_interest << 1;
-      }
-         
-      if ((my_int & bit_of_interest) == 0) 
-      {
-         tmpstr1 = "0" + tmpstr1;
-      } else {
-         tmpstr1 = "1" + tmpstr1;
-      }
-  }
-}   /*proc IntToBinStr*/
+// If needed, uncomment. However, I think the only use for this is when 
+// working with pattern modifications and we use 'L' & 'H', not '0' & '1'
+// so leaving this commented to see if we can just trash - JT
+// /*KChau 12/21/07 - make IntToBinStr module level procedure.*/
+// /******************************************************************/
+// /* IntToBinStr : converts decimal number to 16-bit binary string. */
+// /* the string array is pass-by-reference.                         */
+// /******************************************************************/ 
+//void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
+//{
+//   int strlength;
+//   int bit_of_interest = 1;
+//   int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
+//   tmpstr1 = "";
+//   
+//   strlength = 16;  /*16-bit length*/
+//   
+//   for (int i = 0; i < strlength; ++i) 
+//   {
+//      if (i > 0)
+//      {
+//         bit_of_interest = bit_of_interest << 1;
+//      }
+//         
+//      if ((my_int & bit_of_interest) == 0) 
+//      {
+//         tmpstr1 = "0" + tmpstr1;
+//      } else {
+//         tmpstr1 = "1" + tmpstr1;
+//      }
+//  }
+//}   /*proc IntToBinStr*/
 
-StringS IntToVLSIDriveStr(IntS tmpint1, IntS numBits, bool isMSBFirst)
+StringS IntToVLSIDriveStr(const IntS &tmpint1, const IntS &numBits, const bool &isMSBFirst)
 // numBits is the number of bits to convert. It is number of bits, NOT 
 // bit number. This means it is 1-based, not 0 based.
 {
@@ -533,6 +540,66 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
    }
 }
 
+ /*hexvalue: write decimal value 4660 (or 0x1234) into RAM as 1234*/
+ /*nothexvalue: write decimal value 751 (or 0x2EF) into RAM as 751*/
+ /*the nothexvalue is used for cases like VT, lot#,..., i.e. what*/
+ /*you see is what you get*/
+void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr, 
+                           StringM &binVlsiStr, const BoolS &hexValue)
+{
+   IntS str_len;
+   IntS src_val;
+   bool all_sites_same = false;
+   
+   // check if all sites have same data as first active site
+   if (srcData == srcData[ActiveSites.Begin().GetValue()]) 
+   {
+      all_sites_same = true;
+   } 
+ 
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      // VLCT cut off possible MSBs after converting to string, 
+      // but working in Int should be faster
+      src_val = srcData[*si] & 0xFFFF; 
+      if (hexValue)
+      {
+         binVlsiStr[*si] = IntToVLSIDriveStr(src_val, 16, true);
+         // make string in hex
+         IO.Print(bcdStr[*si], "%04x", src_val);
+      }
+      else
+      {
+         IO.Print(bcdStr[*si], "%04d", src_val);
+         for (int i = 0; i < 4; ++i)
+         {
+            switch (bcdStr[*si][i]) {
+               case '0' : binVlsiStr[*si] += "0000"; break;
+               case '1' : binVlsiStr[*si] += "0001"; break;
+               case '2' : binVlsiStr[*si] += "0010"; break;
+               case '3' : binVlsiStr[*si] += "0011"; break;
+               case '4' : binVlsiStr[*si] += "0100"; break;
+               case '5' : binVlsiStr[*si] += "0101"; break;
+               case '6' : binVlsiStr[*si] += "0110"; break;
+               case '7' : binVlsiStr[*si] += "0111"; break;
+               case '8' : binVlsiStr[*si] += "1000"; break;
+               case '9' : binVlsiStr[*si] += "1001"; break;
+            } // end switch        
+         } // end for (walk through bcdStr by character)
+      } // end else for if hexValue
+         
+      // if all sites have the same source data, 
+      // set strings appropriately and break out 
+      // of the loop
+      if (all_sites_same)
+      {
+         binVlsiStr = binVlsiStr[*si];
+         bcdStr = bcdStr[*si];
+         break;
+      }
+            
+   } // end site loop
+}
 
 // /*ElimSpace remove space from string until encounter alpha-numeric*/
 //void ElimSpaceStr(    StringS inputstr)
@@ -1477,61 +1544,50 @@ TMResultM F021_InitFLGlobalvars_func()
 //   }   /*if tistdscreenprint*/
 //}   /* PrintResultIntHex */
 
-#if 0
-void FormatAddrString()
-{
-   writestring(addr_bcd,curraddr:s_hex:1);
-   length = len(addr_bcd);
-   Writestring(addr_bcd,mid(addr_bcd,3,length-2));
-      switch((length-2)) {
-        case 1 : addr_bcd = "000000" + addr_bcd;
-        case 2 : addr_bcd = "00000" + addr_bcd;
-        case 3 : addr_bcd = "0000" + addr_bcd;
-        case 4 : addr_bcd = "000" + addr_bcd;
-        case 5 : addr_bcd = "00" + addr_bcd;
-        case 6 : addr_bcd = "0" + addr_bcd;
-      }   /* case */
-}          
+
+//StringS FormatAddrString(IntS curraddr)
+//{
+//   IO.Print(addr_bcd, "%07x", curraddr);
+//   writestring(addr_bcd,curraddr:s_hex:1);
+//   length = addr_bcd.Length();
+//   Writestring(addr_bcd,mid(addr_bcd,3,length-2));
+//      switch((length-2)) {
+//        case 1 : addr_bcd = "000000" + addr_bcd;
+//        case 2 : addr_bcd = "00000" + addr_bcd;
+//        case 3 : addr_bcd = "0000" + addr_bcd;
+//        case 4 : addr_bcd = "000" + addr_bcd;
+//        case 5 : addr_bcd = "00" + addr_bcd;
+//        case 6 : addr_bcd = "0" + addr_bcd;
+//      }   /* case */
+//}          
 
  /*unified all platforms to use cpu byte address for startaddr/stopaddr*/
-void ReadRamAddress(SITE log_site,
-                            IntS startaddr, IntS  stopaddr)
+ // This function has been changed to be multi-site
+void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 {
-   BoolS result;
-   IntS save_fails,fails,site;
-   PinML pl_arr,pl_failarr;
-   IntS counter,tmpint;
-   IntS pl_len,plindex,pl_faillen;
-   IntS failcount,failindex;
-   IntS pm_addr,rpt_count,loop_count;
-   IntS scan_block,cycles,src_line;
-   StringS tpatt;
-   StringS failstr;
-   StringS failstr1,failstr2,temp_bcd;
-   IntS temp_value,length;
-   StringS addr_bcd,tmpstr1,addr_str,s,str1,str2;
-   IntS curraddr,offsetcyc,linebrk;
-   BoolM torestore;
-   IntS lsw_cycle,msw_cycle;
-   IntS fail_cycle,data_nib,dead_cyc;
-   IntS1D data_cycle(9);
-   FloatS ttimer1;
-   IntS maxcapcount,maxsrccount,istep,count,index;
-   IntS tnib0,tnib1,tnib2,tnib3;
-   IntM1D CaptureArr(33);
+   StringS tpatt = "ramread_nburst_addr_Thrd";
+   StringS datastr;
+   StringS cap_name, label;
+   StringS addr_str,s,str1,str2;
+   IntS curraddr,offsetcyc;
+   IntS maxcapcount;
+   UnsignedM1D CaptureArr(33);
+   UnsignedM1D sim_value(33,0);  // return all 0s to sim
+   StringML captured_data;
+   IntSL address_list;
    StringML SourceArr;
-   BoolS SaveMemSetBistData;
-   IntM msw_val,lsw_val;
+   UnsignedM msw_val,lsw_val;
    PinML data_pins,data_in;
-   IntS physaddr,shiftbit,evenodd,halfcapcount;
-//   DCSetUp prevDCSU;
+   IntS evenodd, halfcapcount;
+   int i;
+   IntS physaddr;
+   UnsignedS shiftbit;
 
 //   Clockstopfreerun(s_clock1a);
 // ????   
 //   SetupGet(prevDCSU);
 //   SetupSelect(prevDCSU,norm_fmsu);
 
-   tpatt = "ramread_nburst_addr_Thrd";
    TIME.StartTimer();
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
@@ -1662,213 +1718,58 @@ void ReadRamAddress(SITE log_site,
     /*-------- use DMLED --------*/
    data_in   = "DMLED_INBUS";
    data_pins = "DMLED_OUTBUS";
+   cap_name = "CapRam32";
    maxcapcount = 8;
-   maxsrccount = 17;
-   halfcapcount = maxcapcount div 2;
-   istep = 8;
-
-   if(not GL_DO_ESDA_WITH_SCRAM)  
-   {
-      fails = 8;
-      dead_cyc = 0;
-      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-      lsw_cycle = data_cycle[1];
-      for (counter = 2;counter <= 8;counter++)
-         data_cycle[counter] = data_cycle[1]+counter-1;
-      
-      if(lsw_cycle=0)  
-      {
-         if(tistdscreenprint)  
-         {
-            cout << "*** ERROR : Cannot find label LSW_DATA ***" << endl;
-            cout << "*** Contents will be invalid.          ***" << endl;
-         }
-         else
-         {
-            cout << "*** ERROR : Cannot find label LSW_DATA ***" << endl;
-            cout << "*** Contents will be invalid.          ***" << endl;
-         } 
-      } 
-   } 
-   
-   FailGetMax(save_fails, tpatt);
+//   maxsrccount = 17;
+   halfcapcount = maxcapcount / 2;
+//   istep = 8;
    
    curraddr = startaddr;
-   linebrk = 0;
    
-   if(not TIStdScreenPrint)  
-      cout << "***PLEASE SET TIStdScreenPrint TO true for this procedure***" << endl;
-      
-   if(TIStdScreenPrint)  
-   {
-      cout << "Site " << log_site << "    Reading RAM contents (Msw << Lsw)." << 
-              "  Start Address = " << startaddr << "    Stop Address = " << stopaddr << endl;
-      cout << "RAM byte address" << endl;
-   } 
-      
-   while(curraddr <= stopaddr) do
-   {
-       /*abort if s key is pressed*/
-//      if(Inkey(s))   break;
-         
-      failstr1 = "0000";
-      failstr2 = "0000";
-      failindex = 1;
+   while(curraddr <= stopaddr)
+   {         
       offsetcyc = 0;
 
       physaddr = curraddr>>3;
-//      IntToBinStr(physaddr,addr_str);
       addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      //////:HERE:
       evenodd = (curraddr>>2) & 0x1;
 
       SourceArr.Erase();
       for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
       {
-         str2 = "LLL" + addr_str[15-offsetcyc]);
+         str2 = "LLL" + addr_str[15-offsetcyc];
          SourceArr += str2;
-         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_in,S_binary,str2);
       } 
+      
+      label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
       DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
 
+      SourceArr.Erase();
+      str1 = IntToVLSIDriveStr(evenodd, 4, true);
+      SourceArr += str1;
+
+      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+
+      PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
+
+      msw_val = 0;
+      lsw_val = 0;
       
-      writestring(str1,evenodd:1);
-      while (len(str1)<4) do
+      for (i = 0;i < halfcapcount;++i)
       {
-         str1 = "0" + str1;
+         shiftbit = 4*(i);
+         lsw_val = lsw_val + (CaptureArr[i]<<shiftbit);
+         msw_val = msw_val + (CaptureArr[i+4]<<shiftbit);
       } 
-      Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_in,S_binary,str1);
-      
-       /* formatting address for print out later*/
-      FormatAddrString;
 
-      if(GL_DO_ESDA_WITH_SCRAM)  
-      {
-         if(GL_DO_SOURCE_WITH_SCRAM)  
-            PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,false,SourceArr,CaptureArr);
-         else
-            PatternDigitalCapture(tpatt,data_pins,maxcapcount,CaptureArr);
-
-         msw_val = 0;
-         lsw_val = 0;
-         
-         for (count = 1;count <= halfcapcount;count++)
-         {
-            shiftbit = 4*(count-1);
-            lsw_val[log_site] = lsw_val[log_site] + (CaptureArr[log_site][count]<<shiftbit);
-            msw_val[log_site] = msw_val[log_site] + (CaptureArr[log_site][count+4]<<shiftbit);
-         } 
-
-         writestring(failstr1,lsw_val[log_site]:s_hex:1);
-         length = len(failstr1);
-         failstr1 = mid(failstr1,3,length-2);
-         while(len(failstr1)<4) do
-         {
-            failstr1 = "0" + failstr1;
-         } 
-         writestring(failstr2,msw_val[log_site]:s_hex:1);
-         length = len(failstr2);
-         failstr2 = mid(failstr2,3,length-2);
-         while(len(failstr2)<4) do
-         {
-            failstr2 = "0" + failstr2;
-         } 
-      }
-      else
-      {
-         FailSetMax(fails, tpatt);
-         Enable(S_FAIL_MEMORY);
-         
-         result = (PatternExecute(tmpint,tpatt));
-         failcount = FailGetCount;
-         
-         if (failcount <> 0)  
-         {
-            while (failindex <= failcount) do
-            {
-               pinlistget(data_pins,pl_arr,pl_len);
-            
-               failstr = "00000000000000000000000000000000";
-               for (tmpint = 1;tmpint <= failcount;tmpint++)
-               {
-                  log_opt = FailGetInfo(failindex, pm_addr, rpt_count, loop_count,
-                                         scan_block, cycles, src_line );
-                  if((log_site>=1) and (log_site<=V_Sites))  
-                  {
-                     if (V_Dev_Active[log_site] and
-                         (V_Fail_Count[log_site]>=failcount))  
-                     {
-                        if not V_PF_Status[log_site]  
-                        {
-                           FailGetSitePinList(log_site, failindex, pl_failarr,pl_faillen);
-                           fail_cycle = V_Cycle[log_site];
-                           for (counter = 1;counter <= 8;counter++)
-                              if (data_cycle[counter] = fail_cycle)  
-                                 data_nib = counter;
-                           for (counter = 1;counter <= pl_faillen;counter++)
-                              for (plindex = 1;plindex <= pl_len;plindex++)
-                                 if(pl_failarr[counter] = pl_arr[plindex])  
-                                    failstr[33-((data_nib-1)*4)-plindex] = "1";
-                        }   /*if not V_PF_Status*/
-                     }   /*if V_Fail_Count*/
-                  }   /*if log_site*/
-                  failindex = failindex + 1;
-               }   /*for tmpint*/
-               
-                /*convert bin string to int number*/
-               Readstring("0b" + failstr) + temp_value;
-               
-                /*convert int number to hex string w/ 0x prefix*/
-               Writestring(temp_bcd,temp_value:S_hex:1);
-               
-                /*extract string w/o 0x prefix and prepend 0s as needed*/
-               length = len(temp_bcd);
-               Writestring(temp_bcd,mid(temp_bcd,3,length-2));
-               
-               switch((length-2)) {
-                 case 1 : temp_bcd = "0000000" + temp_bcd;
-                 case 2 : temp_bcd = "000000" + temp_bcd;
-                 case 3 : temp_bcd = "00000" + temp_bcd;
-                 case 4 : temp_bcd = "0000" + temp_bcd;
-                 case 5 : temp_bcd = "000" + temp_bcd;
-                 case 6 : temp_bcd = "00" + temp_bcd;
-                 case 7 : temp_bcd = "0" + temp_bcd;
-               }   /* case */
-               
-               failstr2 = Mid(temp_bcd, 1, 4);
-               failstr1 = Mid(temp_bcd, 5, 4);
-               
-            }   /* while failindex */
-         }   /* failcount<>0 */
-         
-         failresetmax;
-         Disable(S_FAIL_MEMORY);
-      }   /*not gl_do_esda_with_scram*/
-
-      if(linebrk=0)  
-      {
-         if(TIStdScreenPrint)  
-         {
-            cout << endl;
-            cout << "0x" << addr_bcd << "  ";
-         } 
-      } 
-      
-      if(TIStdScreenPrint)  
-         cout << failstr2 << " " << failstr1 << " ";  /*msb/lsb*/
+      IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
+      captured_data += datastr;
+      address_list += curraddr;
       
       curraddr = curraddr+ADDR_RAM_INC;
-      linebrk = linebrk+1;
-      if(linebrk=4)  
-         linebrk=0;
       
    }   /* while curraddr */
 
-   if(not GL_DO_ESDA_WITH_SCRAM)  
-   {
-      Disable(S_FAIL_MEMORY);
-      FailSetMax(save_fails, tpatt);
-   } 
     /*-------- end of DMLED --------*/
 #endif
 #else   
@@ -2204,36 +2105,55 @@ void ReadRamAddress(SITE log_site,
 // ????
 //   SetupSelect(prevDCSU,norm_fmsu);
 
-   if(TIStdScreenPrint)  
+   // set sticky cout settings for loop
+   cout << hex << setfill('0');  
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
+      cout << "Site " << *si << "   Reading RAM contents (Msw << Lsw)." << 
+           "  Start Address = " << setw(4) << startaddr << 
+           "    Stop Address = " << setw(4) << stopaddr << endl;
+      cout << "RAM byte address" << endl;
+      
       cout << endl;
-      cout << "Done.  TT = " << TIME.StopTimer() << endl;
-      cout << endl;
-   } 
+      
+      int linebrk = 0;
+      for (i = 0 ; i < address_list.GetSize(); ++i)
+      {
+         if (linebrk == 0)
+            cout << endl << "0x" << setw(7) << address_list[i] << "  ";
+            
+         cout << captured_data[*si][i];  /*msb/lsb*/
+         if (++linebrk == 4) // VLCT added 1 to linebrk, then checked = 4
+            linebrk = 0;
+      }
+      cout << endl << endl;
+   }
+   cout << dec << setfill(' '); // reset sticky settings to default
 
+
+   cout << endl;
+   cout << "Done.  TT = " << TIME.StopTimer() << endl;
+   cout << endl;
 
 }   /*ReadRamAddress*/
 
 
-//      
-//void DumpRamMailbox()
-//{
-//   IntS stopaddr,startaddr;
-//   IntS length,site;
-//
-//   if(v_any_dev_active)  
-//   {
-//      length    = 64*4;
-//      startaddr = ADDR_RAM_MAILBOX;
-//      stopaddr  = startaddr+length;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            ReadRamAddress(site,startaddr,stopaddr);
-//   } 
-//}   /* DumpRamMailbox */
-//
+      
+void DumpRamMailbox()
+{
+   IntS stopaddr,startaddr;
+   IntS length,site;
 
-#endif
+   if(!ActiveSites.Begin().End())  
+   {
+      length    = 64*4;
+      startaddr = ADDR_RAM_MAILBOX;
+      stopaddr  = startaddr+length;
+      ReadRamAddress(startaddr,stopaddr);
+   } 
+}   /* DumpRamMailbox */
+
+
 
 void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
@@ -2273,9 +2193,11 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //      SetupGet(prevDCSU);
 //      SetupSelect(prevDCSU,norm_fmsu);
 //   } 
-   
-   TIME.StartTimer();
+
    debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
+   if(tistdscreenprint and debugprint)     
+      TIME.StartTimer();
+      
    offsetcyc = 0;
 
    temp_value = 0;
@@ -2686,10 +2608,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 }    /*GetRamContentDec_16bit*/
 
 
-// /*hexvalue: write decimal value 4660 (or 0x1234) into RAM as 1234*/
-// /*nothexvalue: write decimal value 751 (or 0x2EF) into RAM as 751*/
-// /*the nothexvalue is used for cases like VT, lot#,..., i.e. what*/
-// /*you see is what you get*/
+
 //void IntToBCD_BinStr(    IntM intdata,
 //                              StringM bcdStr,
 //                              StringM binStr,
@@ -2762,79 +2681,47 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //      } 
 //   } 
 //}   /*IntToBCD_BinStr*/
-//
-//
-// /*unified all platforms to use cpu byte address for addr_loc*/
-// /*src_data1 is lsword, src_data2 is msword*/
-// /*bcd_format=true if want to write src_data1/data2 in bcd format*/
-// /*bcd_format=false then write src_data1/data2 int value in binary string format*/
-//void WriteRamContentDec_32Bit(IntS addr_loc,
-//                                   IntM src_data1,
-//                                   BoolS data1_hexvalue,
-//                                   IntM src_data2,
-//                                   BoolS data2_hexvalue,
-//                                   BoolS bcd_format)
-//{
-//   IntS tmpint,site,offsetcyc;
-//   StringS addr_str;
-//   StringS data_str1,data_str2;
-//   StringS bcd_binstr1,bcd_binstr2;
-//   IntS prev_msw,prev_lsw;
-//   IntS active_site,length;
-//   BoolS sameness,firstcnt;
-//   StringS tpatt;
-//   BoolM savesites;
-//   BoolM alldisable;
-//   StringM bcdstr1,bcdstr2;
-//   StringM binstr1,binstr2;
-//   FloatS ttimer1;
-//   PinML data_pins;
-//   DCSetUp prevDCSU;
-//#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT then
-//   IntS2D SourceArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..48 */
-//   IntS maxsrccount,maskbit,maxiter;
-//   IntS eindex,mindex,hindex,evenodd;
-//   IntS shiftbit,physaddr;
-//   BoolS SaveMemSetBistData;
-//   StringS str1,str2;
-//#endif
-//
+
+
+ /*unified all platforms to use cpu byte address for addr_loc*/
+ /*src_data1 is lsword, src_data2 is msword*/
+ /*bcd_format=true if want to write src_data1/data2 in bcd format*/
+ /*bcd_format=false then write src_data1/data2 int value in binary string format*/
+void WriteRamContentDec_32Bit(IntS addr_loc,
+                                   IntM src_data1,
+                                   BoolS data1_hexvalue,
+                                   IntM src_data2,
+                                   BoolS data2_hexvalue,
+                                   BoolS bcd_format)
+{
+   IntS offsetcyc;
+   StringS addr_str;
+   StringS tpatt = "ramwrite_burst_addr_Thrd";
+   StringM bcd_vlsi_str1,bcd_vlsi_str2;
+   StringM bin_vlsi_str1,bin_vlsi_str2;
+   PinML data_pins;
+   StringML SourceArr, SourceArrLo, SourceArrHi;
+   IntS maxiter, length;
+   IntS eindex, evenodd;
+   IntS shiftbit,physaddr;
+   StringS str1;
+   StringM mstr;
+
 //   Clockstopfreerun(s_clock1a);
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //   {
 //      SetupGet(prevDCSU);
 //      SetupSelect(prevDCSU,norm_fmsu);
 //   } 
-//   
-//   timernstart(ttimer1);
-//   
-//   tpatt = ramwrite_burst_addr;
-//   offsetcyc = 0;
-//
-//   savesites = v_dev_active;
-//   alldisable = false;
-//
-//   sameness = true;
-//   firstcnt = true;
-//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if(v_dev_active[site])  
-//      {
-//         if(firstcnt)  
-//         {
-//            prev_msw = src_data2[site];
-//            prev_lsw = src_data1[site];
-//            active_site = site;
-//            firstcnt = false;
-//         }
-//         else if((src_data2[site]!=prev_msw) or (src_data1[site]!=prev_lsw))  
-//         {
-//            sameness = false;
-//            break;
-//         } 
-//      } 
-//
-//#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
-//#if $GL_USE_JTAG_RAMPMT  
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      TIME.StartTimer();
+   
+   offsetcyc = 0;
+
+#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
+#if $GL_USE_JTAG_RAMPMT  
+// :TODO: Fix this. Unneeded for Blizzard
 //    /*-------- use JTAG --------*/
 //    /*lsb 1st - msb last*/
 //   data_pins = JTAG_DIN;
@@ -2917,133 +2804,62 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //      }   /*not go_do_source_with_scram*/
 //   }   /*if bcd_format*/
 //    /*-------- end of JTAG --------*/
-//#else
-//    /*-------- use DMLED --------*/
-//   data_pins = DMLED_INBUS;
-//   maxiter = 3;
-//   maskbit = 0xF;
-//   maxsrccount = 25;
-//   eindex = 13;
-//   mindex = 18;
-//   hindex = 22;
-//   length = 4;
-//
-//   if(bcd_format)  
-//   {
-//      IntToBCD_BinStr(src_data1,bcdstr1,binstr1,data1_hexvalue);
-//      IntToBCD_BinStr(src_data2,bcdstr2,binstr2,data2_hexvalue);
-//
-//      physaddr = addr_loc>>3;
-//   
-//       /*control word*/
-//      evenodd = (addr_loc>>2) & 0x1;  /*0=even or ram1, 1=odd or ram2*/
-//      if(not GL_DO_SOURCE_WITH_SCRAM)  
-//      {
-//         IntToBinStr(physaddr,addr_str);
-//         writestring(str1,evenodd:1);
-//         while(len(str1)<4) do
-//         {
-//            str1 = "0" + str1;
-//         } 
-//      } 
-//
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//      {
-//         SaveMemsetBistData = V_MemSetBistData;
-//         V_MemSetBistData = false;
-//
-//          /*address & control word*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//                  SourceArr[site][offsetcyc+1] = (physaddr & (0x1 << offsetcyc)) >> offsetcyc;
-//               SourceArr[site][17] = evenodd;
-//            } 
-//
-//          /*data*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//               {
-//                  shiftbit = length*offsetcyc;
-//                  SourceArr[site][offsetcyc+mindex] = (src_data1[site] & (maskbit << shiftbit)) >> shiftbit;
-//                  SourceArr[site][offsetcyc+hindex] = (src_data2[site] & (maskbit << shiftbit)) >> shiftbit;
-//               } 
-//            } 
-//         PatternDigitalSource(tpatt, data_pins, maxsrccount, true, SourceArr);
-//         V_MemSetBistData = SaveMemsetBistData;
-//      }
-//      else
-//      {
-//         if(sameness)  
-//         {
-//            bcd_binstr1 = binstr1[active_site];
-//            bcd_binstr2 = binstr2[active_site];
-//
-//             /*address*/
-//            for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//            {
-//               str2 = "000" + Mid(addr_str + 16-offsetcyc + 1);
-//               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,str2);
-//            } 
-//            
-//             /*control word*/
-//            Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_pins,S_binary,str1);
-//
-//             /*data*/
-//            for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//            {
-//               shiftbit = length*offsetcyc;
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                      Mid(bcd_binstr1,eindex-shiftbit,length));
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                      Mid(bcd_binstr2,eindex-shiftbit,length));
-//            } 
-//            PatternExecute(tmpint,tpatt);
-//         }
-//         else   /*not same data*/
-//         {
-//            devsetholdstates(alldisable);
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            {
-//               if(savesites[site])  
-//               {
-//                  devsetholdstate(site,true);
-//                  bcd_binstr1 = binstr1[site];
-//                  bcd_binstr2 = binstr2[site];
-//
-//                   /*address*/
-//                  for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//                  {
-//                     str2 = "000" + Mid(addr_str + 16-offsetcyc + 1);
-//                     Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,str2);
-//                  } 
-//                                            
-//                   /*control word*/
-//                  Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_pins,S_binary,str1);
-//                  
-//                   /*data*/
-//                  for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//                  {
-//                     shiftbit = length*offsetcyc;
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                            Mid(bcd_binstr1,eindex-shiftbit,length));
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                            Mid(bcd_binstr2,eindex-shiftbit,length));
-//                  } 
-//                  PatternExecute(tmpint,tpatt);
-//                  devsetholdstate(site,false);
-//               } 
-//            }   /*for site*/
-//            devsetholdstates(savesites);
-//         }   /*not same data*/
-//      }   /*not go_do_source_with_scram*/
-//   }   /*if bcd_format*/
-//    /*-------- end of DMLED --------*/
-//#endif
-//#else   
+#else
+    /*-------- use DMLED --------*/
+   data_pins = "DMLED_INBUS";
+   maxiter = 3;
+   eindex = 13;
+   length = 4;
+
+   if(bcd_format)  
+   {
+      IntMToBcdBinVlsiStrM(src_data1, bcd_vlsi_str1, bin_vlsi_str1, data1_hexvalue);
+      IntMToBcdBinVlsiStrM(src_data2, bcd_vlsi_str2, bin_vlsi_str2, data2_hexvalue);
+
+      physaddr = addr_loc>>3;
+   
+       /*control word*/
+      evenodd = (addr_loc>>2) & 0x1;  /*0=even or ram1, 1=odd or ram2*/
+
+      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
+       /*address*/
+      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+      {
+         str1 = "LLL" + addr_str[15-offsetcyc];
+         SourceArr += str1;
+      } 
+      StringS patname = PatternBurst(tpatt).GetPattern(0).GetName();
+      StringS label = patname + ".MOD_ADDR";
+      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
+      
+      str1 = IntToVLSIDriveStr(evenodd, 4, true);
+      SourceArr.Erase();
+      SourceArr += str1;
+       /*control word*/
+      DIGITAL.ModifyVectors(data_pins, tpatt, label, 36, SourceArr, "L");
+
+       /*data*/
+      for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
+      {
+         shiftbit = length*offsetcyc;
+         mstr = bin_vlsi_str1.Substring(eindex-shiftbit, length);
+         SourceArrLo += mstr;
+         mstr = bin_vlsi_str2.Substring(eindex-shiftbit, length);
+         SourceArrHi += mstr;
+      }
+      SourceArr = SourceArrLo;
+      SourceArr += SourceArrHi;
+      
+      label = patname + ".MOD_DATA";
+      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
+      
+      DIGITAL.ExecutePattern(tpatt);
+      
+   }   /*if bcd_format*/
+    /*-------- end of DMLED --------*/
+#endif
+#else   
+// :TODO: Fix this. Unneeded for Blizzard.
 //   IntToBinStr(addr_loc>>2,addr_str);
 //   if(bcd_format)  
 //   {
@@ -3140,15 +2956,15 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //                             PMT_RAMBUS,S_binary,data_str2);
 //      PatternExecute(tmpint,tpatt);
 //   } 
-//#endif
-//
+#endif
+
 //   if(GL_DO_SOURCE_WITH_SCRAM)  
 //      SetupSelect(prevDCSU,norm_fmsu);
-//   
-//   if(tistdscreenprint and ti_flashdebug)  
-//      cout << "WriteRamContentDec_32bit TT " << timernread(ttimer1) << endl;
-//}    /*WriteRamContentDec_32bit*/
-//
+   
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "WriteRamContentDec_32bit TT " << TIME.StopTimer() << endl;
+}    /*WriteRamContentDec_32bit*/
+
 // /*unified all platforms to use cpu byte address for start_addr*/
 // /*reading 136 or 4096 16bit words from pmt starting address using scram*/
 // /*store contents into global array vars by store_option input param*/
@@ -8677,7 +8493,7 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
    bool debug_sample_repeatability = false;
    
    if (SYS.TesterSimulated()) {
-      if ((test_llim != UTL_VOID) && (test_ulim != UTL_VOID))
+      if ((test_llim != UTL_VOID) and (test_ulim != UTL_VOID))
       {
          Sim_Value = (test_ulim - test_llim) / 2. + test_llim;
       } 

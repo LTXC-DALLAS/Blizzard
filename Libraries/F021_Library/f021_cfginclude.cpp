@@ -7263,7 +7263,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[72] = true;
    TCR.TP1_MeasType[72] = MeasVoltType;
    TCR.TP1_VRange[72][ReadMode] = 8V;
-   TCR.TP1_IRange[72][ReadMode] = 10nA;
+   TCR.TP1_IRange[72][ReadMode] = 0nA;
    TCR.TP1_ULim[72][ReadMode]   = 8V;
    TCR.TP1_LLim[72][ReadMode]   = 0V;
 
@@ -7280,21 +7280,21 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP2_MeasType[83] = MeasVoltType;
     /*use progmode for vmin corner*/
    TCR.TP2_VRange[83][ProgMode] = VReadBUF_Prog_ULim;
-   TCR.TP2_IRange[83][ProgMode] = 10nA;
+   TCR.TP2_IRange[83][ProgMode] = 0nA;
    TCR.TP2_ULim[83][ProgMode]   = VReadBUF_Prog_ULim;
    TCR.TP2_LLim[83][ProgMode]   = VReadBUF_Prog_LLim;
     /*use pvfymode for vmax corner*/
    if(GL_PUMPTYPE==ESPUMP)  
    {
       TCR.TP2_VRange[83][PvfyMode] = VReadBUF_Pvfy_ULim;
-      TCR.TP2_IRange[83][PvfyMode] = 10nA;
+      TCR.TP2_IRange[83][PvfyMode] = 0nA;
       TCR.TP2_ULim[83][PvfyMode]   = VReadBUF_Pvfy_ULim;
       TCR.TP2_LLim[83][PvfyMode]   = VReadBUF_Pvfy_LLim;
    }
    else
    {
       TCR.TP2_VRange[83][PvfyMode] = VReadBUF_Prog_ULim;  /*VReadBUF_Pvfy_ULim;*/
-      TCR.TP2_IRange[83][PvfyMode] = 10nA;
+      TCR.TP2_IRange[83][PvfyMode] = 0nA;
       TCR.TP2_ULim[83][PvfyMode]   = VReadBUF_Prog_ULim;  /*VReadBUF_Pvfy_ULim;*/
       TCR.TP2_LLim[83][PvfyMode]   = VReadBUF_Prog_LLim;  /*VReadBUF_Pvfy_LLim;*/
    } 
@@ -7402,7 +7402,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[97] = true;
    TCR.TP1_MeasType[97] = MeasVoltType;
    TCR.TP1_VRange[97][ReadMode] = VRead_ULim+0.5V;  /*relax limit since pre-trim*/
-   TCR.TP1_IRange[97][ReadMode] = 10nA;
+   TCR.TP1_IRange[97][ReadMode] = 0nA;
    TCR.TP1_ULim[97][ReadMode]   = VRead_ULim+0.5V;
    TCR.TP1_LLim[97][ReadMode]   = VRead_LLim-0.5V;
 
@@ -7718,7 +7718,7 @@ if(GL_BANKTYPE==FLESBANK)
 
     /*use ProgMode for VRead/bgap trim with relax limit*/
    TCR.TP1_VRange[117][ProgMode] = VRead_ULim+0.5V;
-   TCR.TP1_IRange[117][ProgMode] = 10nA;
+   TCR.TP1_IRange[117][ProgMode] = 0nA;
    TCR.TP1_ULim[117][ProgMode]   = VRead_ULim+0.5V;
    TCR.TP1_LLim[117][ProgMode]   = VRead_LLim-0.5V;
 
@@ -7897,12 +7897,12 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP2_Ena[124] = true;
    TCR.TP2_MeasType[124] = MeasVoltType;
    TCR.TP2_VRange[124][ReadMode] = MainBG_ULim;
-   TCR.TP2_IRange[124][ReadMode] = 10nA;
+   TCR.TP2_IRange[124][ReadMode] = 0nA;
    TCR.TP2_ULim[124][ReadMode]   = MainBG_ULim;
    TCR.TP2_LLim[124][ReadMode]   = MainBG_LLim;
     /*use progmode for pre trim w/ relaxed limits*/
    TCR.TP2_VRange[124][ProgMode] = MainBG_ULim+650mV;
-   TCR.TP2_IRange[124][ProgMode] = 10nA;
+   TCR.TP2_IRange[124][ProgMode] = 0nA;
    TCR.TP2_ULim[124][ProgMode]   = MainBG_ULim+500mV;
    TCR.TP2_LLim[124][ProgMode]   = MainBG_LLim-500mV;
 
@@ -7910,7 +7910,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TADC_Ena[124] = false;
    TCR.TADC_MeasType[124] = MeasVoltType;
    TCR.TADC_VRange[124][ReadMode] = MainBG_ULim;
-   TCR.TADC_IRange[124][ReadMode] = 10nA;
+   TCR.TADC_IRange[124][ReadMode] = 0nA;
    TCR.TADC_ULim[124][ReadMode]   = MainBG_ULim;
    TCR.TADC_LLim[124][ReadMode]   = MainBG_LLim;
 
