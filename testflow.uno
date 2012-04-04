@@ -83,7 +83,7 @@ __Flow DPSE_FLOW {
 }*/
 
 __Flow BoardChk_FLOW {
-    OnStart = BoardChk_SUB_FLOW;
+    OnStart = BoardCheck;
     OnRestart = TIOnRestart;
     OnLoad = TIOnLoad;
     OnUnload = TIOnUnload;

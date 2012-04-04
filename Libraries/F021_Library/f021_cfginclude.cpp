@@ -294,20 +294,109 @@
  /*            tested at MP3.                                                  */
  /*           -Changed SA noise & accuracy tw string to format below:          */
  /*            Z_SAN_VMX_B0Q0_PC0_01UA_FBIT, Z_SAACCY_BCC0, Z_SAACCY_IVT0      */
+ /* 07/28/11  KChau                                                            */
+ /*           -Moved sense amp noise screen after pgm chkboard in MP1.         */
+ /*           -Changed sense amp noise charz to do at VMX, pc1 only.           */
+ /* 07/29/11  KChau                                                            */
+ /*           -Enabled efuse bit22 pgm for qual on FLEPBANK only.              */
+ /*           -Corrected BCC/VT RandCode TNUM with arbitrary ecc enable.       */
  /*                                                                            */
- /*  B2.2 : Released for revI qual.                             KChau 07/26/11 */
+ /*  B2.2 : Released for revI qual.                             KChau 07/29/11 */
+ /*                                                                            */
+ /* 08/01/11  KChau                                                            */
+ /*           -Changed VHV CT trim to check against llim instead of llim_pre   */
+ /*            to tighten post-trim distribution.                              */
+ /*           -Modified FlowCheck_func to disable fail site even COF.          */
+ /* 08/04/11  KChau                                                            */
+ /*           -WEBS: VLCTSTD.40 -- added check efuse error status reg and fail */
+ /*            if errorCode = 0x15/0x5 even ECC is correcting single bit error.*/
+ /*           -WEBS: VLCTSTD.41 -- corrected internal VT TT log to TW.         */
+ /* 08/11/11  KChau                                                            */
+ /*           -Added main array precon before pump vhv trim on retest unit.    */
+ /*           -Changed VHV ER CT START to 6 steps on HDPUMP, 7 on ESPUMP.      */
+ /*           -Changed TUNOX BCC LDELTA = -20ua (was -2ua) due to new shell    */
+ /*            with corrected bank stressing.                                  */
+ /*                                                                            */
+ /*  B2.3 : Released for revI qual.                             KChau 08/12/11 */
+ /*                                                                            */
+ /* 08/22/11  KChau                                                            */
+ /*           -Added DRL BCC1 median delta.                                    */
+ /*                                                                            */
+ /*  B2.3.1 : Released for revI qual.                           KChau 08/23/11 */
+ /*                                                                            */
+ /* 09/06/11  KChau                                                            */
+ /*           -Changed BCC1 LLIM pre PUNTHRU, PGMFF:                           */
+ /*            non-EMU 22ua (was 22.5ua), EMU 20ua (was 21ua) @MP3/high temp.  */
+ /* 09/07/11  KChau                                                            */
+ /*           -Changed BCC1 LLIM pre RCODE (same as PUNTHRU/PGMFF):            */
+ /*            non-EMU 22ua (was 25.5ua), EMU 20ua (was 23.5ua) @MP3/high temp.*/
+ /*                                                                            */
+ /*  B2.3.2 : Released for revI qual.                           KChau 09/07/11 */
+ /*                                                                            */
+ /* 09/16/11  KChau                                                            */
+ /*           -Changed DRLVT0_UDELTA bank2 to 1.4v (was 1v) @MP3.              */
+ /*                                                                            */
+ /*  B2.3.3 : Released for revI qual.                           KChau 09/16/11 */
+ /*                                                                            */
+ /* 09/20/11  KChau                                                            */
+ /*           -Updated target/limits below based on qual wafers:               */
+ /*            VCG2P5 target to 1.8v @MP3 (was 1.825v).                        */
+ /*            VHV Erease LLim to 11.96v (8%) @MP3 (was 12.22v or 6%).         */
+ /*            Iref_RDM1 limits to 7% (17.856ua/20.544ua) @MP2 (was 6%).       */
+ /*            Post bake [CHKVT0DRL/RCODEVT0,post] to 2.4v (was 2.7v).         */
+ /* 09/20/11  KChau                                                            */
+ /*           -Modified VHV PG/ERS/PV CT trim and BandGap direct trim with     */
+ /*            adaptive algo for TTR and tighter distribution.                 */
+ /*           -Modified EraseRefArray_func & added TL_Boost_RefArray to do     */
+ /*            refarr boost to ~iref rd target on retest.                      */
+ /*           -Added LPO (LF/HF) Trim using DCC @ PreBurnIn.                   */
+ /*           -WEBS: VLCTSTD.42 -- write pump trim solutions to OTP.           */
+ /*                                                                            */
+ /*  B2.4 : Released for revK wafers.                           KChau 09/20/11 */
+ /*                                                                            */
+ /* 09/28/11  KChau                                                            */
+ /*           -Modified to use various esda image number based on test type.   */
+ /*           -Enabled RefArr adaptive erase on FLESBANK.                      */
+ /*           -Implemented new target/limits for FLESBANK TCR25,26,27,40,56.   */
+ /*                                                                            */
+ /* 10/28/11  KChau                                                            */
+ /*           -Added PgmOtpSCPL test for Stellaris.                            */
+ /*           -Modified FlashCode_WR_EXE_func to support Stellaris for writing */
+ /*            SCPL into customer OTP.                                         */
+ /*           -Added FlashCode_RdPsa_func to support arbitrary target/data     */
+ /*            field including customer otp for Stellaris.                     */
+ /*           -Modified MBox_Upload_RCODE_PSA to support various FlashCodeType.*/
+ /*           -Moved ADDR_TIOTP_HI/LO[bank] and VHV OTP template RAM location  */
+ /*            to f021_config.p device specific.                               */
+ /*           -Added FL_PUMP_SUPPLY_NAME configurable parameter for device that*/
+ /*            that gang flash pump supply VDD3VFL with other supply on their  */
+ /*            test hardware.  Applicable in ReadDisturb2 stress test.         */
+ /*           -Added MeasPinTMU_func, F021_FOSC_SoftTrim_External_func to trim */
+ /*            FOSC using external pin via DMA TMU for device doesn"t have DCC.*/
+ /*           -Added FOSC_VCO_Vmin_func for external FOSC post trim test.      */
+ /*           -Added VHV slopect override in MeasInternalVT for ESPUMP.        */
+ /*           -Changed BCC.UDELTA[TUNOXVT1] to 2ua (was 10ua).                 */
+ /*           -Added pump trim extraction in GetTrimCode_On_EFStr on ESPUMP for*/
+ /*            usage in internal vt.                                           */
+ /*           -Added internal BCC1 support in TL_Run_BCCVT, MeasInternalVT.    */
+ /*           -Updated limits:                                                 */
+ /*            Main/OtpVT.LDELTA[CSFGVT0] to -0.5v (was -2.2v)                 */
+ /*            MainVT.LDELTA[RDDISTB2VT0] to -0.4v (was -0.7v)                 */
+ /*            OtpVT.LDELTA[RDDISTB2VT0]  to -0.4v (was -0.7v)                 */
+ /*            OtpVT.UDELTA[RDDISTB2VT0]  to  0.4v (was 0.25v)                 */
+ /*                                                                            */
+ /*  B3.0 : Released for Catalog Flow.                          KChau 11/24/11 */
  /*                                                                            */
  /****************************************************************************/
 
 #include <Unison.h>
 #include <f021_flashvar.h>
-using namespace std; 
-
+using namespace std;
 
 void F021_FlashConfigInclude()
 {
     /*std vlct library revision*/
-   GL_VLC_LIBREV = "B2.2";
+   GL_VLC_LIBREV = "B3.0.2";  /*C06*/
 
     /*shell library revision (GL_SHELL_LIBREV is in f035_readotpinfo_func*/
 
@@ -325,10 +414,10 @@ void F021_FlashConfigInclude()
 #endif
 
     /*enable flash esda*/
-   TI_FlashESDAEna = true;
+   TI_FlashESDAEna = false;  /*turn off for now Pasa...3/5/12*/
    TI_FlashCharEna = true;  /*enable data collection pmos/nmos iref & internal*/
-   
-// :TODO: come back and fix this
+  
+// :TODO: come back and fix this. Unneeded for now due to var being false
 //   if(TI_FlashESDAEna)  
 //   {
 //      MemSetGeometry(4096,32,192);
@@ -351,19 +440,109 @@ void F021_FlashConfigInclude()
     /*soft trim*/
    GL_DO_FLASHTRIM       = true;
    GL_DO_BG_DIRECT_TRIM  = true;  /*false=use force bg/meas vrd method*/
-   GL_DO_BG_ADAPT_TRIM   = false;  /*do hard trim. if set then soft trim*/
+   GL_DO_BG_ADAPT_TRIM   = true;  /*do hard trim. if set then soft trim*/
    GL_DO_BG_CHAR_TRIM    = false;
    GL_DO_IREF_ADAPT_TRIM = false;  /*do hard trim. if set then soft trim*/
    GL_DO_IREF_CHAR_TRIM  = false;
    GL_DO_IREF_PMOS_TRIM  = true;   /*true=do bank iref pmos trim*/
-   GL_DO_REFARR_ERS_ADAPTIVE  = false;
-   GL_DO_FOSC_TRIM       = false;  /*true=blow efuse, false=no blow efuse} {temp false for blizzard external FOSC read JRR*/
+   if(GL_BANKTYPE==FLESBANK)  
+      GL_DO_REFARR_ERS_ADAPTIVE  = false ; /*true} {blizzard - temporary use deep erase shell*/
+   else
+      GL_DO_REFARR_ERS_ADAPTIVE  = false;
+   GL_DO_BOOST_REFARR = true;
+   GL_DO_FOSC_TRIM       = true;  /*true=blow efuse, false=no blow efuse*/
+
+   if(SelectedTITestType==MP1)  
+      GL_DO_REDENA = false ; /*blizzard specific} {CHANGED: Should be true but Redundancy doesn"t work on Blizzard*/
+   else
+      GL_DO_REDENA = false;
+
+    /* RD_OPTION (extended test option TNUM) : 0=normal, 1=psa, 2=esda, 3=repair */
+   GL_DO_RD_WITH_TOPTION = 1;  /*psa*/
+   GL_DO_VT_FIRST = false;
+   GL_DO_VT_USING_INTERNAL = true;   /*note: take precedent over gl_do_vt_using_bidi*/
+   GL_DO_VT_USING_BIDI = true;  /*using bidirectional vt method*/
+   GL_DO_DRL0_USING_VT = true;   /*false=use bcc, true=use vt*/
+   GL_DO_DRL1_USING_VT = false;   /*false=use bcc, true=use vt*/
+   GL_DO_VT_MAIN_USING_PBIST = false;  /*true}; {blizzard specific*/
+   GL_DO_VT_OTP_USING_PBIST  = false;  /*true}; {blizzard specific*/
+   GL_DO_BCC_MAIN_USING_PBIST = false;  /*true}; {blizzard specific*/
+   GL_DO_BCC_OTP_USING_PBIST  = false;  /*true}; {blizzard specific*/
+   GL_DO_BCC_USING_INTERNAL = true; 
+   GL_DO_MASK_1S_BCC0_DRL_PBIST = true;   /*true=mask 1s in echk/ochk, false=not masking*/
+
+   GL_DO_FL_PBIST = false;  /*true};  {use for read} {blizzard specific*/
+   GL_DO_PGM_USING_PBIST = false;  /*true};  {use for pgm} {blizzard specific*/
+
+#if $GL_USE_DMLED_RAMPMT  
+   GL_DO_ERS_BY_SECTOR = false;  /*use for ers: true=do by sector, false=do by bank*/
+#else
+   GL_DO_ERS_BY_SECTOR = false;  /*use for ers: true=do by sector, false=do by bank*/
+#endif
+
+   if(SelectedTITestType==MP1)  
+      GL_DO_VHV_CT_TRIM = true;
+   else
+      GL_DO_VHV_CT_TRIM = false;
+
+   if(SelectedTITestType==PreBurnIn)  
+      GL_DO_LPO_TRIM = true;
+   else
+      GL_DO_LPO_TRIM = false;
+   
+    /*--- artificial (fake) repair ---*/
+    /*Note: var gl_fakerep_count gets increment in WrEngRow. once it reaches gl_fakerep_sampling*/
+    /*then will do fake repair & then reset to 1. the repair solution is upload in PgmOTPTemplate.*/
+   GL_DO_REPAIR = false;  /*true}; {blizzard specific*/
+   GL_FAKEREP_SAMPLING = 10;  /*repair on every 10th die*/
+   GL_FAKEREP_COUNT = 1;
+
+    /*-- LEAK_OPTION (FlashLeakType) definition --*/
+   GL_DO_WLS_LEAK_OPTION    = BANK_ODDEVEN;
+   GL_DO_BLS_LEAK_OPTION    = BANK_ODDEVEN;
+   GL_DO_CGS_LEAK_OPTION    = BANK_ODDEVEN;
+   GL_DO_EGCSS_LEAK_OPTION  = BANK_GANG;
+   GL_DO_EGS_LEAK_OPTION    = BANK_GANG;
+
+    /*+++ CHARZ +++*/
+   GL_DO_CHARZ_ERSREFARR = false;
+   GL_CHARZ_ERSREFARR_COUNT = 0;
+   GL_CHARZ_ERSREFARR_SAVECOUNT = 0;
+   GL_CHARZ_BCC_COUNT = 0;
+   GL_DO_CHARZ_PPW = false;
+   GL_DO_CHARZ_BCC = false;
+   GL_DO_CHARZ_VT  = false;
+   GL_DO_CHARZ_BCC_OPTION = SECTTYPE;
+   GL_DO_CHARZ_VT_OPTION  = SECTTYPE;
+   GL_DO_CHARZ_IREF_RD   = false;
+   GL_DO_CHARZ_IREF_PVFY = false;
+   GL_DO_CHARZ_IREF_EVFY = false;
+   GL_DO_CHARZ_IREF_CVFY = false;
+   GL_DO_CHARZ_IREF_RM01 = false;
+   GL_DO_CHARZ_IPMOS_RD   = false;
+   GL_DO_CHARZ_IPMOS_PVFY = false;
+   GL_DO_CHARZ_IPMOS_EVFY = false;
+   GL_DO_CHARZ_IPMOS_CVFY = false;
+   GL_DO_CHARZ_STRESS = false;
+   GL_DO_CHARZ_INTERNAL_IREF_VCG = false;
+   GL_DO_CHARZ_FREQ_RANDCODE = false;
+   GL_CHARZ_FREQ_RANDCODE_COUNT = 1;
+   GL_CHARZ_FREQ_RANDCODE_SAMPLING = 10;
+   if(GL_BANKTYPE==FLEPBANK)  
+      GL_DO_CHARZ_SAMPNOISE = true;
+   else
+      GL_DO_CHARZ_SAMPNOISE = false;
+
+   GL_DO_CHARZ_SAMP_ACCY = false;
+   GL_DO_SAVE_SAMP_ACCY_DATA = false;  /*enable in vt/bcc func*/
+   GL_DO_CHARZ_SAMP_ACCY_COUNT = 1;
+   GL_DO_CHARZ_SAMP_ACCY_SAMPLING = 10;
 
  /*!!! NOTE: auto device should not skip mp2 flow unless approved by f021 team !!!*/
-#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
-   GL_SKIP_MP2_FLASHFLOW = true;;
-#else
+#if $FL_USE_AUTO_FLOW  
    GL_SKIP_MP2_FLASHFLOW = false;
+#else
+   GL_SKIP_MP2_FLASHFLOW = true;
 #endif
 
     /*use to specify module/bank/sector testing*/
@@ -381,6 +560,8 @@ void F021_FlashConfigInclude()
    TNUM_TARGET_QUAD     = 0x00000300;
    TNUM_TARGET_OTP      = 0x00000400;
    TNUM_TARGET_OTP_SEMI = 0x00000500;
+   TNUM_TARGET_OTP_DATA = 0x00000600;
+   TNUM_TARGET_OTP_CUSTOMER = 0x00000700;
    TNUM_TARGET_ARB      = 0x00000A00;
 
    TNUM_DATA_0S         = 0x00000000;
@@ -392,7 +573,7 @@ void F021_FlashConfigInclude()
    TNUM_DATA_LOGIC_ECHK = 0x00008000;
 
    TNUM_TOPTION_NORMAL   = 0x00000000;
-   TNUM_TOPTION_PSARD    = 0x00000000;  /*don"t have PSA so changed was 0x00010000 JRR*/
+   TNUM_TOPTION_PSARD    = 0x00000000;  /*0x00010000;} {blizzard specific*/
    TNUM_TOPTION_ESDARD   = 0x00020000;
    TNUM_TOPTION_REPAIRRD = 0x00030000;
 
@@ -416,7 +597,7 @@ void F021_FlashConfigInclude()
    TNUM_PBIST_BCC0S  = 0xB0060000;
    TNUM_PBIST_CUSTCR = 0xB0070000;
    TNUM_FASTPRECON   = 0x32000000;
-   TNUM_REDUNDENA    = 0x00000000;  /*no redundancy, was 0x00800000 JRR*/
+   TNUM_REDUNDENA    = 0x00800000;
    TNUM_PBIST_MASK1S = 0x00200000;
 
    TNUM_BIDI_VT = 0x00100000;
@@ -426,10 +607,14 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   MainBCC.ENA[REVTUNVT1][pre]             = true;
-   MainBCC.ENARED[REVTUNVT1][pre]          = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[REVTUNVT1][pre]             = false;
+#else
+   MainBCC.ENA[REVTUNVT1][pre]             = false;
+#endif
+   MainBCC.ENARED[REVTUNVT1][pre]          = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[REVTUNVT1][pre]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[REVTUNVT1][pre]        = true;
      default: MainBCC.DLOGONLY[REVTUNVT1][pre]        = false;
    }   /* case */
    MainBCC.SSTART[REVTUNVT1][pre]          = 6uA;
@@ -443,10 +628,14 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[REVTUNVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[REVTUNVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[REVTUNVT1][post]            = true;
-   MainBCC.ENARED[REVTUNVT1][post]         = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[REVTUNVT1][post]            = (SelectedTITestType==MP3);
+#endif
+   MainBCC.ENARED[REVTUNVT1][post]         = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[REVTUNVT1][post]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[REVTUNVT1][post]        = true;
      default: MainBCC.DLOGONLY[REVTUNVT1][post]        = false;
    }   /* case */
    MainBCC.SSTART[REVTUNVT1][post]         = 6uA;
@@ -466,10 +655,14 @@ void F021_FlashConfigInclude()
    MainBCC.PREVTYPE[REVTUNVT1]            = PUNTHRUVT1;   /*KChau - yield learning*/
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[PGMFFVT1][pre]             = true;
-   MainBCC.ENARED[PGMFFVT1][pre]          = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[PGMFFVT1][pre]             = (SelectedTITestType==MP3);
+#endif   
+   MainBCC.ENARED[PGMFFVT1][pre]          = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[PGMFFVT1][pre]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[PGMFFVT1][pre]        = true;
      default: MainBCC.DLOGONLY[PGMFFVT1][pre]        = false;
    } 
    MainBCC.SSTART[PGMFFVT1][pre]          = 4uA;
@@ -483,9 +676,9 @@ void F021_FlashConfigInclude()
         MainBCC.ULIM_EMU[PGMFFVT1][pre]        = 45uA;
       break; 
      case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-        MainBCC.LLIM[PGMFFVT1][pre]            = 22.5uA;
+        MainBCC.LLIM[PGMFFVT1][pre]            = 22.5uA; /*22ua;} {pasa 12/2/11*/
         MainBCC.ULIM[PGMFFVT1][pre]            = 45uA;
-        MainBCC.LLIM_EMU[PGMFFVT1][pre]        = 21uA;
+        MainBCC.LLIM_EMU[PGMFFVT1][pre]        = 21uA; /*20ua;}{pasa 12/2/11*/
         MainBCC.ULIM_EMU[PGMFFVT1][pre]        = 45uA;
       break; 
      default:  
@@ -499,10 +692,14 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[PGMFFVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[PGMFFVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[PGMFFVT1][post]            = true;
-   MainBCC.ENARED[PGMFFVT1][post]         = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[PGMFFVT1][post]            = (SelectedTITestType==MP3);
+#endif   
+   MainBCC.ENARED[PGMFFVT1][post]         = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[PGMFFVT1][post]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[PGMFFVT1][post]        = true;
      default: MainBCC.DLOGONLY[PGMFFVT1][post]        = false;
    } 
    MainBCC.SSTART[PGMFFVT1][post]         = 4uA;
@@ -528,15 +725,19 @@ void F021_FlashConfigInclude()
       break; 
    }   /* case */
    switch(SelectedTITestType) {
-     case MP3 :     MainBCC.PREVTYPE[PGMFFVT1]        = PGMFFVT1; break;
+     case MP3 :     MainBCC.PREVTYPE[PGMFFVT1]        = PGMFFVT1;
      default: MainBCC.PREVTYPE[PGMFFVT1]        = PGMFFVT1;
    }   /* case */
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[PUNTHRUVT1][pre]             = true;
-   MainBCC.ENARED[PUNTHRUVT1][pre]          = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[PUNTHRUVT1][pre]             = (SelectedTITestType==MP3);
+#endif
+   MainBCC.ENARED[PUNTHRUVT1][pre]          = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[PUNTHRUVT1][pre]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[PUNTHRUVT1][pre]        = true;
      default: MainBCC.DLOGONLY[PUNTHRUVT1][pre]        = false;
    }   /* case */
    MainBCC.SSTART[PUNTHRUVT1][pre]          = 4uA;
@@ -550,9 +751,9 @@ void F021_FlashConfigInclude()
         MainBCC.ULIM_EMU[PUNTHRUVT1][pre]        = 45uA;
       break; 
      case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-        MainBCC.LLIM[PUNTHRUVT1][pre]            = 22.5uA;
+        MainBCC.LLIM[PUNTHRUVT1][pre]            = 22.5uA; /*22ua;} {pasa 12/2/11*/
         MainBCC.ULIM[PUNTHRUVT1][pre]            = 45uA;
-        MainBCC.LLIM_EMU[PUNTHRUVT1][pre]        = 21uA;
+        MainBCC.LLIM_EMU[PUNTHRUVT1][pre]        = 21uA; /*20ua;} {pasa 12/2/11*/
         MainBCC.ULIM_EMU[PUNTHRUVT1][pre]        = 45uA;
       break; 
      default:  
@@ -566,10 +767,14 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[PUNTHRUVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[PUNTHRUVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[PUNTHRUVT1][post]            = true;
-   MainBCC.ENARED[PUNTHRUVT1][post]         = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[PUNTHRUVT1][post]            = (SelectedTITestType==MP3);
+#endif
+   MainBCC.ENARED[PUNTHRUVT1][post]         = GL_DO_REDENA;
    switch(SelectedTITestType) {
-     case MP1 :     MainBCC.DLOGONLY[PUNTHRUVT1][post]        = true; break;
+     case MP1 :     MainBCC.DLOGONLY[PUNTHRUVT1][post]        = true;
      default: MainBCC.DLOGONLY[PUNTHRUVT1][post]        = false;
    }   /* case */
    MainBCC.SSTART[PUNTHRUVT1][post]         = 4uA;
@@ -586,11 +791,15 @@ void F021_FlashConfigInclude()
    MainBCC.TDATA[PUNTHRUVT1]               = TNUM_DATA_1S;
    MainBCC.LDELTA[PUNTHRUVT1]              = -2uA;
    MainBCC.UDELTA[PUNTHRUVT1]              = 2uA;
-   MainBCC.PREVTYPE[PUNTHRUVT1]            = PUNTHRUVT1;  /*THINOXVT1;}  {A07*/
+   MainBCC.PREVTYPE[PUNTHRUVT1]            = PUNTHRUVT1;
 
     /*---- pre ----*/
-   MainBCC.ENA[FGWLVT1][pre]             = true;
-   MainBCC.ENARED[FGWLVT1][pre]          = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[FGWLVT1][pre]             = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[FGWLVT1][pre]             = false;
+#endif   
+   MainBCC.ENARED[FGWLVT1][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[FGWLVT1][pre]        = false;
    MainBCC.SSTART[FGWLVT1][pre]          = 4uA;
    MainBCC.SSTOP[FGWLVT1][pre]           = 30uA;
@@ -603,8 +812,12 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[FGWLVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[FGWLVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainBCC.ENA[FGWLVT1][post]            = true;
-   MainBCC.ENARED[FGWLVT1][post]         = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[FGWLVT1][post]            = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[FGWLVT1][post]            = false;
+#endif   
+   MainBCC.ENARED[FGWLVT1][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[FGWLVT1][post]       = false;
    MainBCC.SSTART[FGWLVT1][post]         = 4uA;
    MainBCC.SSTOP[FGWLVT1][post]          = 30uA;
@@ -624,8 +837,8 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   MainBCC.ENA[TUNOXTSMCVT1][pre]             = true;
-   MainBCC.ENARED[TUNOXTSMCVT1][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENA[TUNOXTSMCVT1][pre]             = false;
+   MainBCC.ENARED[TUNOXTSMCVT1][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[TUNOXTSMCVT1][pre]        = false;
    MainBCC.SSTART[TUNOXTSMCVT1][pre]          = 4uA;
    MainBCC.SSTOP[TUNOXTSMCVT1][pre]           = 30uA;
@@ -638,9 +851,9 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[TUNOXTSMCVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[TUNOXTSMCVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainBCC.ENA[TUNOXTSMCVT1][post]            = true;
-   MainBCC.ENARED[TUNOXTSMCVT1][post]         = (SelectedTITestType==MP1);
-   MainBCC.DLOGONLY[TUNOXTSMCVT1][post]       = true;
+   MainBCC.ENA[TUNOXTSMCVT1][post]            = false;
+   MainBCC.ENARED[TUNOXTSMCVT1][post]         = GL_DO_REDENA;
+   MainBCC.DLOGONLY[TUNOXTSMCVT1][post]       = false;
    MainBCC.SSTART[TUNOXTSMCVT1][post]         = 4uA;
    MainBCC.SSTOP[TUNOXTSMCVT1][post]          = 30uA;
    MainBCC.SRESOL[TUNOXTSMCVT1][post]         = 500nA;
@@ -653,13 +866,17 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[TUNOXTSMCVT1][post]       = TNUM_TOPTION_PSARD;
    MainBCC.MEMCFG[TUNOXTSMCVT1]              = BANKTYPE;
    MainBCC.TDATA[TUNOXTSMCVT1]               = TNUM_DATA_1S;
-   MainBCC.LDELTA[TUNOXTSMCVT1]              = -20uA;
+   MainBCC.LDELTA[TUNOXTSMCVT1]              = -20uA; /*-2ua;} {pasa 12/2/11*/
    MainBCC.UDELTA[TUNOXTSMCVT1]              = 10uA;
    MainBCC.PREVTYPE[TUNOXTSMCVT1]            = TUNOXTSMCVT1;
 
     /*---- pre ----*/
-   MainBCC.ENA[TUNOXVT1][pre]             = true;
-   MainBCC.ENARED[TUNOXVT1][pre]          = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[TUNOXVT1][pre]             = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[TUNOXVT1][pre]             = (SelectedTITestType==MP1);
+#endif   
+   MainBCC.ENARED[TUNOXVT1][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[TUNOXVT1][pre]        = false;
    MainBCC.SSTART[TUNOXVT1][pre]          = 4uA;
    MainBCC.SSTOP[TUNOXVT1][pre]           = 30uA;
@@ -672,8 +889,12 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[TUNOXVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[TUNOXVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainBCC.ENA[TUNOXVT1][post]            = true;
-   MainBCC.ENARED[TUNOXVT1][post]         = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[TUNOXVT1][post]            = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[TUNOXVT1][post]            = (SelectedTITestType==MP1);
+#endif   
+   MainBCC.ENARED[TUNOXVT1][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[TUNOXVT1][post]       = false;
    MainBCC.SSTART[TUNOXVT1][post]         = 4uA;
    MainBCC.SSTOP[TUNOXVT1][post]          = 30uA;
@@ -688,12 +909,12 @@ void F021_FlashConfigInclude()
    MainBCC.MEMCFG[TUNOXVT1]              = BANKTYPE;
    MainBCC.TDATA[TUNOXVT1]               = TNUM_DATA_1S;
    MainBCC.LDELTA[TUNOXVT1]              = -20uA;
-   MainBCC.UDELTA[TUNOXVT1]              = 10uA;
+   MainBCC.UDELTA[TUNOXVT1]              = 10uA; /*2ua;} {pasa 12/2/11*/
    MainBCC.PREVTYPE[TUNOXVT1]            = TUNOXVT1;
 
     /*---- pre ----*/
-   MainBCC.ENA[THINOXVT1][pre]             = true;
-   MainBCC.ENARED[THINOXVT1][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENA[THINOXVT1][pre]             = (SelectedTITestType==MP1);
+   MainBCC.ENARED[THINOXVT1][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[THINOXVT1][pre]        = false;
    MainBCC.SSTART[THINOXVT1][pre]          = 4uA;
    MainBCC.SSTOP[THINOXVT1][pre]           = 30uA;
@@ -706,8 +927,8 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[THINOXVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[THINOXVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainBCC.ENA[THINOXVT1][post]            = true;
-   MainBCC.ENARED[THINOXVT1][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENA[THINOXVT1][post]            = (SelectedTITestType==MP1);
+   MainBCC.ENARED[THINOXVT1][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[THINOXVT1][post]       = false;
    MainBCC.SSTART[THINOXVT1][post]         = 4uA;
    MainBCC.SSTOP[THINOXVT1][post]          = 30uA;
@@ -727,7 +948,17 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   MainBCC.ENA[CHKVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2 :  MainBCC.ENA[CHKVT1][pre]             = true;
+     default: MainBCC.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case  MP1: case MP3 :  MainBCC.ENA[CHKVT1][pre]             = true;
+     default: MainBCC.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#endif   
    MainBCC.ENARED[CHKVT1][pre]          = false;
    MainBCC.DLOGONLY[CHKVT1][pre]        = false;
    MainBCC.SSTART[CHKVT1][pre]          = 7uA;
@@ -757,7 +988,7 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[CHKVT1][pre]        = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainBCC.ENA[CHKVT1][post]            = true;
+   MainBCC.ENA[CHKVT1][post]            = false;
    MainBCC.ENARED[CHKVT1][post]         = false;
    MainBCC.DLOGONLY[CHKVT1][post]       = false;
    MainBCC.SSTART[CHKVT1][post]         = 7uA;
@@ -770,17 +1001,20 @@ void F021_FlashConfigInclude()
    MainBCC.TCRNUM[CHKVT1][post]         = 38;
    MainBCC.IRATIO[CHKVT1][post]         = TNUM_MULT2;
    MainBCC.RDOPTION[CHKVT1][post]       = TNUM_TOPTION_NORMAL;
-   MainBCC.MEMCFG[CHKVT1]              = QUADTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
    switch(SelectedTITestType) {
-     case MP1 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_1S; break;
-     case MP3 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK; break; /*added case for catalog MP3 JRR*/
+     case MP3 :     MainBCC.MEMCFG[CHKVT1]              = BANKTYPE;
+     default: MainBCC.MEMCFG[CHKVT1]              = QUADTYPE;
+   }   /* case */
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP1 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_ECHK;
+     case MP2 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK;
      default: MainBCC.TDATA[CHKVT1]   = TNUM_DATA_ECHK;
-    }  /* case */
+   }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP1 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_ECHK; break;
-     case MP2 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK; break;
+     case MP1 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_1S;
+     case MP3 : MainBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK;
      default: MainBCC.TDATA[CHKVT1]   = TNUM_DATA_ECHK;
    }   /* case */
 #endif
@@ -790,7 +1024,7 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   MainBCC.ENA[CHKVT1DRL][pre]             = true;
+   MainBCC.ENA[CHKVT1DRL][pre]             = false;
    MainBCC.ENARED[CHKVT1DRL][pre]          = false;
    MainBCC.DLOGONLY[CHKVT1DRL][pre]        = false;
    MainBCC.SSTART[CHKVT1DRL][pre]          = 7uA;
@@ -804,7 +1038,17 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT1DRL][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[CHKVT1DRL][pre]        = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainBCC.ENA[CHKVT1DRL][post]            = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP2: case MP3 :  MainBCC.ENA[CHKVT1DRL][post]            = true;
+     default:  MainBCC.ENA[CHKVT1DRL][post]            = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case  MP3: case PreBurnIn :  MainBCC.ENA[CHKVT1DRL][post]            = true;
+     default:       MainBCC.ENA[CHKVT1DRL][post]            = false;
+   }   /* case */
+#endif
    MainBCC.ENARED[CHKVT1DRL][post]         = false;
    MainBCC.DLOGONLY[CHKVT1DRL][post]       = false;
    MainBCC.SSTART[CHKVT1DRL][post]         = 7uA;
@@ -834,13 +1078,16 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT1DRL][post]         = TNUM_MULT2;
    MainBCC.RDOPTION[CHKVT1DRL][post]       = TNUM_TOPTION_NORMAL;
    MainBCC.MEMCFG[CHKVT1DRL]              = QUADTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
-     MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_1S;;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP2 : MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_ECHK;
+     case MP3 : MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_OCHK;
+     default: MainBCC.TDATA[CHKVT1DRL]   = TNUM_DATA_ECHK;
+   }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP2 : MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_ECHK; break;
-     case MP3 : MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_OCHK; break;
-     default: MainBCC.TDATA[CHKVT1DRL]   = TNUM_DATA_ECHK;
+     case MP3 :     MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_1S;
+     default: MainBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_OCHK;
    }   /* case */
 #endif
    switch(SelectedTITestType) {
@@ -853,39 +1100,87 @@ void F021_FlashConfigInclude()
               MainBCC.UDELTA[CHKVT1DRL]              = 5uA;
               MainBCC.LDELTA_EMU[CHKVT1DRL]          = -3uA;
               MainBCC.UDELTA_EMU[CHKVT1DRL]          = 5uA;
+              DRLBCC1_Median_ULimit[0]               = 5uA;
+              DRLBCC1_Median_ULimit[1]               = 5uA;
+              DRLBCC1_Median_ULimit[2]               = 5uA;
+              DRLBCC1_Median_ULimit[3]               = 5uA;
+              DRLBCC1_Median_ULimit[4]               = 5uA;
+              DRLBCC1_Median_ULimit[5]               = 5uA;
+              DRLBCC1_Median_ULimit[6]               = 5uA;
+              DRLBCC1_Median_ULimit[7]               = 5uA;
             break; 
      case MP3 :  
-              MainBCC.LDELTA[CHKVT1DRL]              = -8uA;  /*-2uA;*/
+              MainBCC.LDELTA[CHKVT1DRL]              = -8uA;  /*-2ua;*/
               MainBCC.UDELTA[CHKVT1DRL]              = 2uA;
-              MainBCC.LDELTA_EMU[CHKVT1DRL]          = -8uA;  /*-2uA;*/
+              MainBCC.LDELTA_EMU[CHKVT1DRL]          = -8uA;  /*-2ua;*/
               MainBCC.UDELTA_EMU[CHKVT1DRL]          = 2uA;
+              DRLBCC1_Median_ULimit[0]               = 5uA;
+              DRLBCC1_Median_ULimit[1]               = 5uA;
+              DRLBCC1_Median_ULimit[2]               = 5uA;
+              DRLBCC1_Median_ULimit[3]               = 5uA;
+              DRLBCC1_Median_ULimit[4]               = 5uA;
+              DRLBCC1_Median_ULimit[5]               = 5uA;
+              DRLBCC1_Median_ULimit[6]               = 5uA;
+              DRLBCC1_Median_ULimit[7]               = 5uA;
             break; 
      default:  
               MainBCC.LDELTA[CHKVT1DRL]              = -16uA;
               MainBCC.UDELTA[CHKVT1DRL]              = 5uA;
               MainBCC.LDELTA_EMU[CHKVT1DRL]          = -16uA;
               MainBCC.UDELTA_EMU[CHKVT1DRL]          = 5uA;
+              DRLBCC1_Median_ULimit[0]               = 5uA;
+              DRLBCC1_Median_ULimit[1]               = 5uA;
+              DRLBCC1_Median_ULimit[2]               = 5uA;
+              DRLBCC1_Median_ULimit[3]               = 5uA;
+              DRLBCC1_Median_ULimit[4]               = 5uA;
+              DRLBCC1_Median_ULimit[5]               = 5uA;
+              DRLBCC1_Median_ULimit[6]               = 5uA;
+              DRLBCC1_Median_ULimit[7]               = 5uA;
       break; 
    }   /* case */
    MainBCC.PREVTYPE[CHKVT1DRL]            = CHKVT1DRL;
 
 
     /*---- pre ----*/
-   MainBCC.ENA[RCODEVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP3 :     MainBCC.ENA[RCODEVT1][pre]             = true;
+     default: MainBCC.ENA[RCODEVT1][pre]             = false;
+   }   /* case */
+#else
+   MainBCC.ENA[RCODEVT1][pre]             = false;
+#endif
    MainBCC.ENARED[RCODEVT1][pre]          = false;
    MainBCC.DLOGONLY[RCODEVT1][pre]        = false;
    MainBCC.SSTART[RCODEVT1][pre]          = 7uA;
    MainBCC.SSTOP[RCODEVT1][pre]           = 30uA;
    MainBCC.SRESOL[RCODEVT1][pre]          = 500nA;
-   MainBCC.LLIM[RCODEVT1][pre]            = 25.5uA;
-   MainBCC.ULIM[RCODEVT1][pre]            = 45uA;
-   MainBCC.LLIM_EMU[RCODEVT1][pre]        = 23.5uA;
-   MainBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+   switch(SelectedTITestType) {
+     case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
+        MainBCC.LLIM[RCODEVT1][pre]            = 22uA;
+        MainBCC.ULIM[RCODEVT1][pre]            = 45uA;
+        MainBCC.LLIM_EMU[RCODEVT1][pre]        = 20uA;
+        MainBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+      break; 
+     default:  
+        MainBCC.LLIM[RCODEVT1][pre]            = 25.5uA;
+        MainBCC.ULIM[RCODEVT1][pre]            = 45uA;
+        MainBCC.LLIM_EMU[RCODEVT1][pre]        = 23.5uA;
+        MainBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+      break; 
+   }   /* case */
    MainBCC.TCRNUM[RCODEVT1][pre]          = 38;
    MainBCC.IRATIO[RCODEVT1][pre]          = TNUM_MULT2;
    MainBCC.RDOPTION[RCODEVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainBCC.ENA[RCODEVT1][post]            = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case PreBurnIn :   MainBCC.ENA[RCODEVT1][post]        = true;
+     default:     MainBCC.ENA[RCODEVT1][post]        = false;
+   }   /* case */
+#else
+   MainBCC.ENA[RCODEVT1][post]            = false;
+#endif
    MainBCC.ENARED[RCODEVT1][post]         = false;
    MainBCC.DLOGONLY[RCODEVT1][post]       = false;
    MainBCC.SSTART[RCODEVT1][post]         = 7uA;
@@ -915,10 +1210,7 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[RCODEVT1][post]         = TNUM_MULT2;
    MainBCC.RDOPTION[RCODEVT1][post]       = TNUM_TOPTION_PSARD;
    MainBCC.MEMCFG[RCODEVT1]              = ARBTYPE;
-   switch(SelectedTITestType) {
-     case MP3 : MainBCC.TDATA[RCODEVT1]      = TNUM_DATA_ARB_ECC; break;
-     default: MainBCC.TDATA[RCODEVT1]  = TNUM_DATA_ECHK;
-   }   /* case */
+   MainBCC.TDATA[RCODEVT1]               = TNUM_DATA_ARB_ECC;
    switch(SelectedTITestType) {
      case MP1 :  
               MainBCC.LDELTA[RCODEVT1]              = -16uA;
@@ -950,7 +1242,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[ONOVT0][pre]             = false;
-   MainBCC.ENARED[ONOVT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[ONOVT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[ONOVT0][pre]        = false;
    MainBCC.SSTART[ONOVT0][pre]          = 6uA;
    MainBCC.SSTOP[ONOVT0][pre]           = 40uA;
@@ -962,7 +1254,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[ONOVT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[ONOVT0][post]            = false;
-   MainBCC.ENARED[ONOVT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[ONOVT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[ONOVT0][post]       = false;
    MainBCC.SSTART[ONOVT0][post]         = 6uA;
    MainBCC.SSTOP[ONOVT0][post]          = 40uA;
@@ -988,8 +1280,8 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[CSFGVT0][pre]             = false;
-   MainBCC.ENARED[CSFGVT0][pre]          = (SelectedTITestType==MP1);
-   MainBCC.DLOGONLY[CSFGVT0][pre]        = true;
+   MainBCC.ENARED[CSFGVT0][pre]          = GL_DO_REDENA;
+   MainBCC.DLOGONLY[CSFGVT0][pre]        = false;
    MainBCC.SSTART[CSFGVT0][pre]          = 6uA;
    MainBCC.SSTOP[CSFGVT0][pre]           = 40uA;
    MainBCC.SRESOL[CSFGVT0][pre]          = 500nA;
@@ -1000,8 +1292,8 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[CSFGVT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[CSFGVT0][post]            = false;
-   MainBCC.ENARED[CSFGVT0][post]         = (SelectedTITestType==MP1);
-   MainBCC.DLOGONLY[CSFGVT0][post]       = true;
+   MainBCC.ENARED[CSFGVT0][post]         = GL_DO_REDENA;
+   MainBCC.DLOGONLY[CSFGVT0][post]       = false;
    MainBCC.SSTART[CSFGVT0][post]         = 6uA;
    MainBCC.SSTOP[CSFGVT0][post]          = 40uA;
    MainBCC.SRESOL[CSFGVT0][post]         = 500nA;
@@ -1018,7 +1310,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[EGFG1VT0][pre]             = false;
-   MainBCC.ENARED[EGFG1VT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG1VT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG1VT0][pre]        = true;
    MainBCC.SSTART[EGFG1VT0][pre]          = 6uA;
    MainBCC.SSTOP[EGFG1VT0][pre]           = 40uA;
@@ -1030,7 +1322,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[EGFG1VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[EGFG1VT0][post]            = false;
-   MainBCC.ENARED[EGFG1VT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG1VT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG1VT0][post]       = true;
    MainBCC.SSTART[EGFG1VT0][post]         = 6uA;
    MainBCC.SSTOP[EGFG1VT0][post]          = 40uA;
@@ -1048,7 +1340,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[EGFG2VT0][pre]             = false;
-   MainBCC.ENARED[EGFG2VT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG2VT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG2VT0][pre]        = true;
    MainBCC.SSTART[EGFG2VT0][pre]          = 6uA;
    MainBCC.SSTOP[EGFG2VT0][pre]           = 40uA;
@@ -1060,7 +1352,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[EGFG2VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[EGFG2VT0][post]            = false;
-   MainBCC.ENARED[EGFG2VT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG2VT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG2VT0][post]       = true;
    MainBCC.SSTART[EGFG2VT0][post]         = 6uA;
    MainBCC.SSTOP[EGFG2VT0][post]          = 40uA;
@@ -1077,8 +1369,12 @@ void F021_FlashConfigInclude()
    MainBCC.PREVTYPE[EGFG2VT0]            = EGFG2VT0;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[EGFG3VT0][pre]             = false;
-   MainBCC.ENARED[EGFG3VT0][pre]          = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[EGFG3VT0][pre]             = false;
+#endif   
+   MainBCC.ENARED[EGFG3VT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG3VT0][pre]        = false;
    MainBCC.SSTART[EGFG3VT0][pre]          = 6uA;
    MainBCC.SSTOP[EGFG3VT0][pre]           = 40uA;
@@ -1089,8 +1385,12 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[EGFG3VT0][pre]          = TNUM_MULT1;
    MainBCC.RDOPTION[EGFG3VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[EGFG3VT0][post]            = false;
-   MainBCC.ENARED[EGFG3VT0][post]         = (SelectedTITestType==MP1);
+#else
+   MainBCC.ENA[EGFG3VT0][post]            = false;
+#endif   
+   MainBCC.ENARED[EGFG3VT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG3VT0][post]       = false;
    MainBCC.SSTART[EGFG3VT0][post]         = 6uA;
    MainBCC.SSTOP[EGFG3VT0][post]          = 40uA;
@@ -1107,9 +1407,13 @@ void F021_FlashConfigInclude()
    MainBCC.PREVTYPE[EGFG3VT0]            = EGFG3VT0;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[EGFG4VT0][pre]             = (SelectedTITestType==MP1);
+#else
    MainBCC.ENA[EGFG4VT0][pre]             = false;
-   MainBCC.ENARED[EGFG4VT0][pre]          = (SelectedTITestType==MP1);
-   MainBCC.DLOGONLY[EGFG4VT0][pre]        = false;
+#endif   
+   MainBCC.ENARED[EGFG4VT0][pre]          = GL_DO_REDENA;
+   MainBCC.DLOGONLY[EGFG4VT0][pre]        = true;
    MainBCC.SSTART[EGFG4VT0][pre]          = 6uA;
    MainBCC.SSTOP[EGFG4VT0][pre]           = 40uA;
    MainBCC.SRESOL[EGFG4VT0][pre]          = 500nA;
@@ -1119,9 +1423,13 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[EGFG4VT0][pre]          = TNUM_MULT1;
    MainBCC.RDOPTION[EGFG4VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[EGFG4VT0][post]            = (SelectedTITestType==MP1);
+#else
    MainBCC.ENA[EGFG4VT0][post]            = false;
-   MainBCC.ENARED[EGFG4VT0][post]         = (SelectedTITestType==MP1);
-   MainBCC.DLOGONLY[EGFG4VT0][post]       = false;
+#endif   
+   MainBCC.ENARED[EGFG4VT0][post]         = GL_DO_REDENA;
+   MainBCC.DLOGONLY[EGFG4VT0][post]       = true;
    MainBCC.SSTART[EGFG4VT0][post]         = 6uA;
    MainBCC.SSTOP[EGFG4VT0][post]          = 40uA;
    MainBCC.SRESOL[EGFG4VT0][post]         = 500nA;
@@ -1146,7 +1454,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[EGFG5VT0][pre]             = false;
-   MainBCC.ENARED[EGFG5VT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG5VT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG5VT0][pre]        = false;
    MainBCC.SSTART[EGFG5VT0][pre]          = 6uA;
    MainBCC.SSTOP[EGFG5VT0][pre]           = 40uA;
@@ -1158,7 +1466,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[EGFG5VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[EGFG5VT0][post]            = false;
-   MainBCC.ENARED[EGFG5VT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[EGFG5VT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[EGFG5VT0][post]       = false;
    MainBCC.SSTART[EGFG5VT0][post]         = 6uA;
    MainBCC.SSTOP[EGFG5VT0][post]          = 40uA;
@@ -1176,7 +1484,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[RDDISTBVT0][pre]             = false;
-   MainBCC.ENARED[RDDISTBVT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[RDDISTBVT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[RDDISTBVT0][pre]        = false;
    MainBCC.SSTART[RDDISTBVT0][pre]          = 6uA;
    MainBCC.SSTOP[RDDISTBVT0][pre]           = 40uA;
@@ -1188,7 +1496,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[RDDISTBVT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[RDDISTBVT0][post]            = false;
-   MainBCC.ENARED[RDDISTBVT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[RDDISTBVT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[RDDISTBVT0][post]       = false;
    MainBCC.SSTART[RDDISTBVT0][post]         = 6uA;
    MainBCC.SSTOP[RDDISTBVT0][post]          = 40uA;
@@ -1206,7 +1514,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainBCC.ENA[RDDISTB2VT0][pre]             = false;
-   MainBCC.ENARED[RDDISTB2VT0][pre]          = (SelectedTITestType==MP1);
+   MainBCC.ENARED[RDDISTB2VT0][pre]          = GL_DO_REDENA;
    MainBCC.DLOGONLY[RDDISTB2VT0][pre]        = false;
    MainBCC.SSTART[RDDISTB2VT0][pre]          = 6uA;
    MainBCC.SSTOP[RDDISTB2VT0][pre]           = 40uA;
@@ -1218,7 +1526,7 @@ void F021_FlashConfigInclude()
    MainBCC.RDOPTION[RDDISTB2VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[RDDISTB2VT0][post]            = false;
-   MainBCC.ENARED[RDDISTB2VT0][post]         = (SelectedTITestType==MP1);
+   MainBCC.ENARED[RDDISTB2VT0][post]         = GL_DO_REDENA;
    MainBCC.DLOGONLY[RDDISTB2VT0][post]       = false;
    MainBCC.SSTART[RDDISTB2VT0][post]         = 6uA;
    MainBCC.SSTOP[RDDISTB2VT0][post]          = 40uA;
@@ -1235,13 +1543,23 @@ void F021_FlashConfigInclude()
    MainBCC.PREVTYPE[RDDISTB2VT0]            = RDDISTB2VT0;
 
     /*---- pre ----*/
-   MainBCC.ENA[CHKVT0][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2 :  MainBCC.ENA[CHKVT0][pre]             = false ; /*true*/
+     default: MainBCC.ENA[CHKVT0][pre]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case MP3 :     MainBCC.ENA[CHKVT0][pre]             = false;
+     default: MainBCC.ENA[CHKVT0][pre]             = false;
+   }   /* case */
+#endif   
    MainBCC.ENARED[CHKVT0][pre]          = false;
-   MainBCC.DLOGONLY[CHKVT0][pre]        = true;
+   MainBCC.DLOGONLY[CHKVT0][pre]        = false ; /*true*/
    MainBCC.SSTART[CHKVT0][pre]          = 6uA;
    switch(SelectedTITestType) {
-     case  MP1: case  MP2: case  MP3: case  FT2 :     /*added MP3 JRR*/
-        MainBCC.SSTOP[CHKVT0][pre]           = 40uA; break;
+     case  MP1: case  MP2: case  FT2 :  
+        MainBCC.SSTOP[CHKVT0][pre]           = 40uA;
      default:
         MainBCC.SSTOP[CHKVT0][pre]           = 18uA;
    }   /* case */
@@ -1252,13 +1570,13 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT0][pre]          = TNUM_MULT1;
    MainBCC.RDOPTION[CHKVT0][pre]        = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainBCC.ENA[CHKVT0][post]            = true;
+   MainBCC.ENA[CHKVT0][post]            = false;
    MainBCC.ENARED[CHKVT0][post]         = false;
-   MainBCC.DLOGONLY[CHKVT0][post]       = true;
+   MainBCC.DLOGONLY[CHKVT0][post]       = false;
    MainBCC.SSTART[CHKVT0][post]         = 6uA;
    switch(SelectedTITestType) {
-     case  MP1: case  MP2: case  MP3: case  FT2 :     /*added MP3 JRR*/
-        MainBCC.SSTOP[CHKVT0][post]          = 40uA; break;
+     case  MP1: case  MP2: case  FT2 :  
+        MainBCC.SSTOP[CHKVT0][post]          = 40uA;
      default:
         MainBCC.SSTOP[CHKVT0][post]          = 18uA;
    }   /* case */
@@ -1268,34 +1586,38 @@ void F021_FlashConfigInclude()
    MainBCC.TCRNUM[CHKVT0][post]         = 6;
    MainBCC.IRATIO[CHKVT0][post]         = TNUM_MULT1;
    MainBCC.RDOPTION[CHKVT0][post]       = TNUM_TOPTION_NORMAL;
-   MainBCC.MEMCFG[CHKVT0]              = QUADTYPE;
-   
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
    switch(SelectedTITestType) {
-     case MP1     : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK; break;
-     case MP3     : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK; break;
-     default: MainBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK;  /*added for catalog MP3 flow JRR*/
-     }   /* case */
+     case MP3 :      MainBCC.MEMCFG[CHKVT0]              = BANKTYPE;
+     default:  MainBCC.MEMCFG[CHKVT0]              = QUADTYPE;
+   }   /* case */
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP1 : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK;
+     case MP2 : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK;
+     default: MainBCC.TDATA[CHKVT0]   = TNUM_DATA_ECHK;
+   }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP1 : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK; break;
-     case MP2 : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK; break;
+     case MP3 : MainBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK;
      default: MainBCC.TDATA[CHKVT0]   = TNUM_DATA_ECHK;
    }   /* case */
 #endif
-   
    MainBCC.LDELTA[CHKVT0]              = -6uA;
    MainBCC.UDELTA[CHKVT0]              = 6uA;
    MainBCC.PREVTYPE[CHKVT0]            = CHKVT0;
 
     /*---- pre ----*/
-   MainBCC.ENA[CHKVT0DRL][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   MainBCC.ENA[CHKVT0DRL][pre]             = false;
+#else
+   MainBCC.ENA[CHKVT0DRL][pre]             = false;
+#endif
    MainBCC.ENARED[CHKVT0DRL][pre]          = false;
    MainBCC.DLOGONLY[CHKVT0DRL][pre]        = true;
    MainBCC.SSTART[CHKVT0DRL][pre]          = 6uA;
    switch(SelectedTITestType) {
-     case  MP1: case  MP2: case  MP3: case  FT2 :                   /*added for catalog MP3 flow JRR*/
-        MainBCC.SSTOP[CHKVT0DRL][pre]           = 40uA; break;
+     case  MP1: case  MP2: case  FT2 :  
+        MainBCC.SSTOP[CHKVT0DRL][pre]           = 40uA;
      default:
         MainBCC.SSTOP[CHKVT0DRL][pre]           = 18uA;
    }   /* case */
@@ -1306,13 +1628,20 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT0DRL][pre]          = TNUM_MULT1;
    MainBCC.RDOPTION[CHKVT0DRL][pre]        = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainBCC.ENA[CHKVT0DRL][post]            = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP2: case MP3 :  MainBCC.ENA[CHKVT0DRL][post]            = false ; /*true*/
+     default: MainBCC.ENA[CHKVT0DRL][post]            = false;
+   }   /* case */
+#else
+   MainBCC.ENA[CHKVT0DRL][post]            = false;
+#endif
    MainBCC.ENARED[CHKVT0DRL][post]         = false;
-   MainBCC.DLOGONLY[CHKVT0DRL][post]       = true;
+   MainBCC.DLOGONLY[CHKVT0DRL][post]       = false ; /*true*/
    MainBCC.SSTART[CHKVT0DRL][post]         = 6uA;
    switch(SelectedTITestType) {
-     case  MP1: case  MP2: case  MP3: case  FT2 :                   /*added for catalog MP3 flow JRR*/
-        MainBCC.SSTOP[CHKVT0DRL][post]          = 40uA; break;
+     case  MP1: case  MP2: case  FT2 :  
+        MainBCC.SSTOP[CHKVT0DRL][post]          = 40uA;
      default:
         MainBCC.SSTOP[CHKVT0DRL][post]          = 18uA;
    }   /* case */
@@ -1336,19 +1665,11 @@ void F021_FlashConfigInclude()
    MainBCC.IRATIO[CHKVT0DRL][post]         = TNUM_MULT1;
    MainBCC.RDOPTION[CHKVT0DRL][post]       = TNUM_TOPTION_NORMAL;
    MainBCC.MEMCFG[CHKVT0DRL]              = QUADTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
    switch(SelectedTITestType) {
-     case MP1     : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK; break;
-     case MP3     : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_OCHK; break;
-     default: MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK;  /*added for catalog MP3 flow JRR*/
-     }   /* case */
-#else
-   switch(SelectedTITestType) {
-     case MP1 : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK; break;
-     case MP2 : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_OCHK; break;
+     case MP2 : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK;
+     case MP3 : MainBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_OCHK;
      default: MainBCC.TDATA[CHKVT0DRL]   = TNUM_DATA_ECHK;
    }   /* case */
-#endif   
    switch(SelectedTITestType) {
      case MP1 :  
               MainBCC.LDELTA[CHKVT0DRL]              = -8uA;
@@ -1361,10 +1682,10 @@ void F021_FlashConfigInclude()
               MainBCC.UDELTA_EMU[CHKVT0DRL]          = 9uA;
             break; 
      case MP3 :  
-              MainBCC.LDELTA[CHKVT0DRL]              = -5uA;  /*-2uA;*/
-              MainBCC.UDELTA[CHKVT0DRL]              = 8uA;  /*2uA;*/
-              MainBCC.LDELTA_EMU[CHKVT0DRL]          = -5uA;  /*-2uA;*/
-              MainBCC.UDELTA_EMU[CHKVT0DRL]          = 9uA;  /*2uA;*/
+              MainBCC.LDELTA[CHKVT0DRL]              = -5uA;  /*-2ua;*/
+              MainBCC.UDELTA[CHKVT0DRL]              = 8uA;  /*2ua;*/
+              MainBCC.LDELTA_EMU[CHKVT0DRL]          = -5uA;  /*-2ua;*/
+              MainBCC.UDELTA_EMU[CHKVT0DRL]          = 9uA;  /*2ua;*/
             break; 
      default:  
               MainBCC.LDELTA[CHKVT0DRL]              = -10uA;
@@ -1374,7 +1695,14 @@ void F021_FlashConfigInclude()
    MainBCC.PREVTYPE[CHKVT0DRL]            = CHKVT0DRL;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP3: case PreBurnIn :  MainBCC.ENA[RCODEVT0][pre]             = false;
+     Otherwise       MainBCC.ENA[RCODEVT0][pre]             = false;
+   }   /* case */
+#else
    MainBCC.ENA[RCODEVT0][pre]             = false;
+#endif
    MainBCC.ENARED[RCODEVT0][pre]          = false;
    MainBCC.DLOGONLY[RCODEVT0][pre]        = false;
    MainBCC.SSTART[RCODEVT0][pre]          = 6uA;
@@ -1384,7 +1712,7 @@ void F021_FlashConfigInclude()
    MainBCC.ULIM[RCODEVT0][pre]            = 28uA;
    MainBCC.TCRNUM[RCODEVT0][pre]          = 6;
    MainBCC.IRATIO[RCODEVT0][pre]          = TNUM_MULT1;
-   MainBCC.RDOPTION[RCODEVT0][pre]        = TNUM_TOPTION_NORMAL;
+   MainBCC.RDOPTION[RCODEVT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainBCC.ENA[RCODEVT0][post]            = false;
    MainBCC.ENARED[RCODEVT0][post]         = false;
@@ -1409,11 +1737,8 @@ void F021_FlashConfigInclude()
    MainBCC.TCRNUM[RCODEVT0][post]         = 6;
    MainBCC.IRATIO[RCODEVT0][post]         = TNUM_MULT1;
    MainBCC.RDOPTION[RCODEVT0][post]       = TNUM_TOPTION_NORMAL;
-   MainBCC.MEMCFG[RCODEVT0]              = BANKTYPE;
-   switch(SelectedTITestType) {
-     case MP3 : MainBCC.TDATA[RCODEVT0]       = TNUM_DATA_ARB_ECC; break;
-     default: MainBCC.TDATA[RCODEVT0]   = TNUM_DATA_ECHK;
-   }   /* case */
+   MainBCC.MEMCFG[RCODEVT0]              = ARBTYPE;
+   MainBCC.TDATA[RCODEVT0]               = TNUM_DATA_ARB_ECC;
    switch(SelectedTITestType) {
      case MP1 :  
               MainBCC.LDELTA[RCODEVT0]              = -8uA;
@@ -1443,10 +1768,14 @@ void F021_FlashConfigInclude()
 
     /*++++ OTP ++++*/
     /*---- pre ----*/
-   OtpBCC.ENA[REVTUNVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpBCC.ENA[REVTUNVT1][pre]             = false;
+#else
+   OtpBCC.ENA[REVTUNVT1][pre]             = false;
+#endif
    OtpBCC.ENARED[REVTUNVT1][pre]          = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[REVTUNVT1][pre]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[REVTUNVT1][pre]        = true;
      default: OtpBCC.DLOGONLY[REVTUNVT1][pre]        = false;
    }   /* case */
    OtpBCC.SSTART[REVTUNVT1][pre]          = 6uA;
@@ -1460,10 +1789,14 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[REVTUNVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[REVTUNVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[REVTUNVT1][post]            = true;
+#else
+   OtpBCC.ENA[REVTUNVT1][post]            = (SelectedTITestType==MP3);
+#endif
    OtpBCC.ENARED[REVTUNVT1][post]         = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[REVTUNVT1][post]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[REVTUNVT1][post]        = true;
      default: OtpBCC.DLOGONLY[REVTUNVT1][post]        = false;
    }   /* case */
    OtpBCC.SSTART[REVTUNVT1][post]         = 6uA;
@@ -1483,10 +1816,14 @@ void F021_FlashConfigInclude()
    OtpBCC.PREVTYPE[REVTUNVT1]            = PUNTHRUVT1;   /*KChau - yield learning*/
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[PGMFFVT1][pre]             = true;
+#else
+   OtpBCC.ENA[PGMFFVT1][pre]             = (SelectedTITestType==MP3);
+#endif   
    OtpBCC.ENARED[PGMFFVT1][pre]          = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[PGMFFVT1][pre]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[PGMFFVT1][pre]        = true;
      default: OtpBCC.DLOGONLY[PGMFFVT1][pre]        = false;
    }   /* case */
    OtpBCC.SSTART[PGMFFVT1][pre]          = 4uA;
@@ -1500,9 +1837,9 @@ void F021_FlashConfigInclude()
         OtpBCC.ULIM_EMU[PGMFFVT1][pre]        = 45uA;
       break; 
      case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-        OtpBCC.LLIM[PGMFFVT1][pre]            = 22.5uA;
+        OtpBCC.LLIM[PGMFFVT1][pre]            = 22.5uA; /*22ua;}{pasa 12/2/11*/
         OtpBCC.ULIM[PGMFFVT1][pre]            = 45uA;
-        OtpBCC.LLIM_EMU[PGMFFVT1][pre]        = 21uA;
+        OtpBCC.LLIM_EMU[PGMFFVT1][pre]        = 21uA; /*20ua;}{pasa 12/2/11*/
         OtpBCC.ULIM_EMU[PGMFFVT1][pre]        = 45uA;
       break; 
      default:  
@@ -1516,10 +1853,14 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[PGMFFVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[PGMFFVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[PGMFFVT1][post]            = true;
+#else
+   OtpBCC.ENA[PGMFFVT1][post]            = (SelectedTITestType==MP3);
+#endif   
    OtpBCC.ENARED[PGMFFVT1][post]         = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[PGMFFVT1][post]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[PGMFFVT1][post]        = true;
      default: OtpBCC.DLOGONLY[PGMFFVT1][post]        = false;
    }   /* case */
    OtpBCC.SSTART[PGMFFVT1][post]         = 6uA;
@@ -1537,15 +1878,19 @@ void F021_FlashConfigInclude()
    OtpBCC.LDELTA[PGMFFVT1]              = -2uA;
    OtpBCC.UDELTA[PGMFFVT1]              = 2uA;
    switch(SelectedTITestType) {
-     case MP3 :     OtpBCC.PREVTYPE[PGMFFVT1]            = PGMFFVT1; break;
+     case MP3 :     OtpBCC.PREVTYPE[PGMFFVT1]            = PGMFFVT1;
      default: OtpBCC.PREVTYPE[PGMFFVT1]            = PGMFFVT1;
    } 
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[PUNTHRUVT1][pre]             = true;
+#else
+   OtpBCC.ENA[PUNTHRUVT1][pre]             = (SelectedTITestType==MP3);
+#endif
    OtpBCC.ENARED[PUNTHRUVT1][pre]          = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[PUNTHRUVT1][pre]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[PUNTHRUVT1][pre]        = true;
      default: OtpBCC.DLOGONLY[PUNTHRUVT1][pre]        = false;
    }   /* case */
    OtpBCC.SSTART[PUNTHRUVT1][pre]          = 6uA;
@@ -1559,9 +1904,9 @@ void F021_FlashConfigInclude()
         OtpBCC.ULIM_EMU[PUNTHRUVT1][pre]        = 45uA;
       break; 
      case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-        OtpBCC.LLIM[PUNTHRUVT1][pre]            = 22.5uA;
+        OtpBCC.LLIM[PUNTHRUVT1][pre]            = 22.5uA; /*22ua;}{pasa 12/2/11*/
         OtpBCC.ULIM[PUNTHRUVT1][pre]            = 45uA;
-        OtpBCC.LLIM_EMU[PUNTHRUVT1][pre]        = 21uA;
+        OtpBCC.LLIM_EMU[PUNTHRUVT1][pre]        = 21uA; /*20ua;}{pasa 12/2/11*/
         OtpBCC.ULIM_EMU[PUNTHRUVT1][pre]        = 45uA;
       break; 
      default:  
@@ -1575,10 +1920,14 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[PUNTHRUVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[PUNTHRUVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[PUNTHRUVT1][post]            = true;
+#else
+   OtpBCC.ENA[PUNTHRUVT1][post]            = (SelectedTITestType==MP3);
+#endif
    OtpBCC.ENARED[PUNTHRUVT1][post]         = false;
    switch(SelectedTITestType) {
-     case MP1 :     OtpBCC.DLOGONLY[PUNTHRUVT1][post]        = true; break;
+     case MP1 :     OtpBCC.DLOGONLY[PUNTHRUVT1][post]        = true;
      default: OtpBCC.DLOGONLY[PUNTHRUVT1][post]        = false;
    }   /* case */
    OtpBCC.SSTART[PUNTHRUVT1][post]         = 6uA;
@@ -1595,10 +1944,14 @@ void F021_FlashConfigInclude()
    OtpBCC.TDATA[PUNTHRUVT1]               = TNUM_DATA_1S+TNUM_TARGET_OTP;
    OtpBCC.LDELTA[PUNTHRUVT1]              = -2uA;
    OtpBCC.UDELTA[PUNTHRUVT1]              = 2uA;
-   OtpBCC.PREVTYPE[PUNTHRUVT1]            = PUNTHRUVT1;  /*THINOXVT1;}  {A07*/
+   OtpBCC.PREVTYPE[PUNTHRUVT1]            = PUNTHRUVT1;
 
     /*---- pre ----*/
-   OtpBCC.ENA[FGWLVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpBCC.ENA[FGWLVT1][pre]             = (SelectedTITestType==MP1);
+#else
+   OtpBCC.ENA[FGWLVT1][pre]             = false;
+#endif   
    OtpBCC.ENARED[FGWLVT1][pre]          = false;
    OtpBCC.DLOGONLY[FGWLVT1][pre]        = false;
    OtpBCC.SSTART[FGWLVT1][pre]          = 6uA;
@@ -1612,7 +1965,11 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[FGWLVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[FGWLVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpBCC.ENA[FGWLVT1][post]            = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpBCC.ENA[FGWLVT1][post]            = (SelectedTITestType==MP1);
+#else
+   OtpBCC.ENA[FGWLVT1][post]            = false;
+#endif   
    OtpBCC.ENARED[FGWLVT1][post]         = false;
    OtpBCC.DLOGONLY[FGWLVT1][post]       = false;
    OtpBCC.SSTART[FGWLVT1][post]         = 4uA;
@@ -1633,7 +1990,7 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   OtpBCC.ENA[TUNOXTSMCVT1][pre]             = true;
+   OtpBCC.ENA[TUNOXTSMCVT1][pre]             = false;
    OtpBCC.ENARED[TUNOXTSMCVT1][pre]          = false;
    OtpBCC.DLOGONLY[TUNOXTSMCVT1][pre]        = false;
    OtpBCC.SSTART[TUNOXTSMCVT1][pre]          = 6uA;
@@ -1647,7 +2004,7 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[TUNOXTSMCVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[TUNOXTSMCVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpBCC.ENA[TUNOXTSMCVT1][post]            = true;
+   OtpBCC.ENA[TUNOXTSMCVT1][post]            = false;
    OtpBCC.ENARED[TUNOXTSMCVT1][post]         = false;
    OtpBCC.DLOGONLY[TUNOXTSMCVT1][post]       = false;
    OtpBCC.SSTART[TUNOXTSMCVT1][post]         = 6uA;
@@ -1662,12 +2019,16 @@ void F021_FlashConfigInclude()
    OtpBCC.RDOPTION[TUNOXTSMCVT1][post]       = TNUM_TOPTION_PSARD;
    OtpBCC.MEMCFG[TUNOXTSMCVT1]              = OTPTYPE;
    OtpBCC.TDATA[TUNOXTSMCVT1]               = TNUM_DATA_1S+TNUM_TARGET_OTP;
-   OtpBCC.LDELTA[TUNOXTSMCVT1]              = -20uA;
+   OtpBCC.LDELTA[TUNOXTSMCVT1]              = -20uA; /*-2ua;} {pasa 12/2/11*/
    OtpBCC.UDELTA[TUNOXTSMCVT1]              = 10uA;
    OtpBCC.PREVTYPE[TUNOXTSMCVT1]            = TUNOXTSMCVT1;
 
     /*---- pre ----*/
-   OtpBCC.ENA[TUNOXVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpBCC.ENA[TUNOXVT1][pre]             = (SelectedTITestType==MP1);
+#else
+   OtpBCC.ENA[TUNOXVT1][pre]             = (SelectedTITestType==MP1);
+#endif   
    OtpBCC.ENARED[TUNOXVT1][pre]          = false;
    OtpBCC.DLOGONLY[TUNOXVT1][pre]        = false;
    OtpBCC.SSTART[TUNOXVT1][pre]          = 6uA;
@@ -1681,7 +2042,11 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[TUNOXVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[TUNOXVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpBCC.ENA[TUNOXVT1][post]            = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpBCC.ENA[TUNOXVT1][post]            = (SelectedTITestType==MP1);
+#else
+   OtpBCC.ENA[TUNOXVT1][post]            = (SelectedTITestType==MP1);
+#endif   
    OtpBCC.ENARED[TUNOXVT1][post]         = false;
    OtpBCC.DLOGONLY[TUNOXVT1][post]       = false;
    OtpBCC.SSTART[TUNOXVT1][post]         = 6uA;
@@ -1697,11 +2062,11 @@ void F021_FlashConfigInclude()
    OtpBCC.MEMCFG[TUNOXVT1]              = OTPTYPE;
    OtpBCC.TDATA[TUNOXVT1]               = TNUM_DATA_1S+TNUM_TARGET_OTP;
    OtpBCC.LDELTA[TUNOXVT1]              = -20uA;
-   OtpBCC.UDELTA[TUNOXVT1]              = 10uA;
+   OtpBCC.UDELTA[TUNOXVT1]              = 10uA; /*2ua;} {pasa 12/2/11*/
    OtpBCC.PREVTYPE[TUNOXVT1]            = TUNOXVT1;
 
     /*---- pre ----*/
-   OtpBCC.ENA[THINOXVT1][pre]             = true;
+   OtpBCC.ENA[THINOXVT1][pre]             = (SelectedTITestType==MP1);
    OtpBCC.ENARED[THINOXVT1][pre]          = false;
    OtpBCC.DLOGONLY[THINOXVT1][pre]        = false;
    OtpBCC.SSTART[THINOXVT1][pre]          = 6uA;
@@ -1715,7 +2080,7 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[THINOXVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[THINOXVT1][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpBCC.ENA[THINOXVT1][post]            = true;
+   OtpBCC.ENA[THINOXVT1][post]            = (SelectedTITestType==MP1);
    OtpBCC.ENARED[THINOXVT1][post]         = false;
    OtpBCC.DLOGONLY[THINOXVT1][post]       = false;
    OtpBCC.SSTART[THINOXVT1][post]         = 6uA;
@@ -1736,7 +2101,17 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   OtpBCC.ENA[CHKVT1][pre]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2: case MP3 :  OtpBCC.ENA[CHKVT1][pre]             = true;
+     default:     OtpBCC.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case  MP1: case MP3 :  OtpBCC.ENA[CHKVT1][pre]             = true;
+     default: OtpBCC.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#endif
    OtpBCC.ENARED[CHKVT1][pre]          = false;
    OtpBCC.DLOGONLY[CHKVT1][pre]        = false;
    OtpBCC.SSTART[CHKVT1][pre]          = 7uA;
@@ -1766,7 +2141,7 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[CHKVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[CHKVT1][pre]        = TNUM_TOPTION_NORMAL;  /*PSARD;*/
     /*---- pst ----*/
-   OtpBCC.ENA[CHKVT1][post]            = true;
+   OtpBCC.ENA[CHKVT1][post]            = false;
    OtpBCC.ENARED[CHKVT1][post]         = false;
    OtpBCC.DLOGONLY[CHKVT1][post]       = false;
    OtpBCC.SSTART[CHKVT1][post]         = 7uA;
@@ -1780,17 +2155,17 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[CHKVT1][post]         = TNUM_MULT2;
    OtpBCC.RDOPTION[CHKVT1][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[CHKVT1]              = SECTTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
+#if $FL_USE_AUTO_FLOW  
    switch(SelectedTITestType) {
-     case MP1 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break; /*added for catalog MP3 flow JRR*/
-     default: OtpBCC.TDATA[CHKVT1]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
-     }   /* case */
+     case MP1 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
+     default: OtpBCC.TDATA[CHKVT1]   = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+   }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP1 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP2 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
-     default: OtpBCC.TDATA[CHKVT1]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP1 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpBCC.TDATA[CHKVT1]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+     default: OtpBCC.TDATA[CHKVT1]   = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
    }   /* case */
 #endif
    OtpBCC.LDELTA[CHKVT1]              = -3uA;
@@ -1799,7 +2174,7 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   OtpBCC.ENA[CHKVT1DRL][pre]             = true;
+   OtpBCC.ENA[CHKVT1DRL][pre]             = false;
    OtpBCC.ENARED[CHKVT1DRL][pre]          = false;
    OtpBCC.DLOGONLY[CHKVT1DRL][pre]        = false;
    OtpBCC.SSTART[CHKVT1DRL][pre]          = 7uA;
@@ -1813,7 +2188,11 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[CHKVT1DRL][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[CHKVT1DRL][pre]        = TNUM_TOPTION_NORMAL;  /*PSARD;*/
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[CHKVT1DRL][post]            = true;
+#else
+   OtpBCC.ENA[CHKVT1DRL][post]            = true;
+#endif
    OtpBCC.ENARED[CHKVT1DRL][post]         = false;
    OtpBCC.DLOGONLY[CHKVT1DRL][post]       = false;
    OtpBCC.SSTART[CHKVT1DRL][post]         = 7uA;
@@ -1843,13 +2222,16 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[CHKVT1DRL][post]         = TNUM_MULT2;
    OtpBCC.RDOPTION[CHKVT1DRL][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[CHKVT1DRL]              = OTPTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
-   OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP2 : OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
+     default: OtpBCC.TDATA[CHKVT1DRL]   = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+   }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP2 : OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
-     default: OtpBCC.TDATA[CHKVT1DRL]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case  MP3: case PreBurnIn :  OtpBCC.TDATA[CHKVT1DRL]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+     default: OtpBCC.TDATA[CHKVT1DRL]   = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
 #endif
    switch(SelectedTITestType) {
@@ -1858,7 +2240,7 @@ void F021_FlashConfigInclude()
               OtpBCC.UDELTA[CHKVT1DRL]              = 5uA;
             break; 
      case MP3 :  
-              OtpBCC.LDELTA[CHKVT1DRL]              = -8uA;  /*-3uA;*/
+              OtpBCC.LDELTA[CHKVT1DRL]              = -8uA;  /*-3ua;*/
               OtpBCC.UDELTA[CHKVT1DRL]              = 3uA;
       break; 
      default:  
@@ -1876,10 +2258,20 @@ void F021_FlashConfigInclude()
    OtpBCC.SSTART[RCODEVT1][pre]          = 7uA;
    OtpBCC.SSTOP[RCODEVT1][pre]           = 30uA;
    OtpBCC.SRESOL[RCODEVT1][pre]          = 500nA;
-   OtpBCC.LLIM[RCODEVT1][pre]            = 25.5uA;
-   OtpBCC.ULIM[RCODEVT1][pre]            = 45uA;
-   OtpBCC.LLIM_EMU[RCODEVT1][pre]        = 23.5uA;
-   OtpBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+   switch(SelectedTITestType) {
+     case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
+        OtpBCC.LLIM[RCODEVT1][pre]            = 22uA;
+        OtpBCC.ULIM[RCODEVT1][pre]            = 45uA;
+        OtpBCC.LLIM_EMU[RCODEVT1][pre]        = 20uA;
+        OtpBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+      break; 
+     default:  
+        OtpBCC.LLIM[RCODEVT1][pre]            = 25.5uA;
+        OtpBCC.ULIM[RCODEVT1][pre]            = 45uA;
+        OtpBCC.LLIM_EMU[RCODEVT1][pre]        = 23.5uA;
+        OtpBCC.ULIM_EMU[RCODEVT1][pre]        = 45uA;
+      break; 
+   }   /* case */
    OtpBCC.TCRNUM[RCODEVT1][pre]          = 38;
    OtpBCC.IRATIO[RCODEVT1][pre]          = TNUM_MULT2;
    OtpBCC.RDOPTION[RCODEVT1][pre]        = TNUM_TOPTION_NORMAL;  /*PSARD;*/
@@ -1899,7 +2291,7 @@ void F021_FlashConfigInclude()
    OtpBCC.RDOPTION[RCODEVT1][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[RCODEVT1]              = OTPTYPE;
    switch(SelectedTITestType) {
-     case MP3 : OtpBCC.TDATA[RCODEVT1]      = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP3 : OtpBCC.TDATA[RCODEVT1]      = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpBCC.TDATA[RCODEVT1]  = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    OtpBCC.LDELTA[RCODEVT1]              = -3uA;
@@ -2030,7 +2422,11 @@ void F021_FlashConfigInclude()
    OtpBCC.PREVTYPE[EGFG2VT0]            = EGFG2VT0;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[EGFG3VT0][pre]             = false;
+#else
+   OtpBCC.ENA[EGFG3VT0][pre]             = false;
+#endif   
    OtpBCC.ENARED[EGFG3VT0][pre]          = false;
    OtpBCC.DLOGONLY[EGFG3VT0][pre]        = false;
    OtpBCC.SSTART[EGFG3VT0][pre]          = 6uA;
@@ -2042,7 +2438,11 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[EGFG3VT0][pre]          = TNUM_MULT1;
    OtpBCC.RDOPTION[EGFG3VT0][pre]        = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpBCC.ENA[EGFG3VT0][post]            = false;
+#else
+   OtpBCC.ENA[EGFG3VT0][post]            = false;
+#endif   
    OtpBCC.ENARED[EGFG3VT0][post]         = false;
    OtpBCC.DLOGONLY[EGFG3VT0][post]       = false;
    OtpBCC.SSTART[EGFG3VT0][post]         = 6uA;
@@ -2062,7 +2462,7 @@ void F021_FlashConfigInclude()
     /*---- pre ----*/
    OtpBCC.ENA[EGFG4VT0][pre]             = false;
    OtpBCC.ENARED[EGFG4VT0][pre]          = false;
-   OtpBCC.DLOGONLY[EGFG4VT0][pre]        = true;
+   OtpBCC.DLOGONLY[EGFG4VT0][pre]        = false;
    OtpBCC.SSTART[EGFG4VT0][pre]          = 6uA;
    OtpBCC.SSTOP[EGFG4VT0][pre]           = 40uA;
    OtpBCC.SRESOL[EGFG4VT0][pre]          = 500nA;
@@ -2074,7 +2474,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    OtpBCC.ENA[EGFG4VT0][post]            = false;
    OtpBCC.ENARED[EGFG4VT0][post]         = false;
-   OtpBCC.DLOGONLY[EGFG4VT0][post]       = true;
+   OtpBCC.DLOGONLY[EGFG4VT0][post]       = false;
    OtpBCC.SSTART[EGFG4VT0][post]         = 6uA;
    OtpBCC.SSTOP[EGFG4VT0][post]          = 40uA;
    OtpBCC.SRESOL[EGFG4VT0][post]         = 500nA;
@@ -2204,20 +2604,11 @@ void F021_FlashConfigInclude()
    OtpBCC.IRATIO[CHKVT0][post]         = TNUM_MULT1;
    OtpBCC.RDOPTION[CHKVT0][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[CHKVT0]              = OTPTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
    switch(SelectedTITestType) {
-     case MP1 : OtpBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpBCC.TDATA[CHKVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break; /*added for catalog MP3 flow JRR*/
-     default: OtpBCC.TDATA[CHKVT0]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
-     }   /* case */
-#else
-   switch(SelectedTITestType) {
-     case MP1 : OtpBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP2 : OtpBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP1 : OtpBCC.TDATA[CHKVT0]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpBCC.TDATA[CHKVT0]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpBCC.TDATA[CHKVT0]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
-#endif
-   
    OtpBCC.LDELTA[CHKVT0]              = -6uA;
    OtpBCC.UDELTA[CHKVT0]              = 6uA;
    OtpBCC.PREVTYPE[CHKVT0]            = CHKVT0;
@@ -2260,8 +2651,8 @@ void F021_FlashConfigInclude()
    OtpBCC.RDOPTION[CHKVT0DRL][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[CHKVT0DRL]              = OTPTYPE;
    switch(SelectedTITestType) {
-     case MP2 : OtpBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP2 : OtpBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpBCC.TDATA[CHKVT0DRL]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpBCC.TDATA[CHKVT0DRL]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    OtpBCC.LDELTA[CHKVT0DRL]              = -5uA;
@@ -2294,7 +2685,7 @@ void F021_FlashConfigInclude()
    OtpBCC.RDOPTION[RCODEVT0][post]       = TNUM_TOPTION_NORMAL;  /*PSARD;*/
    OtpBCC.MEMCFG[RCODEVT0]              = OTPTYPE;
    switch(SelectedTITestType) {
-     case MP3 : OtpBCC.TDATA[RCODEVT0]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP3 : OtpBCC.TDATA[RCODEVT0]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpBCC.TDATA[RCODEVT0]   = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    OtpBCC.LDELTA[RCODEVT0]              = -6uA;
@@ -2305,8 +2696,8 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
-   MainVT.ENA[ONOVT0][pre]              = true;
-   MainVT.ENARED[ONOVT0][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENA[ONOVT0][pre]              = (SelectedTITestType==MP1);
+   MainVT.ENARED[ONOVT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[ONOVT0][pre]         = false;
    MainVT.SSTART[ONOVT0][pre]           = 2.0V;
    MainVT.SSTOP[ONOVT0][pre]            = 6.7V;
@@ -2317,8 +2708,8 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[ONOVT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[ONOVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[ONOVT0][post]             = true;
-   MainVT.ENARED[ONOVT0][post]          = (SelectedTITestType==MP1);
+   MainVT.ENA[ONOVT0][post]             = (SelectedTITestType==MP1);
+   MainVT.ENARED[ONOVT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[ONOVT0][post]        = false;
    MainVT.SSTART[ONOVT0][post]          = 2.0V;
    MainVT.SSTOP[ONOVT0][post]           = 6.7V;
@@ -2343,9 +2734,9 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[ONOVT0]             = ONOVT0;
 
     /*---- pre ----*/
-   MainVT.ENA[CSFGVT0][pre]              = true;
-   MainVT.ENARED[CSFGVT0][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[CSFGVT0][pre]         = true;
+   MainVT.ENA[CSFGVT0][pre]              = (SelectedTITestType==MP1);
+   MainVT.ENARED[CSFGVT0][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[CSFGVT0][pre]         = false;
    MainVT.SSTART[CSFGVT0][pre]           = 2.0V;
    MainVT.SSTOP[CSFGVT0][pre]            = 6.7V;
    MainVT.SRESOL[CSFGVT0][pre]           = 10mV;
@@ -2355,26 +2746,26 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[CSFGVT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[CSFGVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[CSFGVT0][post]             = true;
-   MainVT.ENARED[CSFGVT0][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[CSFGVT0][post]        = true;
+   MainVT.ENA[CSFGVT0][post]             = (SelectedTITestType==MP1);
+   MainVT.ENARED[CSFGVT0][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[CSFGVT0][post]        = false;
    MainVT.SSTART[CSFGVT0][post]          = 1.0V;
    MainVT.SSTOP[CSFGVT0][post]           = 6.7V;
    MainVT.SRESOL[CSFGVT0][post]          = 10mV;
-   MainVT.LLIM[CSFGVT0][post]            = 1.2V;
+   MainVT.LLIM[CSFGVT0][post]            = 2.9V;  /*C06 CHANGED: from 1.2v to 2.9V to match spec Jamal Sheikh modified Fri, Feb  3 2012*/
    MainVT.ULIM[CSFGVT0][post]            = 6.5V;
    MainVT.TCRNUM[CSFGVT0][post]          = 5;
    MainVT.IRATIO[CSFGVT0][post]          = TNUM_DIV2;
    MainVT.RDOPTION[CSFGVT0][post]        = TNUM_TOPTION_PSARD;
    MainVT.MEMCFG[CSFGVT0]               = BANKTYPE;
    MainVT.TDATA[CSFGVT0]                = TNUM_DATA_0S;
-   MainVT.LDELTA[CSFGVT0]               = -2.2V;
+   MainVT.LDELTA[CSFGVT0]               = -0.5V;
    MainVT.UDELTA[CSFGVT0]               = 0.25V;
    MainVT.PREVTYPE[CSFGVT0]             = CSFGVT0;
 
     /*---- pre ----*/
    MainVT.ENA[EGFG1VT0][pre]              = false;
-   MainVT.ENARED[EGFG1VT0][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG1VT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG1VT0][pre]         = true;
    MainVT.SSTART[EGFG1VT0][pre]           = 2.0V;
    MainVT.SSTOP[EGFG1VT0][pre]            = 6.7V;
@@ -2386,7 +2777,7 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[EGFG1VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainVT.ENA[EGFG1VT0][post]             = false;
-   MainVT.ENARED[EGFG1VT0][post]          = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG1VT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG1VT0][post]        = true;
    MainVT.SSTART[EGFG1VT0][post]          = 2.0V;
    MainVT.SSTOP[EGFG1VT0][post]           = 6.7V;
@@ -2404,7 +2795,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainVT.ENA[EGFG2VT0][pre]              = false;
-   MainVT.ENARED[EGFG2VT0][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG2VT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG2VT0][pre]         = true;
    MainVT.SSTART[EGFG2VT0][pre]           = 2.0V;
    MainVT.SSTOP[EGFG2VT0][pre]            = 6.7V;
@@ -2416,7 +2807,7 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[EGFG2VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainVT.ENA[EGFG2VT0][post]             = false;
-   MainVT.ENARED[EGFG2VT0][post]          = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG2VT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG2VT0][post]        = true;
    MainVT.SSTART[EGFG2VT0][post]          = 2.0V;
    MainVT.SSTOP[EGFG2VT0][post]           = 6.7V;
@@ -2433,8 +2824,12 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[EGFG2VT0]             = EGFG2VT0;
 
     /*---- pre ----*/
-   MainVT.ENA[EGFG3VT0][pre]              = true;
-   MainVT.ENARED[EGFG3VT0][pre]           = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[EGFG3VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[EGFG3VT0][pre]              = false;
+#endif   
+   MainVT.ENARED[EGFG3VT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG3VT0][pre]         = false;
    MainVT.SSTART[EGFG3VT0][pre]           = 2.0V;
    MainVT.SSTOP[EGFG3VT0][pre]            = 6.7V;
@@ -2445,8 +2840,12 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[EGFG3VT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[EGFG3VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[EGFG3VT0][post]             = true;
-   MainVT.ENARED[EGFG3VT0][post]          = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[EGFG3VT0][post]             = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[EGFG3VT0][post]             = false;
+#endif   
+   MainVT.ENARED[EGFG3VT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG3VT0][post]        = false;
    MainVT.SSTART[EGFG3VT0][post]          = 2.0V;
    MainVT.SSTOP[EGFG3VT0][post]           = 6.7V;
@@ -2463,9 +2862,13 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[EGFG3VT0]             = EGFG3VT0;
 
     /*---- pre ----*/
-   MainVT.ENA[EGFG4VT0][pre]              = true;
-   MainVT.ENARED[EGFG4VT0][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[EGFG4VT0][pre]         = false;
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[EGFG4VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[EGFG4VT0][pre]              = false;
+#endif   
+   MainVT.ENARED[EGFG4VT0][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[EGFG4VT0][pre]         = true;
    MainVT.SSTART[EGFG4VT0][pre]           = 2.0V;
    MainVT.SSTOP[EGFG4VT0][pre]            = 6.7V;
    MainVT.SRESOL[EGFG4VT0][pre]           = 10mV;
@@ -2475,9 +2878,13 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[EGFG4VT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[EGFG4VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[EGFG4VT0][post]             = true;
-   MainVT.ENARED[EGFG4VT0][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[EGFG4VT0][post]        = false;
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[EGFG4VT0][post]             = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[EGFG4VT0][post]             = false;
+#endif   
+   MainVT.ENARED[EGFG4VT0][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[EGFG4VT0][post]        = true;
    MainVT.SSTART[EGFG4VT0][post]          = 2.0V;
    MainVT.SSTOP[EGFG4VT0][post]           = 6.7V;
    MainVT.SRESOL[EGFG4VT0][post]          = 10mV;
@@ -2494,7 +2901,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainVT.ENA[EGFG5VT0][pre]              = false;
-   MainVT.ENARED[EGFG5VT0][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG5VT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG5VT0][pre]         = true;
    MainVT.SSTART[EGFG5VT0][pre]           = 2.0V;
    MainVT.SSTOP[EGFG5VT0][pre]            = 6.7V;
@@ -2506,7 +2913,7 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[EGFG5VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainVT.ENA[EGFG5VT0][post]             = false;
-   MainVT.ENARED[EGFG5VT0][post]          = (SelectedTITestType==MP1);
+   MainVT.ENARED[EGFG5VT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[EGFG5VT0][post]        = true;
    MainVT.SSTART[EGFG5VT0][post]          = 2.0V;
    MainVT.SSTOP[EGFG5VT0][post]           = 6.7V;
@@ -2524,7 +2931,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainVT.ENA[RDDISTBVT0][pre]              = false;
-   MainVT.ENARED[RDDISTBVT0][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENARED[RDDISTBVT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[RDDISTBVT0][pre]         = true;
    MainVT.SSTART[RDDISTBVT0][pre]           = 2.0V;
    MainVT.SSTOP[RDDISTBVT0][pre]            = 6.7V;
@@ -2536,7 +2943,7 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[RDDISTBVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainVT.ENA[RDDISTBVT0][post]             = false;
-   MainVT.ENARED[RDDISTBVT0][post]          = (SelectedTITestType==MP1);
+   MainVT.ENARED[RDDISTBVT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[RDDISTBVT0][post]        = true;
    MainVT.SSTART[RDDISTBVT0][post]          = 2.0V;
    MainVT.SSTOP[RDDISTBVT0][post]           = 6.7V;
@@ -2553,8 +2960,12 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[RDDISTBVT0]             = EGFG3VT0;  /*RDDISTBVT0}; {KChau - yield learning*/
 
     /*---- pre ----*/
-   MainVT.ENA[RDDISTB2VT0][pre]              = true;
-   MainVT.ENARED[RDDISTB2VT0][pre]           = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[RDDISTB2VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[RDDISTB2VT0][pre]              = (SelectedTITestType==MP1);
+#endif   
+   MainVT.ENARED[RDDISTB2VT0][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[RDDISTB2VT0][pre]         = false;
    MainVT.SSTART[RDDISTB2VT0][pre]           = 2.0V;
    MainVT.SSTOP[RDDISTB2VT0][pre]            = 6.7V;
@@ -2565,8 +2976,12 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[RDDISTB2VT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[RDDISTB2VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[RDDISTB2VT0][post]             = true;
-   MainVT.ENARED[RDDISTB2VT0][post]          = (SelectedTITestType==MP1);
+#if $FL_USE_AUTO_FLOW  
+   MainVT.ENA[RDDISTB2VT0][post]             = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[RDDISTB2VT0][post]             = (SelectedTITestType==MP1);
+#endif   
+   MainVT.ENARED[RDDISTB2VT0][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[RDDISTB2VT0][post]        = false;
    MainVT.SSTART[RDDISTB2VT0][post]          = 2.0V;
    MainVT.SSTOP[RDDISTB2VT0][post]           = 6.7V;
@@ -2578,12 +2993,22 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[RDDISTB2VT0][post]        = TNUM_TOPTION_PSARD;
    MainVT.MEMCFG[RDDISTB2VT0]               = BANKTYPE;
    MainVT.TDATA[RDDISTB2VT0]                = TNUM_DATA_0S;
-   MainVT.LDELTA[RDDISTB2VT0]               = -0.7V;
-   MainVT.UDELTA[RDDISTB2VT0]               = 0.25V;
+   MainVT.LDELTA[RDDISTB2VT0]               = -0.4V;
+   MainVT.UDELTA[RDDISTB2VT0]               =  0.25V;
    MainVT.PREVTYPE[RDDISTB2VT0]             = RDDISTB2VT0;
 
     /*---- pre ----*/
-   MainVT.ENA[CHKVT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2 :  MainVT.ENA[CHKVT0][pre]              = true;
+     default: MainVT.ENA[CHKVT0][pre]              = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case MP3 :     MainVT.ENA[CHKVT0][pre]              = true;
+     default: MainVT.ENA[CHKVT0][pre]              = false;
+   }   /* case */
+#endif
    MainVT.ENARED[CHKVT0][pre]           = false;
    MainVT.DLOGONLY[CHKVT0][pre]         = false;
    MainVT.SSTART[CHKVT0][pre]           = 2.0V;
@@ -2595,7 +3020,7 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[CHKVT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[CHKVT0][pre]         = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainVT.ENA[CHKVT0][post]             = true;
+   MainVT.ENA[CHKVT0][post]             = false;
    MainVT.ENARED[CHKVT0][post]          = false;
    MainVT.DLOGONLY[CHKVT0][post]        = false;
    MainVT.SSTART[CHKVT0][post]          = 2.0V;
@@ -2606,26 +3031,28 @@ void F021_FlashConfigInclude()
    MainVT.TCRNUM[CHKVT0][post]          = 5;
    MainVT.IRATIO[CHKVT0][post]          = TNUM_DIV2;
    MainVT.RDOPTION[CHKVT0][post]        = TNUM_TOPTION_NORMAL;
-   MainVT.MEMCFG[CHKVT0]               = QUADTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
    switch(SelectedTITestType) {
-     case MP1 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK; break;
-     case MP3 : MainVT.TDATA[CHKVT0]             = TNUM_DATA_OCHK; break; /*added case for catalog MP3 JRR*/
-     default: MainVT.TDATA[CHKVT0]    = TNUM_DATA_ECHK;
+     case  MP1: case MP2 :  MainVT.MEMCFG[CHKVT0]               = QUADTYPE;
+     default: MainVT.MEMCFG[CHKVT0]               = BANKTYPE;
+   }   /* case */
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP1 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK;
+     case MP2 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK;
+     default: MainVT.TDATA[CHKVT0]    = TNUM_DATA_OCHK;
    }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP1 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK; break;
-     case MP2 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK; break;
-     default: MainVT.TDATA[CHKVT0]    = TNUM_DATA_ECHK;
+     case MP3 : MainVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK;
+     default: MainVT.TDATA[CHKVT0]    = TNUM_DATA_OCHK;
    }   /* case */
-#endif   
+#endif
    MainVT.LDELTA[CHKVT0]               = -0.25V;
    MainVT.UDELTA[CHKVT0]               = 0.6V;
    MainVT.PREVTYPE[CHKVT0]             = CHKVT0;
 
     /*---- pre ----*/
-   MainVT.ENA[CHKVT0DRL][pre]              = true;
+   MainVT.ENA[CHKVT0DRL][pre]              = false;
    MainVT.ENARED[CHKVT0DRL][pre]           = false;
    MainVT.DLOGONLY[CHKVT0DRL][pre]         = false;
    MainVT.SSTART[CHKVT0DRL][pre]           = 2.0V;
@@ -2637,23 +3064,37 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[CHKVT0DRL][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[CHKVT0DRL][pre]         = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   MainVT.ENA[CHKVT0DRL][post]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP2: case MP3 :  MainVT.ENA[CHKVT0DRL][post]             = true;
+     default: MainVT.ENA[CHKVT0DRL][post]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case PreBurnIn : MainVT.ENA[CHKVT0DRL][post]             = true;
+     default:   MainVT.ENA[CHKVT0DRL][post]             = false;
+   } 
+#endif
    MainVT.ENARED[CHKVT0DRL][post]          = false;
    MainVT.DLOGONLY[CHKVT0DRL][post]        = false;
    MainVT.SSTART[CHKVT0DRL][post]          = 2.0V;
    MainVT.SSTOP[CHKVT0DRL][post]           = 6.7V;
    MainVT.SRESOL[CHKVT0DRL][post]          = 10mV;
-   MainVT.LLIM[CHKVT0DRL][post]            = 2.7V;
+   MainVT.LLIM[CHKVT0DRL][post]            = 2.4V;
    MainVT.ULIM[CHKVT0DRL][post]            = 6.5V;
    MainVT.TCRNUM[CHKVT0DRL][post]          = 5;
    MainVT.IRATIO[CHKVT0DRL][post]          = TNUM_DIV2;
    MainVT.RDOPTION[CHKVT0DRL][post]        = TNUM_TOPTION_NORMAL;
    MainVT.MEMCFG[CHKVT0DRL]               = QUADTYPE;
+#if $FL_USE_AUTO_FLOW  
    switch(SelectedTITestType) {
-     case MP2 : MainVT.TDATA[CHKVT0DRL]        = TNUM_DATA_ECHK; break;
-     case MP3 : MainVT.TDATA[CHKVT0DRL]        = TNUM_DATA_OCHK; break;
-     default: MainVT.TDATA[CHKVT0DRL]    = TNUM_DATA_ECHK;
+     case MP2 : MainVT.TDATA[CHKVT0DRL]        = TNUM_DATA_ECHK;
+     case MP3 : MainVT.TDATA[CHKVT0DRL]        = TNUM_DATA_OCHK;
+     default: MainVT.TDATA[CHKVT0DRL]    = TNUM_DATA_OCHK;
    }   /* case */
+#else
+   MainVT.TDATA[CHKVT0DRL]        = TNUM_DATA_OCHK;
+#endif
    switch(SelectedTITestType) {
      case MP2 :  
               MainVT.LDELTA[CHKVT0DRL]    = -0.25V;  /*not used*/
@@ -2696,7 +3137,7 @@ void F021_FlashConfigInclude()
               DRLVT0_LDELTA[7]            = -0.25V;
               DRLVT0_UDELTA[0]            = 1.0V;
               DRLVT0_UDELTA[1]            = 1.0V;
-              DRLVT0_UDELTA[2]            = 1.0V;
+              DRLVT0_UDELTA[2]            = 1.4V;
               DRLVT0_UDELTA[3]            = 1.0V;
               DRLVT0_UDELTA[4]            = 1.0V;
               DRLVT0_UDELTA[5]            = 1.0V;
@@ -2714,7 +3155,14 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[CHKVT0DRL]             = CHKVT0DRL;
 
     /*---- pre ----*/
-   MainVT.ENA[RCODEVT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case MP3 :     MainVT.ENA[RCODEVT0][pre]              = true;
+     default: MainVT.ENA[RCODEVT0][pre]              = false;
+   }   /* case */
+#else
+   MainVT.ENA[RCODEVT0][pre]              = false;
+#endif
    MainVT.ENARED[RCODEVT0][pre]           = false;
    MainVT.DLOGONLY[RCODEVT0][pre]         = false;
    MainVT.SSTART[RCODEVT0][pre]           = 2.0V;
@@ -2726,23 +3174,26 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[RCODEVT0][pre]           = TNUM_DIV2;
    MainVT.RDOPTION[RCODEVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   MainVT.ENA[RCODEVT0][post]             = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case PreBurnIn : MainVT.ENA[RCODEVT0][post]             = true;
+     default:   MainVT.ENA[RCODEVT0][post]             = false;
+   }   /* case */
+#else
+   MainVT.ENA[RCODEVT0][post]             = false;
+#endif
    MainVT.ENARED[RCODEVT0][post]          = false;
    MainVT.DLOGONLY[RCODEVT0][post]        = false;
    MainVT.SSTART[RCODEVT0][post]          = 2.0V;
    MainVT.SSTOP[RCODEVT0][post]           = 6.7V;
    MainVT.SRESOL[RCODEVT0][post]          = 10mV;
-   MainVT.LLIM[RCODEVT0][post]            = 2.7V;
+   MainVT.LLIM[RCODEVT0][post]            = 2.4V;
    MainVT.ULIM[RCODEVT0][post]            = 6.5V;
    MainVT.TCRNUM[RCODEVT0][post]          = 5;
    MainVT.IRATIO[RCODEVT0][post]          = TNUM_DIV2;
    MainVT.RDOPTION[RCODEVT0][post]        = TNUM_TOPTION_PSARD;
    MainVT.MEMCFG[RCODEVT0]               = ARBTYPE;
-   switch(SelectedTITestType) {
-     case MP1 : MainVT.TDATA[RCODEVT0]        = TNUM_DATA_ECHK; break;
-     case MP2 : MainVT.TDATA[RCODEVT0]        = TNUM_DATA_OCHK; break;
-     default: MainVT.TDATA[RCODEVT0]    = TNUM_DATA_ARB_ECC;
-   }   /* case */
+   MainVT.TDATA[RCODEVT0]                = TNUM_DATA_ARB_ECC;
    switch(SelectedTITestType) {
      case MP2 :  
               MainVT.LDELTA[RCODEVT0]               = -0.25V;
@@ -2758,9 +3209,13 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[REVTUNVT1][pre]              = false;
-   MainVT.ENARED[REVTUNVT1][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[REVTUNVT1][pre]         = true;
+#else
+   MainVT.ENA[REVTUNVT1][pre]              = false;
+#endif
+   MainVT.ENARED[REVTUNVT1][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[REVTUNVT1][pre]         = false;
    MainVT.SSTART[REVTUNVT1][pre]           = 2V;
    MainVT.SSTOP[REVTUNVT1][pre]            = 6.5V;
    MainVT.SRESOL[REVTUNVT1][pre]           = 10mV;
@@ -2770,9 +3225,13 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[REVTUNVT1][pre]           = TNUM_MULT2;
    MainVT.RDOPTION[REVTUNVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[REVTUNVT1][post]             = false;
-   MainVT.ENARED[REVTUNVT1][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[REVTUNVT1][post]        = true;
+#else
+   MainVT.ENA[REVTUNVT1][post]             = false;
+#endif
+   MainVT.ENARED[REVTUNVT1][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[REVTUNVT1][post]        = false;
    MainVT.SSTART[REVTUNVT1][post]          = 2V;
    MainVT.SSTOP[REVTUNVT1][post]           = 6.5V;
    MainVT.SRESOL[REVTUNVT1][post]          = 10mV;
@@ -2788,9 +3247,13 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[REVTUNVT1]             = PUNTHRUVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[PGMFFVT1][pre]              = false;
-   MainVT.ENARED[PGMFFVT1][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[PGMFFVT1][pre]         = true;
+#else
+   MainVT.ENA[PGMFFVT1][pre]              = false;
+#endif   
+   MainVT.ENARED[PGMFFVT1][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[PGMFFVT1][pre]         = false;
    MainVT.SSTART[PGMFFVT1][pre]           = 2V;
    MainVT.SSTOP[PGMFFVT1][pre]            = 6.5V;
    MainVT.SRESOL[PGMFFVT1][pre]           = 10mV;
@@ -2800,9 +3263,13 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[PGMFFVT1][pre]           = TNUM_MULT2;
    MainVT.RDOPTION[PGMFFVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[PGMFFVT1][post]             = false;
-   MainVT.ENARED[PGMFFVT1][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[PGMFFVT1][post]        = true;
+#else
+   MainVT.ENA[PGMFFVT1][post]             = false;
+#endif   
+   MainVT.ENARED[PGMFFVT1][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[PGMFFVT1][post]        = false;
    MainVT.SSTART[PGMFFVT1][post]          = 2V;
    MainVT.SSTOP[PGMFFVT1][post]           = 6.5V;
    MainVT.SRESOL[PGMFFVT1][post]          = 10mV;
@@ -2816,13 +3283,17 @@ void F021_FlashConfigInclude()
    MainVT.LDELTA[PGMFFVT1]               = -0.5V;
    MainVT.UDELTA[PGMFFVT1]               = 0.5V;
    switch(SelectedTITestType) {
-     case MP3 :     MainVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1; break;
+     case MP3 :     MainVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1;
      default: MainVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1;
    }   /* case */
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[PUNTHRUVT1][pre]              = false;
-   MainVT.ENARED[PUNTHRUVT1][pre]           = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[PUNTHRUVT1][pre]              = false;
+#endif
+   MainVT.ENARED[PUNTHRUVT1][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[PUNTHRUVT1][pre]         = true;
    MainVT.SSTART[PUNTHRUVT1][pre]           = 2V;
    MainVT.SSTOP[PUNTHRUVT1][pre]            = 6.5V;
@@ -2833,8 +3304,12 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[PUNTHRUVT1][pre]           = TNUM_MULT2;
    MainVT.RDOPTION[PUNTHRUVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[PUNTHRUVT1][post]             = false;
-   MainVT.ENARED[PUNTHRUVT1][post]          = (SelectedTITestType==MP1);
+#else
+   MainVT.ENA[PUNTHRUVT1][post]             = false;
+#endif
+   MainVT.ENARED[PUNTHRUVT1][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[PUNTHRUVT1][post]        = true;
    MainVT.SSTART[PUNTHRUVT1][post]          = 2V;
    MainVT.SSTOP[PUNTHRUVT1][post]           = 6.5V;
@@ -2848,12 +3323,16 @@ void F021_FlashConfigInclude()
    MainVT.TDATA[PUNTHRUVT1]                = TNUM_DATA_1S;
    MainVT.LDELTA[PUNTHRUVT1]               = -0.5V;
    MainVT.UDELTA[PUNTHRUVT1]               = 0.5V;
-   MainVT.PREVTYPE[PUNTHRUVT1]             = PUNTHRUVT1;  /*THINOXVT1;}  {A07*/
+   MainVT.PREVTYPE[PUNTHRUVT1]             = PUNTHRUVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[FGWLVT1][pre]              = false;
-   MainVT.ENARED[FGWLVT1][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[FGWLVT1][pre]         = true;
+#else
+   MainVT.ENA[FGWLVT1][pre]              = false;
+#endif   
+   MainVT.ENARED[FGWLVT1][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[FGWLVT1][pre]         = false;
    MainVT.SSTART[FGWLVT1][pre]           = 2V;
    MainVT.SSTOP[FGWLVT1][pre]            = 6.5V;
    MainVT.SRESOL[FGWLVT1][pre]           = 10mV;
@@ -2863,9 +3342,13 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[FGWLVT1][pre]           = TNUM_MULT2;
    MainVT.RDOPTION[FGWLVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[FGWLVT1][post]             = false;
-   MainVT.ENARED[FGWLVT1][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[FGWLVT1][post]        = true;
+#else
+   MainVT.ENA[FGWLVT1][post]             = false;
+#endif   
+   MainVT.ENARED[FGWLVT1][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[FGWLVT1][post]        = false;
    MainVT.SSTART[FGWLVT1][post]          = 2V;
    MainVT.SSTOP[FGWLVT1][post]           = 6.5V;
    MainVT.SRESOL[FGWLVT1][post]          = 10mV;
@@ -2881,9 +3364,13 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[FGWLVT1]             = PGMFFVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[TUNOXVT1][pre]              = false;
-   MainVT.ENARED[TUNOXVT1][pre]           = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[TUNOXVT1][pre]         = true;
+#else
+   MainVT.ENA[TUNOXVT1][pre]              = false;
+#endif   
+   MainVT.ENARED[TUNOXVT1][pre]           = GL_DO_REDENA;
+   MainVT.DLOGONLY[TUNOXVT1][pre]         = false;
    MainVT.SSTART[TUNOXVT1][pre]           = 2V;
    MainVT.SSTOP[TUNOXVT1][pre]            = 6.5V;
    MainVT.SRESOL[TUNOXVT1][pre]           = 10mV;
@@ -2893,9 +3380,13 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[TUNOXVT1][pre]           = TNUM_MULT2;
    MainVT.RDOPTION[TUNOXVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    MainVT.ENA[TUNOXVT1][post]             = false;
-   MainVT.ENARED[TUNOXVT1][post]          = (SelectedTITestType==MP1);
-   MainVT.DLOGONLY[TUNOXVT1][post]        = true;
+#else
+   MainVT.ENA[TUNOXVT1][post]             = false;
+#endif   
+   MainVT.ENARED[TUNOXVT1][post]          = GL_DO_REDENA;
+   MainVT.DLOGONLY[TUNOXVT1][post]        = false;
    MainVT.SSTART[TUNOXVT1][post]          = 2V;
    MainVT.SSTOP[TUNOXVT1][post]           = 6.5V;
    MainVT.SRESOL[TUNOXVT1][post]          = 10mV;
@@ -2912,7 +3403,7 @@ void F021_FlashConfigInclude()
 
     /*---- pre ----*/
    MainVT.ENA[THINOXVT1][pre]              = false;
-   MainVT.ENARED[THINOXVT1][pre]           = (SelectedTITestType==MP1);
+   MainVT.ENARED[THINOXVT1][pre]           = GL_DO_REDENA;
    MainVT.DLOGONLY[THINOXVT1][pre]         = true;
    MainVT.SSTART[THINOXVT1][pre]           = 1V;    /*was 2v*/
    MainVT.SSTOP[THINOXVT1][pre]            = 3.5V;  /*was 6.5v*/
@@ -2924,7 +3415,7 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[THINOXVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
    MainVT.ENA[THINOXVT1][post]             = false;
-   MainVT.ENARED[THINOXVT1][post]          = (SelectedTITestType==MP1);
+   MainVT.ENARED[THINOXVT1][post]          = GL_DO_REDENA;
    MainVT.DLOGONLY[THINOXVT1][post]        = true;
    MainVT.SSTART[THINOXVT1][post]          = 1V;        /*was 2v*/
    MainVT.SSTOP[THINOXVT1][post]           = 3.5V;  /*was 6.5v*/
@@ -2941,9 +3432,19 @@ void F021_FlashConfigInclude()
    MainVT.PREVTYPE[THINOXVT1]             = THINOXVT1;
 
     /*---- pre ----*/
-   MainVT.ENA[CHKVT1][pre]              = false; 
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2 :  MainVT.ENA[CHKVT1][pre]             = false;
+     default: MainVT.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case  MP1: case MP3 :  MainVT.ENA[CHKVT1][pre]             = false;
+     default: MainVT.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#endif   
    MainVT.ENARED[CHKVT1][pre]           = false;
-   MainVT.DLOGONLY[CHKVT1][pre]         = true;
+   MainVT.DLOGONLY[CHKVT1][pre]         = false;
    MainVT.SSTART[CHKVT1][pre]           = 1V;
    MainVT.SSTOP[CHKVT1][pre]            = 3.5V;
    MainVT.SRESOL[CHKVT1][pre]           = 10mV;
@@ -2955,7 +3456,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    MainVT.ENA[CHKVT1][post]             = false;
    MainVT.ENARED[CHKVT1][post]          = false;
-   MainVT.DLOGONLY[CHKVT1][post]        = true;
+   MainVT.DLOGONLY[CHKVT1][post]        = false;
    MainVT.SSTART[CHKVT1][post]          = 2V;
    MainVT.SSTOP[CHKVT1][post]           = 6.5V;
    MainVT.SRESOL[CHKVT1][post]          = 10mV;
@@ -2965,11 +3466,19 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[CHKVT1][post]          = TNUM_MULT2;
    MainVT.RDOPTION[CHKVT1][post]        = TNUM_TOPTION_NORMAL;
    MainVT.MEMCFG[CHKVT1]               = QUADTYPE;
+#if $FL_USE_AUTO_FLOW  
    switch(SelectedTITestType) {
-     case MP1 : MainVT.TDATA[CHKVT1]        = TNUM_DATA_1S; break; /*TNUM_DATA_ECHK changed for catalog JRR*/
-     case MP2 : MainVT.TDATA[CHKVT1]        = TNUM_DATA_0S; break; /*TNUM_DATA_OCHK changed for catalog JRR*/
-     default: MainVT.TDATA[CHKVT1]    = TNUM_DATA_ECHK;
+     case MP1 : MainVT.TDATA[CHKVT1]       = TNUM_DATA_ECHK;
+     case MP2 : MainVT.TDATA[CHKVT1]       = TNUM_DATA_OCHK;
+     default: MainVT.TDATA[CHKVT1]   = TNUM_DATA_OCHK;
    }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case MP1 : MainVT.TDATA[CHKVT1]       = TNUM_DATA_1S;
+     case MP3 : MainVT.TDATA[CHKVT1]       = TNUM_DATA_OCHK;
+     default: MainVT.TDATA[CHKVT1]   = TNUM_DATA_OCHK;
+   }   /* case */
+#endif
    MainVT.LDELTA[CHKVT1]               = -0.5V;
    MainVT.UDELTA[CHKVT1]               = 0.5V;
    MainVT.PREVTYPE[CHKVT1]             = CHKVT1;
@@ -2977,7 +3486,7 @@ void F021_FlashConfigInclude()
     /*---- pre ----*/
    MainVT.ENA[CHKVT1DRL][pre]              = false;
    MainVT.ENARED[CHKVT1DRL][pre]           = false;
-   MainVT.DLOGONLY[CHKVT1DRL][pre]         = true;
+   MainVT.DLOGONLY[CHKVT1DRL][pre]         = false;
    MainVT.SSTART[CHKVT1DRL][pre]           = 2V;
    MainVT.SSTOP[CHKVT1DRL][pre]            = 6.5V;
    MainVT.SRESOL[CHKVT1DRL][pre]           = 10mV;
@@ -2989,7 +3498,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    MainVT.ENA[CHKVT1DRL][post]             = false;
    MainVT.ENARED[CHKVT1DRL][post]          = false;
-   MainVT.DLOGONLY[CHKVT1DRL][post]        = true;
+   MainVT.DLOGONLY[CHKVT1DRL][post]        = false;
    MainVT.SSTART[CHKVT1DRL][post]          = 2V;
    MainVT.SSTOP[CHKVT1DRL][post]           = 6.5V;
    MainVT.SRESOL[CHKVT1DRL][post]          = 10mV;
@@ -3000,8 +3509,8 @@ void F021_FlashConfigInclude()
    MainVT.RDOPTION[CHKVT1DRL][post]        = TNUM_TOPTION_NORMAL;
    MainVT.MEMCFG[CHKVT1DRL]               = QUADTYPE;
    switch(SelectedTITestType) {
-     case MP2 : MainVT.TDATA[CHKVT1DRL]        = TNUM_DATA_ECHK; break;
-     case MP3 : MainVT.TDATA[CHKVT1DRL]        = TNUM_DATA_OCHK; break;
+     case MP2 : MainVT.TDATA[CHKVT1DRL]        = TNUM_DATA_ECHK;
+     case MP3 : MainVT.TDATA[CHKVT1DRL]        = TNUM_DATA_OCHK;
      default: MainVT.TDATA[CHKVT1DRL]    = TNUM_DATA_ECHK;
    }   /* case */
    MainVT.LDELTA[CHKVT1DRL]               = -0.5V;
@@ -3011,7 +3520,7 @@ void F021_FlashConfigInclude()
     /*---- pre ----*/
    MainVT.ENA[RCODEVT1][pre]              = false;
    MainVT.ENARED[RCODEVT1][pre]           = false;
-   MainVT.DLOGONLY[RCODEVT1][pre]         = true;
+   MainVT.DLOGONLY[RCODEVT1][pre]         = false;
    MainVT.SSTART[RCODEVT1][pre]           = 2V;
    MainVT.SSTOP[RCODEVT1][pre]            = 6.5V;
    MainVT.SRESOL[RCODEVT1][pre]           = 10mV;
@@ -3023,7 +3532,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    MainVT.ENA[RCODEVT1][post]             = false;
    MainVT.ENARED[RCODEVT1][post]          = false;
-   MainVT.DLOGONLY[RCODEVT1][post]        = true;
+   MainVT.DLOGONLY[RCODEVT1][post]        = false;
    MainVT.SSTART[RCODEVT1][post]          = 2V;
    MainVT.SSTOP[RCODEVT1][post]           = 6.5V;
    MainVT.SRESOL[RCODEVT1][post]          = 10mV;
@@ -3033,12 +3542,7 @@ void F021_FlashConfigInclude()
    MainVT.IRATIO[RCODEVT1][post]          = TNUM_MULT2;
    MainVT.RDOPTION[RCODEVT1][post]        = TNUM_TOPTION_NORMAL;
    MainVT.MEMCFG[RCODEVT1]               = SECTTYPE;
-   switch(SelectedTITestType) {
-     case MP1 : MainVT.TDATA[RCODEVT1]        = TNUM_DATA_ECHK; break;
-     case MP2 : MainVT.TDATA[RCODEVT1]        = TNUM_DATA_OCHK; break;
-     case MP3 : MainVT.TDATA[RCODEVT1]        = TNUM_DATA_ARB_ECC; break;
-     default: MainVT.TDATA[RCODEVT1]    = TNUM_DATA_ECHK;
-   }   /* case */
+   MainVT.TDATA[RCODEVT1]                = TNUM_DATA_ARB_ECC;
    MainVT.LDELTA[RCODEVT1]               = -0.5V;
    MainVT.UDELTA[RCODEVT1]               = 0.5V;
    MainVT.PREVTYPE[RCODEVT1]             = RCODEVT1;
@@ -3046,7 +3550,7 @@ void F021_FlashConfigInclude()
 
     /*++++ OTP ++++*/
     /*---- pre ----*/
-   OtpVT.ENA[ONOVT0][pre]              = true;
+   OtpVT.ENA[ONOVT0][pre]              = (SelectedTITestType==MP1);
    OtpVT.ENARED[ONOVT0][pre]           = false;
    OtpVT.DLOGONLY[ONOVT0][pre]         = false;
    OtpVT.SSTART[ONOVT0][pre]           = 2.0V;
@@ -3058,7 +3562,7 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[ONOVT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[ONOVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpVT.ENA[ONOVT0][post]             = true;
+   OtpVT.ENA[ONOVT0][post]             = (SelectedTITestType==MP1);
    OtpVT.ENARED[ONOVT0][post]          = false;
    OtpVT.DLOGONLY[ONOVT0][post]        = false;
    OtpVT.SSTART[ONOVT0][post]          = 2.0V;
@@ -3076,7 +3580,7 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[ONOVT0]             = ONOVT0;
 
     /*---- pre ----*/
-   OtpVT.ENA[CSFGVT0][pre]              = true;
+   OtpVT.ENA[CSFGVT0][pre]              = (SelectedTITestType==MP1);
    OtpVT.ENARED[CSFGVT0][pre]           = false;
    OtpVT.DLOGONLY[CSFGVT0][pre]         = false;
    OtpVT.SSTART[CSFGVT0][pre]           = 2.0V;
@@ -3088,20 +3592,20 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[CSFGVT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[CSFGVT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpVT.ENA[CSFGVT0][post]             = true;
+   OtpVT.ENA[CSFGVT0][post]             = (SelectedTITestType==MP1);
    OtpVT.ENARED[CSFGVT0][post]          = false;
    OtpVT.DLOGONLY[CSFGVT0][post]        = false;
    OtpVT.SSTART[CSFGVT0][post]          = 2.0V;
    OtpVT.SSTOP[CSFGVT0][post]           = 6.7V;
    OtpVT.SRESOL[CSFGVT0][post]          = 10mV;
-   OtpVT.LLIM[CSFGVT0][post]            = 1.2V;
+   OtpVT.LLIM[CSFGVT0][post]            = 2.9V;  /*C06 CHANGED from 1.2v to match spec Jamal Sheikh modified Fri, Feb  3 2012*/
    OtpVT.ULIM[CSFGVT0][post]            = 6.5V;
    OtpVT.TCRNUM[CSFGVT0][post]          = 5;
    OtpVT.IRATIO[CSFGVT0][post]          = TNUM_DIV2;
    OtpVT.RDOPTION[CSFGVT0][post]        = TNUM_TOPTION_PSARD;
    OtpVT.MEMCFG[CSFGVT0]               = BANKTYPE;
    OtpVT.TDATA[CSFGVT0]                = TNUM_DATA_0S+TNUM_TARGET_OTP;
-   OtpVT.LDELTA[CSFGVT0]               = -2.2V;
+   OtpVT.LDELTA[CSFGVT0]               = -0.5V;
    OtpVT.UDELTA[CSFGVT0]               = 0.25V;
    OtpVT.PREVTYPE[CSFGVT0]             = CSFGVT0;
 
@@ -3166,7 +3670,11 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[EGFG2VT0]             = EGFG2VT0;
 
     /*---- pre ----*/
-   OtpVT.ENA[EGFG3VT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[EGFG3VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[EGFG3VT0][pre]              = false;
+#endif   
    OtpVT.ENARED[EGFG3VT0][pre]           = false;
    OtpVT.DLOGONLY[EGFG3VT0][pre]         = false;
    OtpVT.SSTART[EGFG3VT0][pre]           = 2.0V;
@@ -3178,7 +3686,11 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[EGFG3VT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[EGFG3VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpVT.ENA[EGFG3VT0][post]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[EGFG3VT0][post]             = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[EGFG3VT0][post]             = false;
+#endif   
    OtpVT.ENARED[EGFG3VT0][post]          = false;
    OtpVT.DLOGONLY[EGFG3VT0][post]        = false;
    OtpVT.SSTART[EGFG3VT0][post]          = 2.0V;
@@ -3196,9 +3708,13 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[EGFG3VT0]             = EGFG3VT0;
 
     /*---- pre ----*/
-   OtpVT.ENA[EGFG4VT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[EGFG4VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[EGFG4VT0][pre]              = false;
+#endif   
    OtpVT.ENARED[EGFG4VT0][pre]           = false;
-   OtpVT.DLOGONLY[EGFG4VT0][pre]         = false;
+   OtpVT.DLOGONLY[EGFG4VT0][pre]         = true;
    OtpVT.SSTART[EGFG4VT0][pre]           = 2.0V;
    OtpVT.SSTOP[EGFG4VT0][pre]            = 6.7V;
    OtpVT.SRESOL[EGFG4VT0][pre]           = 10mV;
@@ -3208,9 +3724,13 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[EGFG4VT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[EGFG4VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpVT.ENA[EGFG4VT0][post]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[EGFG4VT0][post]             = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[EGFG4VT0][post]             = false;
+#endif   
    OtpVT.ENARED[EGFG4VT0][post]          = false;
-   OtpVT.DLOGONLY[EGFG4VT0][post]        = false;
+   OtpVT.DLOGONLY[EGFG4VT0][post]        = true;
    OtpVT.SSTART[EGFG4VT0][post]          = 2.0V;
    OtpVT.SSTOP[EGFG4VT0][post]           = 6.7V;
    OtpVT.SRESOL[EGFG4VT0][post]          = 10mV;
@@ -3286,7 +3806,11 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[RDDISTBVT0]             = EGFG3VT0;
 
     /*---- pre ----*/
-   OtpVT.ENA[RDDISTB2VT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[RDDISTB2VT0][pre]              = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[RDDISTB2VT0][pre]              = (SelectedTITestType==MP1);
+#endif   
    OtpVT.ENARED[RDDISTB2VT0][pre]           = false;
    OtpVT.DLOGONLY[RDDISTB2VT0][pre]         = false;
    OtpVT.SSTART[RDDISTB2VT0][pre]           = 2.0V;
@@ -3298,7 +3822,11 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[RDDISTB2VT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[RDDISTB2VT0][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
-   OtpVT.ENA[RDDISTB2VT0][post]             = true;
+#if $FL_USE_AUTO_FLOW  
+   OtpVT.ENA[RDDISTB2VT0][post]             = (SelectedTITestType==MP1);
+#else
+   OtpVT.ENA[RDDISTB2VT0][post]             = (SelectedTITestType==MP1);
+#endif   
    OtpVT.ENARED[RDDISTB2VT0][post]          = false;
    OtpVT.DLOGONLY[RDDISTB2VT0][post]        = false;
    OtpVT.SSTART[RDDISTB2VT0][post]          = 2.0V;
@@ -3311,12 +3839,22 @@ void F021_FlashConfigInclude()
    OtpVT.RDOPTION[RDDISTB2VT0][post]        = TNUM_TOPTION_PSARD;
    OtpVT.MEMCFG[RDDISTB2VT0]               = BANKTYPE;
    OtpVT.TDATA[RDDISTB2VT0]                = TNUM_DATA_0S+TNUM_TARGET_OTP;
-   OtpVT.LDELTA[RDDISTB2VT0]               = -0.7V;
-   OtpVT.UDELTA[RDDISTB2VT0]               = 0.25V;
+   OtpVT.LDELTA[RDDISTB2VT0]               = -0.4V;
+   OtpVT.UDELTA[RDDISTB2VT0]               = 0.25V;  /* C06 CHANGED to match spec was 0.25v Jamal Sheikh modified Fri, Feb  3 2012*/
    OtpVT.PREVTYPE[RDDISTB2VT0]             = RDDISTB2VT0;
 
     /*---- pre ----*/
-   OtpVT.ENA[CHKVT0][pre]              = true;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2 :  OtpVT.ENA[CHKVT0][pre]              = true;
+     default: OtpVT.ENA[CHKVT0][pre]              = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case MP3 :     OtpVT.ENA[CHKVT0][pre]              = false;
+     default: OtpVT.ENA[CHKVT0][pre]              = false;
+   }   /* case */
+#endif
    OtpVT.ENARED[CHKVT0][pre]           = false;
    OtpVT.DLOGONLY[CHKVT0][pre]         = false;
    OtpVT.SSTART[CHKVT0][pre]           = 2.0V;
@@ -3328,7 +3866,7 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[CHKVT0][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[CHKVT0][pre]         = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
-   OtpVT.ENA[CHKVT0][post]             = true;
+   OtpVT.ENA[CHKVT0][post]             = false;
    OtpVT.ENARED[CHKVT0][post]          = false;
    OtpVT.DLOGONLY[CHKVT0][post]        = false;
    OtpVT.SSTART[CHKVT0][post]          = 2.0V;
@@ -3339,20 +3877,19 @@ void F021_FlashConfigInclude()
    OtpVT.TCRNUM[CHKVT0][post]          = 5;
    OtpVT.IRATIO[CHKVT0][post]          = TNUM_DIV2;
    OtpVT.RDOPTION[CHKVT0][post]        = TNUM_TOPTION_NORMAL;
-   OtpVT.MEMCFG[CHKVT0]               = SECTTYPE;
-#if $GL_USE_DMLED_RAMPMT or $GL_USE_JTAG_RAMPMT  
+   OtpVT.MEMCFG[CHKVT0]               = BANKTYPE;
+#if $FL_USE_AUTO_FLOW  
    switch(SelectedTITestType) {
-     case MP1 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break; /*added case for catalog MP3 JRR*/
+     case MP1 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[CHKVT0]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
 #else
    switch(SelectedTITestType) {
-     case MP1 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP2 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP3 : OtpVT.TDATA[CHKVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[CHKVT0]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
-#endif
+#endif   
    OtpVT.LDELTA[CHKVT0]               = -0.25V;
    OtpVT.UDELTA[CHKVT0]               = 0.6V;
    OtpVT.PREVTYPE[CHKVT0]             = CHKVT0;
@@ -3370,21 +3907,25 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[CHKVT0DRL][pre]           = TNUM_DIV2;
    OtpVT.RDOPTION[CHKVT0DRL][pre]         = TNUM_TOPTION_NORMAL;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[CHKVT0DRL][post]             = true;
+#else
+   OtpVT.ENA[CHKVT0DRL][post]             = false;
+#endif
    OtpVT.ENARED[CHKVT0DRL][post]          = false;
    OtpVT.DLOGONLY[CHKVT0DRL][post]        = false;
    OtpVT.SSTART[CHKVT0DRL][post]          = 2.0V;
    OtpVT.SSTOP[CHKVT0DRL][post]           = 6.7V;
    OtpVT.SRESOL[CHKVT0DRL][post]          = 10mV;
-   OtpVT.LLIM[CHKVT0DRL][post]            = 2.7V;
+   OtpVT.LLIM[CHKVT0DRL][post]            = 2.4V;
    OtpVT.ULIM[CHKVT0DRL][post]            = 6.5V;
    OtpVT.TCRNUM[CHKVT0DRL][post]          = 5;
    OtpVT.IRATIO[CHKVT0DRL][post]          = TNUM_DIV2;
    OtpVT.RDOPTION[CHKVT0DRL][post]        = TNUM_TOPTION_NORMAL;
    OtpVT.MEMCFG[CHKVT0DRL]               = SECTTYPE;
    switch(SelectedTITestType) {
-     case MP2 : OtpVT.TDATA[CHKVT0DRL]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpVT.TDATA[CHKVT0DRL]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP2 : OtpVT.TDATA[CHKVT0DRL]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpVT.TDATA[CHKVT0DRL]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[CHKVT0DRL]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    switch(SelectedTITestType) {
@@ -3393,8 +3934,8 @@ void F021_FlashConfigInclude()
               OtpVT.UDELTA[CHKVT0DRL]               = 1.0V;
             break; 
      default:  
-              OtpVT.LDELTA[CHKVT0DRL]               = -0.25V;
-              OtpVT.UDELTA[CHKVT0DRL]               = 1.0V;
+              OtpVT.LDELTA[CHKVT0DRL]               = -0.25V;  /*not used this but use DRLVT0_L/UDELTA[bank]*/
+              OtpVT.UDELTA[CHKVT0DRL]               = 1.0V;  /*not used this but use DRLVT0_L/UDELTA[bank]*/
       break; 
    }   /* case */
    OtpVT.PREVTYPE[CHKVT0DRL]             = CHKVT0DRL;
@@ -3418,15 +3959,15 @@ void F021_FlashConfigInclude()
    OtpVT.SSTART[RCODEVT0][post]          = 2.0V;
    OtpVT.SSTOP[RCODEVT0][post]           = 6.7V;
    OtpVT.SRESOL[RCODEVT0][post]          = 10mV;
-   OtpVT.LLIM[RCODEVT0][post]            = 2.7V;
+   OtpVT.LLIM[RCODEVT0][post]            = 2.4V;
    OtpVT.ULIM[RCODEVT0][post]            = 6.5V;
    OtpVT.TCRNUM[RCODEVT0][post]          = 5;
    OtpVT.IRATIO[RCODEVT0][post]          = TNUM_DIV2;
    OtpVT.RDOPTION[RCODEVT0][post]        = TNUM_TOPTION_NORMAL;
    OtpVT.MEMCFG[RCODEVT0]               = BANKTYPE;
    switch(SelectedTITestType) {
-     case MP1 : OtpVT.TDATA[RCODEVT0]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break; 
-     case MP2 : OtpVT.TDATA[RCODEVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP1 : OtpVT.TDATA[RCODEVT0]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpVT.TDATA[RCODEVT0]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[RCODEVT0]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    switch(SelectedTITestType) {
@@ -3444,9 +3985,13 @@ void F021_FlashConfigInclude()
 
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[REVTUNVT1][pre]              = false;
+#else
+   OtpVT.ENA[REVTUNVT1][pre]              = false;
+#endif
    OtpVT.ENARED[REVTUNVT1][pre]           = false;
-   OtpVT.DLOGONLY[REVTUNVT1][pre]         = true;
+   OtpVT.DLOGONLY[REVTUNVT1][pre]         = false;
    OtpVT.SSTART[REVTUNVT1][pre]           = 2V;
    OtpVT.SSTOP[REVTUNVT1][pre]            = 6.5V;
    OtpVT.SRESOL[REVTUNVT1][pre]           = 10mV;
@@ -3456,9 +4001,13 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[REVTUNVT1][pre]           = TNUM_MULT2;
    OtpVT.RDOPTION[REVTUNVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[REVTUNVT1][post]             = false;
+#else
+   OtpVT.ENA[REVTUNVT1][post]             = false;
+#endif   
    OtpVT.ENARED[REVTUNVT1][post]          = false;
-   OtpVT.DLOGONLY[REVTUNVT1][post]        = true;
+   OtpVT.DLOGONLY[REVTUNVT1][post]        = false;
    OtpVT.SSTART[REVTUNVT1][post]          = 2V;
    OtpVT.SSTOP[REVTUNVT1][post]           = 6.5V;
    OtpVT.SRESOL[REVTUNVT1][post]          = 10mV;
@@ -3474,9 +4023,13 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[REVTUNVT1]             = PUNTHRUVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[PGMFFVT1][pre]              = false;
+#else
+   OtpVT.ENA[PGMFFVT1][pre]              = false;
+#endif   
    OtpVT.ENARED[PGMFFVT1][pre]           = false;
-   OtpVT.DLOGONLY[PGMFFVT1][pre]         = true;
+   OtpVT.DLOGONLY[PGMFFVT1][pre]         = false;
    OtpVT.SSTART[PGMFFVT1][pre]           = 2V;
    OtpVT.SSTOP[PGMFFVT1][pre]            = 6.5V;
    OtpVT.SRESOL[PGMFFVT1][pre]           = 10mV;
@@ -3486,9 +4039,13 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[PGMFFVT1][pre]           = TNUM_MULT2;
    OtpVT.RDOPTION[PGMFFVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[PGMFFVT1][post]             = false;
+#else
+   OtpVT.ENA[PGMFFVT1][post]             = false;
+#endif   
    OtpVT.ENARED[PGMFFVT1][post]          = false;
-   OtpVT.DLOGONLY[PGMFFVT1][post]        = true;
+   OtpVT.DLOGONLY[PGMFFVT1][post]        = false;
    OtpVT.SSTART[PGMFFVT1][post]          = 2V;
    OtpVT.SSTOP[PGMFFVT1][post]           = 6.5V;
    OtpVT.SRESOL[PGMFFVT1][post]          = 10mV;
@@ -3502,12 +4059,16 @@ void F021_FlashConfigInclude()
    OtpVT.LDELTA[PGMFFVT1]               = -0.5V;
    OtpVT.UDELTA[PGMFFVT1]               = 0.5V;
    switch(SelectedTITestType) {
-     case MP3 :     OtpVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1; break;
+     case MP3 :     OtpVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1;
      default: OtpVT.PREVTYPE[PGMFFVT1]             = PGMFFVT1;
    }   /* case */
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[PUNTHRUVT1][pre]              = false;
+#else
+   OtpVT.ENA[PUNTHRUVT1][pre]              = false;
+#endif
    OtpVT.ENARED[PUNTHRUVT1][pre]           = false;
    OtpVT.DLOGONLY[PUNTHRUVT1][pre]         = true;
    OtpVT.SSTART[PUNTHRUVT1][pre]           = 2V;
@@ -3534,12 +4095,16 @@ void F021_FlashConfigInclude()
    OtpVT.TDATA[PUNTHRUVT1]                = TNUM_DATA_1S+TNUM_TARGET_OTP;
    OtpVT.LDELTA[PUNTHRUVT1]               = -0.5V;
    OtpVT.UDELTA[PUNTHRUVT1]               = 0.5V;
-   OtpVT.PREVTYPE[PUNTHRUVT1]             = PUNTHRUVT1;  /*THINOXVT1;} {A07*/
+   OtpVT.PREVTYPE[PUNTHRUVT1]             = PUNTHRUVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[FGWLVT1][pre]              = false;
+#else
+   OtpVT.ENA[FGWLVT1][pre]              = false;
+#endif   
    OtpVT.ENARED[FGWLVT1][pre]           = false;
-   OtpVT.DLOGONLY[FGWLVT1][pre]         = true;
+   OtpVT.DLOGONLY[FGWLVT1][pre]         = false;
    OtpVT.SSTART[FGWLVT1][pre]           = 2V;
    OtpVT.SSTOP[FGWLVT1][pre]            = 6.5V;
    OtpVT.SRESOL[FGWLVT1][pre]           = 10mV;
@@ -3549,9 +4114,13 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[FGWLVT1][pre]           = TNUM_MULT2;
    OtpVT.RDOPTION[FGWLVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[FGWLVT1][post]             = false;
+#else
+   OtpVT.ENA[FGWLVT1][post]             = false;
+#endif   
    OtpVT.ENARED[FGWLVT1][post]          = false;
-   OtpVT.DLOGONLY[FGWLVT1][post]        = true;
+   OtpVT.DLOGONLY[FGWLVT1][post]        = false;
    OtpVT.SSTART[FGWLVT1][post]          = 2V;
    OtpVT.SSTOP[FGWLVT1][post]           = 6.5V;
    OtpVT.SRESOL[FGWLVT1][post]          = 10mV;
@@ -3567,9 +4136,13 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[FGWLVT1]             = PGMFFVT1;
 
     /*---- pre ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[TUNOXVT1][pre]              = false;
+#else
+   OtpVT.ENA[TUNOXVT1][pre]              = false;
+#endif   
    OtpVT.ENARED[TUNOXVT1][pre]           = false;
-   OtpVT.DLOGONLY[TUNOXVT1][pre]         = true;
+   OtpVT.DLOGONLY[TUNOXVT1][pre]         = false;
    OtpVT.SSTART[TUNOXVT1][pre]           = 2V;
    OtpVT.SSTOP[TUNOXVT1][pre]            = 6.5V;
    OtpVT.SRESOL[TUNOXVT1][pre]           = 10mV;
@@ -3579,9 +4152,13 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[TUNOXVT1][pre]           = TNUM_MULT2;
    OtpVT.RDOPTION[TUNOXVT1][pre]         = TNUM_TOPTION_PSARD;
     /*---- pst ----*/
+#if $FL_USE_AUTO_FLOW  
    OtpVT.ENA[TUNOXVT1][post]             = false;
+#else
+   OtpVT.ENA[TUNOXVT1][post]             = false;
+#endif   
    OtpVT.ENARED[TUNOXVT1][post]          = false;
-   OtpVT.DLOGONLY[TUNOXVT1][post]        = true;
+   OtpVT.DLOGONLY[TUNOXVT1][post]        = false;
    OtpVT.SSTART[TUNOXVT1][post]          = 2V;
    OtpVT.SSTOP[TUNOXVT1][post]           = 6.5V;
    OtpVT.SRESOL[TUNOXVT1][post]          = 10mV;
@@ -3627,9 +4204,19 @@ void F021_FlashConfigInclude()
    OtpVT.PREVTYPE[THINOXVT1]             = THINOXVT1;
 
     /*---- pre ----*/
-   OtpVT.ENA[CHKVT1][pre]              = false;
+#if $FL_USE_AUTO_FLOW  
+   switch(SelectedTITestType) {
+     case  MP1: case MP2: case MP3 :  OtpVT.ENA[CHKVT1][pre]             = false;
+     default:     OtpVT.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case  MP1: case MP3 :  OtpVT.ENA[CHKVT1][pre]             = false;
+     default: OtpVT.ENA[CHKVT1][pre]             = false;
+   }   /* case */
+#endif
    OtpVT.ENARED[CHKVT1][pre]           = false;
-   OtpVT.DLOGONLY[CHKVT1][pre]         = true;
+   OtpVT.DLOGONLY[CHKVT1][pre]         = false;
    OtpVT.SSTART[CHKVT1][pre]           = 1V;
    OtpVT.SSTOP[CHKVT1][pre]            = 3.5V;
    OtpVT.SRESOL[CHKVT1][pre]           = 10mV;
@@ -3641,7 +4228,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    OtpVT.ENA[CHKVT1][post]             = false;
    OtpVT.ENARED[CHKVT1][post]          = false;
-   OtpVT.DLOGONLY[CHKVT1][post]        = true;
+   OtpVT.DLOGONLY[CHKVT1][post]        = false;
    OtpVT.SSTART[CHKVT1][post]          = 1V;
    OtpVT.SSTOP[CHKVT1][post]           = 3.5V;
    OtpVT.SRESOL[CHKVT1][post]          = 10mV;
@@ -3651,11 +4238,19 @@ void F021_FlashConfigInclude()
    OtpVT.IRATIO[CHKVT1][post]          = TNUM_MULT2;
    OtpVT.RDOPTION[CHKVT1][post]        = TNUM_TOPTION_NORMAL;
    OtpVT.MEMCFG[CHKVT1]               = SECTTYPE;
+#if $FL_USE_AUTO_FLOW  
    switch(SelectedTITestType) {
-     case MP1 : OtpVT.TDATA[CHKVT1]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP2 : OtpVT.TDATA[CHKVT1]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
-     default: OtpVT.TDATA[CHKVT1]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP1 : OtpVT.TDATA[CHKVT1]       = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpVT.TDATA[CHKVT1]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
+     default: OtpVT.TDATA[CHKVT1]   = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
    }   /* case */
+#else
+   switch(SelectedTITestType) {
+     case MP1 : OtpVT.TDATA[CHKVT1]       = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpVT.TDATA[CHKVT1]       = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
+     default: OtpVT.TDATA[CHKVT1]   = TNUM_DATA_1S+TNUM_TARGET_OTP_SEMI;
+   }   /* case */
+#endif
    OtpVT.LDELTA[CHKVT1]               = -0.5V;
    OtpVT.UDELTA[CHKVT1]               = 0.5V;
    OtpVT.PREVTYPE[CHKVT1]             = CHKVT1;
@@ -3663,7 +4258,7 @@ void F021_FlashConfigInclude()
     /*---- pre ----*/
    OtpVT.ENA[CHKVT1DRL][pre]              = false;
    OtpVT.ENARED[CHKVT1DRL][pre]           = false;
-   OtpVT.DLOGONLY[CHKVT1DRL][pre]         = true;
+   OtpVT.DLOGONLY[CHKVT1DRL][pre]         = false;
    OtpVT.SSTART[CHKVT1DRL][pre]           = 1V;
    OtpVT.SSTOP[CHKVT1DRL][pre]            = 3.5V;
    OtpVT.SRESOL[CHKVT1DRL][pre]           = 10mV;
@@ -3675,7 +4270,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    OtpVT.ENA[CHKVT1DRL][post]             = false;
    OtpVT.ENARED[CHKVT1DRL][post]          = false;
-   OtpVT.DLOGONLY[CHKVT1DRL][post]        = true;
+   OtpVT.DLOGONLY[CHKVT1DRL][post]        = false;
    OtpVT.SSTART[CHKVT1DRL][post]          = 1V;
    OtpVT.SSTOP[CHKVT1DRL][post]           = 3.5V;
    OtpVT.SRESOL[CHKVT1DRL][post]          = 10mV;
@@ -3686,8 +4281,8 @@ void F021_FlashConfigInclude()
    OtpVT.RDOPTION[CHKVT1DRL][post]        = TNUM_TOPTION_NORMAL;
    OtpVT.MEMCFG[CHKVT1DRL]               = SECTTYPE;
    switch(SelectedTITestType) {
-     case MP2 : OtpVT.TDATA[CHKVT1DRL]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP3 : OtpVT.TDATA[CHKVT1DRL]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP2 : OtpVT.TDATA[CHKVT1DRL]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP3 : OtpVT.TDATA[CHKVT1DRL]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[CHKVT1DRL]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    OtpVT.LDELTA[CHKVT1DRL]               = -0.5V;
@@ -3697,7 +4292,7 @@ void F021_FlashConfigInclude()
     /*---- pre ----*/
    OtpVT.ENA[RCODEVT1][pre]              = false;
    OtpVT.ENARED[RCODEVT1][pre]           = false;
-   OtpVT.DLOGONLY[RCODEVT1][pre]         = true;
+   OtpVT.DLOGONLY[RCODEVT1][pre]         = false;
    OtpVT.SSTART[RCODEVT1][pre]           = 1V;
    OtpVT.SSTOP[RCODEVT1][pre]            = 3.5V;
    OtpVT.SRESOL[RCODEVT1][pre]           = 10mV;
@@ -3709,7 +4304,7 @@ void F021_FlashConfigInclude()
     /*---- pst ----*/
    OtpVT.ENA[RCODEVT1][post]             = false;
    OtpVT.ENARED[RCODEVT1][post]          = false;
-   OtpVT.DLOGONLY[RCODEVT1][post]        = true;
+   OtpVT.DLOGONLY[RCODEVT1][post]        = false;
    OtpVT.SSTART[RCODEVT1][post]          = 1V;
    OtpVT.SSTOP[RCODEVT1][post]           = 3.5V;
    OtpVT.SRESOL[RCODEVT1][post]          = 10mV;
@@ -3720,8 +4315,8 @@ void F021_FlashConfigInclude()
    OtpVT.RDOPTION[RCODEVT1][post]        = TNUM_TOPTION_NORMAL;
    OtpVT.MEMCFG[RCODEVT1]               = SECTTYPE;
    switch(SelectedTITestType) {
-     case MP1 : OtpVT.TDATA[RCODEVT1]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI; break;
-     case MP2 : OtpVT.TDATA[RCODEVT1]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI; break;
+     case MP1 : OtpVT.TDATA[RCODEVT1]        = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
+     case MP2 : OtpVT.TDATA[RCODEVT1]        = TNUM_DATA_OCHK+TNUM_TARGET_OTP_SEMI;
      default: OtpVT.TDATA[RCODEVT1]    = TNUM_DATA_ECHK+TNUM_TARGET_OTP_SEMI;
    }   /* case */
    OtpVT.LDELTA[RCODEVT1]               = -0.5V;
@@ -3766,7 +4361,7 @@ void F021_FlashConfigInclude()
 
 
     /*added for soft trim*/
-   if(GL_PUMPTYPE = FPAPUMP)  
+   if(GL_PUMPTYPE == FPAPUMP)  
    {
       GL_AUXBG_MAXEFUSE    = 5;
       GL_AUXIREF_MAXEFUSE  = 5;
@@ -3788,9 +4383,9 @@ void F021_FlashConfigInclude()
    Iref_tolerance   = 0.0250;   /*2.5%*/
    Main_Iref_Target = -10uA;
 
-   if(GL_PUMPTYPE = HDPUMP)  
+   if(GL_PUMPTYPE == HDPUMP)  
       Main_Icmp10_Target = -15uA;
-   else if(GL_PUMPTYPE = ESPUMP)  
+   else if(GL_PUMPTYPE == ESPUMP)  
       Main_Icmp10_Target = -10uA;
    else
       Main_Icmp10_Target = -15uA;
@@ -3798,8 +4393,8 @@ void F021_FlashConfigInclude()
    MainBG_Target    = 1.21V;
    switch(SelectedTITestType) {
      case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-              MainBG_LLim      = MainBG_Target-(MainBG_Target*0.05);  /*1.1495v*/
-              MainBG_ULim      = MainBG_Target+(MainBG_Target*0.05);  /*1.2705v*/
+              MainBG_LLim      = MainBG_Target-(MainBG_Target*0.05);   /*1.1495v*/
+              MainBG_ULim      = MainBG_Target+(MainBG_Target*0.05);   /*1.2705v*/
             break; 
      default:  
         MainBG_LLim      = MainBG_Target-(MainBG_Target*0.03);   /*1.1737v*/
@@ -3807,36 +4402,40 @@ void F021_FlashConfigInclude()
       break; 
    }   /* case */
 
-   if(GL_PUMPTYPE = ESPUMP)  
+   if(GL_PUMPTYPE == ESPUMP)  
    {
       switch(SelectedTITestType) {
         case MP1 :  
                  Main_Iref_LLim   = -13uA;
                  Main_Iref_ULim   = -9uA;
-                 Main_Icmp10_LLim = -12.5uA;
-                 Main_Icmp10_ULim = -8.5uA;
+                 Main_Icmp10_LLim = -11uA;  /*CHANGE: -12.5uA; changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
+                 Main_Icmp10_ULim = -9uA;   /*CHANGE: -8.5uA;  changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
                break; 
         case MP2 :  
-                 if(SelectedTITestTemp=TEMP_30_DEG)  
-                 {
+                 if(SelectedTITestTemp==TEMP_30_DEG)  
+                 { 
                     Main_Iref_LLim   = -13uA;
-                    Main_Iref_ULim   = -9uA;
-                    Main_Icmp10_LLim = -12.5uA;
-                    Main_Icmp10_ULim = -8.5uA;
+                    Main_Iref_ULim   = -9uA;  
+                    Main_Icmp10_LLim = -11uA;  /*CHANGE: -12.5uA; changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
+                    Main_Icmp10_ULim = -9uA;   /*CHANGE: -8.5uA;  changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
                  }
                  else
                  {
                     /*-40C*/
                     Main_Iref_LLim   = -13uA;
                     Main_Iref_ULim   = -9uA;
-                    Main_Icmp10_LLim = -12.5uA;
-                    Main_Icmp10_ULim = -8.5uA;
+                    Main_Icmp10_LLim = -11uA;  /*CHANGE: -12.5uA; changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
+                    Main_Icmp10_ULim = -9uA;   /*CHANGE: -8.5uA;  changed based on Audit Jamal Sheikh modified Sun, Jan  8 2012*/
                  }
                break; 
         default:  
            Main_Iref_LLim   = -14uA;
            Main_Iref_ULim   = -8uA;
-           Main_Icmp10_LLim = -13.5uA;
+           if (SelectedTITestType == MP1)  
+               Main_Icmp10_LLim = -13.5uA;
+           else
+               Main_Icmp10_LLim = -11.25uA;
+       
            Main_Icmp10_ULim = -7.5uA;
          break; 
       }   /* case */
@@ -3851,13 +4450,13 @@ void F021_FlashConfigInclude()
                  Main_Icmp10_ULim = -13.5uA;
                break; 
         case MP2 :  
-                 if(SelectedTITestTemp=TEMP_30_DEG)  
-                 {
+                 if(SelectedTITestTemp==TEMP_30_DEG)  
+                 { 
                     Main_Iref_LLim   = -13uA;
                     Main_Iref_ULim   = -9uA;
                     Main_Icmp10_LLim = -16.5uA;
                     Main_Icmp10_ULim = -13.5uA;
-                 } 
+                 }
                  else
                  {
                     /*-40C*/
@@ -3906,7 +4505,7 @@ void F021_FlashConfigInclude()
       VHV_Ers_Target   = 13.0V;
       switch(SelectedTITestType) {
         case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
-           VHV_Ers_LLim     = VHV_Ers_Target-(VHV_Ers_Target*0.06);
+           VHV_Ers_LLim     = VHV_Ers_Target-(VHV_Ers_Target*0.08);
            VHV_Ers_ULim     = 13.75V;  /*VHV_Ers_Target+(VHV_Ers_Target*0.06);} {was 6% or 13.78v*/
          break; 
         default:  
@@ -3983,14 +4582,21 @@ void F021_FlashConfigInclude()
       VWLNREF_Read_Target  = 3V;
       VWLNREF_Read_LLim    = VWLNREF_Read_Target-(VWLNREF_Read_Target*0.05);
       VWLNREF_Read_ULim    = VWLNREF_Read_Target+(VWLNREF_Read_Target*0.05);
-      
-      VCG2P5_Read_Target = 1.825V;
+
+      if(SelectedTITestType==MP3)  
+         VCG2P5_Read_Target = 1.8V;
+      else
+         VCG2P5_Read_Target = 1.825V;
       switch(SelectedTITestType) {
         case  MP3: case  PreBurnIn: case  PostBurnIn1 :   
            VCG2P5_Read_LLim   = VCG2P5_Read_Target-(VCG2P5_Read_Target*0.04);
            VCG2P5_Read_ULim   = VCG2P5_Read_Target+(VCG2P5_Read_Target*0.04);
          break; 
         case MP1 :  
+           VCG2P5_Read_LLim   = VCG2P5_Read_Target-(VCG2P5_Read_Target*0.03);
+           VCG2P5_Read_ULim   = VCG2P5_Read_Target+(VCG2P5_Read_Target*0.03);
+         break; 
+        case MP2 :  
            VCG2P5_Read_LLim   = VCG2P5_Read_Target-(VCG2P5_Read_Target*0.03);
            VCG2P5_Read_ULim   = VCG2P5_Read_Target+(VCG2P5_Read_Target*0.03);
          break; 
@@ -4026,22 +4632,21 @@ void F021_FlashConfigInclude()
 
        /*vmin corner*/
       VReadBUF_Prog_Target = 2.9V;
-      VReadBUF_Prog_LLim   = 2.5V;  /*blizzard doesn"t have BUF regulator switched per Jon N. JRR*/
-      VReadBUF_Prog_ULim   = 3.0V;  /*blizzard doesn"t have BUF regulator switched per Jon N. JRR*/
+      VReadBUF_Prog_LLim   = 2.5V;  /*VReadBUF_Prog_Target-(VReadBUF_Prog_Target*0.10);*/
+      VReadBUF_Prog_ULim   = 3.0V;  /*VReadBUF_Prog_Target+(VReadBUF_Prog_Target*0.10);*/
        /*vmax corner*/
-      if (GL_PUMPTYPE==ESPUMP)
-      {
-         VReadBUF_Pvfy_Target = 3.6V;
-         VReadBUF_Pvfy_LLim   = VReadBUF_Pvfy_Target-(VReadBUF_Pvfy_Target*0.05); 
-         VReadBUF_Pvfy_ULim   = VReadBUF_Pvfy_Target+(VReadBUF_Pvfy_Target*0.05);
-      }
-      else
-      {
-         VReadBUF_Pvfy_Target = 2.9V;
-         VReadBUF_Pvfy_LLim   = 2.5V;  /*blizzard doesn"t have BUF regulator switched per Jon N. JRR*/
-         VReadBUF_Pvfy_ULim   = 3.0V;  /*blizzard doesn"t have BUF regulator switched per Jon N. JRR*/
-      }
-    /*end;} {HDPUMP*/
+   if(GL_PUMPTYPE==ESPUMP)  
+   {
+      VReadBUF_Pvfy_Target = 3.6V;
+      VReadBUF_Pvfy_LLim   = VReadBUF_Pvfy_Target-(VReadBUF_Pvfy_Target*0.05);
+      VReadBUF_Pvfy_ULim   = VReadBUF_Pvfy_Target+(VReadBUF_Pvfy_Target*0.05);
+   }
+   else
+   {
+      VReadBUF_Pvfy_Target = 2.9V;
+      VReadBUF_Pvfy_LLim   = 2.5V;  /*VReadBUF_Pvfy_Target-(VReadBUF_Pvfy_Target*0.10);*/
+      VReadBUF_Pvfy_ULim   = 3.0V;  /*VReadBUF_Pvfy_Target+(VReadBUF_Pvfy_Target*0.10);*/
+   }   /*HDPUMP*/
       
 
 
@@ -4061,7 +4666,20 @@ void F021_FlashConfigInclude()
    AuxIref_Const_IStep       = 0.125uA;
    BG_Adapt_Delta_AbsLim     = 3mV;   /*absolute delta limit used in trim*/
    Iref_Adapt_Delta_AbsLim   = 150nA;  /*absolute delta limit used in trim*/
-   
+
+   FOSC_Target = 18.0MHz;
+   FOSC_Trim_Toler = 0.01;  /*1%*/
+    /* Changed the FOSC limits for Blizzard at 90C...Pasa Boonpirom Jan.19,2012*/
+   if (SelectedTITestType==MP3)  
+       {
+           FOSC_LLimit = 16.3MHz;
+           FOSC_ULimit = 19.7MHz;
+       }
+         else
+       {
+   FOSC_LLimit = 17.1MHz;
+   FOSC_ULimit = 18.9MHz;
+       } 
    
     /*+++ Leakage Conditions/Limits +++*/
    BL_LEAK_ULim =  50uA;
@@ -4084,18 +4702,18 @@ void F021_FlashConfigInclude()
 
 
        /*+++ Pulse Limit +++*/
-   SECT_PRECON_ULimit =  100;
-   SECT_ERS_ULimit    =  600;
+   SECT_PRECON_ULimit =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   SECT_ERS_ULimit    =  20;  /*600; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
    SECT_CMPT_ULimit   =  50;
-   SECT_PROG_ULimit   =  100;
-   BANK_PRECON_ULimit =  100;
-   BANK_ERS_ULimit    =  600;
-   BANK_CMPT_ULimit   =  50;
-   BANK_PROG_ULimit   =  100;
-   OTP_PRECON_ULimit  =  100;
-   OTP_ERS_ULimit     =  600;
-   OTP_CMPT_ULimit    =  50;
-   OTP_PROG_ULimit    =  100;
+   SECT_PROG_ULimit   =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   BANK_PRECON_ULimit =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   BANK_ERS_ULimit    =  20;  /*600; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   BANK_CMPT_ULimit   =  50;                                              
+   BANK_PROG_ULimit   =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   OTP_PRECON_ULimit  =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   OTP_ERS_ULimit     =  20;  /*600; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
+   OTP_CMPT_ULimit    =  50;                                              
+   OTP_PROG_ULimit    =  20;  /*100; tightened for Blizzard per S.C request Jamal Sheikh modified Thu, Jan  5 2012*/
 
    BANK_PROGONEPLS_ULimit = 1;
 
@@ -4130,7 +4748,7 @@ void F021_FlashConfigInclude()
    ADDR_TRIMSOL        = 0x00a4;  /*16bit*/
 
 
-   if(GL_MBoxRAMTYPE=RAMType2)  
+   if(GL_MBoxRAMTYPE==RAMType2)  
    {      
       ADDR_RAM_MAILBOX    = 0x0200;  /*for sirius device*/
       ADDR_RAM_REPAIR_SOL = 0x0500;  /*holds repair solution/info*/
@@ -4159,80 +4777,18 @@ void F021_FlashConfigInclude()
    ADDR_RAM_FMW        = 0x00DC;  /*was 0xbc*/
    ADDR_RAM_IGNOREOTP = 0x00DE;
 
-#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
-#if $GL_USE_JTAG_RAMPMT  
-    /*C2000*/
-   ADDR_RAM_TEMPL_VHVE_SM   = 0x2A10;
-   ADDR_RAM_TEMPL_VHVE_PMT  = 0x2A20;
-   ADDR_RAM_TEMPL_VHVPV_PMT = 0x2A24;
-   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x2A40;
-   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x2A50;
-   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x2A54;
-#else
-    /*Stellaris*/
-   ADDR_RAM_TEMPL_VHVE_SM   = 0x1690;
-   ADDR_RAM_TEMPL_VHVE_PMT  = 0x16A0;
-   ADDR_RAM_TEMPL_VHVPV_PMT = 0x16A4;
-   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x16C0;
-   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x16D0;
-   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x16D4;
-#endif
-#else
-   ADDR_RAM_TEMPL_VHVE_SM   = 0x2F10;
-   ADDR_RAM_TEMPL_VHVE_PMT  = 0x2F20;
-   ADDR_RAM_TEMPL_VHVPV_PMT = 0x2F24;
-   ADDR_RAM_TEMPL_VHVE_SM_EMU   = 0x2F40;
-   ADDR_RAM_TEMPL_VHVE_PMT_EMU  = 0x2F50;
-   ADDR_RAM_TEMPL_VHVPV_PMT_EMU = 0x2F54;
-#endif
-#else
-    /*old vhv template*/
-   ADDR_RAM_TEMPL_VHVE_SM   = 0x3080;
-   ADDR_RAM_TEMPL_VHVE_PMT  = 0x3090;
-   ADDR_RAM_TEMPL_VHVPV_PMT = 0x3094;
-#endif
 
-
- /*KChau - below is for TV1
+ /*KChau - for TV2 only*/
+ /*moved to f021_config.p for device specific*/
+ /*
     ADDR_TIOTP_HI[0] := 0xF008;
     ADDR_TIOTP_LO[0] := 0x0000;
     ADDR_TIOTP_HI[1] := 0xF008;
     ADDR_TIOTP_LO[1] := 0x2000;
     ADDR_TIOTP_HI[2] := 0xF008;
-    ADDR_TIOTP_LO[2] := 0x4000;
-    ADDR_TIOTP_HI[3] := 0xF008;
-    ADDR_TIOTP_LO[3] := 0x6000;
-    ADDR_TIOTP_HI[4] := 0xF008;
-    ADDR_TIOTP_LO[4] := 0x8000;
-    ADDR_TIOTP_HI[5] := 0xF008;
-    ADDR_TIOTP_LO[5] := 0xA000;
-    ADDR_TIOTP_HI[6] := 0xF008;
-    ADDR_TIOTP_LO[6] := 0xC000;
-    ADDR_TIOTP_HI[7] := 0xF008;
-    ADDR_TIOTP_LO[7] := 0xE000;
+    ADDR_TIOTP_LO[2] := 0xE000;
  */
- /*KChau - for TV2 only}  {changed for Stellaris only JRR*/
-   ADDR_TIOTP_HI[0] = 0x0212;  /*was 0xF008*/
-   ADDR_TIOTP_LO[0] = 0x0000;
-   ADDR_TIOTP_HI[1] = 0x0212;  /*was 0xF008*/
-   ADDR_TIOTP_LO[1] = 0x2000;
-   ADDR_TIOTP_HI[2] = 0x0212;  /*was 0xF008*/
-   ADDR_TIOTP_LO[2] = 0xE000;
- /*
-    ADDR_TIOTP_HI[2] := 0xF008;
-    ADDR_TIOTP_LO[2] := 0x4000;
-    ADDR_TIOTP_HI[3] := 0xF008;
-    ADDR_TIOTP_LO[3] := 0x6000;
-    ADDR_TIOTP_HI[4] := 0xF008;
-    ADDR_TIOTP_LO[4] := 0x8000;
-    ADDR_TIOTP_HI[5] := 0xF008;
-    ADDR_TIOTP_LO[5] := 0xA000;
-    ADDR_TIOTP_HI[6] := 0xF008;
-    ADDR_TIOTP_LO[6] := 0xC000;
-    ADDR_TIOTP_HI[7] := 0xF008;
-    ADDR_TIOTP_LO[7] := 0xE000;
- */
+
     /*+++ Stress Limit +++*/
    BLS_ULim =  0.5V; 
    BLS_LLim = -0.1V;
@@ -4260,7 +4816,7 @@ void F021_FlashConfigInclude()
    VT1_ULim = 4.6V;
    VT1_LLim = 3.5V;
    VT1min_ULim = 3.5V;
-   VT1min_LLim = 0.9V;   /*KChau 02/15/07 - temporary 1.2V;*/
+   VT1min_LLim = 0.9V;   /*KChau 02/15/07 - temporary 1.2v;*/
    VT0min_ULim = 7.00V;  /*for compressed pgm*/
    VT0min_LLim = 6.73V;    /*for compressed pgm preDRL*/
    VT0min_PstDRL_LLim = 6.13V;    /*for compressed pgm pstDRL*/
@@ -4466,14 +5022,31 @@ void F021_FlashConfigInclude()
    PUMP_BANK_PARA_ENABLE[40][EvfyMode][2] = true;
    PUMP_BANK_PARA_ENABLE[40][CvfyMode][2] = true;
     /*++++ TCR 69 Meas IProg WL Driver ++++*/
+#if $FL_USE_AUTO_FLOW  
    PUMP_BANK_PARA_ENABLE[69][ProgMode][2] = true;
+#else
+   PUMP_BANK_PARA_ENABLE[69][ProgMode][2] = false;
+#endif
     /*++++ TCR 70 SA Iref w/ local BL load ++++*/
+#if $FL_USE_AUTO_FLOW  
    PUMP_BANK_PARA_ENABLE[70][ReadMode][2] = true;
+#else
+   PUMP_BANK_PARA_ENABLE[70][ReadMode][2] = false;
+#endif
     /*++++ TCR  71 SA Iref w/o local BL load ++++*/
+#if $FL_USE_AUTO_FLOW  
    PUMP_BANK_PARA_ENABLE[71][ReadMode][2] = true;
+#else
+   PUMP_BANK_PARA_ENABLE[71][ReadMode][2] = false;
+#endif
     /*+++ tcr 83 - VReadBUF +++*/
+#if $FL_USE_AUTO_FLOW  
    PUMP_BANK_PARA_ENABLE[83][ProgMode][2] = true;
    PUMP_BANK_PARA_ENABLE[83][PvfyMode][2] = true;
+#else
+   PUMP_BANK_PARA_ENABLE[83][ProgMode][2] = false;
+   PUMP_BANK_PARA_ENABLE[83][PvfyMode][2] = false;
+#endif   
     /*+++ tcr 115 - VHV, VHVREGREF, VHALFREF, VHV_TADC +++*/
    PUMP_BANK_PARA_ENABLE[115][ProgMode][1] = true;
    PUMP_BANK_PARA_ENABLE[115][ProgMode][2] = false ; /*true*/
@@ -4494,7 +5067,7 @@ void F021_FlashConfigInclude()
    PUMP_BANK_PARA_ENABLE[116][PvfyMode][2] = true;
    PUMP_BANK_PARA_ENABLE[116][PvfyMode][3] = false;  /*non-func in tv1*/
    PUMP_BANK_PARA_ENABLE[116][PvfyMode][6] = false;
-    /*+++ tcr 117 - VREAD, VREADNREF, VREAD_TADC +++*/
+    /*+++ tcr 117 - VRead, VReadNREF, VRead_TADC +++*/
    PUMP_BANK_PARA_ENABLE[117][ReadMode][1] = true;
    PUMP_BANK_PARA_ENABLE[117][ReadMode][3] = false;  /*non-func in tv1*/
    PUMP_BANK_PARA_ENABLE[117][ReadMode][6] = false;
@@ -4528,8 +5101,13 @@ void F021_FlashConfigInclude()
    PUMP_BANK_PARA_ENABLE[121][CvfyMode][3] = false;  /*non-func in tv1*/
    PUMP_BANK_PARA_ENABLE[121][CvfyMode][6] = false;
     /*+++ tcr 122 - VHV2XPUMP, VHV2XPUMP_TADC +++*/
+#if $FL_USE_AUTO_FLOW  
    PUMP_BANK_PARA_ENABLE[122][ProgMode][1] = true;
    PUMP_BANK_PARA_ENABLE[122][ProgMode][6] = false;
+#else
+   PUMP_BANK_PARA_ENABLE[122][ProgMode][1] = false;
+   PUMP_BANK_PARA_ENABLE[122][ProgMode][6] = false;
+#endif   
     /*+++ tcr 124 - VBGAP, VBGAP_TADC +++*/
    PUMP_BANK_PARA_ENABLE[124][ReadMode][2] = true;
    PUMP_BANK_PARA_ENABLE[124][ReadMode][6] = false;
@@ -4615,7 +5193,7 @@ void F021_FlashConfigInclude()
    PUMP_BANK_PARA_BINOUT[116][PvfyMode][2] = true;
    PUMP_BANK_PARA_BINOUT[116][PvfyMode][3] = false ; /*true*/
    PUMP_BANK_PARA_BINOUT[116][PvfyMode][6] = true;
-    /*+++ tcr 117 - VREAD, VREADNREF, VREAD_TADC +++*/
+    /*+++ tcr 117 - VRead, VReadNREF, VRead_TADC +++*/
    PUMP_BANK_PARA_BINOUT[117][ReadMode][1] = true;
    PUMP_BANK_PARA_BINOUT[117][ReadMode][3] = false ; /*true*/
    PUMP_BANK_PARA_BINOUT[117][ReadMode][6] = false;
@@ -4764,196 +5342,559 @@ void F021_FlashConfigInclude()
    Bank_Iref_VBL_Evfy = 0.6V;
    Bank_Iref_VCG_Cvfy = 1.825V;
    Bank_Iref_VBL_Cvfy = 0.6V;
-   IrefRd_Trim_Target = 15.5uA;
-   IrefRd_Trim_Toler  = 0.035;  /*3.5%*/
-   IrefRd_Trim_LLim   = IrefRd_Trim_Target-(IrefRd_Trim_Target*IrefRd_Trim_Toler);
-   IrefRd_Trim_ULim   = IrefRd_Trim_Target+(IrefRd_Trim_Target*IrefRd_Trim_Toler);
-   IrefEv_Trim_Target = 29.14uA;
-   IrefEv_Trim_Toler  = 0.05;  /*5%*/
-   IrefEv_Trim_LLim   = IrefEv_Trim_Target-(IrefEv_Trim_Target*IrefEv_Trim_Toler);
-   IrefEv_Trim_ULim   = IrefEv_Trim_Target+(IrefEv_Trim_Target*IrefEv_Trim_Toler);
 
-   if(GL_DO_IREF_PMOS_TRIM)  
+   if(GL_BANKTYPE==FLESBANK)  
    {
-      switch(SelectedTITestType) {
-        case MP1      :  
-           Bank_Iref_Read_Target = 15.5uA;
-           Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.035);
-           Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.035);
-           Bank_Iref_Pvfy_Target = 11.749uA;
-           Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.06);
-           Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.06);
-           Bank_Iref_Evfy_Target = 29.14uA;
-           Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.05);
-           Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.05);
-           Bank_Iref_Cvfy_Target = 3.7uA;
-           Bank_Iref_Cvfy_LLim   = 2uA;
-           Bank_Iref_Cvfy_ULim   = 10uA;
-           Bank_Iref_Evfy_Target_EMU = 26.98uA;
-           Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.05);
-           Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.05);
-         break; 
-        case  MP2: case  FT2 :   
-           Bank_Iref_Read_Target = 15.13uA;
-           Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.06);
-           Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.06);
-           Bank_Iref_Pvfy_Target = 11.41uA;
-           Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.07);
-           Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.07);
-           Bank_Iref_Evfy_Target = 28.52uA;
-           Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.07);
-           Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.07);
-           Bank_Iref_Cvfy_Target = 3.7uA;
-           Bank_Iref_Cvfy_LLim   = 2uA;
-           Bank_Iref_Cvfy_ULim   = 10uA;
-           Bank_Iref_Evfy_Target_EMU = 26.41uA;
-           Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.07);
-           Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.07);
-         break; 
-        default:  
-           Bank_Iref_Read_Target = 12.9uA;
-           Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.07);
-           Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.07);
-           Bank_Iref_Pvfy_Target = 9.8uA;
-           Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.08);
-           Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.08);
-           Bank_Iref_Evfy_Target = 24uA;
-           Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.08);
-           Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.08);
-           Bank_Iref_Cvfy_Target = 3.7uA;
-           Bank_Iref_Cvfy_LLim   = 2uA;
-           Bank_Iref_Cvfy_ULim   = 10uA;
-           Bank_Iref_Evfy_Target_EMU = 22.4uA;
-           Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.08);
-           Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.08);
-      }   /* case */
+       /*+++++ FLES ++++*/
+      if(GL_DO_REFARR_ERS_ADAPTIVE)  
+      {
+         IrefRd_Trim_Target = 15.93uA;
+         IrefEv_Trim_Target = 28.67uA;
+      }
+      else
+      {
+         IrefRd_Trim_Target = 15.5uA;
+         IrefEv_Trim_Target = 29.14uA;
+      } 
+      IrefRd_Trim_Toler  = 0.035;  /*3.5%*/
+      IrefRd_Trim_LLim   = IrefRd_Trim_Target-(IrefRd_Trim_Target*IrefRd_Trim_Toler);
+      IrefRd_Trim_ULim   = IrefRd_Trim_Target+(IrefRd_Trim_Target*IrefRd_Trim_Toler);
+      IrefEv_Trim_Toler  = 0.05;  /*5%*/
+      IrefEv_Trim_LLim   = IrefEv_Trim_Target-(IrefEv_Trim_Target*IrefEv_Trim_Toler);
+      IrefEv_Trim_ULim   = IrefEv_Trim_Target+(IrefEv_Trim_Target*IrefEv_Trim_Toler);
+      
+      if(GL_DO_IREF_PMOS_TRIM)  
+      {
+         switch(SelectedTITestType) {
+           case MP1 :  
+                    if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                    { 
+                       Bank_Iref_Read_Target = 15.93uA;
+                       Bank_Iref_Pvfy_Target = 11.62uA;
+                       Bank_Iref_Evfy_Target = 28.67uA;
+                       Bank_Iref_Cvfy_Target = 3.7uA;
+                       Bank_Iref_Evfy_Target_EMU = 25.29uA;
+                    } 
+                    else
+                    { 
+                       Bank_Iref_Read_Target = 15.5uA;
+                       Bank_Iref_Pvfy_Target = 11.749uA;
+                       Bank_Iref_Evfy_Target = 29.14uA;
+                       Bank_Iref_Cvfy_Target = 3.7uA;
+                       Bank_Iref_Evfy_Target_EMU = 26.98uA;
+                    }                        
+                    Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.035);
+                    Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.035);
+                    Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.06);
+                    Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.06);
+                    Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.05);
+                    Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.05);
+                    Bank_Iref_Cvfy_LLim   = 2uA;
+                    Bank_Iref_Cvfy_ULim   = 10uA;
+                    Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.05);
+                    Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.05);
+                  break; 
+           case  MP2: case  FT2 :   
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+              { 
+                 Bank_Iref_Read_Target = 15.55uA;
+                 Bank_Iref_Pvfy_Target = 11.28uA;
+                 Bank_Iref_Evfy_Target = 28.06uA;
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Evfy_Target_EMU = 24.75uA;
+              }
+              else
+              { 
+                 Bank_Iref_Read_Target = 15.13uA;
+                 Bank_Iref_Pvfy_Target = 11.41uA;
+                 Bank_Iref_Evfy_Target = 28.52uA;
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Evfy_Target_EMU = 26.41uA;
+              } 
+              Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.06);
+              Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.06);
+              Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.07);
+              Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.07);
+              Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.07);
+              Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.07);
+              Bank_Iref_Cvfy_LLim   = 2uA;
+              Bank_Iref_Cvfy_ULim   = 10uA;
+              Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.07);
+              Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.07);
+           default:
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+              {
+                 Bank_Iref_Read_Target = 13.25uA;
+                 Bank_Iref_Pvfy_Target = 9.7uA;
+                 Bank_Iref_Evfy_Target = 23.6uA;
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Evfy_Target_EMU = 21uA;
+              }
+              else
+              {
+                 Bank_Iref_Read_Target = 12.9uA;
+                 Bank_Iref_Pvfy_Target = 9.8uA;
+                 Bank_Iref_Evfy_Target = 24uA;
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Evfy_Target_EMU = 22.4uA;
+              } 
+               if (SelectedTITestType == MP3)  
+               {
+                   Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.15);
+                   Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.20);
+                   Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.15);
+                   Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.20);
+                   Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.15);
+                   Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.20);
+                   Bank_Iref_Cvfy_LLim   = 2uA;
+                   Bank_Iref_Cvfy_ULim   = 10uA;
+                   Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.15);
+                   Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.20);
+               }
+               else 
+               {
+                   Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.07);
+                   Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.07);
+                   Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.08);
+                   Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.08);
+                   Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.08);
+                   Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.08);
+                   Bank_Iref_Cvfy_LLim   = 2uA;
+                   Bank_Iref_Cvfy_ULim   = 10uA;
+                   Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.08);
+                   Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.08);
+               }  
+         }   /* case */
+      }
+      else
+      {
+          Bank_Iref_Read_Target = 13.75uA;
+          Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.20);
+          Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.20);
+          Bank_Iref_Pvfy_Target = 11uA;
+          Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.20);
+          Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.20);
+          Bank_Iref_Evfy_Target = 22uA;
+          Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.20);
+          Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.20);
+          Bank_Iref_Cvfy_Target = 3.7uA;
+          Bank_Iref_Cvfy_LLim   = Bank_Iref_Cvfy_Target-(Bank_Iref_Cvfy_Target*0.30);
+          Bank_Iref_Cvfy_ULim   = Bank_Iref_Cvfy_Target+(Bank_Iref_Cvfy_Target*0.30);
+          Bank_Iref_Evfy_Target_EMU = 22uA;
+          Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.20);
+          Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.20);
+      } 
    }
    else
    {
-      Bank_Iref_Read_Target = 13.75uA;
-      Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.20);
-      Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.20);
-      Bank_Iref_Pvfy_Target = 11uA;
-      Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.20);
-      Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.20);
-      Bank_Iref_Evfy_Target = 22uA;
-      Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.20);
-      Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.20);
-      Bank_Iref_Cvfy_Target = 3.7uA;
-      Bank_Iref_Cvfy_LLim   = Bank_Iref_Cvfy_Target-(Bank_Iref_Cvfy_Target*0.30);
-      Bank_Iref_Cvfy_ULim   = Bank_Iref_Cvfy_Target+(Bank_Iref_Cvfy_Target*0.30);
-      Bank_Iref_Evfy_Target_EMU = 22uA;
-      Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.20);
-      Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.20);
+        /*+++++ FLEP ++++*/
+       IrefRd_Trim_Target = 15.5uA;
+       IrefRd_Trim_Toler  = 0.035;  /*3.5%*/
+       IrefRd_Trim_LLim   = IrefRd_Trim_Target-(IrefRd_Trim_Target*IrefRd_Trim_Toler);
+       IrefRd_Trim_ULim   = IrefRd_Trim_Target+(IrefRd_Trim_Target*IrefRd_Trim_Toler);
+       IrefEv_Trim_Target = 29.14uA;
+       IrefEv_Trim_Toler  = 0.05;  /*5%*/
+       IrefEv_Trim_LLim   = IrefEv_Trim_Target-(IrefEv_Trim_Target*IrefEv_Trim_Toler);
+       IrefEv_Trim_ULim   = IrefEv_Trim_Target+(IrefEv_Trim_Target*IrefEv_Trim_Toler);
+       
+       if(GL_DO_IREF_PMOS_TRIM)  
+       {
+           switch(SelectedTITestType) {
+             case MP1 :  
+                       Bank_Iref_Read_Target = 15.5uA;
+                       Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.035);
+                       Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.035);
+                       Bank_Iref_Pvfy_Target = 11.749uA;
+                       Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.06);
+                       Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.06);
+                       Bank_Iref_Evfy_Target = 29.14uA;
+                       Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.05);
+                       Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.05);
+                       Bank_Iref_Cvfy_Target = 3.7uA;
+                       Bank_Iref_Cvfy_LLim   = 2uA;
+                       Bank_Iref_Cvfy_ULim   = 10uA;
+                       Bank_Iref_Evfy_Target_EMU = 26.98uA;
+                       Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.05);
+                       Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.05);
+                    break; 
+             case  MP2: case  FT2 :   
+                 Bank_Iref_Read_Target = 15.13uA;
+                 Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.06);
+                 Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.06);
+                 Bank_Iref_Pvfy_Target = 11.41uA;
+                 Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.07);
+                 Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.07);
+                 Bank_Iref_Evfy_Target = 28.52uA;
+                 Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.07);
+                 Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.07);
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Cvfy_LLim   = 2uA;
+                 Bank_Iref_Cvfy_ULim   = 10uA;
+                 Bank_Iref_Evfy_Target_EMU = 26.41uA;
+                 Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.07);
+                 Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.07);
+              break; 
+             default:  
+                 Bank_Iref_Read_Target = 12.9uA;
+                 Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.07);
+                 Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.07);
+                 Bank_Iref_Pvfy_Target = 9.8uA;
+                 Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.08);
+                 Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.08);
+                 Bank_Iref_Evfy_Target = 24uA;
+                 Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.08);
+                 Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.08);
+                 Bank_Iref_Cvfy_Target = 3.7uA;
+                 Bank_Iref_Cvfy_LLim   = 2uA;
+                 Bank_Iref_Cvfy_ULim   = 10uA;
+                 Bank_Iref_Evfy_Target_EMU = 22.4uA;
+                 Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.08);
+                 Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.08);
+           }   /* case */
+       }
+       else
+       {
+           Bank_Iref_Read_Target = 13.75uA;
+           Bank_Iref_Read_LLim   = Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.20);
+           Bank_Iref_Read_ULim   = Bank_Iref_Read_Target+(Bank_Iref_Read_Target*0.20);
+           Bank_Iref_Pvfy_Target = 11uA;
+           Bank_Iref_Pvfy_LLim   = Bank_Iref_Pvfy_Target-(Bank_Iref_Pvfy_Target*0.20);
+           Bank_Iref_Pvfy_ULim   = Bank_Iref_Pvfy_Target+(Bank_Iref_Pvfy_Target*0.20);
+           Bank_Iref_Evfy_Target = 22uA;
+           Bank_Iref_Evfy_LLim   = Bank_Iref_Evfy_Target-(Bank_Iref_Evfy_Target*0.20);
+           Bank_Iref_Evfy_ULim   = Bank_Iref_Evfy_Target+(Bank_Iref_Evfy_Target*0.20);
+           Bank_Iref_Cvfy_Target = 3.7uA;
+           Bank_Iref_Cvfy_LLim   = Bank_Iref_Cvfy_Target-(Bank_Iref_Cvfy_Target*0.30);
+           Bank_Iref_Cvfy_ULim   = Bank_Iref_Cvfy_Target+(Bank_Iref_Cvfy_Target*0.30);
+           Bank_Iref_Evfy_Target_EMU = 22uA;
+           Bank_Iref_Evfy_LLim_EMU   = Bank_Iref_Evfy_Target_EMU-(Bank_Iref_Evfy_Target_EMU*0.20);
+           Bank_Iref_Evfy_ULim_EMU   = Bank_Iref_Evfy_Target_EMU+(Bank_Iref_Evfy_Target_EMU*0.20);
+       } 
    } 
 
-    /*++++ TCR 26 (Bank) IREFM0: TP1=CG, TP2=Iref ++++*/
-   Bank_Iref_VCG_Read = 1.825V;
-   Bank_Iref_VBL_Read = 0.6V;
-   switch(SelectedTITestType) {
-     case MP1      :  
-        Bank_Iref_RDM0_Target = 11.749uA;
-        Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.06);
-        Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.06);
-      break; 
-     case  MP2: case  FT2 :   
-        Bank_Iref_RDM0_Target = 11.41uA;
-        Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.07);
-        Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.07);
-      break; 
-     default:  
-        Bank_Iref_RDM0_Target = 9.8uA;
-        Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.08);
-        Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.08);
-      break; 
-   }   /* case */
+ /*++++ TCR 26 (Bank) IREFM0: TP1=CG, TP2=Iref ++++*/
+Bank_Iref_VCG_Read = 1.825V;
+Bank_Iref_VBL_Read = 0.6V;
 
-    /*++++ TCR 27 (Bank) IREFM1: TP1=CG, TP2=Iref ++++*/
-   Bank_Iref_VCG_Read = 1.825V;
-   Bank_Iref_VBL_Read = 0.6V;
-   if(GL_DO_IREF_PMOS_TRIM)  
-   {
-      switch(SelectedTITestType) {
-        case MP1      :  
-           Bank_Iref_RDM1_Target = 19.685uA;
-           Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.05);
-           Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.05);
-         break; 
-        case  MP2: case  FT2 :   
-           Bank_Iref_RDM1_Target = 19.2uA;
-           Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.06);
-           Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.06);
-         break; 
-        default:  
-           Bank_Iref_RDM1_Target = 16.3uA;
-           Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.08);
-           Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.08);
-         break; 
-      }   /* case */
+if(GL_BANKTYPE==FLESBANK)  
+{
+     /*+++++ FLES ++++*/
+    switch(SelectedTITestType) {
+      case MP1 :  
+                if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                    Bank_Iref_RDM0_Target = 11.62uA;
+                else
+                    Bank_Iref_RDM0_Target = 11.749uA;
+                Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.06);
+                Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.06);
+             break; 
+      case  MP2: case  FT2 :   
+          if(GL_DO_REFARR_ERS_ADAPTIVE)  
+              Bank_Iref_RDM0_Target = 11.28uA;
+          else
+              Bank_Iref_RDM0_Target = 11.41uA;
+          Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.07);
+          Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.07);
+       break; 
+      default:  
+          if(GL_DO_REFARR_ERS_ADAPTIVE)  
+              Bank_Iref_RDM0_Target = 9.7uA;
+          else
+              Bank_Iref_RDM0_Target = 9.8uA;
+          if (SelectedTITestType == MP3)  
+          {
+              Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.15);
+              Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.20);
+          }
+          else
+          { 
+              Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.08);
+              Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.08);
+          } 
+       break; 
+    }   /* case */
+}
+else
+{
+     /*+++++ FLEP ++++*/
+    switch(SelectedTITestType) {
+      case MP1 :  
+                Bank_Iref_RDM0_Target = 11.749uA;
+                Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.06);
+                Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.06);
+             break; 
+      case  MP2: case  FT2 :   
+          Bank_Iref_RDM0_Target = 11.41uA;
+          Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.07);
+          Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.07);
+       break; 
+      default:  
+          Bank_Iref_RDM0_Target = 9.8uA;
+          Bank_Iref_RDM0_LLim   = Bank_Iref_RDM0_Target-(Bank_Iref_RDM0_Target*0.08);
+          Bank_Iref_RDM0_ULim   = Bank_Iref_RDM0_Target+(Bank_Iref_RDM0_Target*0.08);
+       break; 
+    }   /* case */
+} 
+
+ /*++++ TCR 27 (Bank) IREFM1: TP1=CG, TP2=Iref ++++*/
+Bank_Iref_VCG_Read = 1.825V;
+Bank_Iref_VBL_Read = 0.6V;
+
+if(GL_BANKTYPE==FLESBANK)  
+{
+     /*+++++ FLES ++++*/
+    if(GL_DO_IREF_PMOS_TRIM)  
+    {
+        switch(SelectedTITestType) {
+          case MP1 :  
+                    if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                        Bank_Iref_RDM1_Target = 19.55uA;
+                    else
+                        Bank_Iref_RDM1_Target = 19.685uA;
+                    Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.05);
+                    Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.05);
+                 break; 
+          case  MP2: case  FT2 :   
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                  Bank_Iref_RDM1_Target = 19.07uA;
+              else
+                  Bank_Iref_RDM1_Target = 19.2uA;
+              Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.07);
+              Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.07);
+           break; 
+          default:  
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                  Bank_Iref_RDM1_Target = 16.2uA;
+              else
+                  Bank_Iref_RDM1_Target = 16.3uA;
+              if (SelectedTITestType == MP3)  
+              {  
+                  Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.15);
+                  Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.20);           
+              }
+              else  
+              {
+                  Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.08);
+                  Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.08);
+              } 
+           break;  /* Otherwise*/
+        }   /* case */
+    }
+    else
+    {
+        Bank_Iref_RDM1_Target = 17.19uA;
+        Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.20);
+        Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.20);
+    } 
+}
+else
+{
+     /*+++++ FLEP ++++*/
+    if(GL_DO_IREF_PMOS_TRIM)  
+    {
+        switch(SelectedTITestType) {
+          case MP1 :  
+                    Bank_Iref_RDM1_Target = 19.685uA;
+                    Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.05);
+                    Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.05);
+                 break; 
+          case  MP2: case  FT2 :   
+              Bank_Iref_RDM1_Target = 19.2uA;
+              Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.07);
+              Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.07);
+           break; 
+          default:  
+              Bank_Iref_RDM1_Target = 16.3uA;
+              Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.08);
+              Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.08);
+           break; 
+        }   /* case */
+    }
+    else
+    {
+        Bank_Iref_RDM1_Target = 17.19uA;
+        Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.20);
+        Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.20);
+    } 
+} 
+
+ /*++++ TCR 28,29,30 (Bank) Internal IREF, IREFM0, IREFM1, VCG: TP1=CG, TP2=Iref ++++*/
+ /*measure iref on TP2 & vcg on TP1*/
+ /*iref same condition as tcr 25 except VBL below*/
+ /*vcg same condition as tcr 120*/
+Bank_Internal_Iref_VBL = 0.6V;
+
+
+ /*++++ TCR 40 (Bank) PMOS IREF: TP1=CG, TP2=Iref ++++*/
+if(GL_BANKTYPE==FLESBANK)  
+{
+     /*+++++ FLES ++++*/
+     /*use ersmode for soft trim mode*/
+    Bank_IPMOS_VCG_Ers  = 1.825V;
+    Bank_IPMOS_VBL_Ers  = 0.0V;
+    if(GL_DO_REFARR_ERS_ADAPTIVE)  
+        IPMOS_Trim_Target   = -88uA;
+    else
+        IPMOS_Trim_Target   = -145.7uA;
+    IPMOS_Trim_Toler    = 0.0582;   /*range 5.82%*/
+    IPMOS_Trim_LLim     = IPMOS_Trim_Target+(IPMOS_Trim_Target*IPMOS_Trim_Toler);
+    IPMOS_Trim_ULim     = IPMOS_Trim_Target-(IPMOS_Trim_Target*IPMOS_Trim_Toler);
+    Bank_IPMOS_Ers_LLim = IPMOS_Trim_Target+(IPMOS_Trim_Target*0.15);
+    Bank_IPMOS_Ers_ULim = IPMOS_Trim_Target-(IPMOS_Trim_Target*0.50);
+    IPMOS_Adaptive_Target = -88uA;
+     /*pst-trim*/
+    Bank_IPMOS_VCG_Read = 1.825V;
+    Bank_IPMOS_VBL_Read = 0.0V;
+    Bank_IPMOS_VCG_Pvfy = 1.825V;
+    Bank_IPMOS_VBL_Pvfy = 0.0V;
+    Bank_IPMOS_VCG_Evfy = 1.825V;
+    Bank_IPMOS_VBL_Evfy = 0.0V;
+    Bank_IPMOS_VCG_Cvfy = 1.825V;
+    Bank_IPMOS_VBL_Cvfy = 0.0V;
+    
+     /*use progmode for pre-refarray erase but not yet pmos trim*/
+    Bank_IPMOS_VCG_Prog = 1.825V;
+    Bank_IPMOS_VBL_Prog = 0.0V;
+    if(GL_DO_REFARR_ERS_ADAPTIVE)  
+    {
+        Bank_IPMOS_Prog_Target = -88uA;
+        Bank_IPMOS_Prog_LLim   = -100uA;
+        Bank_IPMOS_Prog_ULim   = 1uA;  /*5ua*/
+        Bank_IPMOS_ErsPst_LLim = -100uA;  /*was -126ua;*/
+        Bank_IPMOS_ErsPst_ULim = -70uA;
+    }
+    else
+    {
+        Bank_IPMOS_Prog_Target = -110uA;
+        Bank_IPMOS_Prog_LLim   = -135uA;  /*was -85ua;} {-135ua to take care retest cases*/
+        Bank_IPMOS_Prog_ULim   = 1uA;  /*5ua*/
+        Bank_IPMOS_ErsPst_LLim = -160uA;  /*was -126ua;*/
+        Bank_IPMOS_ErsPst_ULim = -60uA;
+    }          
+    
+     /*use Readmode for post-pmos trim*/
+    if(GL_DO_IREF_PMOS_TRIM)  
+    {
+        switch(SelectedTITestType) {
+          case MP1 :  
+                    Bank_IPMOS_Read_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+                    Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
+                    Bank_IPMOS_Pvfy_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+                    Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.10);
+                    Bank_IPMOS_Evfy_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Evfy_LLim   = Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);
+                    Bank_IPMOS_Evfy_ULim   = Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.10);
+                    Bank_IPMOS_Cvfy_Target = -25uA;
+                    Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
+                    Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
+                 break; 
+          case  MP2: case  FT2 :   
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                  Bank_IPMOS_Read_Target = -85.6uA;
+              else
+                  Bank_IPMOS_Read_Target = -143.3uA;
+              Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+              Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
+              Bank_IPMOS_Pvfy_Target = Bank_IPMOS_Read_Target;
+              Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+              Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.10);
+              Bank_IPMOS_Evfy_Target = Bank_IPMOS_Read_Target;
+              Bank_IPMOS_Evfy_LLim   = Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);
+              Bank_IPMOS_Evfy_ULim   = Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.10);
+              Bank_IPMOS_Cvfy_Target = -25uA;
+              Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
+              Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
+           break; 
+          default:  
+              if(GL_DO_REFARR_ERS_ADAPTIVE)  
+                  Bank_IPMOS_Read_Target = -66.7uA;
+              else
+                  Bank_IPMOS_Read_Target = -130.4uA;  /*MP3*/
+              
+              Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+              Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
+              Bank_IPMOS_Pvfy_Target = Bank_IPMOS_Read_Target;
+              Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+              Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.10);
+              Bank_IPMOS_Evfy_Target = Bank_IPMOS_Read_Target;
+              Bank_IPMOS_Evfy_LLim   = Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);
+              Bank_IPMOS_Evfy_ULim   = Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.10);
+              Bank_IPMOS_Cvfy_Target = -23uA;
+              
+              Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.30);
+              Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
+            break; 
+         }   /* case */
+      }
+      else
+      {
+         Bank_IPMOS_Read_Target = -88uA;
+         Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+         Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.15);
+         Bank_IPMOS_Pvfy_Target = -88uA;
+         Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+         Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.15);
+         Bank_IPMOS_Evfy_Target = -88uA;
+         Bank_IPMOS_Evfy_LLim   = -100uA;   /*Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);*/
+         Bank_IPMOS_Evfy_ULim   = -70uA;   /*Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.15);*/
+         Bank_IPMOS_Cvfy_Target = -25uA;
+         Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
+         Bank_IPMOS_Cvfy_ULim   = Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25);
+      } 
    }
    else
    {
-      Bank_Iref_RDM1_Target = 17.19uA;
-      Bank_Iref_RDM1_LLim   = Bank_Iref_RDM1_Target-(Bank_Iref_RDM1_Target*0.20);
-      Bank_Iref_RDM1_ULim   = Bank_Iref_RDM1_Target+(Bank_Iref_RDM1_Target*0.20);
-   } 
-
-    /*++++ TCR 28,29,30 (Bank) Internal IREF, IREFM0, IREFM1, VCG: TP1=CG, TP2=Iref ++++*/
-    /*measure iref on TP2 & vcg on TP1*/
-    /*iref same condition as tcr 25 except VBL below*/
-    /*vcg same condition as tcr 120*/
-   Bank_Internal_Iref_VBL = 0.6V;
-
-
-    /*++++ TCR 40 (Bank) PMOS IREF: TP1=CG, TP2=Iref ++++*/
-    /*use ersmode for soft trim mode*/
-   Bank_IPMOS_VCG_Ers  = 1.825V;
-   Bank_IPMOS_VBL_Ers  = 0.0V;
-   IPMOS_Trim_Target   = -145.7uA;
-   IPMOS_Trim_Toler    = 0.0582;   /*range 5.82%*/
-   IPMOS_Trim_LLim     = IPMOS_Trim_Target+(IPMOS_Trim_Target*IPMOS_Trim_Toler);  /*-149.21ua*/
-   IPMOS_Trim_ULim     = IPMOS_Trim_Target-(IPMOS_Trim_Target*IPMOS_Trim_Toler);  /*-132.79ua*/
-   Bank_IPMOS_Ers_LLim = IPMOS_Trim_Target+(IPMOS_Trim_Target*0.15);    /*-162.15ua loose lim*/
-   Bank_IPMOS_Ers_ULim = IPMOS_Trim_Target-(IPMOS_Trim_Target*0.50);    /*-70.5ua loose lim*/
-   IPMOS_Adaptive_Target = -56uA;
-    /*pst-trim*/
-   Bank_IPMOS_VCG_Read = 1.825V;
-   Bank_IPMOS_VBL_Read = 0.0V;
-   Bank_IPMOS_VCG_Pvfy = 1.825V;
-   Bank_IPMOS_VBL_Pvfy = 0.0V;
-   Bank_IPMOS_VCG_Evfy = 1.825V;
-   Bank_IPMOS_VBL_Evfy = 0.0V;
-   Bank_IPMOS_VCG_Cvfy = 1.825V;
-   Bank_IPMOS_VBL_Cvfy = 0.0V;
-
-    /*use progmode for pre-refarray erase but not yet pmos trim*/
-   Bank_IPMOS_VCG_Prog = 1.825V;
-   Bank_IPMOS_VBL_Prog = 0.0V;
-   Bank_IPMOS_Prog_Target = -110uA;
-   Bank_IPMOS_Prog_LLim   = -135uA;  /*was -85uA;} {-135ua to take care retest cases*/
-   Bank_IPMOS_Prog_ULim   = 1uA;  /*5ua*/
-   Bank_IPMOS_ErsPst_LLim = -160uA;  /*was -126uA;*/
-   Bank_IPMOS_ErsPst_ULim = -60uA;
-
-    /*use Readmode for post-pmos trim*/
-   if(GL_DO_IREF_PMOS_TRIM)  
-   {
-      switch(SelectedTITestType) {
-        case MP1 :  
-                 Bank_IPMOS_Read_Target = IPMOS_Trim_Target;
-                 Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
-                 Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
-                 Bank_IPMOS_Pvfy_Target = IPMOS_Trim_Target;
-                 Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
-                 Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.10);
-                 Bank_IPMOS_Evfy_Target = IPMOS_Trim_Target;
-                 Bank_IPMOS_Evfy_LLim   = Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);
-                 Bank_IPMOS_Evfy_ULim   = Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.10);
-                 Bank_IPMOS_Cvfy_Target = -25uA;
-                 Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
-                 Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
-               break; 
-        case  MP2: case  FT2 :   
+       /*+++++ FLEP ++++*/
+       /*use ersmode for soft trim mode*/
+      Bank_IPMOS_VCG_Ers  = 1.825V;
+      Bank_IPMOS_VBL_Ers  = 0.0V;
+      IPMOS_Trim_Target   = -145.7uA;
+      IPMOS_Trim_Toler    = 0.0582;   /*range 5.82%*/
+      IPMOS_Trim_LLim     = IPMOS_Trim_Target+(IPMOS_Trim_Target*IPMOS_Trim_Toler);  /*-149.21ua*/
+      IPMOS_Trim_ULim     = IPMOS_Trim_Target-(IPMOS_Trim_Target*IPMOS_Trim_Toler);  /*-132.79ua*/
+      Bank_IPMOS_Ers_LLim = IPMOS_Trim_Target+(IPMOS_Trim_Target*0.15);    /*-162.15ua loose lim*/
+      Bank_IPMOS_Ers_ULim = IPMOS_Trim_Target-(IPMOS_Trim_Target*0.50);    /*-70.5ua loose lim*/
+      IPMOS_Adaptive_Target = -56uA;
+       /*pst-trim*/
+      Bank_IPMOS_VCG_Read = 1.825V;
+      Bank_IPMOS_VBL_Read = 0.0V;
+      Bank_IPMOS_VCG_Pvfy = 1.825V;
+      Bank_IPMOS_VBL_Pvfy = 0.0V;
+      Bank_IPMOS_VCG_Evfy = 1.825V;
+      Bank_IPMOS_VBL_Evfy = 0.0V;
+      Bank_IPMOS_VCG_Cvfy = 1.825V;
+      Bank_IPMOS_VBL_Cvfy = 0.0V;
+      
+       /*use progmode for pre-refarray erase but not yet pmos trim*/
+      Bank_IPMOS_VCG_Prog = 1.825V;
+      Bank_IPMOS_VBL_Prog = 0.0V;
+      Bank_IPMOS_Prog_Target = -110uA;
+      Bank_IPMOS_Prog_LLim   = -135uA;  /*was -85ua;} {-135ua to take care retest cases*/
+      Bank_IPMOS_Prog_ULim   = 1uA;  /*5ua*/
+      Bank_IPMOS_ErsPst_LLim = -160uA;  /*was -126ua;*/
+      Bank_IPMOS_ErsPst_ULim = -60uA;
+      
+       /*use Readmode for post-pmos trim*/
+      if(GL_DO_IREF_PMOS_TRIM)  
+      {
+         switch(SelectedTITestType) {
+           case MP1 :  
+                    Bank_IPMOS_Read_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+                    Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
+                    Bank_IPMOS_Pvfy_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+                    Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.10);
+                    Bank_IPMOS_Evfy_Target = IPMOS_Trim_Target;
+                    Bank_IPMOS_Evfy_LLim   = Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);
+                    Bank_IPMOS_Evfy_ULim   = Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.10);
+                    Bank_IPMOS_Cvfy_Target = -25uA;
+                    Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
+                    Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
+                  break; 
+           case  MP2: case  FT2 :   
                  Bank_IPMOS_Read_Target = -143.3uA;
                  Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
                  Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
@@ -4966,8 +5907,8 @@ void F021_FlashConfigInclude()
                  Bank_IPMOS_Cvfy_Target = -25uA;
                  Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
                  Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
-               break; 
-        default:  
+            break; 
+           default:  
                  Bank_IPMOS_Read_Target = -110.4uA;
                  Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
                  Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.10);
@@ -4980,25 +5921,25 @@ void F021_FlashConfigInclude()
                  Bank_IPMOS_Cvfy_Target = -20uA;
                  Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.30);
                  Bank_IPMOS_Cvfy_ULim   = -15uA; ; /*Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25)*/
-               break; 
-      }   /* case */
-   }
-   else
-   {
-      Bank_IPMOS_Read_Target = -110uA;
-      Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
-      Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.15);
-      Bank_IPMOS_Pvfy_Target = -110uA;
-      Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
-      Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.15);
-      Bank_IPMOS_Evfy_Target = -110uA;
-      Bank_IPMOS_Evfy_LLim   = -126uA;   /*Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);*/
-      Bank_IPMOS_Evfy_ULim   = -85uA;   /*Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.15);*/
-      Bank_IPMOS_Cvfy_Target = -25uA;
-      Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
-      Bank_IPMOS_Cvfy_ULim   = Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25);
+            break; 
+         }   /* case */
+      }
+      else
+      {
+         Bank_IPMOS_Read_Target = -110uA;
+         Bank_IPMOS_Read_LLim   = Bank_IPMOS_Read_Target+(Bank_IPMOS_Read_Target*0.10);
+         Bank_IPMOS_Read_ULim   = Bank_IPMOS_Read_Target-(Bank_IPMOS_Read_Target*0.15);
+         Bank_IPMOS_Pvfy_Target = -110uA;
+         Bank_IPMOS_Pvfy_LLim   = Bank_IPMOS_Pvfy_Target+(Bank_IPMOS_Pvfy_Target*0.10);
+         Bank_IPMOS_Pvfy_ULim   = Bank_IPMOS_Pvfy_Target-(Bank_IPMOS_Pvfy_Target*0.15);
+         Bank_IPMOS_Evfy_Target = -110uA;
+         Bank_IPMOS_Evfy_LLim   = -126uA;   /*Bank_IPMOS_Evfy_Target+(Bank_IPMOS_Evfy_Target*0.10);*/
+         Bank_IPMOS_Evfy_ULim   = -85uA;   /*Bank_IPMOS_Evfy_Target-(Bank_IPMOS_Evfy_Target*0.15);*/
+         Bank_IPMOS_Cvfy_Target = -25uA;
+         Bank_IPMOS_Cvfy_LLim   = Bank_IPMOS_Cvfy_Target+(Bank_IPMOS_Cvfy_Target*0.10);
+         Bank_IPMOS_Cvfy_ULim   = Bank_IPMOS_Cvfy_Target-(Bank_IPMOS_Cvfy_Target*0.25);
+      } 
    } 
-
 
     /*++++ TCR 43 (Bank) Internal PMOS IREF,VCG: TP1=CG, TP2=Iref ++++*/
    Bank_Internal_IPMOS_VBL = 0V;
@@ -5082,22 +6023,40 @@ void F021_FlashConfigInclude()
    ThinOxide_VBL_TStress_Ers    = 1s;
 
     /*++++ TCR 56 Erase Ref Array External ++++*/
-   Bank_RefArr_VEG_Ers = 13V;
-   Bank_RefArr_VEG_IMAX_Ers = 100mA;
-   Bank_RefArr_VEG_Ers_PWidth = 50ms;
-   RefArr_Ers_Adaptive_RESOL  = 2ms;
-   RefArr_Ers_Adaptive_PWIDTH = 10ms;
-   RefArr_Ers_Adaptive_VStart = 9V;
-   RefArr_Ers_Adaptive_VStop  = 11V;
-
+   if(GL_BANKTYPE==FLESBANK)  
+   {
+      if(GL_DO_REFARR_ERS_ADAPTIVE)  
+         Bank_RefArr_VEG_Ers = 11V;
+      else
+         Bank_RefArr_VEG_Ers = 13V;
+      Bank_RefArr_VEG_IMAX_Ers = 100mA;
+      Bank_RefArr_VEG_Ers_PWidth = 50ms;
+      RefArr_Ers_Adaptive_RESOL  = 2ms;
+      RefArr_Ers_Adaptive_PWIDTH = 10ms;
+      RefArr_Ers_Adaptive_VStart = 9V;
+      RefArr_Ers_Adaptive_VStop  = 12V;
+   }
+   else
+   {
+      Bank_RefArr_VEG_Ers = 13V;
+      Bank_RefArr_VEG_IMAX_Ers = 100mA;
+      Bank_RefArr_VEG_Ers_PWidth = 50ms;
+      RefArr_Ers_Adaptive_RESOL  = 2ms;
+      RefArr_Ers_Adaptive_PWIDTH = 10ms;
+      RefArr_Ers_Adaptive_VStart = 9V;
+      RefArr_Ers_Adaptive_VStop  = 11V;
+   } 
 
     /*++++ TCR 58 Bank WLS All -- WL Leakage test ++++*/
     /*++++ TCR 59 Bank WLS Odd -- WL Leakage test ++++*/
     /*++++ TCR 60 Bank WLS Even -- WL Leakage test ++++*/
     /*tp1->WL, BL/CG/CS/EG=gnd*/
    WLS_VWL_LEAK_Prog         = 3.3V;
-   WLS_VWL_LEAK_Prog_Target  = 10uA;
-   WLS_VWL_LEAK_Prog_ULim    = 75uA;  /*WLS_VWL_LEAK_Prog_Target+(WLS_VWL_LEAK_Prog_Target*0.5)}; {temp changed to 50uA}{JRR*/
+   if(GL_BANKTYPE==FLESBANK)  
+      WLS_VWL_LEAK_Prog_Target  = 60uA;
+   else
+      WLS_VWL_LEAK_Prog_Target  = 10uA;
+   WLS_VWL_LEAK_Prog_ULim    = WLS_VWL_LEAK_Prog_Target+(WLS_VWL_LEAK_Prog_Target*0.5);
    WLS_VWL_LEAK_Prog_LLim    = -1.5uA;
    WLS_VWL_LEAK_TStress_Prog = 100ms;
 
@@ -5120,10 +6079,7 @@ void F021_FlashConfigInclude()
    GL_DO_TWLOGALL_IPROG_DRV = false;  /*false=disable tw log all sense amp*/
 
     /*++++ TCR 70 SA Iref w/ local BL load ++++*/
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // :TODO: :IMPORTANT: I have no idea what really needs to go on the below line. I cannot find the 'v' array anywhere
-   SA_Iref_VBLLoad_Read = UTL_VOID; //v[vdd_vmin];
+   SA_Iref_VBLLoad_Read = "VDD_PS.Typ.PS_Vmin";
    SA_Iref_BLLoad_Read_Target = 13.75uA;
    SA_Iref_BLLoad_Read_LLim = SA_Iref_BLLoad_Read_Target-(SA_Iref_BLLoad_Read_Target*0.25);
    if(GL_DO_IREF_PMOS_TRIM)  
@@ -5133,10 +6089,7 @@ void F021_FlashConfigInclude()
    GL_DO_TWLOGALL_ISA_LD = false;  /*false=disable tw log all sense amp*/
 
     /*++++ TCR 71 SA Iref w/o local BL load ++++*/
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // :TODO: :IMPORTANT: I have no idea what really needs to go on the below line. I cannot find the 'v' array anywhere
-   SA_Iref_VBLLoadDis_Read = UTL_VOID; //v[vdd_vmin];
+   SA_Iref_VBLLoadDis_Read = "VDD_PS.Typ.PS_Vmin";
    SA_Iref_BLLoadDis_Read_Target = 13.75uA;
    SA_Iref_BLLoadDis_Read_LLim = SA_Iref_BLLoadDis_Read_Target-(SA_Iref_BLLoadDis_Read_Target*0.25);
    if(GL_DO_IREF_PMOS_TRIM)  
@@ -5220,6 +6173,26 @@ void F021_FlashConfigInclude()
    TCR.TP4_Ena[0] = false;
    TCR.TP5_Ena[0] = false;
    TCR.TADC_Ena[0] = false;
+
+    /*++++ TCR 1 - BitLine Access (CG) ++++*/
+    /*tp1->cg, tp2->bitline*/
+   TCR.TP1_Ena[1] = true;
+   TCR.TP1_MeasType[1] = ForceVoltType;
+   TCR.TP1_VRange[1][ProgMode] = VCG2P5_Read_Target;  /*dummy*/
+   TCR.TP1_IRange[1][ProgMode] = 100mA;
+   TCR.TP1_ULim[1][ProgMode]   = VCG2P5_Read_Target;
+   TCR.TP1_LLim[1][ProgMode]   = VCG2P5_Read_Target;
+
+   TCR.TP2_Ena[1] = true;
+   TCR.TP2_VRange[1][ProgMode] = VCG2P5_Read_Target;  /*dummy*/
+   TCR.TP2_IRange[1][ProgMode] = 50uA;
+   TCR.TP2_ULim[1][ProgMode]   = 50uA;
+   TCR.TP2_LLim[1][ProgMode]   = 0uA;
+
+   TCR.TP3_Ena[1] = false;
+   TCR.TP4_Ena[1] = false;
+   TCR.TP5_Ena[1] = false;
+   TCR.TADC_Ena[1] = false;
 
     /*++++ TCR 5  Bank Vsns -- external force VCG ++++*/
     /*tp1->cg*/
@@ -5517,6 +6490,16 @@ void F021_FlashConfigInclude()
    TCR.TP2_IRange[25][CvfyMode] = Bank_Iref_Cvfy_ULim;
    TCR.TP2_ULim[25][CvfyMode]   = Bank_Iref_Cvfy_ULim;
    TCR.TP2_LLim[25][CvfyMode]   = Bank_Iref_Cvfy_LLim;
+
+    /*KChau 11/17/11 - use for internal bcc1 measurement*/
+   TCR.TP1_VRange[25][ErsMode] = Bank_Iref_VCG_Cvfy;
+   TCR.TP1_IRange[25][ErsMode] = 100mA;
+   TCR.TP1_ULim[25][ErsMode]   = Bank_Iref_VCG_Cvfy;
+   TCR.TP1_LLim[25][ErsMode]   = Bank_Iref_VCG_Cvfy;
+   TCR.TP2_VRange[25][ErsMode] = Bank_Iref_VBL_Cvfy;
+   TCR.TP2_IRange[25][ErsMode] = 50uA;
+   TCR.TP2_ULim[25][ErsMode]   = 49uA;
+   TCR.TP2_LLim[25][ErsMode]   = 0uA;
 
    TCR.TP3_Ena[25] = false;
    TCR.TP4_Ena[25] = false;
@@ -6280,7 +7263,7 @@ void F021_FlashConfigInclude()
    TCR.TP1_Ena[72] = true;
    TCR.TP1_MeasType[72] = MeasVoltType;
    TCR.TP1_VRange[72][ReadMode] = 8V;
-   TCR.TP1_IRange[72][ReadMode] = 10nA;
+   TCR.TP1_IRange[72][ReadMode] = 0nA;
    TCR.TP1_ULim[72][ReadMode]   = 8V;
    TCR.TP1_LLim[72][ReadMode]   = 0V;
 
@@ -6292,19 +7275,30 @@ void F021_FlashConfigInclude()
 
 
     /*++++ TCR 83 (Bank) ++++*/
-    /*VREADBUF*/
+    /*VReadBUF*/
    TCR.TP2_Ena[83] = true;
    TCR.TP2_MeasType[83] = MeasVoltType;
     /*use progmode for vmin corner*/
    TCR.TP2_VRange[83][ProgMode] = VReadBUF_Prog_ULim;
-   TCR.TP2_IRange[83][ProgMode] = 10nA;
+   TCR.TP2_IRange[83][ProgMode] = 0nA;
    TCR.TP2_ULim[83][ProgMode]   = VReadBUF_Prog_ULim;
    TCR.TP2_LLim[83][ProgMode]   = VReadBUF_Prog_LLim;
     /*use pvfymode for vmax corner*/
-   TCR.TP2_VRange[83][PvfyMode] = VReadBUF_Pvfy_ULim; 
-   TCR.TP2_IRange[83][PvfyMode] = 10nA;
-   TCR.TP2_ULim[83][PvfyMode]   = VReadBUF_Pvfy_ULim;  /*JRR*/
-   TCR.TP2_LLim[83][PvfyMode]   = VReadBUF_Pvfy_LLim;  /*JRR*/
+   if(GL_PUMPTYPE==ESPUMP)  
+   {
+      TCR.TP2_VRange[83][PvfyMode] = VReadBUF_Pvfy_ULim;
+      TCR.TP2_IRange[83][PvfyMode] = 0nA;
+      TCR.TP2_ULim[83][PvfyMode]   = VReadBUF_Pvfy_ULim;
+      TCR.TP2_LLim[83][PvfyMode]   = VReadBUF_Pvfy_LLim;
+   }
+   else
+   {
+      TCR.TP2_VRange[83][PvfyMode] = VReadBUF_Prog_ULim;  /*VReadBUF_Pvfy_ULim;*/
+      TCR.TP2_IRange[83][PvfyMode] = 0nA;
+      TCR.TP2_ULim[83][PvfyMode]   = VReadBUF_Prog_ULim;  /*VReadBUF_Pvfy_ULim;*/
+      TCR.TP2_LLim[83][PvfyMode]   = VReadBUF_Prog_LLim;  /*VReadBUF_Pvfy_LLim;*/
+   } 
+
    TCR.TP1_Ena[83] = false;
    TCR.TP3_Ena[83] = false;
    TCR.TP4_Ena[83] = false;
@@ -6408,7 +7402,7 @@ void F021_FlashConfigInclude()
    TCR.TP1_Ena[97] = true;
    TCR.TP1_MeasType[97] = MeasVoltType;
    TCR.TP1_VRange[97][ReadMode] = VRead_ULim+0.5V;  /*relax limit since pre-trim*/
-   TCR.TP1_IRange[97][ReadMode] = 10nA;
+   TCR.TP1_IRange[97][ReadMode] = 0nA;
    TCR.TP1_ULim[97][ReadMode]   = VRead_ULim+0.5V;
    TCR.TP1_LLim[97][ReadMode]   = VRead_LLim-0.5V;
 
@@ -6722,9 +7716,9 @@ void F021_FlashConfigInclude()
    TCR.TADC_ULim[117][ReadMode]   = VRead_TADC_ULim;
    TCR.TADC_LLim[117][ReadMode]   = VRead_TADC_LLim;
 
-    /*use ProgMode for vread/bgap trim with relax limit*/
+    /*use ProgMode for VRead/bgap trim with relax limit*/
    TCR.TP1_VRange[117][ProgMode] = VRead_ULim+0.5V;
-   TCR.TP1_IRange[117][ProgMode] = 10nA;
+   TCR.TP1_IRange[117][ProgMode] = 0nA;
    TCR.TP1_ULim[117][ProgMode]   = VRead_ULim+0.5V;
    TCR.TP1_LLim[117][ProgMode]   = VRead_LLim-0.5V;
 
@@ -6916,7 +7910,7 @@ void F021_FlashConfigInclude()
    TCR.TADC_Ena[124] = false;
    TCR.TADC_MeasType[124] = MeasVoltType;
    TCR.TADC_VRange[124][ReadMode] = MainBG_ULim;
-   TCR.TADC_IRange[124][ReadMode] = 10nA;
+   TCR.TADC_IRange[124][ReadMode] = 0nA;
    TCR.TADC_ULim[124][ReadMode]   = MainBG_ULim;
    TCR.TADC_LLim[124][ReadMode]   = MainBG_LLim;
 
@@ -6930,13 +7924,13 @@ void F021_FlashConfigInclude()
     /*pump Icmp10u->TP1*/
    TCR.TP1_Ena[125] = true;
    TCR.TP1_MeasType[125] = MeasCurrType;
-   TCR.TP1_VRange[125][ReadMode] = 0.5V; /*was 0V, but design recommends 0.5V 20110614 JRR*/
+   TCR.TP1_VRange[125][ReadMode] = 0V;
    TCR.TP1_IRange[125][ReadMode] = Main_Icmp10_LLim;
    TCR.TP1_ULim[125][ReadMode]   = Main_Icmp10_ULim;
    TCR.TP1_LLim[125][ReadMode]   = Main_Icmp10_LLim;
 
     /*use for trim w/ relax limit*/
-   TCR.TP1_VRange[125][ProgMode] = 0.5V; /*was 0V, but design recommends 0.5V 20110614 JRR*/
+   TCR.TP1_VRange[125][ProgMode] = 0V;
    TCR.TP1_IRange[125][ProgMode] = -29uA;  /*Main_Icmp10_LLim-9uA;*/
    TCR.TP1_ULim[125][ProgMode]   = -7uA;  /*Main_Icmp10_ULim+5uA;*/
    TCR.TP1_LLim[125][ProgMode]   = -28.5uA;  /*Main_Icmp10_LLim-9uA;*/
@@ -6951,13 +7945,13 @@ void F021_FlashConfigInclude()
     /*pump Iref->TP1*/
    TCR.TP1_Ena[126] = true;
    TCR.TP1_MeasType[126] = MeasCurrType;
-   TCR.TP1_VRange[126][ReadMode] = 0.5V; /*was 0V, but design recommends 0.5V 20110614 JRR*/
+   TCR.TP1_VRange[126][ReadMode] = 0V;
    TCR.TP1_IRange[126][ReadMode] = Main_Iref_LLim;
    TCR.TP1_ULim[126][ReadMode]   = Main_Iref_ULim;
    TCR.TP1_LLim[126][ReadMode]   = Main_Iref_LLim;
 
     /*use for trim w/ relax limit*/
-   TCR.TP1_VRange[126][ProgMode] = 0.5V; /*was 0V, but design recommends 0.5V 20110614 JRR*/
+   TCR.TP1_VRange[126][ProgMode] = 0V;
    TCR.TP1_IRange[126][ProgMode] = Main_Iref_LLim-5uA;
    TCR.TP1_ULim[126][ProgMode]   = Main_Iref_ULim+5uA;
    TCR.TP1_LLim[126][ProgMode]   = Main_Iref_LLim-5uA;
@@ -7221,78 +8215,6 @@ void F021_FlashConfigInclude()
 
 
 
-    /*-- LEAK_OPTION (FlashLeakType) definition --*/
-   /* BANK_GANG                := false;  {false for blizzard JRR*/
-//   BANK_ODDEVEN             = false;   /*false for blizzard JRR} */  // :HUH: How can you set an enum to false in pascal??
-   GL_DO_WLS_LEAK_OPTION    = BANK_ODDEVEN;
-   GL_DO_BLS_LEAK_OPTION    = BANK_ODDEVEN;
-   GL_DO_CGS_LEAK_OPTION    = BANK_ODDEVEN;
-   GL_DO_EGCSS_LEAK_OPTION  = BANK_GANG;
-   GL_DO_EGS_LEAK_OPTION    = BANK_GANG;
-
-    /* RD_OPTION (extended test option TNUM) : 0=normal, 1=psa, 2=esda, 3=repair */
-   GL_DO_RD_WITH_TOPTION = 0;  /*psa} {not using psa reads 2011057 JRR*/
-   GL_DO_VT_FIRST = false;
-   GL_DO_VT_USING_INTERNAL = false;   /*note: take precedent over gl_do_vt_using_bidi} {doesnt currently work on blizzard JRR*/
-   GL_DO_VT_USING_BIDI = true;  /*using bidirectional vt method*/
-   GL_DO_DRL0_USING_VT = true;   /*false=use bcc, true=use vt*/
-   GL_DO_DRL1_USING_VT = false;   /*false=use bcc, true=use vt*/
-   GL_DO_VT_MAIN_USING_PBIST = false;  /*true};  {KChau 09/24/10 - temp using shell*/
-   GL_DO_VT_OTP_USING_PBIST  = false;  /*true};  {KChau 09/24/10 - temp using shell*/
-   GL_DO_BCC_MAIN_USING_PBIST = false;  /*true}; {20110507 JRR*/
-   GL_DO_BCC_OTP_USING_PBIST  = false;  /*true}; {20110507 JRR*/
-   GL_DO_MASK_1S_BCC0_DRL_PBIST = false;  /*true}; {20110507 JRR}  {true=mask 1s in echk/ochk, false=not masking*/
-
-   GL_DO_FL_PBIST = false;  /*true}; {20110507 JRR}  {use for read*/
-   GL_DO_PGM_USING_PBIST = false;  /*true}; {20110507 JRR}  {use for pgm*/
-
-#if $GL_USE_DMLED_RAMPMT  
-   GL_DO_ERS_BY_SECTOR = false; /*use for ers: true=do by sector, false=do by bank*/
-#else
-   GL_DO_ERS_BY_SECTOR = false;  /*use for ers: true=do by sector, false=do by bank*/
-#endif
-
-   if(SelectedTITestType==MP1)  
-      GL_DO_REDENA = false ; /*true} {not using redundancy JRR 2011057*/
-   else
-      GL_DO_REDENA = false;
-
-   if(SelectedTITestType==MP1)  
-      GL_DO_VHV_CT_TRIM = true;
-   else
-      GL_DO_VHV_CT_TRIM = false;
-
-
-    /*+++ CHARZ +++*/
-   GL_DO_CHARZ_ERSREFARR = false;
-   GL_CHARZ_ERSREFARR_COUNT = 0;
-   GL_CHARZ_ERSREFARR_SAVECOUNT = 0;
-   GL_CHARZ_BCC_COUNT = 0;
-   GL_DO_CHARZ_PPW = false;
-   GL_DO_CHARZ_BCC = false;
-   GL_DO_CHARZ_VT  = false;
-   GL_DO_CHARZ_BCC_OPTION = SECTTYPE;
-   GL_DO_CHARZ_VT_OPTION  = SECTTYPE;
-   GL_DO_CHARZ_IREF_RD   = false;
-   GL_DO_CHARZ_IREF_PVFY = false;
-   GL_DO_CHARZ_IREF_EVFY = false;
-   GL_DO_CHARZ_IREF_CVFY = false;
-   GL_DO_CHARZ_IREF_RM01 = false;
-   GL_DO_CHARZ_IPMOS_RD   = false;
-   GL_DO_CHARZ_IPMOS_PVFY = false;
-   GL_DO_CHARZ_IPMOS_EVFY = false;
-   GL_DO_CHARZ_IPMOS_CVFY = false;
-   GL_DO_CHARZ_STRESS = false;
-   GL_DO_CHARZ_INTERNAL_IREF_VCG = false;
-   GL_DO_CHARZ_FREQ_RANDCODE = false;
-   GL_CHARZ_FREQ_RANDCODE_COUNT = 1;
-   GL_CHARZ_FREQ_RANDCODE_SAMPLING = 10;
-   GL_DO_CHARZ_SAMPNOISE = true;
-   GL_DO_CHARZ_SAMP_ACCY = false;
-   GL_DO_SAVE_SAMP_ACCY_DATA = false;  /*enable in vt/bcc func*/
-   GL_DO_CHARZ_SAMP_ACCY_COUNT = 1;
-   GL_DO_CHARZ_SAMP_ACCY_SAMPLING = 10;
-
     /*old F035 stuffs -- Current limits for precon/erase/read*/
    BANK_PRECON_IVDD_ULimit     = 75mA;
    BANK_PRECON_IVDD_LLimit     = -1mA;
@@ -7322,12 +8244,83 @@ void F021_FlashConfigInclude()
 
 
     /*Flash esda image base/start number*/
-    /*bit def: xx,xxxx,Lbbb,ssss*/
-   ESDA_IMG_BLK0              = 100;
-   ESDA_IMG_BLK1              = 200;
-   ESDA_IMG_ECHK              = 300;
-   ESDA_IMG_OCHK              = 400;
-                                        
+   ESDA_IMG_PGM0S              = 100;
+   ESDA_IMG_RDM0S              = 200;
+   ESDA_IMG_ERS                = 300;
+   ESDA_IMG_RDM1S              = 400;
+   ESDA_IMG_CYC1X_PGM0S        = 500;
+   ESDA_IMG_CYC1X_ERS          = 600;
+   ESDA_IMG_CYC1X_RDM1S        = 700;
+   ESDA_IMG_THINOX_ERS         = 1000;
+   ESDA_IMG_THINOX_VT1_PRE     = 1100;
+   ESDA_IMG_THINOX_VT1_PST     = 1200;
+   ESDA_IMG_THINOX_VT1_DLT     = 1300;
+   ESDA_IMG_PUNTHRU_ERS        = 2000;
+   ESDA_IMG_PUNTHRU_VT1_PRE    = 2100;
+   ESDA_IMG_PUNTHRU_VT1_PST    = 2200;
+   ESDA_IMG_PUNTHRU_VT1_DLT    = 2300;
+   ESDA_IMG_REVTUN_ERS         = 3000;
+   ESDA_IMG_REVTUN_VT1_PRE     = 3100;
+   ESDA_IMG_REVTUN_VT1_PST     = 3200;
+   ESDA_IMG_REVTUN_VT1_DLT     = 3300;
+   ESDA_IMG_CSFG_PGM0S         = 4000;
+   ESDA_IMG_CSFG_RDM0S         = 4100;
+   ESDA_IMG_CSFG_VT0_PRE       = 4200;
+   ESDA_IMG_CSFG_VT0_PST       = 4300;
+   ESDA_IMG_CSFG_VT0_DLT       = 4400;
+   ESDA_IMG_ONO_PGM0S          = 5000;
+   ESDA_IMG_ONO_RDM0S          = 5100;
+   ESDA_IMG_ONO_VT0_PRE        = 5200;
+   ESDA_IMG_ONO_VT0_PST        = 5300;
+   ESDA_IMG_ONO_VT0_DLT        = 5400;
+   ESDA_IMG_EGFG4_PGM0S        = 6000;
+   ESDA_IMG_EGFG4_RDM0S        = 6100;
+   ESDA_IMG_EGFG4_VT0_PRE      = 6200;
+   ESDA_IMG_EGFG4_VT0_PST      = 6300;
+   ESDA_IMG_EGFG4_VT0_DLT      = 6400;
+   ESDA_IMG_EGFG3_PGM0S        = 7000;
+   ESDA_IMG_EGFG3_RDM0S        = 7100;
+   ESDA_IMG_EGFG3_VT0_PRE      = 7200;
+   ESDA_IMG_EGFG3_VT0_PST      = 7300;
+   ESDA_IMG_EGFG3_VT0_DLT      = 7400;
+   ESDA_IMG_RDDISTB2_PGM0S     = 8000;
+   ESDA_IMG_RDDISTB2_RDM0S     = 8100;
+   ESDA_IMG_RDDISTB2_VT0_PRE   = 8200;
+   ESDA_IMG_RDDISTB2_VT0_PST   = 8300;
+   ESDA_IMG_RDDISTB2_VT0_DLT   = 8400;
+   ESDA_IMG_TUNOX_ERS          = 9000;
+   ESDA_IMG_TUNOX_VT1_PRE      = 9100;
+   ESDA_IMG_TUNOX_VT1_PST      = 9200;
+   ESDA_IMG_TUNOX_VT1_DLT      = 9300;
+   ESDA_IMG_PGMFF_ERS          = 10000;
+   ESDA_IMG_PGMFF_VT1_PRE      = 10100;
+   ESDA_IMG_PGMFF_VT1_PST      = 10200;
+   ESDA_IMG_PGMFF_VT1_DLT      = 10300;
+   ESDA_IMG_FGWL_ERS           = 11000;
+   ESDA_IMG_FGWL_VT1_PRE       = 11100;
+   ESDA_IMG_FGWL_VT1_PST       = 11200;
+   ESDA_IMG_FGWL_VT1_DLT       = 11300;
+   ESDA_IMG_CYC9X_PGM0S        = 12000;
+   ESDA_IMG_CYC9X_ERS          = 12100;
+   ESDA_IMG_CYC9X_RDM1S        = 12200;
+   ESDA_IMG_PGM_CHK            = 13000;
+   ESDA_IMG_DRL_RDM0S_PRE      = 13100;
+   ESDA_IMG_DRL_RDM1S_PRE      = 13200;
+   ESDA_IMG_DRL_VT0_PRE        = 13300;
+   ESDA_IMG_DRL_VT1_PRE        = 13400;
+   ESDA_IMG_DRL_RDM0S_PST      = 14000;
+   ESDA_IMG_DRL_RDM1S_PST      = 14100;
+   ESDA_IMG_DRL_VT0_PST        = 14200;
+   ESDA_IMG_DRL_VT1_PST        = 14300;
+   ESDA_IMG_DRL_VT0_DLT        = 14400;
+   ESDA_IMG_DRL_VT1_DLT        = 14500;
+   ESDA_IMG_SECT_ERS           = 15000;
+   ESDA_IMG_BLK0               = 15500;
+   ESDA_IMG_BLK1               = 15600;
+   ESDA_IMG_ECHK               = 15700;
+   ESDA_IMG_OCHK               = 15800;
+
+  
 
 
     /*IREF PMOS RATIO & CODE LIST HERE FOR REFERENCE*/
@@ -7441,36 +8434,86 @@ void F021_FlashConfigInclude()
 
     /*Based on OTP setting version4*/
     /*Note: string below is reversed ordering with their name, eg. bankef_bit0_4=bit4:0*/
-   BANKEF_BIT0_4   = "10011";   /*19 or 0x13, rd ratio=2.35*/
-
-   GL_DO_EFBIT22_TRIM = false;  /*true=blow efuse, false=no blow efuse. Pace6 revG only*/
-   if(GL_DO_EFBIT22_TRIM)  
+   if(GL_BANKTYPE==FLEPBANK)  
    {
-      BANKEF_BIT10_23 = "01001000000010";   /*SAPREZ bit[10:12]=1; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
-      BANKEF_BIT10_23_BANKNUM[0] = "01001000000010";  /*pc=1,bit17=0*/
-      BANKEF_BIT10_23_BANKNUM[1] = "01001000000010";  /*pc=1,bit17=0*/
-      BANKEF_BIT10_23_BANKNUM[2] = "01001000000010";  /*pc=1,bit17=0*/
+      BANKEF_BIT0_4   = "10011";   /*19 or 0x13, rd ratio=2.35*/
+      GL_DO_EFBIT22_TRIM = true;  /*true=blow efuse, false=no blow efuse. Pace6 revI only*/
+      if(GL_DO_EFBIT22_TRIM)  
+      {
+         BANKEF_BIT10_23 = "01001000000001";   /*SAPREZ bit[10:12]=1; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
+         BANKEF_BIT10_23_BANKNUM[0] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[1] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[2] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[3] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[4] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[5] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[6] = "01001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[7] = "01001000000001";  /*pc=1,bit17=0*/
+      }
+      else
+      {
+         BANKEF_BIT10_23 = "00001000000001";   /*SAPREZ bit[10:12]=1; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
+         BANKEF_BIT10_23_BANKNUM[0] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[1] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[2] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[3] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[4] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[5] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[6] = "00001000000001";  /*pc=1,bit17=0*/
+         BANKEF_BIT10_23_BANKNUM[7] = "00001000000001";  /*pc=1,bit17=0*/
+      } 
+      BANKEF_BIT29_31 = "000";   /*BLCHG sadly=0, bit31=1*/
    }
    else
    {
-      BANKEF_BIT10_23 = "00001000000010";   /*SAPREZ bit[10:12]=1; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
-      BANKEF_BIT10_23_BANKNUM[0] = "00001000000010";  /*pc=1,bit17=0} {was "00001000000100" JRR*/
-      BANKEF_BIT10_23_BANKNUM[1] = "00001000000010";  /*pc=1,bit17=0} {was "00001000000100" JRR*/
-      BANKEF_BIT10_23_BANKNUM[2] = "00001000000010";  /*pc=1,bit17=0} {was "00001000000100" JRR*/
+       /*+++++ FLESBANK +++++*/
+      if(GL_DO_REFARR_ERS_ADAPTIVE)  
+         BANKEF_BIT0_4   = "01011"  ; /*11 or 0xb, rd ratio=1.35*/
+      else
+         BANKEF_BIT0_4   = "10011";   /*19 or 0x13, rd ratio=2.35*/
+      GL_DO_EFBIT22_TRIM = false;  /*true=blow efuse, false=no blow efuse*/
+      BANKEF_BIT10_23 = "00001000000100";   /*SAPREZ bit[10:12]=4; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
+       
+        /* Updated to use precharge of 2 for A2 material and 4 for A3 material Jamal Sheikh modified Sat, Dec 10 2011*/
+      StringS SelectedTIDesignRev = "TIDesignRev";
+      if (SelectedTIDesignRev == "B")  
+      {
+          BANKEF_BIT10_23            = "00001000000010";   /*SAPREZ bit[10:12]=4; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
+          BANKEF_BIT10_23_BANKNUM[0] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[1] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[2] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[3] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[4] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[5] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[6] = "00001000000010";  /*pc=2,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[7] = "00001000000010";  /*pc=2,bit17=0*/
+      }
+      else
+      {
+          BANKEF_BIT10_23            = "00001000000100";   /*SAPREZ bit[10:12]=4; IGNORE BU RR bit19=1, otp hv prot bit23=0*/
+          BANKEF_BIT10_23_BANKNUM[0] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[1] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[2] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[3] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[4] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[5] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[6] = "00001000000100";  /*pc=4,bit17=0*/
+          BANKEF_BIT10_23_BANKNUM[7] = "00001000000100";  /*pc=4,bit17=0*/
+      } 
+  
+
+
+      BANKEF_BIT29_31 = "000";   /*BLCHG sadly=0, bit31=1*/
    } 
 
-
-   BANKEF_BIT29_31 = "000";   /*BLCHG sadly=0, bit31=1*/
-
-    /*IBIT_DESIGN_LIM := 58uA;
-    IBIT_CMPT_LIM   := 88uA;*/
-
-
-   GL_PLELL_FORMAT = true;  /*print dlog // format, false=serial format*/
-
+    /*GL_PLELL_FORMAT := true;} {print dlog // format, false=serial format*/
+   GL_PLELL_FORMAT = false;  /* pasa changed */
 
 
     /*++++ 32bit TNUM (and 16bit) ++++*/
+   TNUM_LPO_AUTOTRIM                    = 0x00C00000;
+   TNUM_OTP_PROG_LPO_CAL                = 0xA0201000;
+
     /*+++ PUMP +++*/
    TNUM_PUMP_MAINBG                     = 0x10000000;   /*tcr 124*/
    TNUM_PUMP_MAINIREF                   = 0x10100000;   /*tcr 126*/
@@ -7545,7 +8588,7 @@ void F021_FlashConfigInclude()
    TNUM_SA_IREF_NOLOAD_READ_EVEN        = 0x12600000;   /*tcr 71*/
 
    TNUM_MAINBG_FORCE_MEASVRD0           = 0x10500000;   /*16bit ~~ 0x0188*/
-   TNUM_MAINBG_MEASVRD0                 = 0x11000000;   /*tnum_pump_vread*/
+   TNUM_MAINBG_MEASVRD0                 = 0x11000000;   /*tnum_pump_VRead*/
    TNUM_MAINBG_MEAS                     = 0x10000000;   /*tnum_pump_mainbg*/
    TNUM_MAINIREF_MEAS                   = 0x10100000;   /*tnum_pump_mainiref*/
    TNUM_MAINICMP10U_MEAS                = 0x10110000;   /*tnum_pump_mainicmp10u*/
@@ -7651,22 +8694,25 @@ void F021_FlashConfigInclude()
 
 
     /*+++ PROG +++*/
-   TNUM_BANK_PROG_SM                    = 0x20000000;  
+   TNUM_BANK_PROG_SM                    = 0x20000000;   /*CHANGED: Was changed to 0x21000000 on C05; changed back to - 0x20000000 due to MP3. Flow changed to use TNUM_BANK_PROG_ITERSECTOR; Jamal Sheikh modified Mon, Jan  9 2012 */
    TNUM_BANK_PROG_ECHK_CSW              = 0x23152000; /*0x23142000};  {16bit ~~ 0xA30A compressed sw*/
    TNUM_SECT_PROG_ECHK_CSW              = 0x23152100;   /*16bit ~~ 0x5500 compressed sw*/
    TNUM_BANK_PROG_OCHK_CSW              = 0x23153000;   /*16bit ~~ 0xA309 compressed sw*/
    TNUM_SECT_PROG_OCHK_CSW              = 0x23153100;   /*16bit ~~ 0x5300 compressed sw*/
 
-   TNUM_BANK_PROG_OCHK                  = 0x20003000;   /*{bit disturb ena}0x20013000;  {bit disturb ena}JRR*/
-   TNUM_BANK_PROG_ECHK                  = 0x20002000;   /*{bit disturb ena}0x20012000;  {bit disturb ena}JRR*/
+   TNUM_BANK_PROG_OCHK                  = 0x20003000;   /*bit disturb disable*/
+   TNUM_BANK_PROG_ECHK                  = 0x20002000;   /*bit disturb disable*/
+   TNUM_BANK_PROG_OCHK_DISTURB          = 0x20013000;   /*bit disturb ena*/
+   TNUM_BANK_PROG_ECHK_DISTURB          = 0x20012000;   /*bit disturb ena*/
 
     /*note: precon tnum uses erase test type instead of program test type*/
-   TNUM_BANK_PRECON                     = 0x32000000;    /*16bit ~~ 0xA403 sm precond*/
+   TNUM_BANK_PRECON                     = 0x32000000;   /*16bit ~~ 0xA403 sm precond}  {CHANGED: Was changed from 0x32000000 to 0x20000400 in C05. Changed back to 0x32000000, only need to change the OTP.  Jamal Sheikh modified Mon, Jan  9 2012*/
    TNUM_SECT_PRECON                     = 0x32000100;   /*16bit ~~ 0x5A00 sm precond*/
    TNUM_BANK_PROG_ONEPLS                = 0x31000000;   /*16bit ~~ 0xA400 one pulse prog*/
    TNUM_BANK_PROG_LOWVT                 = 0x31100000;   /*16bit ~~ 0xA401 low-vt prog 4 pulses*/
    TNUM_BANK_PROG_RESTORE               = 0x31200000;   /*16bit ~~ 0xA402 */
 
+   TNUM_BANK_PROG_ITERSECTOR            = 0x21000000;
 
 
     /*+++ ERASE +++*/
@@ -7676,6 +8722,9 @@ void F021_FlashConfigInclude()
    TNUM_SECT_ERS_NOPRECON_SM            = 0x30000100;   /*16bit ~~ 0x4200 fsm ers*/
    TNUM_BANK_ERS_PRECON_SW              = 0x33000000;   /*0x33010000 precon is not robustly wking*/
    TNUM_SECT_ERS_PRECON                 = 0x33000100;   /*16bit ~~ 0x4100 software ers*/
+
+   TNUM_BANK_ERS_ITERSECTOR             = 0x30040000;
+   TNUM_BANK_ERS_ITERSECTOR_PRECON      = 0x30840000;
 
     /*fast ers-stress*/
    TNUM_BANK_ERS_STRESS_FAST            = 0x60300000;   /*16bit ~~ 0xA60E */
@@ -7754,8 +8803,9 @@ void F021_FlashConfigInclude()
 
     /*+++ ERASE +++*/
    TNUM_OTP_ERS_PRECON                  = 0x30010400;   /*16bit ~~ 0xC000 ers w/ precond*/
+   TNUM_OTP_ERS_NOPRECON                = 0x30000400;   /*16bit ~~ 0xC000 ers*/
    TNUM_OTP_ERS_PRECON_SW               = 0x33010400;
-   TNUM_OTP_ERS_PRECON_SEMI             = 0x70000000;   /*otp refresh}  {was 0x70100000 JRR*/
+   TNUM_OTP_ERS_PRECON_SEMI             = 0x70100000;   /*otp refresh*/
 
 
     /*+++ STRESS +++*/
@@ -7770,7 +8820,9 @@ void F021_FlashConfigInclude()
    TNUM_OTP_PROG_SEMI_SW                = 0x23000500;   /*16bit ~~ 0xC308 sw semi-otp/customer prog 0s*/
    TNUM_OTP_PROG_OCHK_SEMI_CSW          = 0x23103500;   /*16bit ~~ 0xC30D sw compressed semi prog odd chkb*/
    TNUM_OTP_PROG_ECHK_SEMI              = 0x20002500;  
-   TNUM_OTP_PROG_OCHK_SEMI              = 0x20013500;   /*added bit disturb, take out for production and put at MP1 JRR*/
+   TNUM_OTP_PROG_OCHK_SEMI              = 0x20003500;  
+   TNUM_OTP_PROG_ECHK_DISTURB_SEMI      = 0x20012500;  
+   TNUM_OTP_PROG_OCHK_DISTURB_SEMI      = 0x20013500;  
    TNUM_OTP_PROG_TEMPLATE               = 0x20004600;   /*16bit ~~ 0xC500 prog otp wd9*/
                                                          /*requires otp in erased state 1s*/
                                                          /*also cannot run back-to-back or*/
@@ -7779,14 +8831,15 @@ void F021_FlashConfigInclude()
 
    TNUM_OTP_PROG_ONEPLS                 = 0x31000400;   /*16bit ~~ 0xC400 */
 
-   TNUM_OTP_REFRESH                     = 0x70000000;   /*16bit ~~ 0xC502 reprogrammed OTP data w/o cbits*/
-                                                         /*also ers semi-otp chk/invchk}{was 0x70100000 JRR*/
+   TNUM_OTP_REFRESH                     = 0x70100000;   /*16bit ~~ 0xC502 reprogrammed OTP data w/o cbits*/
+                                                         /*also ers semi-otp chk/invchk*/
    TNUM_OTP_REFRESH_VT                  = 0x70140000;   /*16bit ~~ 0xC503 used for clear DRL VT log in OTP*/
 
    TNUM_OTP_PROG_AVNV_SETTING           = 0x70010000;   /*16bit ~~ 0xC50B write otp avnv setting*/
    TNUM_OTP_PROG_PMOS_SETTING           = 0x71000800;   /*16bit ~~ 0xC50A write otp avnv setting*/
 
    TNUM_OTP_PROG_EFCHKSUM               = 0xA0C01000;   /*no refresh & ef chksum only*/
+   TNUM_OTP_PROG_EFCHKSUM_PUMP_TRIM     = 0xA0C71000;   /*no refresh & ef chksum,bgap,iref,fosc,vsa5,slpct*/
 
 
     /*+++ FLOWBYTE +++*/
@@ -7849,7 +8902,7 @@ void F021_FlashConfigInclude()
    GL_TTR_ENA_VT = true;
    GL_INTEXT_VT_SEARCH_WINDOW = 100mV;
 
-   GL_F021_PARAM_MAXTIME = 110ms;
+   GL_F021_PARAM_MAXTIME = 100ms;
 
    OVRIND_PSU     = 0x01;
    OVRIND_ESU     = 0x02;
@@ -8018,11 +9071,6 @@ void F021_FlashConfigInclude()
 
 
     /*--- artificial (fake) repair ---*/
-    /*Note: var gl_fakerep_count gets increment in WrEngRow. once it reaches gl_fakerep_sampling*/
-    /*then will do fake repair & then reset to 1. the repair solution is upload in PgmOTPTemplate.*/
-   GL_DO_REPAIR = false;
-   GL_FAKEREP_SAMPLING = 5000;  /*repair on every 10th die*/
-   GL_FAKEREP_COUNT = 1;
     /*pre-defined fake repair solution: [bank,block,index]*/
     /*rep sol 32-bit field def -- 31:14=unused, 13=ena, 12=stick (mux32 only), 11:0=Q*/
     /*-- bank0 --*/
@@ -8269,6 +9317,4 @@ void F021_FlashConfigInclude()
  /*           -Other limits changes from test specs.                           */
  /*----------------------------------------------------------------------------*/
  /****************************************************************************/
-
-
 
