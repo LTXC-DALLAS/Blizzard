@@ -472,15 +472,16 @@ StringS IntToVLSIDriveStr(const IntS &tmpint1, const IntS &numBits, const bool &
    int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
    int l_num_bits;
    
-   StringS drive_string = "";
-  
    if (numBits > 32) 
    {
       l_num_bits = 32; // we only deal with 32 bits max
    } else {
       l_num_bits = numBits;
    }
-   
+
+   // reserve enough space in memory for the bits we have
+   StringS drive_string(NULL, l_num_bits);
+
    for (int i = 0; i < l_num_bits; ++i) 
    {
       if (i > 0)
@@ -574,16 +575,16 @@ void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr,
          for (int i = 0; i < 4; ++i)
          {
             switch (bcdStr[*si][i]) {
-               case '0' : binVlsiStr[*si] += "0000"; break;
-               case '1' : binVlsiStr[*si] += "0001"; break;
-               case '2' : binVlsiStr[*si] += "0010"; break;
-               case '3' : binVlsiStr[*si] += "0011"; break;
-               case '4' : binVlsiStr[*si] += "0100"; break;
-               case '5' : binVlsiStr[*si] += "0101"; break;
-               case '6' : binVlsiStr[*si] += "0110"; break;
-               case '7' : binVlsiStr[*si] += "0111"; break;
-               case '8' : binVlsiStr[*si] += "1000"; break;
-               case '9' : binVlsiStr[*si] += "1001"; break;
+               case '0' : binVlsiStr[*si] += "LLLL"; break;
+               case '1' : binVlsiStr[*si] += "LLLH"; break;
+               case '2' : binVlsiStr[*si] += "LLHL"; break;
+               case '3' : binVlsiStr[*si] += "LLHH"; break;
+               case '4' : binVlsiStr[*si] += "LHLL"; break;
+               case '5' : binVlsiStr[*si] += "LHLH"; break;
+               case '6' : binVlsiStr[*si] += "LHHL"; break;
+               case '7' : binVlsiStr[*si] += "LHHH"; break;
+               case '8' : binVlsiStr[*si] += "HLLL"; break;
+               case '9' : binVlsiStr[*si] += "HLLH"; break;
             } // end switch        
          } // end for (walk through bcdStr by character)
       } // end else for if hexValue
@@ -1737,7 +1738,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       SourceArr.Erase();
       for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
       {
-         str2 = "LLL" + addr_str[15-offsetcyc];
+         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
          SourceArr += str2;
       } 
       
@@ -2120,9 +2121,9 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       for (i = 0 ; i < address_list.GetSize(); ++i)
       {
          if (linebrk == 0)
-            cout << endl << "0x" << setw(7) << address_list[i] << "  ";
+            cout << endl << "0x" << setw(7) << address_list[i];
             
-         cout << captured_data[*si][i];  /*msb/lsb*/
+         cout << " " << captured_data[*si][i];  /*msb/lsb*/
          if (++linebrk == 4) // VLCT added 1 to linebrk, then checked = 4
             linebrk = 0;
       }
@@ -2157,33 +2158,36 @@ void DumpRamMailbox()
 
 void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
-                                     IntM ret_val)
+                                     IntM &ret_val)
 {
-   IntS tmpint,site,counter;
+//   IntS tmpint,site,counter;
    IntS curraddr,offsetcyc,index;
    StringS addr_str,str1,str2, cap_name;
    IntM temp_value;
-   StringM tmpArray;
-   PinML pl_arr,pl_failarr;
-   IntS pl_len,plindex,pl_faillen;
-   BoolS debugprint,tmpbool;
+//   StringM tmpArray;
+//   PinML pl_arr,pl_failarr;
+//   IntS pl_len,plindex,pl_faillen;
+   BoolS debugprint;
+   //,tmpbool;
 //   option log_opt;
-   IntS pm_addr,rpt_count,loop_count;
-   IntS scan_block,cycles,src_line;
-   IntS failcount,failindex,fails;
-   IntS lsw_cycle,msw_cycle;
-   IntS fail_cycle,data_nib,dead_cyc;
-   IntS1D data_cycle(9);
+//   IntS pm_addr,rpt_count,loop_count;
+//   IntS scan_block,cycles,src_line;
+//   IntS failcount,failindex,fails;
+//   IntS lsw_cycle,msw_cycle;
+//   IntS fail_cycle,data_nib,dead_cyc;
+//   IntS1D data_cycle(9);
    UnsignedM1D CaptureArr(18);
    UnsignedM1D sim_cap_arr(18, 0);
+   UnsignedS shiftbit, count, maxcapcount;
    StringML SourceArr; 
-   BoolS SaveMemSetBistData;
+//   BoolS SaveMemSetBistData;
    PinML data_pins,data_in;
-   FloatS ttimer1;
-   IntS maxcapcount,istep,count;
-   IntS tnib0,tnib1,tnib2,tnib3;
-   IntS maxsrccount,maskbit,maxiter;
-   IntS shiftbit,evenodd,physaddr;
+//   FloatS ttimer1;
+//   IntS maxcapcount,istep;
+//   IntS tnib0,tnib1,tnib2,tnib3;
+   IntS maxsrccount;
+   //,maskbit,maxiter;
+   IntS evenodd,physaddr;
 //   DCSetUp prevDCSU;
 
 //   Clockstopfreerun(s_clock1a);
@@ -2202,7 +2206,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 
    temp_value = 0;
 
-   tmpArray = "0000000000000000";
+//   tmpArray = "0000000000000000";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -2315,7 +2319,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    cap_name = "CapRam4";
    maxcapcount = 4;
    maxsrccount = 17;
-   istep = 4;
+//   istep = 4;
 
    physaddr = addr_loc>>3;
    evenodd = (addr_loc>>2) & 0x1;
@@ -2341,7 +2345,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
       addr_str = IntToVLSIDriveStr(physaddr, 16, true);
       for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
       {
-         SourceArr += "LLL" + addr_str[15-offsetcyc]; 
+         SourceArr += "LLL" + addr_str.Substring(15-offsetcyc, 1); 
       } 
       StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
       DIGITAL.ModifyVectors(data_in, tpatt, pat_label, SourceArr);      
@@ -2360,13 +2364,15 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
 //         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,false,SourceArr,CaptureArr);
 //      else
-         PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
+      PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
 
       for (count = 0;count < maxcapcount;count++)
       {
          shiftbit = 4*(count);
-         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-            temp_value[*si] = temp_value[*si] + (CaptureArr[*si][count]<<shiftbit);
+         temp_value += (CaptureArr[count] << shiftbit);
+// Remove below 2 lines if the above works
+//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//            temp_value[*si] += (CaptureArr[*si][count]<<shiftbit);
       } 
 //   }
 //   else
@@ -2808,7 +2814,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
     /*-------- use DMLED --------*/
    data_pins = "DMLED_INBUS";
    maxiter = 3;
-   eindex = 13;
+   eindex = 12;
    length = 4;
 
    if(bcd_format)  
@@ -2825,7 +2831,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
        /*address*/
       for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
       {
-         str1 = "LLL" + addr_str[15-offsetcyc];
+         str1 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
          SourceArr += str1;
       } 
       StringS patname = PatternBurst(tpatt).GetPattern(0).GetName();
@@ -14385,41 +14391,41 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      } 
 //   } 
 //}   /* RAM_Upload_SoftTrim */
-//
-//
-//void RAM_Clear_SoftTrim_All()
-//{
-//   IntS site,addr_loc,trimenakey,i;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ RAM_Clear_SoftTrim_All +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_EFSOFTTRIM;
-//      msw_data = 0;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//      for (i = 0;i <= 1;i++)
-//      {
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//      } 
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_EFSOFTTRIM;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(3*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Clear_SoftTrim_All */
+
+
+void RAM_Clear_SoftTrim_All()
+{
+   IntS addr_loc,trimenakey,i;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_EFSOFTTRIM;
+   msw_data = 0;  /*msword*/
+   lsw_data = 0;  /*lsword*/
+
+   //for giggles and debug, read ram before we clear it
+   // Remove after initial RAM function debug!
+   ReadRamAddress(addr_loc, addr_loc+(3*ADDR_RAM_INC));
+
+   if(tistdscreenprint)  
+      cout << "+++++ RAM_Clear_SoftTrim_All +++++" << endl;
+
+   for (i = 0;i <= 1;i++)
+   {
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      addr_loc = addr_loc+ADDR_RAM_INC;
+   } 
+
+   debugprint = true;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_EFSOFTTRIM; 
+      ReadRamAddress(addr_loc,addr_loc+(3*ADDR_RAM_INC));
+   } 
+}   /* RAM_Clear_SoftTrim_All */
 
 BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,

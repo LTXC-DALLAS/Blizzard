@@ -5068,16 +5068,7 @@ TMResultM Pump_Iref_Vnom_func()
 
    F021_LoadFlashShell_func();
 
-/////////////////////////////////////////////////////////:HERE:///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// :TODO: :TODO: Work on RAM_Clear_SoftTrim_All...I only commented out to compile and 
-// hopefully start initial debug on iref measurement. If we're lucky, it isn't needed
-// for iref measurement
-//   RAM_Clear_SoftTrim_All;  /*KChau 09/10/10*/
-   /* powerdownall;
-    pwrupatvnom_1;
-    discard(patternexecute(num_clks,f021_shell_loadpat));
-    wait(10mS);}{temp JRR*/
-   DIGITAL.ExecutePattern(f021_shell_loadpat);
+   RAM_Clear_SoftTrim_All();  /*KChau 09/10/10*/
 
    tcrnum = 126;
    tcrmode = ReadMode;
@@ -5085,11 +5076,7 @@ TMResultM Pump_Iref_Vnom_func()
    F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
 
    // disable failing sites (disables sites w/ false).
-   /////////////////////////////////////////////////////////////////////////////////////
-   // :TODO: :IMPORTANT: 
-   // I can't get DisableFailingSites to work. Get this to work.
-   //RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results == TM_PASS)); 
-   //ActiveSites.DisableFailingSites(final_results == TM_PASS);
+   Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS)); 
    if(ActiveSites.GetNumSites() > 0)  
    {
       tcrnum = 125;
@@ -5098,7 +5085,7 @@ TMResultM Pump_Iref_Vnom_func()
    
    // re-enable any sites we've messed around with 
    // to report the results properly
-//   RunTime.SetActiveSites(initial_sites);
+   RunTime.SetActiveSites(initial_sites);
    return final_results;
 }   /* Pump_Iref_Vnom_func */
 

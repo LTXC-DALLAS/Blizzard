@@ -357,6 +357,11 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
+    __Pattern ramwrite_burst_addr_v3p0 {
+        __File "ramwrite_burst_addr_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
 
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";
