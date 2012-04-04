@@ -1052,3 +1052,83 @@ __GraphicalDebug Bliz_GDT {
         "ALLSUPPLIES+AnalogPower_Pins+DCREF_Pins"; 
     } 
 }
+
+
+__PatternSequence SPD_1_debug {
+    __Thread[0] = a_tft_tk_80_80_1_Thrd;
+    __Thread[1] = a_tft_tk_80_80_2_Thrd;
+    __Thread[2] = a_tft_tk_80_80_3_Thrd;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
+    }
+    __AutoBasePeriod = __True;
+}
+__Test SCAN_PATHDELAY_1_DBG_PG {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = SPD_1_debug;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = a_tft_tk_80_80_1;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'a_tft_tk_80_80_1_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_PDELAY_VMIN'"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[1] = {
+        __Title = a_tft_tk_80_80_2;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'a_tft_tk_80_80_2_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_PDELAY_VMIN'"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[2] = {
+        __Title = a_tft_tk_80_80_3;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'a_tft_tk_80_80_3_Thrd'"; }
+            MinorID = __Expression { __String = "20"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_PDELAY_VMIN'"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}

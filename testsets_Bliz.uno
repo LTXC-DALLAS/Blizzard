@@ -2572,13 +2572,28 @@ __Test FocusCalibration {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = Blizzard_Calibration;
+        __Title = Blizzard_Fixture_Calibration;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FocusCalibration;
+            TestPins = __Expression { __String = "CALPINS"; }
+            CalibrationType = __Expression { __String = "FOCUS_CAL_TYPE_ENUM:CALIBRATE_FIXTURE"; }
+            CalibrationFile = __Expression { __String = "'BlizFixCal'"; }
+            LoadFromFile = __Expression { __String = "FALSE"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+        }
+    }
+    __Block[1] = {
+        __Title = Blizzard_Focus_Calibration_1;
         __WrapCells = __True;
         __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FocusCalibration;
-            TestPins = __Expression { __String = "ALLPINS"; }
+            TestPins = __Expression { __String = "CALPINS"; }
             CalibrationType = __Expression { __String = "FOCUS_CAL_TYPE_ENUM:CALIBRATE_TIMING"; }
+            CalibrationObject = __Expression { __String = "'BlizTimingCal'"; }
             LoadFromFile = __Expression { __String = "FALSE"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -3100,6 +3115,357 @@ __Test Pump_BGAP_Vnom {
         __Title = Block1;
         __TestMethod {
             __Name = Pump_BGap_Vnom_func;
+        }
+    }
+}
+__Test DMLED_Debug_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = debug_ps;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'gpt5_debugP'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test FuncBist_Vmin_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = DMLED_PS;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = can_dmled_st_dummy;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "FALSE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'candmalbtx1rx0_1beat_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = can_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'candmalb_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[2] = {
+        __Title = ssi_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ssi_loopback_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[3] = {
+        __Title = i2c_gpt_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'i2c_gpt_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[4] = {
+        __Title = wdtimer_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'i2c_gpt_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[5] = {
+        __Title = Block6;
+        __TestMethod {
+            __Name = power_up;
+            debug = __Expression { __String = "FALSE"; }
+            wait_time = __Expression { __String = "1ms"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWNominalData"; }
+        }
+    }
+}
+__Test FuseCtlr_func {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FuseFarm_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = CheckFuseCtlr_InitCheck;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_InitCheck_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUSE_ROM_READ'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[1] = {
+        __Title = CheckFuseCtlr_RunAutoload;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_RunAutoload_ENG_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUSE_ROM_READ'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[2] = {
+        __Title = CheckFuseCtlr_CheckROM_Mg0;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'FF_CheckROM_Mg0_ENG_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUSE_ROM_READ'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test FuncBist_Vmax_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = DMLED_PS;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = can_dmled_st_dummy;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "FALSE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'candmalbtx1rx0_1beat_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = can_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'candmalb_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[2] = {
+        __Title = ssi_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ssi_loopback_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[3] = {
+        __Title = i2c_gpt_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'i2c_gpt_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[4] = {
+        __Title = wdtimer_dmled_st;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'i2c_gpt_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+    __Block[5] = {
+        __Title = Block6;
+        __TestMethod {
+            __Name = power_up;
+            debug = __Expression { __String = "FALSE"; }
+            wait_time = __Expression { __String = "1ms"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWNominalData"; }
+        }
+    }
+}
+__Test DieIDPreRead_func {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test DieID_PartialProg_func {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
 }

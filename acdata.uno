@@ -260,7 +260,7 @@ __Spec ACSpecs {
         ACTableIndex = "16";
         twMCC_F = "'G'";
         tper.Min = "10ns";
-        tper.Max = "50ns*10";
+        tper.Max = "50ns";
         tperAsync.Min = "10ns";
         tperAsync.Max = "62.5ns";
         charEn_tper = "TRUE";

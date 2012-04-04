@@ -266,7 +266,6 @@ __PatternSequence SCAN_PATHDELAY_1_PG_PS {
     __Thread[43] = a_tft_tk_80_80_23_Thrd;
     __Thread[44] = a_tft_tk_80_80_41_Thrd;
     __Thread[45] = a_tft_tk_80_80_11_Thrd;
-    __Thread[46] = a_tft_tk_80_80_7_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
@@ -503,12 +502,13 @@ __Thread a_tft_tk_80_80_6_Thrd {
         __PatternLabel = __Expression { __String = "a_tft_tk_80_80_6.a_tft_tk_80_80_6_st"; }
     }
 }
-__Thread a_tft_tk_80_80_7_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "a_tft_tk_80_80_7.a_tft_tk_80_80_7_st"; }
-    }
-}
+//This pattern doesn't exist
+//__Thread a_tft_tk_80_80_7_Thrd {
+//    __Row {
+//        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+//        __PatternLabel = __Expression { __String = "a_tft_tk_80_80_7.a_tft_tk_80_80_7_st"; }
+//    }
+//}
 __Thread a_tft_tk_80_80_8_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
@@ -1994,6 +1994,395 @@ __PatternSequence SCAN_SA_PG_PS {
     __Thread[25] = a_st_tk_1_v22SH1_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
+    }
+    __AutoBasePeriod = __True;
+}
+__PatternSequence BIST_PROD_DEBUG {
+    __Thread[0] = March13N_Debug;
+    __Thread[1] = MapCol_Debug;
+    __Thread[2] = DTxn2_Debug;
+    __Thread[3] = Flip10_Debug;
+    __Thread[4] = Down2_Debug;
+    __Thread[5] = FTR_Debug;
+    __Thread[6] = PMOSOpen_Debug;
+    __Thread[7] = Precharge_Debug;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT17_eng = { WFT17_eng } }
+    }
+    __AutoBasePeriod = __True;
+}
+__Thread MapCol_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_mapcol_1p_ENG.pb_pb_mapcol_1p_ENG_st"; }
+    }
+}
+__Thread March13N_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_march13n_1p_ENG.pb_pb_march13n_1p_ENG_st"; }
+    }
+}
+__Thread DTxn2_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_dtxn2_1p_ENG.pb_pb_dtxn2_1p_ENG_st"; }
+    }
+}
+__Thread Flip10_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_flip10_1p_ENG.pb_pb_flip10_1p_ENG_st"; }
+    }
+}
+__Thread Down2_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_down2_1p_ENG.pb_pb_down2_1p_ENG_st"; }
+    }
+}
+__Thread FTR_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_ftr_ENG.pb_pb_ftr_ENG_st"; }
+    }
+}
+__Thread PMOSOpen_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_pmos_open_1p_v22_ENG.pb_pb_pmos_open_1p_v22_ENG_st"; }
+    }
+}
+__Thread Precharge_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_precharge_1p_ENG.pb_pb_precharge_1p_ENG_st"; }
+    }
+}
+__Thread PTR_Debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_ptr_ENG.pb_pb_ptr_ENG_st"; }
+    }
+}
+__PatternSequence DMLED_PS {
+    __Thread[0] = candmalbtx1rx0_1beat_Thrd;
+    __Thread[1] = candmalbtx0rx1_1beat_Thrd;
+    __Thread[2] = ssi0_loopback_pll_b_Thrd;
+    __Thread[3] = ssi1_loopback_pll_b_Thrd;
+    __Thread[4] = ssi2_loopback_pll_b_Thrd;
+    __Thread[5] = ssi3_loopback_pll_b_Thrd;
+    __Thread[6] = i2c0_dma_Thrd;
+    __Thread[7] = i2c1_dma_Thrd;
+    __Thread[8] = i2c2_dma_Thrd;
+    __Thread[9] = i2c3_dma_Thrd;
+    __Thread[10] = i2c4_dma_Thrd;
+    __Thread[11] = gpt0_1s_32_down_Thrd;
+    __Thread[12] = gpt1_1s_32_down_Thrd;
+    __Thread[13] = gpt2_1s_32_down_Thrd;
+    __Thread[14] = gpt3_1s_32_down_Thrd;
+    __Thread[15] = gpt4_1s_32_down_Thrd;
+    __Thread[16] = gpt5_1s_32_down_Thrd;
+    __Thread[17] = gpt6_per_32_down_Thrd;
+    __Thread[18] = gpt7_per_32_down_Thrd;
+    __Thread[19] = gpt8_per_32_down_Thrd;
+    __Thread[20] = gpt9_per_32_down_Thrd;
+    __Thread[21] = gpt10_per_32_down_Thrd;
+    __Thread[22] = gpt11_per_32_down_Thrd;
+    __Thread[23] = gpt5_debug;
+    __Thread[24] = gpt5_debugP;
+    __Thread[25] = gpt5_debugF;
+    __Thread[26] = candmalb_Thrd;
+    __Thread[27] = ssi_loopback_Thrd;
+    __Thread[28] = i2c_gpt_Thrd;
+    __Thread[29] = wd_timer_Thrd;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT9 = { WFT9 } }
+        __Row { TDLStdPatGrp, WFT23 = { WFT23 } }
+        __Row { TDLStdPatGrp, WFT24 = { WFT24 } }
+        __Row { TDLStdPatGrp, WFT8 = { WFT8 } }
+    }
+    __AutoBasePeriod = __True;
+}
+__Thread candmalbtx1rx0_1beat_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "candmalbtx1rx0_1beat_DPM.candmalbtx1rx0_1beat_DPM_st"; }
+    }
+}
+__Thread candmalbtx0rx1_1beat_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "candmalbtx0rx1_1beat_DPM.candmalbtx0rx1_1beat_DPM_st"; }
+    }
+}
+__Thread ssi0_loopback_pll_b_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi0_loopback_pll_b.ssi0_loopback_pll_b_st"; }
+    }
+}
+__Thread ssi1_loopback_pll_b_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi1_loopback_pll_b.ssi1_loopback_pll_b_st"; }
+    }
+}
+__Thread ssi2_loopback_pll_b_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi2_loopback_pll_b.ssi2_loopback_pll_b_st"; }
+    }
+}
+__Thread ssi3_loopback_pll_b_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi3_loopback_pll_b.ssi3_loopback_pll_b_st"; }
+    }
+}
+__Thread i2c0_dma_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi3_loopback_pll_b.ssi3_loopback_pll_b_st"; }
+    }
+}
+
+__Thread i2c1_dma_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi1_loopback_pll_b.ssi1_loopback_pll_b_st"; }
+    }
+}
+
+__Thread i2c2_dma_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "i2c2_dma_DPM.i2c2_dma_DPM_st"; }
+    }
+}
+
+__Thread i2c3_dma_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "i2c3_dma_DPM.i2c3_dma_DPM_st"; }
+    }
+}
+
+__Thread i2c4_dma_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "i2c4_dma_DPM.i2c4_dma_DPM_st"; }
+    }
+}
+
+ 
+__Thread gpt0_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt0_1s_32_down.gpt0_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt1_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt1_1s_32_down.gpt1_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt2_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt2_1s_32_down.gpt2_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt3_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt3_1s_32_down.gpt3_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt4_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt4_1s_32_down.gpt4_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt5_1s_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt5_1s_32_down.gpt5_1s_32_down_st"; }
+    }
+}
+
+__Thread gpt6_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt6_per_32_down.gpt6_per_32_down_st"; }
+    }
+}
+
+__Thread gpt7_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt7_per_32_down.gpt7_per_32_down_st"; }
+    }
+}
+
+__Thread gpt8_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt8_per_32_down.gpt8_per_32_down_st"; }
+    }
+}
+
+__Thread gpt9_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt9_per_32_down.gpt9_per_32_down_st"; }
+    }
+}
+
+__Thread gpt10_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi3_loopback_pll_b.ssi3_loopback_pll_b_st"; }
+    }
+}
+
+__Thread gpt11_per_32_down_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ssi3_loopback_pll_b.ssi3_loopback_pll_b_st"; }
+    }
+}
+__Thread gpt5_debug {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt5_1s_32_down_DBG.gpt5_1s_32_down_st"; }
+    }
+}
+__Thread gpt5_debugP {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt5_1s_32_down_DBGP.gpt5_1s_32_down_st"; }
+    }
+}
+__Thread gpt5_debugF {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt5_1s_32_down_DBGF.gpt5_1s_32_down_st"; }
+    }
+}
+__Thread candmalb_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Enter"; }
+        __Pattern = candmalbtx1rx0_1beat_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Exit"; }
+        __Pattern = candmalbtx0rx1_1beat_DPM;
+    }
+}
+__Thread i2c_gpt_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Enter"; }
+        __Pattern = i2c0_dma_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = i2c1_dma_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = i2c2_dma_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = i2c3_dma_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = i2c4_dma_DPM;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt0_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt1_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt2_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt3_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt4_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt5_1s_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt6_per_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt7_per_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt8_per_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = gpt9_per_32_down;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "gpt10_per_32_down.gpt10_per_32_down_st"; }
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Exit"; }
+        __Pattern = gpt11_per_32_down;
+    }
+}
+__Thread ssi_loopback_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Enter"; }
+        __Pattern = ssi0_loopback_pll_b;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = ssi1_loopback_pll_b;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Continue"; }
+        __Pattern = ssi2_loopback_pll_b;
+    }
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:Exit"; }
+        __Pattern = ssi3_loopback_pll_b;
+    }
+}
+__Thread wd_timer_Thrd {
+}
+__PatternSequence debug_ps {
+    __Thread[0] = gpt5_debug;
+    __Thread[1] = gpt5_debugP;
+    __Thread[2] = gpt5_debugF;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT8 = { WFT8 } }
     }
     __AutoBasePeriod = __True;
 }

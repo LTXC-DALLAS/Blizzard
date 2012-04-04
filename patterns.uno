@@ -282,6 +282,14 @@ __PatternMap DefaultPatternMap {
         __File "ScanDebugVVS";
         __Path "./Patterns/Ascii";
     }
+    __Pattern fancontrol_reg_rdwr {
+        __File "fancontrol_reg_rdwr";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern wdtimer0_reset_pll_v23 {
+        __File "wdtimer0_reset_pll_v23";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern a_st_tk_1_DSH {
         __File "a_st_tk_1_DSH";
         __Path "./Patterns/Ascii";
@@ -718,6 +726,80 @@ __PatternMap DefaultPatternMap {
         __File "i2c4_dma_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern gpt0_1s_32_down {
+        __File "gpt0_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt1_1s_32_down {
+        __File "gpt1_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt2_1s_32_down {
+        __File "gpt2_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt3_1s_32_down {
+        __File "gpt3_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt4_1s_32_down {
+        __File "gpt4_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt5_1s_32_down_DBG {
+        __File "gpt5_1s_32_down_DBG";
+        __Path "./Patterns/Ascii";
+    }
+//This pattern should pass
+    __Pattern gpt5_1s_32_down_DBGP {
+        __File "gpt5_1s_32_down_DBGP";
+        __Path "./Patterns/Ascii";
+    }
+//This pattern should fail because there are not enough matchvector cycles to see the cpu done signal
+    __Pattern gpt5_1s_32_down_DBGF {
+        __File "gpt5_1s_32_down_DBGF";
+        __Path "./Patterns/Ascii";
+    }
+//This pattern should fail because there are not enough matchvector cycles to see the cpu done signal
+//In this pattern the second MATCHVECTOR microinstruction has been replaced by a repeat & single strobe
+    __Pattern gpt5_1s_32_down_DBGF1 {
+        __File "gpt5_1s_32_down_DBGF1";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt5_1s_32_down {
+        __File "gpt5_1s_32_down";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern gpt6_per_32_down {
+        __File "gpt6_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern gpt7_per_32_down {
+        __File "gpt7_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern gpt8_per_32_down {
+        __File "gpt8_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern gpt9_per_32_down {
+        __File "gpt9_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern gpt10_per_32_down {
+        __File "gpt10_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern gpt11_per_32_down {
+        __File "gpt11_per_32_down";
+        __Path "./Patterns/Ascii";
+    }
+
     __Pattern iosc_obs_DPM {
         __File "iosc_obs_DPM";
         __Path "./Patterns/Ascii";
@@ -746,12 +828,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_down2_1p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_down2_1p_ENG {
+        __File "pb_pb_down2_1p_ENG";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_down2_2p_DPM {
         __File "pb_pb_down2_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_dtxn2_1p_DPM {
         __File "pb_pb_dtxn2_1p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_dtxn2_1p_ENG {
+        __File "pb_pb_dtxn2_1p_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_dtxn2_2p_DPM {
@@ -762,12 +852,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_flip10_1p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_flip10_1p_ENG {
+        __File "pb_pb_flip10_1p_ENG";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_flip10_2p_DPM {
         __File "pb_pb_flip10_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_ftr_DPM {
         __File "pb_pb_ftr_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_ftr_ENG {
+        __File "pb_pb_ftr_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_mapcol_1p_DPM {
@@ -798,6 +896,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_pmos_open_1p_v22_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_pmos_open_1p_v22_ENG {
+        __File "pb_pb_pmos_open_1p_v22_ENG";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_pmos_open_2p_DPM {
         __File "pb_pb_pmos_open_2p_DPM";
         __Path "./Patterns/Ascii";
@@ -806,12 +908,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_precharge_1p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_precharge_1p_ENG {
+        __File "pb_pb_precharge_1p_ENG";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_precharge_2p_DPM {
         __File "pb_pb_precharge_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_ptr_DPM {
         __File "pb_pb_ptr_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_ptr_ENG {
+        __File "pb_pb_ptr_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_wrenz_DPM {

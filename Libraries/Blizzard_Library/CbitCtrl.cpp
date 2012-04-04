@@ -200,7 +200,7 @@ UnsignedSL EcbitReadCpld ()
         /////////////////////////////////////// :HACK: //////////////////////////////////////////////
         /////////////////////////////////////// :HACK: //////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////////////
-        SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_REVISION_REGISTER_ADDRESS, reg_data_read, ECBIT_VALID_REVISION);
+//        SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_REVISION_REGISTER_ADDRESS, reg_data_read, ECBIT_VALID_REVISION);
         if (reg_data_read == ECBIT_VALID_REVISION)  // we found a valid Ecbit module
         {
             for (IntS block_num = 0; block_num < 16; block_num++)
@@ -209,7 +209,7 @@ UnsignedSL EcbitReadCpld ()
                 SYS.WriteDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_BLOCK_REGISTER_ADDRESS, (int)reg_data);
                 for (IntS reg_num = 0; reg_num < 4; reg_num++)
                 {
-                    SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_CBIT_REGISTER_ADDRESSES[reg_num], reg_data_read, sim_data);
+//                    SYS.ReadDUTBus(SYS_BUS_PARALLEL, cage_num, ECBIT_CBIT_REGISTER_ADDRESSES[reg_num], reg_data_read, sim_data);
                     for (UnsignedS i = 0; i < 4; i++)
                     {
                         if (reg_data_read & (1 << (i*2)))
