@@ -640,7 +640,7 @@ TMResultM F021_InitFLGlobalvars_func();
 //void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
 //void RAM_Clear_PMOS_SoftTrim();
 //void GetTrimCode_On_EFStr();
-//void RAM_Upload_PMOS_TrimCode();
+void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
 //BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //void TL_Mod_OTP_PMOS_SoftTrim();
@@ -756,6 +756,8 @@ TMResultM F021_InitFLGlobalvars_func();
 //#if $FL_USE_DCC_TRIM_FOSC=FALSE then
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
+
+void PowerUpDn( PowerUpType );
 
 #endif
 

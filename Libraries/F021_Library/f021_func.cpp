@@ -14386,100 +14386,91 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //}   /* GetTrimCode_On_EFStr */
 //
 //
-//void RAM_Upload_PMOS_TrimCode()
-//{
-//   IntS site,addr_loc,trimenakey,bank,maxbk,i;
-//   IntM msw_data,lsw_data,edata,odata;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint,logena,sbool1;
-//   StringS str1,str2,str3;
-//   StringM logstr;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ RAM_Upload_PMOS_TrimCode +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0xaa55;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = IPMOS_BANKENA_LSW;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      logena = false;  /*log trimcode str to tw*/
-//      if(logena)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               logstr[site] = "";
-//
-//      maxbk = F021_Flash.MAXBANK;
-//      
-//      for bank = 0 to maxbk by 2 do
-//      {
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//         edata = IPMOS_TRIMCODE_VAL[bank][0];  /*even*/
-//         ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
-//         odata = IPMOS_TRIMCODE_VAL[bank][1];  /*odd*/
-//         ArrayAddInteger(msw_data,edata,odata,v_sites);
-//
-//         if((bank==maxbk) and ((bank mod 2)==0))  
-//            sbool1 = true;
-//         else
-//            sbool1 = false;
-//
-//         if(sbool1)  
-//            lsw_data = 0; /*dummy*/
-//         else
-//         {
-//            edata = IPMOS_TRIMCODE_VAL[bank+1][0];  /*even*/
-//            ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
-//            odata = IPMOS_TRIMCODE_VAL[bank+1][1];  /*odd*/
-//            ArrayAddInteger(lsw_data,edata,odata,v_sites);
-//         } 
-//            
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//         if(logena)  
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  writestring(str2,msw_data[site]:s_hex:1);
-//                  if(bank!=0)  
-//                  {
-//                     i = len(str2);
-//                     str2 = mid(str2,3,i-2);  /*remove 0x*/
-//                  } 
-//                  logstr[site] = logstr[site] + str2;
-//                  
-//                  if(not sbool1)  
-//                  {
-//                     writestring(str2,lsw_data[site]:s_hex:1);
-//                     i = len(str2);
-//                     str2 = mid(str2,3,i-2);
-//                     logstr[site] = logstr[site] + str2;
-//                  } 
-//               }   /*if v_dev_act*/
-//      } 
-//
-//      if(logena)  
-//      {
-//         str1 = "IPMOS_TRIMCODE_STR";
-//         TWPDLDataLogText(str1,logstr,TWMinimumData);
-//      } 
-//
-//      debugprint = tiprintpass and ti_flashdebug;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Upload_PMOS_TrimCode */
+void RAM_Upload_PMOS_TrimCode() {
+   IntS    site,addr_loc,trimenakey,bank,maxbk,i;
+   IntM    msw_data,lsw_data,edata,odata;
+   BoolS   bcd_format,hexvalue;
+   BoolS   debugprint,logena,sbool1;
+   StringS str1,str2,str3;
+   StringM logstr;
+
+   if(tistdscreenprint)  
+      cout << "+++++ RAM_Upload_PMOS_TrimCode +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0xaa55;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = IPMOS_BANKENA_LSW;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   logena = false;  /*log trimcode str to tw*/
+   if(logena)  
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(v_dev_active[site])  
+            logstr[site] = "";
+
+   maxbk = F021_Flash.MAXBANK;
+   
+   for ( bank = 0; bank <= maxbk; bank += 2 ) {
+      addr_loc = addr_loc+ADDR_RAM_INC;
+      edata = IPMOS_TRIMCODE_VAL[bank][0];  /*even*/
+      ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
+      odata = IPMOS_TRIMCODE_VAL[bank][1];  /*odd*/
+      ArrayAddInteger(msw_data,edata,odata,v_sites);
+
+      if((bank==maxbk) and ((bank mod 2)==0))  
+         sbool1 = true;
+      else
+         sbool1 = false;
+
+      if(sbool1)  
+         lsw_data = 0; /*dummy*/
+      else {
+         edata = IPMOS_TRIMCODE_VAL[bank+1][0];  /*even*/
+         ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
+         odata = IPMOS_TRIMCODE_VAL[bank+1][1];  /*odd*/
+         ArrayAddInteger(lsw_data,edata,odata,v_sites);
+      } 
+         
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+      if(logena)  
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            if(v_dev_active[site]) {
+               writestring(str2,msw_data[site]:s_hex:1);
+               if(bank!=0)  
+               {
+                  i = len(str2);
+                  str2 = mid(str2,3,i-2);  /*remove 0x*/
+               } 
+               logstr[site] = logstr[site] + str2;
+               
+               if(not sbool1)  
+               {
+                  writestring(str2,lsw_data[site]:s_hex:1);
+                  i = len(str2);
+                  str2 = mid(str2,3,i-2);
+                  logstr[site] = logstr[site] + str2;
+               } 
+            }   /*if v_dev_act*/
+   } 
+
+   if(logena) {
+      str1 = "IPMOS_TRIMCODE_STR";
+      TWPDLDataLogText(str1,logstr,TWMinimumData);
+   } 
+
+   debugprint = tiprintpass and ti_flashdebug;
+   if(tistdscreenprint and debugprint) {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(v_dev_active[site])  
+            readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
+   }  
+}   /* RAM_Upload_PMOS_TrimCode */
 //
 // /*pump efuse soft trim*/
 // /*note: bg=upper 8bit, iref=lower 8bit @0xd6, vsa5ct=upper 8bit, slopect=lower 8bit @0xd8, fosc=upper 8bit @0xda*/
@@ -36043,5 +36034,50 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //   F021_FOSC_SoftTrim_External_func = v_any_dev_active;
 //}   /* F021_FOSC_SoftTrim_External_func */
 //#endif
-//   
 
+// Additions to the LevelSetPS switch statement must be reflected
+// in the PowerUpType enum definition (f021_flashglobal.h)
+void PowerUpDn ( PowerUpType ps_Val ) {
+   // Execute PowerUp routine as execution of Levels object
+   Levels ps_lev;
+   BoolS  bad_lev = false;
+   IntS num_cols = 0;
+   LevelsSeqPowerInfo seq_info;
+   LevelsVIInfo vi_info;
+   StringS   ps_pin;
+   FloatM ps_val;
+   
+   switch ( ps_Val ) {
+      case PWRDN_ALL:       ps_lev = "DCSetup_PowerDown";      break;
+      case PWRUP_VMIN:      ps_lev = "DCSetup_LooseVMin";      break;
+      case PWRUP_VNOM:      ps_lev = "DCSetup_LooseVNom";      break;
+      case PWRUP_VMAX:      ps_lev = "DCSetup_LooseVMax";      break;
+      case PWRUP_EFUSEREAD: ps_lev = "DCSetup_LooseEFuseRead"; break;
+      default:
+         bad_lev = true;
+         ERR.ReportError(ERR_GENERIC_ADVISORY, "Existing Levels being used for Power Up", UTL_VOID, NO_SITES, UTL_VOID);
+         break;
+   }
+   
+   if ( !bad_lev ) {
+      ps_lev.Execute();
+   
+      if ( tistdscreenprint ) {
+         num_cols = ps_lev.GetNumberOfColumns();
+         for ( int ii = 0; ii < num_cols; ++ii ) {
+            if ( ps_lev.GetColumnType(ii) == SEQ_POWER_COLUMN ) {
+               seq_info = ps_lev.GetSequencedPowerInfo(ii);
+               ps_pin = seq_info.Pins.GetName();
+               ps_val = seq_info.PowerSupply;
+            }
+            if ( ps_lev.GetColumnType(ii) == VI_COLUMN ) {
+               vi_info = ps_lev.GetVIInfo(ii);
+               ps_pin = vi_info.Pins.GetName();
+               ps_val = vi_info.ForceValue;
+            }
+            
+            cout << "   Supply: " << ps_pin << " @ " << ps_val << endl;
+         }
+      }
+   }
+}
