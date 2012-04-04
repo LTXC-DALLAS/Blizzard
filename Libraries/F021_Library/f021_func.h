@@ -95,7 +95,7 @@ TMResultM F021_LoadFlashShell_func();
 
 void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
-                                     IntM ret_val);
+                                     IntM &ret_val);
 
 void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr, 
                            StringM &binVlsiStr, const BoolS &hexValue);
@@ -616,8 +616,8 @@ TMResultM F021_InitFLGlobalvars_func();
 //                              IntM FOSCVal,
 //                              IntM VHVSLPVal,
 //                              IntM VSA5CTVal);
-//void RAM_Clear_SoftTrim_All();
-//
+void RAM_Clear_SoftTrim_All();
+
 //BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results);
