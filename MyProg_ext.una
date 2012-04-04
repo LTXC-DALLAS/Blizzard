@@ -213,7 +213,7 @@ __ExternalRef {
 /***  the standards necessary.                                       ***/
 /***********************************************************************/
 __ExternalRef {
-   __Path = "/u/ccook/gitRepo/Customers/TI/stdprogramP";
+   __Path = "/u/TI_apps/enVision/stdprogram";
    __File = "TIexterns.uno";
 }
 

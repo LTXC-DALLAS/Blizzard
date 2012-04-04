@@ -1501,6 +1501,23 @@ __BinMap ATSite_BinMap_Probe {
     __Bin F_LEAK_IOZ_Vmax_PM85 = 30;
     __Bin F_OS_CRES = 65;
     __Bin evDefaultBin = 0;
+    __Bin F_FUNC_ATPG_VMIN = 19;
+    __Bin F_FUNC_PDELAY_VMIN = 19;
+    __Bin F_FUNC_RAM_VMIN = 19;
+    __Bin F_FUNC_ATPG_VBOXHI = 19;
+    __Bin F_FUNC_RAM_VBOXHI = 19;
+    __Bin F_FUNC_ATPG_VMAX = 19;
+    __Bin F_FUNC_RAM_VMAX = 19;
+    __Bin F_FUNC_ATPG_VBOXLO = 19;
+    __Bin F_FUNC_RAM_VBOXLO = 19;
+    __Bin F_FUNC_SRCH_PRE = 23;
+    __Bin F_FUNC_FSRCH_PRE = 23;
+    __Bin F_FUNC_FSRCH_PST = 23;
+    __Bin F_LEAK_IDDQ_POST = 23;
+    __Bin F_LEAK_IDDQ_DELTA = 23;
+    __Bin F_FUNC_IDDQ = 23;
+    __Bin F_LEAK_IOZ = 29;
+    __Bin F_LEVEL = 19;
 }
 
 /**************************************************/
