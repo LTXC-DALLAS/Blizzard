@@ -193,81 +193,75 @@ extern StringS1D TestOptFieldArr; /* = array[1..20] of tistring80; */ /* :MANUAL
 struct Flash_TCR_Rec {
    BoolS1D TP1_Ena;
    TPMeasType TP1_MeasType[129];
-   /* array[0..128] of TPMeasType TP1_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TP1_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TP1_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TP1_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP1_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP1_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TP1_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TP1_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TP1_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TP1_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModetype */  /*step/resolution voltage for char*/
+   FloatS2D TP1_VRange;  /*force voltage or range*/
+   FloatS2D TP1_IRange;  /*current range/load*/
+   FloatS2D TP1_ULim; 
+   FloatS2D TP1_LLim; 
+   FloatS2D TP1_FTime;   /*time duration, e.g. stress time*/
+   FloatS2D TP1_TDelay;   /*meas delay time*/
+   FloatS2D TP1_VCharLo;   /*start force voltage for char*/
+   FloatS2D TP1_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TP1_VCharRes;   /*step/resolution voltage for char*/
 
    BoolS1D TP2_Ena;
    TPMeasType TP2_MeasType[129];
-   /* array[0..128] of TPMeasType TP2_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TP2_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TP2_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TP2_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP2_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP2_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TP2_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TP2_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TP2_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TP2_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*step/resolution voltage for char*/
+   FloatS2D TP2_VRange;   /*force voltage or range*/
+   FloatS2D TP2_IRange;   /*current range/load*/
+   FloatS2D TP2_ULim; 
+   FloatS2D TP2_LLim; 
+   FloatS2D TP2_FTime;   /*time duration, e.g. stress time*/
+   FloatS2D TP2_TDelay;   /*meas delay time*/
+   FloatS2D TP2_VCharLo;   /*start force voltage for char*/
+   FloatS2D TP2_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TP2_VCharRes;   /*step/resolution voltage for char*/
 
    BoolS1D TP3_Ena;
    TPMeasType TP3_MeasType[129];
-   /* array[0..128] of TPMeasType TP3_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TP3_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TP3_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TP3_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP3_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP3_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TP3_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TP3_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TP3_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TP3_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*step/resolution voltage for char*/
+   FloatS2D TP3_VRange;   /*force voltage or range*/
+   FloatS2D TP3_IRange;   /*current range/load*/
+   FloatS2D TP3_ULim; 
+   FloatS2D TP3_LLim; 
+   FloatS2D TP3_FTime;  /*time duration, e.g. stress time*/
+   FloatS2D TP3_TDelay;   /*meas delay time*/
+   FloatS2D TP3_VCharLo;   /*start force voltage for char*/
+   FloatS2D TP3_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TP3_VCharRes;   /*step/resolution voltage for char*/
 
    BoolS1D TP4_Ena;
    TPMeasType TP4_MeasType[129];
-   /* array[0..128] of TPMeasType TP4_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TP4_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TP4_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TP4_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP4_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP4_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TP4_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TP4_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TP4_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TP4_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*step/resolution voltage for char*/
+   FloatS2D TP4_VRange;   /*force voltage or range*/
+   FloatS2D TP4_IRange;   /*current range/load*/
+   FloatS2D TP4_ULim; 
+   FloatS2D TP4_LLim; 
+   FloatS2D TP4_FTime;   /*time duration, e.g. stress time*/
+   FloatS2D TP4_TDelay;   /*meas delay time*/
+   FloatS2D TP4_VCharLo;   /*start force voltage for char*/
+   FloatS2D TP4_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TP4_VCharRes;   /*step/resolution voltage for char*/
 
    BoolS1D TP5_Ena;
    TPMeasType TP5_MeasType[129];
-   /* array[0..128] of TPMeasType TP5_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TP5_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TP5_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TP5_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP5_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TP5_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TP5_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TP5_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TP5_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TP5_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*step/resolution voltage for char*/
+   FloatS2D TP5_VRange;   /*force voltage or range*/
+   FloatS2D TP5_IRange;   /*current range/load*/
+   FloatS2D TP5_ULim; 
+   FloatS2D TP5_LLim; 
+   FloatS2D TP5_FTime;   /*time duration, e.g. stress time*/
+   FloatS2D TP5_TDelay;   /*meas delay time*/
+   FloatS2D TP5_VCharLo;   /*start force voltage for char*/
+   FloatS2D TP5_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TP5_VCharRes;   /*step/resolution voltage for char*/
 
    BoolS1D TADC_Ena;
    TPMeasType TADC_MeasType[129];
-   /* array[0..128] of TPMeasType TADC_MeasType; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : 0..128 */
-   FloatS2D TADC_VRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*force voltage or range*/
-   FloatS2D TADC_IRange; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*current range/load*/
-   FloatS2D TADC_ULim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TADC_LLim; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */
-   FloatS2D TADC_FTime; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*time duration, e.g. stress time*/
-   FloatS2D TADC_TDelay; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*meas delay time*/
-   FloatS2D TADC_VCharLo; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*start force voltage for char*/
-   FloatS2D TADC_VCharHi; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*stop force voltage for char*/
-   FloatS2D TADC_VCharRes; /* :MANUAL FIX REQUIRED: array dimensions are : 0..128,TPModeType */  /*step/resolution voltage for char*/
+   FloatS2D TADC_VRange;   /*force voltage or range*/
+   FloatS2D TADC_IRange;   /*current range/load*/
+   FloatS2D TADC_ULim; 
+   FloatS2D TADC_LLim; 
+   FloatS2D TADC_FTime;   /*time duration, e.g. stress time*/
+   FloatS2D TADC_TDelay;   /*meas delay time*/
+   FloatS2D TADC_VCharLo;   /*start force voltage for char*/
+   FloatS2D TADC_VCharHi;   /*stop force voltage for char*/
+   FloatS2D TADC_VCharRes;   /*step/resolution voltage for char*/
 
    Flash_TCR_Rec() : 
                       TP1_Ena(129), TP1_VRange(129,6), TP1_IRange(129,6), TP1_ULim(129,6),
@@ -303,27 +297,26 @@ struct Flash_ESDA_Rec {
 
 
 struct FlashVTBCCRec {
-   BoolS2D ENA; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   BoolS2D ENARED; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   BoolS2D DLOGONLY; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D SSTART; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D SSTOP; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D SRESOL; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D LLIM; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D ULIM; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D LLIM_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   FloatS2D ULIM_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   IntS2D TCRNUM; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   IntS2D IRATIO; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   IntS2D RDOPTION; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,prepostcorner */
-   IntS1D MEMCFG; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   IntS1D TDATA; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   FloatS1D LDELTA; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   FloatS1D UDELTA; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   FloatS1D LDELTA_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
-   FloatS1D UDELTA_EMU; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
+   BoolS2D ENA; 
+   BoolS2D ENARED; 
+   BoolS2D DLOGONLY; 
+   FloatS2D SSTART; 
+   FloatS2D SSTOP; 
+   FloatS2D SRESOL; 
+   FloatS2D LLIM; 
+   FloatS2D ULIM; 
+   FloatS2D LLIM_EMU; 
+   FloatS2D ULIM_EMU; 
+   IntS2D TCRNUM; 
+   IntS2D IRATIO; 
+   IntS2D RDOPTION; 
+   IntS1D MEMCFG; 
+   IntS1D TDATA; 
+   FloatS1D LDELTA; 
+   FloatS1D UDELTA; 
+   FloatS1D LDELTA_EMU; 
+   FloatS1D UDELTA_EMU; 
    vttype PREVTYPE[25];
-   /* array[vttype] of vttype PREVTYPE; */ /* Unknown Array type :MANUAL FIX REQUIRED: */ /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
    
    FlashVTBCCRec() : ENA(25,2), ENARED(25,2), DLOGONLY(25,2), SSTART(25,2),
                      SSTOP(25,2), SRESOL(25,2), LLIM(25,2), ULIM(25,2), 
@@ -334,8 +327,8 @@ struct FlashVTBCCRec {
 
 
 struct FlashStressRec {
-   IntS2D TPUPSEQ; /* :MANUAL FIX REQUIRED: array dimensions are : vttype,1..5 */
-   StringS1D STRESSNAME; /* :MANUAL FIX REQUIRED: array dimensions are : vttype */
+   IntS2D TPUPSEQ; 
+   StringS1D STRESSNAME; 
    
    // :HACK: only need 5 values, but since converting over code, 
    // make TPUPSEQ size 6 so loops in code are ok

@@ -154,9 +154,9 @@ TMResultM TIDatalog::ValueLS (const FloatM &dataToTest, const PinML &testPins, L
     if (gCloFunction == CLO_NONE)
     {
         if (testPins.Valid() && (testPins.GetNumPins() > 0))
-            DLOG.ValueLS (testPins, dataToTest, testLimit);
+            test_result = DLOG.ValueLS (testPins, dataToTest, testLimit);
         else
-            DLOG.ValueLS (dataToTest, testLimit);
+            test_result = DLOG.ValueLS (dataToTest, testLimit);
             
     // :TODO: Add in FAIL_TEST stuff...not sure how to do it using standard
     // TWPDL calls just yet
@@ -233,9 +233,9 @@ TMResultM TIDatalog::ValueLS (const FloatM1D &dataToTest, const PinML &testPins,
     if (gCloFunction == CLO_NONE)
     {
         if (testPins.Valid() && (testPins.GetNumPins() > 0))
-            DLOG.ValueLS (testPins, dataToTest, testLimit);
+            test_result = DLOG.ValueLS (testPins, dataToTest, testLimit);
         else
-            DLOG.ValueLS (dataToTest, testLimit);
+            test_result = DLOG.ValueLS (dataToTest, testLimit);
             
     // :TODO: Add in FAIL_TEST stuff...not sure how to do it using standard
     // TWPDL calls just yet
@@ -369,9 +369,9 @@ TMResultM TIDatalog::ValueLS (const IntM &dataToTest, const PinML &testPins, Lim
     if (gCloFunction == CLO_NONE)
     {
         if (testPins.Valid() && (testPins.GetNumPins() > 0))
-            DLOG.ValueLS (testPins, dataToTest, testLimit);
+            test_result = DLOG.ValueLS (testPins, dataToTest, testLimit);
         else
-            DLOG.ValueLS (dataToTest, testLimit);    
+            test_result = DLOG.ValueLS (dataToTest, testLimit);    
             
     // :TODO: Add in FAIL_TEST stuff...not sure how to do it using standard
     // TWPDL calls just yet
@@ -429,9 +429,9 @@ TMResultM TIDatalog::ValueLS (const IntM1D &dataToTest, const PinML &testPins, L
     if (gCloFunction == CLO_NONE)
     {
         if (testPins.Valid() && (testPins.GetNumPins() > 0))
-            DLOG.ValueLS (testPins, dataToTest, testLimit);
+            test_result = DLOG.ValueLS (testPins, dataToTest, testLimit);
         else
-            DLOG.ValueLS (dataToTest, testLimit);
+            test_result = DLOG.ValueLS (dataToTest, testLimit);
     
     // :TODO: Add in FAIL_TEST stuff...not sure how to do it using standard
     // TWPDL calls just yet
