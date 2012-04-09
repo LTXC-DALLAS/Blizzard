@@ -34,8 +34,8 @@ extern      FlashVTBCCRec MainVT,OtpVT;
 extern      FlashVTBCCRec MainBCC,OtpBCC;
 extern      FlashStressRec TPadSeq;
 
-extern      IntM1D FL_TESTLOG_ARR; /* array dimensions were : 1..136,1..NumSites */
-extern      IntM1D FL_SCRAM_CAPT_ARR; /* array dimensions were : 1..4096,1..NumSites */
+extern      UnsignedM1D FL_TESTLOG_ARR; 
+extern      UnsignedM1D FL_SCRAM_CAPT_ARR;
 
 
 extern      IntS GL_FLTESTID;

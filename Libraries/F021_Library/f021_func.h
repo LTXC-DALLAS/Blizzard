@@ -264,7 +264,8 @@ TMResultM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  FloatM &Meas_Value);
 
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
-                                     FloatS maxtimeout);
+                                     FloatS maxtimeout,
+                                     BoolS testPassPin = false);
 
 //void MBox_Upload_IProg(IntS senampnum);
 //
