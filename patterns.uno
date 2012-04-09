@@ -852,6 +852,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_down2_2p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_down2_2p {
+        __File "pb_pb_down2_2p";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_dtxn2_1p_DPM {
         __File "pb_pb_dtxn2_1p_DPM";
         __Path "./Patterns/Ascii";
@@ -864,6 +868,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_dtxn2_2p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_dtxn2_2p {
+        __File "pb_pb_dtxn2_2p";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_flip10_1p_DPM {
         __File "pb_pb_flip10_1p_DPM";
         __Path "./Patterns/Ascii";
@@ -874,6 +882,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern pb_pb_flip10_2p_DPM {
         __File "pb_pb_flip10_2p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_flip10_2p {
+        __File "pb_pb_flip10_2p";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_ftr_DPM {
@@ -892,6 +904,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_mapcol_2p_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_mapcol_2p {
+        __File "pb_pb_mapcol_2p";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_march13n_1p_DPM {
         __File "pb_pb_march13n_1p_DPM";
         __Path "./Patterns/Ascii";
@@ -902,6 +918,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern pb_pb_march13n_2p_DPM {
         __File "pb_pb_march13n_2p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_march13n_2p {
+        __File "pb_pb_march13n_2p";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_march13n_rep_DPM {
@@ -918,6 +938,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern pb_pb_pmos_open_2p_DPM {
         __File "pb_pb_pmos_open_2p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_pmos_open_2p {
+        __File "pb_pb_pmos_open_2p";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_precharge_1p_DPM {

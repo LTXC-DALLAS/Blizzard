@@ -749,6 +749,7 @@ __Test ATPG_CPU_T {
     __Block[20] = {
         __Title = a_st_tk_fles_1_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1922,6 +1923,9 @@ __Test SCAN_PATHDELAY_40_PG {
     }
 }
 __Test BIST_PROD_PG {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = BIST_PROD_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
@@ -1933,7 +1937,7 @@ __Test BIST_PROD_PG {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'BIST_PROD_PG_Thrd'"; }
+            TestPatterns = __Expression { __String = "'BIST_PROD_PGDB_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
