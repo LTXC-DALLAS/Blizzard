@@ -60,6 +60,7 @@ __Test Digital_Continuity {
                 __ArrayOf = shorts_limits;
                 __ArrayOf = test_limits;
                 __Row  {
+                    test_pins = __Expression { __String = "OPEN_EVEN_PINS_GND+OPEN_ODD_PINS_GND-Probe_Only_Pins"; }
                 }
             }
         }
@@ -3538,4 +3539,3 @@ __Test Pump_VHV2X_Vmax {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
 }
-
