@@ -978,72 +978,58 @@ extern    IntS TNUM_OTP_WR_MISCLOC1;
 extern    IntS TNUM_OTP_WR_MISCLOC2;
 extern    IntS TNUM_BANK_RDSUPERM1S;
 
-    /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D PUMP_PARA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,pre..post */
-    /* array[0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BANK_PARA_VALUE[8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS BANK_PARA_TWSTR[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][7][2][9]; 
+extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][7]; 
+extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][7]; 
+extern    FloatM2D PUMP_PARA_VALUE; 
+extern    FloatM BANK_PARA_VALUE[8][129][6][7][2][9]; 
+extern    StringS BANK_PARA_TWSTR[129][6][7][2][9]; 
     
      /*[bank,block,tcrnum,tcrmode,tpnum,prepost,vcorner]*/
-    /*array[0..7,0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+// unneeded, really...looks to be a debug only thing and eats tons of memory
+//extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][7][2][9]; 
     
      /*[bank,even..odd,tcrnum,tcrmode,prepost,vcorner]*/
-    /*array[0..7,0..1,TPModeType,pre..post,VCornerType] of */
-extern    FloatM BANK_IREFARR_VALUE[8][2][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+// used to store value, but never used again
+//extern    FloatM BANK_IREFARR_VALUE[8][2][6][2][9]; 
 
-extern    FloatM2D PUMP_LEAK_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,VCornerType */
-    /*array[TPModeType,pre..post,1..2] of */
-extern    FloatM TPAD_LEAK_VALUE[6][2][3]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM2D PUMP_LEAK_VALUE; 
+extern    FloatM TPAD_LEAK_VALUE[6][2][3]; 
 
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_VT_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D OTP_VT_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
+extern    FloatM BANK_VT_VALUE[8][16][25][2]; 
+extern    FloatM RED_VT_VALUE[8][16][25][2]; 
+extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; 
+extern    FloatM OTP_VT_VALUE[8][25][2]; 
+extern    FloatM2D OTP_VT_DELTA_VALUE; 
 
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_BCC_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D OTP_BCC_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
+extern    FloatM BANK_BCC_VALUE[8][16][25][2];
+extern    FloatM RED_BCC_VALUE[8][16][25][2];
+extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25];
+extern    FloatM OTP_BCC_VALUE[8][25][2]; 
+extern    FloatM2D OTP_BCC_DELTA_VALUE; 
 
 extern     BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;
 
 
-extern     IntM2D BANK_ERS_PULSE; /* array dimensions were : 0..7,0..15 */
-extern     IntM2D BANK_PRECON_PULSE; /* array dimensions were : 0..7,0..15 */
+extern     IntM2D BANK_ERS_PULSE;
+extern     IntM2D BANK_PRECON_PULSE;
 
                         /*bank,row#,word#,site*/
-extern     StringM2D OTP_ID_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_ID_INFO; */
-extern     IntM2D OTP_ID_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     StringM2D OTP_VT_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_VT_INFO; */
-extern     FloatM2D OTP_VT_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     StringM2D OTP_BCC_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_BCC_INFO; */
-extern     FloatM2D OTP_BCC_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_BCC_INFO_INTVAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_LOG1_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_LOG3_INFO_VAL; /* array dimensions were : 0..7,0..128 */
+extern     StringM2D OTP_ID_INFO;
+extern     IntM2D OTP_ID_INFO_VAL; 
+extern     StringM2D OTP_VT_INFO;
+extern     FloatM2D OTP_VT_INFO_VAL;
+extern     StringM2D OTP_BCC_INFO; 
+extern     FloatM2D OTP_BCC_INFO_VAL; 
+extern     IntM2D OTP_BCC_INFO_INTVAL; 
+extern     IntM2D OTP_LOG1_INFO_VAL; 
+extern     IntM2D OTP_LOG3_INFO_VAL; 
 
 extern     IntM EFCHKSUM_MSW, EFCHKSUM_LSW;
-extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; /* array dimensions were : 0..7 */
-extern     IntM1D FRM_OTP_BANK_EFSUM_HI_VAL, FRM_OTP_BANK_EFSUM_LO_VAL; /* array dimensions were : 0..7 */
-extern     StringM1D FRM_OTP_BANK_FOSC_HI_BCD, FRM_OTP_BANK_FOSC_LO_BCD; /* array dimensions were : 0..7 */
-extern     IntM1D FRM_OTP_BANK_FOSC_HI_VAL, FRM_OTP_BANK_FOSC_LO_VAL; /* array dimensions were : 0..7 */
+extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; 
+extern     IntM1D FRM_OTP_BANK_EFSUM_HI_VAL, FRM_OTP_BANK_EFSUM_LO_VAL; 
+extern     StringM1D FRM_OTP_BANK_FOSC_HI_BCD, FRM_OTP_BANK_FOSC_LO_BCD; 
+extern     IntM1D FRM_OTP_BANK_FOSC_HI_VAL, FRM_OTP_BANK_FOSC_LO_VAL; 
 
 
     /*+++ Global test frequency +++*/
