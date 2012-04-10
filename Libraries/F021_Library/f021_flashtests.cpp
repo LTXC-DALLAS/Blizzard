@@ -5078,7 +5078,7 @@ TMResultM Pump_Iref_Vnom_func()
 
    // disable failing sites (disables sites w/ false).
    ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
-   if(ActiveSites.GetNumSites() > 0)  
+   if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
       F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode, final_results);
@@ -5151,7 +5151,7 @@ TMResultM Pump_VHV_Vmin_func()
 
    TMResultM final_results,tmp_results;
    Sites savesites, disable_sites, initial_sites;
-   VCornertype vcorner;
+   VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
    TPModeType tcrmode;
@@ -5164,20 +5164,20 @@ TMResultM Pump_VHV_Vmin_func()
    {
 
 //      PwrupAtVnom_1;
-      current_shell = 'FlashShell';
+      current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
 
-      if !(false == GL_FLASH_RETEST)   // all sites must match for this to be true (then negated by the !)
+      if (!(GL_FLASH_RETEST == false))   // all sites must match for this to be true (then negated by the !)
       {
          savesites = ActiveSites;
          // Disable sites that have retest of false
          ActiveSites.DisableFailingSites(GL_FLASH_RETEST); 
                
-         if(!ActiveSites.Begin().End())   if there is an active site
+         if(!ActiveSites.Begin().End())   //if there is an active site
          {
-            TL_RunTestNum(TNUM_BANK_PRECON,'');
-            TL_RunTestNum(TNUM_OTP_PRECON ,''); /*PROG*/
+            TL_RunTestNum(TNUM_BANK_PRECON,"");
+            TL_RunTestNum(TNUM_OTP_PRECON ,""); /*PROG*/
          } 
          RunTime.SetActiveSites(savesites);
       } 
@@ -5206,7 +5206,7 @@ TMResultM Pump_VHV_Vmin_func()
 //    Hmmm....
 //    PwrupAtVmin_1;
 
-   current_shell = 'FlashShell';
+   current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
 
@@ -5217,14 +5217,14 @@ TMResultM Pump_VHV_Vmin_func()
    tcrmode = ProgMode;
    F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
 
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS))); 
+   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
    if(!ActiveSites.Begin().End())   //we have an active site
    {
       tcrmode = PvfyMode;
       F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
    } 
    
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS))); 
+   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = ErsMode;
