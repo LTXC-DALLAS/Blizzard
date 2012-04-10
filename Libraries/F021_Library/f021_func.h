@@ -443,7 +443,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                                      IntM ret_ctval);
 //BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
 //                                      IntM ret_ctval);
-//void RAM_Upload_VHV_CT_TrimVal();
+void RAM_Upload_VHV_CT_TrimVal();
 //
 BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
@@ -539,11 +539,9 @@ TMResultM F021_InitFLGlobalvars_func();
 //BoolS F021_Program_func(    IntS start_testnum,
 //                               StringS tname,
 //                               BoolM test_results);
-//
-//BoolS F021_Erase_func(    IntS start_testnum,
-//                             StringS tname,
-//                             BoolM test_results);
-//
+
+BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,
 //                            BoolM test_results);
@@ -650,7 +648,7 @@ void RAM_Clear_SoftTrim_All();
 //void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
 //void RAM_Clear_PMOS_SoftTrim();
 //void GetTrimCode_On_EFStr();
-//void RAM_Upload_PMOS_TrimCode();
+void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
 //BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //void TL_Mod_OTP_PMOS_SoftTrim();
@@ -766,6 +764,8 @@ void RAM_Clear_SoftTrim_All();
 //#if $FL_USE_DCC_TRIM_FOSC=FALSE then
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
+
+void PowerUpDn (PowerUpType ps_Val);
 
 #endif
 

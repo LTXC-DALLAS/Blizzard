@@ -10723,69 +10723,63 @@ TMResultM Pump_VHV_Vmin_func()
 //}   /* FGWLVT1DeltaOTP_func */
 //   
 //
-//BoolS BankErs_PreTunOxide_func()
-//{
-//   const IntS TESTID = 181; 
-//
-//   BoolM final_results,logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//#if $GL_USE_DMLED_RAMPMT  
-//    /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-//      PowerDownAll;
-//      TIME.Wait(2ms);
-//      GL_PREVIOUS_SHELL = "";
-//#endif
-//      
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)   
-//         F021_LoadFlashShell_func;
-//      
-//#if $GL_USE_DMLED_RAMPMT  
-//    /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-//      RAM_Upload_PMOS_TrimCode;
-//      RAM_Upload_VHV_CT_TrimVal;
-//#endif
-//      GL_FLTESTID = TESTID;
-//      tname = Ers_PreTunOx_Test;
-//      
-//      if(v_any_dev_active)  
-//      {
-//         logsites = v_dev_active;
-//         if(GL_DO_ERS_BY_SECTOR)  
-//         {
-//            testnum = TNUM_SECT_ERS_NOPRECON_SM;
-//         }
-//         else
-//            testnum = TNUM_BANK_ERS_NOPRECON;
-//         if(GL_DO_REDENA)  
-//            testnum = testnum+TNUM_REDUNDENA;
-//         F021_Erase_func(testnum,tname,final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Tnum = TNUM_BANK_RDM1s;
-//               FLEsda.Imagenum = ESDA_IMG_TUNOX_ERS;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      } 
-//   } 
-//   
-//   BankErs_PreTunOxide_func = v_any_dev_active;
-//}   /* BankErs_PreTunOxide_func */
+TMResultM BankErs_PreTunOxide_func() {
+   const IntS TESTID = 181; 
+
+   TMResultM final_results,logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena) {
+#if $GL_USE_DMLED_RAMPMT  
+      /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
+      PowerUpDn(PWRDN_ALL);
+      TIME.Wait(2ms);
+      GL_PREVIOUS_SHELL = "";
+#endif
+      
+      PowerUpDn(PWRUP_VNOM);
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)   
+         F021_LoadFlashShell_func();
+      
+#if $GL_USE_DMLED_RAMPMT  
+      /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
+      RAM_Upload_PMOS_TrimCode();
+      RAM_Upload_VHV_CT_TrimVal();
+#endif
+      GL_FLTESTID = TESTID;
+      tname = "Ers_PreTunOx_Test";
+      
+      if(GL_DO_ERS_BY_SECTOR) {
+         testnum = TNUM_SECT_ERS_NOPRECON_SM;
+      }
+      else
+         testnum = TNUM_BANK_ERS_NOPRECON;
+         
+      if(GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
+      
+      F021_Erase_func(testnum,tname,final_results);
+      
+      if(TI_FlashESDAEna)
+         if (not(final_results == TM_PASS)) {
+            FLEsda.Tnum = TNUM_BANK_RDM1S;
+            FLEsda.ImageNum = ESDA_IMG_TUNOX_ERS;
+         //   F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   }
+   
+   return (final_results);
+}   /* BankErs_PreTunOxide_func */
 //   
 //
 //BoolS PreTunOxideVT1_func()
