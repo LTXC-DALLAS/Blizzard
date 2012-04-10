@@ -442,7 +442,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                                      IntM ret_ctval);
 //BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
 //                                      IntM ret_ctval);
-//void RAM_Upload_VHV_CT_TrimVal();
+void RAM_Upload_VHV_CT_TrimVal();
 //
 BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
@@ -538,11 +538,9 @@ TMResultM F021_InitFLGlobalvars_func();
 //BoolS F021_Program_func(    IntS start_testnum,
 //                               StringS tname,
 //                               BoolM test_results);
-//
-//BoolS F021_Erase_func(    IntS start_testnum,
-//                             StringS tname,
-//                             BoolM test_results);
-//
+
+BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,
 //                            BoolM test_results);
@@ -766,7 +764,7 @@ void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
 
-void PowerUpDn( PowerUpType );
+void PowerUpDn (PowerUpType ps_Val);
 
 #endif
 
