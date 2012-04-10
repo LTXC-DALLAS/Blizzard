@@ -756,8 +756,8 @@ TMResultM F021_InitFLGlobalvars_func()
             OTP_BCC_VALUE[bank][vt_mode][pre] = 0uA;
             OTP_BCC_VALUE[bank][vt_mode][post] = 0uA;
          } 
-         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNME] = 13uV;
-         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNMO] = 13uV;
+//         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNME] = 13uV;
+//         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNMO] = 13uV;
       } 
 
        /*init incoming flash active sites*/
