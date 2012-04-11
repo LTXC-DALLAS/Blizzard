@@ -1249,6 +1249,10 @@ __PatternMap DefaultPatternMap {
         __File "a_tft_ntk_80_80_1";
         __Path "./Patterns/Ascii";
     }
+    __Pattern SPD_Debug_80_80_1 {
+        __File "SPD_Debug_80_80_1";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern a_tft_ntk_80_80_10 {
         __File "a_tft_ntk_80_80_10";
         __Path "./Patterns/Ascii";

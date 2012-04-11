@@ -3332,11 +3332,25 @@ __WaveformTable WFT3 {
             __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT3_RZ1_OSC0_124 {
+    __Cell "OSC0_124" L/C WFT3_RZ1_OSC0_124 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
-            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)-1.5ns"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+        }
+    }
+    __Cell "AIN10_183" L/C WFT3_RZ1_AIN10_183 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)-1.5ns"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
+        }
+    }
+    __Cell "TCK_152+o_cpu_done_46" L/C WFT3_RZ1_TCK_152 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)-1.5ns"; __DriveData @ "tref +9ns*(.Period/50ns)"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
     __Cell "o_cpu_done_46" H WFT3_NRZDriveClk {
@@ -3346,16 +3360,16 @@ __WaveformTable WFT3 {
             __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" < WFT3_RZ2_Async_OSC0_124 {
-        __Data 6;
-        __Color 6;
-        __Drive {
-            __EntryState __DriveLow;
-            __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
-                          @ D1 -> "2 * tperAsync"; }
-        }
-    }
-    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT3_STB1 {
+//    __Cell "AC1_RZ_OSC0_124" < WFT3_RZ2_Async_OSC0_124 {
+//        __Data 6;
+//        __Color 6;
+//        __Drive {
+//            __EntryState __DriveLow;
+//            __Waveform { __DriveHigh @ "tperAsync/2"; __DriveLow @ "tperAsync"; __DriveHigh @ "3*tperAsync/2"; __DriveLow @ "2 * tperAsync";
+//                          @ D1 -> "2 * tperAsync"; }
+//        }
+//    }
+    __Cell "AC1_NR_STB+AIN10_183+TCK_152+AC1_STB" 0/1/M WFT3_STB1 {
         __Data 0/1/2;
         __Color 8/10/3;
         __Drive {
@@ -3365,7 +3379,7 @@ __WaveformTable WFT3 {
             __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT3_STB1_Z {
+    __Cell "AC1_NR_STB+AIN10_183+TCK_152+AC1_STB" Z WFT3_STB1_Z {
         __Data 2;
         __Color 3;
         __Drive {
@@ -3382,13 +3396,14 @@ __WaveformTable WFT3 {
             __Waveform { }
         }
     }
-    __Cell "ALLPINS" d DPM2CPM {
-        __Data 3 __Other;
-        __Color 3;
-        __Drive {
-            __Waveform {  @ "0ns"; __DriveOff @ "0ns"; }
-        }
-    }
+// Don't need this because there is no CPM-calling-DPM implementation --BJP
+//    __Cell "ALLPINS" d DPM2CPM {
+//        __Data 3 __Other;
+//        __Color 3;
+//        __Drive {
+//            __Waveform {  @ "0ns"; __DriveOff @ "0ns"; }
+//        }
+//    }
     __Cell "ALLPINS" i SCANDRIVE {
         __Data 6 __Serial;
         __Color 3;

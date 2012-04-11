@@ -842,16 +842,19 @@ __Test SCAN_PATHDELAY_16_PG {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __WrapCells = __True;
         __TestMethod {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
             TestPatterns = __Expression { __String = "'SCAN_PATHDELAY_16_PG_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             DisablePatternDatalog = __Expression { __String = "FALSE"; }
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
             CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_PDELAY_VMIN'"; }
             use_testware = __Expression { __String = "TRUE"; }
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
@@ -988,7 +991,7 @@ __Test SCAN_PATHDELAY_1_PG {
     __Block[6] = {
         __Title = a_tft_tk_80_80_7;
         __WrapCells = __True;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1490,6 +1493,7 @@ __Test SCAN_PATHDELAY_1_PG {
     __Block[31] = {
         __Title = a_tft_tk_80_80_31;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = TWFuncTest;

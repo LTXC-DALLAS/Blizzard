@@ -266,6 +266,7 @@ __PatternSequence SCAN_PATHDELAY_1_PG_PS {
     __Thread[43] = a_tft_tk_80_80_23_Thrd;
     __Thread[44] = a_tft_tk_80_80_41_Thrd;
     __Thread[45] = a_tft_tk_80_80_11_Thrd;
+    __Thread[46] = SPD_Debug_80_80_1_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
@@ -277,6 +278,12 @@ __PatternSequence SCAN_PATHDELAY_1_PG_DBG_PS {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
     __AutoBasePeriod = __True;
+}
+__Thread SPD_Debug_80_80_1_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "SPD_Debug_80_80_1.SPD_Debug_80_80_1_st"; }
+    }
 }
 __Thread SCAN_PATHDELAY_1_PG_DBG_Thrd {
     __Row {
