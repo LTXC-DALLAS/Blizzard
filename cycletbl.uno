@@ -1259,7 +1259,7 @@ __Thread PBIST_2P_PROD_PG_Thrd {
     }
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "pb_pb_precharge_2p.pb_pb_precharge_2p_st"; }
+        __PatternLabel = __Expression { __String = "pb_pb_precharge_2p_DPM.pb_pb_precharge_2p_DPM_st"; }
     }
 }
 
