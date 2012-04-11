@@ -4995,8 +4995,8 @@ void F021_FlashConfigInclude()
    PUMP_BANK_PARA_TESTNAME[83][PvfyMode][2][post][VMX]  = "VReadBUF_Pg_MX_Test";  /*use pvfymode for vmax corner*/
 
     /*tw string - use this if more than one tpad measurement*/
-   BANK_PARA_TWSTR[25][ReadMode][2][pre ][VNM] = "Bank_Iref_Rd_PreNM";
-   BANK_PARA_TWSTR[25][ReadMode][2][post][VNM] = "Bank_Iref_Rd_NM";
+//   BANK_PARA_TWSTR[25][ReadMode][2][pre ][VNM] = "Bank_Iref_Rd_PreNM";
+//   BANK_PARA_TWSTR[25][ReadMode][2][post][VNM] = "Bank_Iref_Rd_NM";
    
 
     /*==== PARAMETRIC ENABLE CONTROL ====*/
@@ -8212,36 +8212,6 @@ if(GL_BANKTYPE==FLESBANK)
 
    GL_IGNORE_FLOWBYTE = false;
    GL_DO_VT_HISTOGRAM = false;
-
-
-
-    /*old F035 stuffs -- Current limits for precon/erase/read*/
-   BANK_PRECON_IVDD_ULimit     = 75mA;
-   BANK_PRECON_IVDD_LLimit     = -1mA;
-   BANK_ERS_IVDD_ULimit        = 75mA;
-   BANK_ERS_IVDD_LLimit        = -1mA;
-   BANK_READ_IVDD_ULimit       = 50mA;
-   BANK_READ_IVDD_LLimit       = -1mA;
-   BANK_PRECON_IVDD3VFL_ULimit = 75mA;
-   BANK_PRECON_IVDD3VFL_LLimit = -1mA;
-   BANK_ERS_IVDD3VFL_ULimit    = 75mA;
-   BANK_ERS_IVDD3VFL_LLimit    = -1mA;
-   BANK_READ_IVDD3VFL_ULimit   = 50mA;
-   BANK_READ_IVDD3VFL_LLimit   = -1mA;
-                                
-   SECT_PRECON_IVDD_ULimit     = 75mA;
-   SECT_PRECON_IVDD_LLimit     = -1mA;
-   SECT_ERS_IVDD_ULimit        = 75mA;
-   SECT_ERS_IVDD_LLimit        = -1mA;
-   SECT_READ_IVDD_ULimit       = 50mA;
-   SECT_READ_IVDD_LLimit       = -1mA;
-   SECT_PRECON_IVDD3VFL_ULimit = 75mA;
-   SECT_PRECON_IVDD3VFL_LLimit = -1mA;
-   SECT_ERS_IVDD3VFL_ULimit    = 75mA;
-   SECT_ERS_IVDD3VFL_LLimit    = -1mA;
-   SECT_READ_IVDD3VFL_ULimit   = 50mA;
-   SECT_READ_IVDD3VFL_LLimit   = -1mA;
-
 
     /*Flash esda image base/start number*/
    ESDA_IMG_PGM0S              = 100;

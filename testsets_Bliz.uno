@@ -60,6 +60,7 @@ __Test Digital_Continuity {
                 __ArrayOf = shorts_limits;
                 __ArrayOf = test_limits;
                 __Row  {
+                    test_pins = __Expression { __String = "OPEN_EVEN_PINS_GND+OPEN_ODD_PINS_GND-Probe_Only_Pins"; }
                 }
             }
         }
@@ -2959,6 +2960,7 @@ __Test FlashEfuse_func {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
 }
 __Test F021_FlashConfig_test {
+    __Mask[0] = PSSpecsMask;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -3476,4 +3478,68 @@ __Test DieID_PartialProg_func {
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
+}
+__Test Pump_VHV_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VHV_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VSL_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VSL_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_Vread_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_Vread_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VSA5_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VSA5_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VWL_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VWL_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VCG2P5_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VCG2P5_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VINH_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VINH_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VHV2X_Vmin {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VHV2X_Vmax {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
 }

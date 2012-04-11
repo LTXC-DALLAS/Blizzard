@@ -389,7 +389,7 @@ void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_R
 
 void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
 {
-   VI.SetMeasureSamples(myPin, averages);
+   VI.SetMeasureSamples(myPin, averages); 
    VI.MeasureVAverage(myPin, measValue, simValue);
    measValue.SetUnits("V");
 }
@@ -685,7 +685,11 @@ TMResultM F021_InitFLGlobalvars_func()
    IntS maxstrnum;
    TPModeType tcrmode;
    IntS vt_mode;
-    
+   
+   // Expression processor evaluates OpVar RunAllTests
+   // and places the value in the BoolS RunAllTests
+   RunAllTests = "RunAllTests";
+   
    if(!ActiveSites.Begin().End())  // was v_any_dev_active
    {
       if(tistdscreenprint)  
@@ -752,8 +756,8 @@ TMResultM F021_InitFLGlobalvars_func()
             OTP_BCC_VALUE[bank][vt_mode][pre] = 0uA;
             OTP_BCC_VALUE[bank][vt_mode][post] = 0uA;
          } 
-         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNME] = 13uV;
-         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNMO] = 13uV;
+//         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNME] = 13uV;
+//         BANK_PARA_VALUE[bank][25][ReadMode][2][post][VNMO] = 13uV;
       } 
 
        /*init incoming flash active sites*/
@@ -2160,43 +2164,17 @@ void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
                                      IntM &ret_val)
 {
-//   IntS tmpint,site,counter;
    IntS curraddr,offsetcyc,index;
    StringS addr_str,str1,str2, cap_name;
    IntM temp_value;
-//   StringM tmpArray;
-//   PinML pl_arr,pl_failarr;
-//   IntS pl_len,plindex,pl_faillen;
    BoolS debugprint;
-   //,tmpbool;
-//   option log_opt;
-//   IntS pm_addr,rpt_count,loop_count;
-//   IntS scan_block,cycles,src_line;
-//   IntS failcount,failindex,fails;
-//   IntS lsw_cycle,msw_cycle;
-//   IntS fail_cycle,data_nib,dead_cyc;
-//   IntS1D data_cycle(9);
    UnsignedM1D CaptureArr(18);
    UnsignedM1D sim_cap_arr(18, 0);
    UnsignedS shiftbit, count, maxcapcount;
    StringML SourceArr; 
-//   BoolS SaveMemSetBistData;
    PinML data_pins,data_in;
-//   FloatS ttimer1;
-//   IntS maxcapcount,istep;
-//   IntS tnib0,tnib1,tnib2,tnib3;
    IntS maxsrccount;
-   //,maskbit,maxiter;
    IntS evenodd,physaddr;
-//   DCSetUp prevDCSU;
-
-//   Clockstopfreerun(s_clock1a);
-// ????
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      SetupGet(prevDCSU);
-//      SetupSelect(prevDCSU,norm_fmsu);
-//   } 
 
    debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
    if(tistdscreenprint and debugprint)     
@@ -2206,7 +2184,6 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 
    temp_value = 0;
 
-//   tmpArray = "0000000000000000";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -2225,11 +2202,11 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
 //      {
 //         SourceArr += addr_str[15-offsetcyc]; // makes SourceArr LSB first
-//          /*if(tistdscreenprint and ti_flashdebug) then
+//          /*if(tistdscreenprint and TI_FlashDebug) then
 //              write(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
 //          */
 //      } 
-//          /*if(tistdscreenprint and ti_flashdebug) then
+//          /*if(tistdscreenprint and TI_FlashDebug) then
 //             writeln(tiwindow);
 //          */
 //   }
@@ -2255,7 +2232,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //            if(v_dev_active[site])  
 //               temp_value[site] = temp_value[site]+(CaptureArr[site][count] << (count-1));
 //       /*
-//       if(tistdscreenprint and ti_flashdebug) then
+//       if(tistdscreenprint and TI_FlashDebug) then
 //       begin
 //          for site := 1 to v_sites do
 //             if(v_dev_active[site]) then
@@ -2300,7 +2277,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //            {
 //               Readstring("0b" + tmpArray[site]) + temp_value[site];
 //                /*
-//                if(tistdscreenprint and ti_flashdebug) then
+//                if(tistdscreenprint and TI_FlashDebug) then
 //                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
 //                 */
 //            } 
@@ -2332,7 +2309,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //         for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
 //         {
 //            SourceArr[site][offsetcyc+1] = ((physaddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*if(tistdscreenprint and ti_flashdebug) then
+//             /*if(tistdscreenprint and TI_FlashDebug) then
 //                 writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
 //             */
 //         } 
@@ -2420,7 +2397,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //            {
 //               Readstring("0b" + tmpArray[site]) + temp_value[site];
 //                /*
-//                if(tistdscreenprint and ti_flashdebug) then
+//                if(tistdscreenprint and TI_FlashDebug) then
 //                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
 //                 */
 //            } 
@@ -2713,13 +2690,6 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
    StringS str1;
    StringM mstr;
 
-//   Clockstopfreerun(s_clock1a);
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      SetupGet(prevDCSU);
-//      SetupSelect(prevDCSU,norm_fmsu);
-//   } 
-
    if(tistdscreenprint and TI_FlashDebug)  
       TIME.StartTimer();
    
@@ -2971,407 +2941,375 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
       cout << "WriteRamContentDec_32bit TT " << TIME.StopTimer() << endl;
 }    /*WriteRamContentDec_32bit*/
 
-// /*unified all platforms to use cpu byte address for start_addr*/
-// /*reading 136 or 4096 16bit words from pmt starting address using scram*/
-// /*store contents into global array vars by store_option input param*/
-// /*store_option :  0=FL_TEMPLOG_ARR, 1=FL_TESTLOG_ARR, 2=FL_MBOX_OTP_ARR, 3=FL_SCRAM_CAPT_ARR*/
-// /*with msw,lsw -- eg: FL_TEMPLOG_ARR[1]=msw, FL_TEMPLOG_ARR[2]=lsw*/
-// /*x64 pmt pattern output as: nibble0, nib1, nib2, nib3 (lsw), nib0,nib1,nib2,nib3 (msw)*/
-//void GetRamContent_SCRAM(IntS start_addr,
-//                              IntS store_option)
-//{
-//   const IntS X16MAXCNT = 136; 
-//   const IntS X64MAXCNT = 544; 
-//   const IntS X16MAXCNT_MBOX = 4096; 
-//   const IntS X64MAXCNT_MBOX = 16384; 
-//   const IntS TEMPLOG_OPT = 0; 
-//   const IntS TESTLOG_OPT = 1; 
-//   const IntS OTPLOG_OPT = 3; 
-//   const IntS MBOXLOG_OPT = 4; 
-//   const IntS JTAGMAXCNT_MBOX = 65536; 
+
+
+ /*unified all platforms to use cpu byte address for start_addr*/
+ /*reading 136 or 4096 16bit words from pmt starting address using scram*/
+ /*store contents into global array vars by store_option input param*/
+ /*store_option :  0=FL_TEMPLOG_ARR, 1=FL_TESTLOG_ARR, 2=FL_MBOX_OTP_ARR, 3=FL_SCRAM_CAPT_ARR*/
+ /*with msw,lsw -- eg: FL_TEMPLOG_ARR[1]=msw, FL_TEMPLOG_ARR[2]=lsw*/
+ /*x64 pmt pattern output as: nibble0, nib1, nib2, nib3 (lsw), nib0,nib1,nib2,nib3 (msw)*/
+void GetRamContent_SCRAM(IntS start_addr,
+                              IntS store_option)
+{
+   const IntS X16MAXCNT = 136; 
+   const IntS X64MAXCNT = 544; 
+   const IntS X16MAXCNT_MBOX = 4096; 
+   const IntS X64MAXCNT_MBOX = 16384; 
+   const IntS TEMPLOG_OPT = 0; 
+   const IntS TESTLOG_OPT = 1; 
+   const IntS OTPLOG_OPT = 3; 
+   const IntS MBOXLOG_OPT = 4; 
+   const IntS JTAGMAXCNT_MBOX = 65536; 
+
+   UnsignedS halfcapcount, maxcapcount;
+   UnsignedS istep, count;
+   IntS offsetcyc;
+   UnsignedS index;
+   UnsignedM tnib0,tnib1,tnib2,tnib3;
+   UnsignedM tnib4,tnib5,tnib6,tnib7;
+   StringS tpatt, addr_str, str2;
+   PinML data_pins,data_in;
+
+#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT
+#if $GL_USE_JTAG_RAMPMT
+// :TODO: Fix. Unneeded for Blizzard.
+//   IntM1D SourceArr(16); 
+//   IntM1D CaptureArr(JTAGMAXCNT_MBOX); 
+#else
+   StringML SourceArr; 
+   UnsignedM1D EvenCaptureArr(X64MAXCNT_MBOX),OddCaptureArr(X64MAXCNT_MBOX); 
+   UnsignedM1D sim_value(X64MAXCNT_MBOX, 0);
+   IntS physaddr, curraddr;
+   IntS1D evenodd(3);
+#endif
+#else
+// :TODO: Fix. Unneeded for Blizzard.
+//   IntM1D SourceArr(4); 
+//   IntM1D CaptureArr(X64MAXCNT_MBOX); 
+#endif
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
+      TIME.StartTimer();
+
+
+    /*if(store_option <= (ord(TESTLOG_ARR))) then
+       tpatt := ramread_tlog_scram
+    else if(store_option = (ord(MBOXOTP_ARR))) then
+       tpatt := ramread_tlog_mbox_scram
+    else}  {blizzard specific*/
+      tpatt = "ramread_mbox_Thrd";
+
+#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
+#if $GL_USE_JTAG_RAMPMT  
+// :TODO: Fix. Unneeded for Blizzard.
+// /*-------- use JTAG --------*/
+//   data_pins = JTAG_DOUT;
+//   data_in   = JTAG_DIN;
+//   
+//   if(store_option < (ord(MBOXLOG_ARR)))  
+//      maxcapcount = X16MAXCNT*16;
+//   else
+//      maxcapcount = JTAGMAXCNT_MBOX;
+//   istep = 32;   /*2 16bit word*/
+//   maxsrccount = 16;
 //
-//   IntS site,count,offsetcyc,index,i,j;
-//   IntS maxcapcount,curraddr,istep,addr;
-//   IntS tnib0,tnib1,tnib2,tnib3;
-//   IntS tnib4,tnib5,tnib6,tnib7;
-//   IntM tdata,tdata2;
-//   BoolS SaveMemSetBistData;
-//   StringS tpatt;
-//   PinML data_pins,data_in;
-//   StringS str1,addr_str,str2;
-//   FloatS ttimer1;
-//   IntS maxsrccount;
-//   DCSetUp prevDCSU;
-//#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT then
-//#if $GL_USE_JTAG_RAMPMT then
-//   IntS2D SourceArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..16 */
-//   IntS2D CaptureArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..JTAGMAXCNT_MBOX */
-//#else
-//   IntS2D SourceArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..17 */
-//   IntS2D EvenCaptureArr,OddCaptureArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..X64MAXCNT_MBOX */
-//   IntS halfcapcount,physaddr;
-//   IntS1D evenodd(3);
-//#endif
-//#else
-//   IntS2D SourceArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..4 */
-//   IntS2D CaptureArr; /* :MANUAL FIX REQUIRED: array dimensions are : 1..NumSites,1..X64MAXCNT_MBOX */
-//#endif
-//
-//   Clockstopfreerun(s_clock1a);
-//   if(v_any_dev_active)  
+//   curraddr = start_addr;
+//   IntToBinStr(curraddr,addr_str);
+//   
+//   if(GL_DO_SOURCE_WITH_SCRAM)  
 //   {
-//      SetupGet(prevDCSU);
-//      SetupSelect(prevDCSU,norm_fmsu);
-//      
-//      timernstart(ttimer1);
-//
-//      SaveMemsetBistData = V_MemSetBistData;
-//      V_MemSetBistData = false;  /* Prevents SCRAM statements from giving error */
-//
-//       /*if(store_option <= (ord(TESTLOG_ARR))) then
-//          tpatt := ramread_tlog_scram
-//       else if(store_option = (ord(MBOXOTP_ARR))) then
-//          tpatt := ramread_tlog_mbox_scram
-//       else}  {blizzard specific*/
-//         tpatt = ramread_mbox_scram;
-//
-//#if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
-//#if $GL_USE_JTAG_RAMPMT  
-//    /*-------- use JTAG --------*/
-//      data_pins = JTAG_DOUT;
-//      data_in   = JTAG_DIN;
-//      
-//      if(store_option < (ord(MBOXLOG_ARR)))  
-//         maxcapcount = X16MAXCNT*16;
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      {
+//         for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+//         {
+//            SourceArr[site][offsetcyc+1] = ((curraddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
+//             /*
+//             if(TIStdScreenPrint and TI_FlashDebug) then
+//                writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
+//             */
+//         } 
+//         break;
+//      } 
+//      PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,maxcapcount,
+//                                  false, SourceArr,CaptureArr)
+//   }
+//   else
+//   {
+//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
+//                                data_in,S_binary,
+//                                Mid(addr_str,16-(1*offsetcyc),1));
+//      PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
+//   } 
+//   
+//   index = 1;
+//   for count = 1 to maxcapcount by istep do
+//   {
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//         if(v_dev_active[site])  
+//         {
+//            tnib0 = 0;
+//            tnib1 = 0;
+//            for (i = 0;i <= 15;i++)
+//            {
+//               tnib0 = tnib0 +  (CaptureArr[site][count+i] << i);
+//               tnib1 = tnib1 +  (CaptureArr[site][count+16+i] << i);
+//            } 
+//            FL_SCRAM_CAPT_ARR[index+1][site] = tnib0;  /*lsw*/
+//            FL_SCRAM_CAPT_ARR[index][site]   = tnib1;  /*msw*/
+//         }   /*if v_dev_active*/
+//      index = index+2;
+//   }   /*for count*/
+// /*-------- end of JTAG --------*/
+#else
+ /*-------- use DMLED --------*/
+   data_pins = "DMLED_OUTBUS";
+   data_in   = "DMLED_INBUS";
+   istep = 8;   /*8 nibbles or 2 16bit word*/
+   
+   if(store_option < (int(MBOXLOG_ARR)))  
+      maxcapcount = X64MAXCNT;
+   else
+      maxcapcount = X64MAXCNT_MBOX;
+
+   halfcapcount = maxcapcount / 2;
+
+   curraddr = start_addr>>2;
+   
+   if((curraddr&0x1)==0)  
+   {
+      evenodd[1] = 0;  /*even*/
+      evenodd[2] = 1;  /*odd*/
+   }
+   else
+   {
+      evenodd[1] = 1;
+      evenodd[2] = 0;
+   } 
+
+    /*dmled physical addr*/
+   physaddr = curraddr>>1;
+
+
+   StringS label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
+    /*read even/odd*/
+   for (int i = 1;i <= 2;++i)
+   {
+      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
+      StringML SourceArr(16);
+      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+      {
+         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
+         SourceArr += str2;
+      } 
+      DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
+      
+      str2 = IntToVLSIDriveStr(evenodd[i], 4, true);
+      SourceArr.Erase();
+      SourceArr += str2;
+      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+      
+      if(i==1)  
+         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,EvenCaptureArr,sim_value);
+      else
+         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,OddCaptureArr,sim_value);
+   }   /*for i*/
+   
+    /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
+   index = 0;
+   for (count = 0; count < halfcapcount; count+=istep)
+   {
+      tnib0 = EvenCaptureArr[count];    /*ls nibble*/
+      tnib1 = EvenCaptureArr[count+1]<<4;
+      tnib2 = EvenCaptureArr[count+2]<<8;
+      tnib3 = EvenCaptureArr[count+3]<<12;  /*ms nibble*/
+      tnib4 = EvenCaptureArr[count+4];    /*ls nibble*/
+      tnib5 = EvenCaptureArr[count+5]<<4;
+      tnib6 = EvenCaptureArr[count+6]<<8;
+      tnib7 = EvenCaptureArr[count+7]<<12;  /*ms nibble*/
+      FL_SCRAM_CAPT_ARR.SetValue(index+1, tnib3+tnib2+tnib1+tnib0); /*lsw*/
+      FL_SCRAM_CAPT_ARR.SetValue(index, tnib7+tnib6+tnib5+tnib4);  /*msw*/
+      tnib0 = OddCaptureArr[count];    /*ls nibble*/
+      tnib1 = OddCaptureArr[count+1]<<4;
+      tnib2 = OddCaptureArr[count+2]<<8;
+      tnib3 = OddCaptureArr[count+3]<<12;  /*ms nibble*/
+      tnib4 = OddCaptureArr[count+4];    /*ls nibble*/
+      tnib5 = OddCaptureArr[count+5]<<4;
+      tnib6 = OddCaptureArr[count+6]<<8;
+      tnib7 = OddCaptureArr[count+7]<<12;  /*ms nibble*/
+      FL_SCRAM_CAPT_ARR.SetValue(index+3, tnib3+tnib2+tnib1+tnib0);  /*lsw*/
+      FL_SCRAM_CAPT_ARR.SetValue(index+2, tnib7+tnib6+tnib5+tnib4);  /*msw*/
+      index += 4;
+   }   /*for count*/
+ /*-------- end of DMLED --------*/
+#endif      
+#else
+// :TODO: Fix this. Unneeded for Blizzard.
+//   if(GL_USE_RAMPMT_X64)  
+//   {
+//      if(store_option < (int(MBOXLOG_ARR)))  
+//         maxcapcount = X64MAXCNT;
 //      else
-//         maxcapcount = JTAGMAXCNT_MBOX;
-//      istep = 32;   /*2 16bit word*/
-//      maxsrccount = 16;
+//         maxcapcount = X64MAXCNT_MBOX;
+//      istep = 8;   /*8 nibbles or 2 16bit word*/
+//      maxsrccount = 4;
+//   }
+//   else
+//   {
+//      if(store_option < (int(MBOXLOG_ARR)))  
+//         maxcapcount = X16MAXCNT;
+//      else
+//         maxcapcount = X16MAXCNT_MBOX;
+//      istep = 2;
+//      maxsrccount = 1;
+//   } 
 //
-//      curraddr = start_addr;
-//      IntToBinStr(curraddr,addr_str);
-//      
+//   data_pins = PMT_RAMBUS;
+//   data_in = PMT_RAMBUS;
+//   curraddr = start_addr>>2;
+//   IntToBinStr(curraddr,addr_str);
+//
+//   if(GL_USE_RAMPMT_X64)  
+//   {
 //      if(GL_DO_SOURCE_WITH_SCRAM)  
 //      {
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+//            if(v_dev_active[site])  
 //            {
-//               SourceArr[site][offsetcyc+1] = ((curraddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//                /*
-//                if(TIStdScreenPrint and ti_flashdebug) then
-//                   writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
-//                */
+//               for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//               {
+//                  SourceArr[site][offsetcyc+1] = (curraddr & ((0xf)<<(4*offsetcyc))) >> (4*offsetcyc);
+//                   /*
+//                    if(TIStdScreenPrint and TI_FlashDebug) then
+//                    writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
+//                    */
+//               } 
 //            } 
-//            break;
-//         } 
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,maxcapcount,
-//                                     false, SourceArr,CaptureArr)
 //      }
 //      else
 //      {
-//         for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+//         for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
 //            Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                   data_in,S_binary,
-//                                   Mid(addr_str,16-(1*offsetcyc),1));
-//         PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
+//                                   data_pins,S_binary,
+//                                   Mid(addr_str,13-(4*offsetcyc),4));
 //      } 
+//   }
+//   else
+//   {
+//      offsetcyc = 0;
+//      if(GL_DO_SOURCE_WITH_SCRAM)  
+//      {
+//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//            if(v_dev_active[site])  
+//            {
+//               SourceArr[site][offsetcyc+1] = curraddr;
+//                /*
+//                 if(TIStdScreenPrint and TI_FlashDebug) then
+//                 writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
+//                 */
+//            } 
+//      }
+//      else
+//      {
+//          /*Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
+//                                 data_pins,S_binary,addr_str);} {KChau - using hardcoded address in pattern for now*/
+//      } 
+//   } 
+//   
+//   if(GL_DO_SOURCE_WITH_SCRAM)  
+//      PatternDigitalSourceCapture(tpatt, data_pins, data_pins, maxsrccount, maxcapcount, false, SourceArr,CaptureArr);
+//   else
+//      PatternDigitalCapture(tpatt, data_pins, maxcapcount,CaptureArr);
 //      
+//
+//    /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
+//   if(GL_USE_RAMPMT_X64)  
+//   {
 //      index = 1;
 //      for count = 1 to maxcapcount by istep do
 //      {
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //            {
-//               tnib0 = 0;
-//               tnib1 = 0;
-//               for (i = 0;i <= 15;i++)
-//               {
-//                  tnib0 = tnib0 +  (CaptureArr[site][count+i] << i);
-//                  tnib1 = tnib1 +  (CaptureArr[site][count+16+i] << i);
-//               } 
-//               FL_SCRAM_CAPT_ARR[index+1][site] = tnib0;  /*lsw*/
-//               FL_SCRAM_CAPT_ARR[index][site]   = tnib1;  /*msw*/
+//               tnib0 = CaptureArr[site][count];    /*ls nibble*/
+//               tnib1 = CaptureArr[site][count+1]<<4;
+//               tnib2 = CaptureArr[site][count+2]<<8;
+//               tnib3 = CaptureArr[site][count+3]<<12;  /*ms nibble*/
+//               tnib4 = CaptureArr[site][count+4];    /*ls nibble*/
+//               tnib5 = CaptureArr[site][count+5]<<4;
+//               tnib6 = CaptureArr[site][count+6]<<8;
+//               tnib7 = CaptureArr[site][count+7]<<12;  /*ms nibble*/
+//               FL_SCRAM_CAPT_ARR[index+1][site] = tnib3+tnib2+tnib1+tnib0;  /*lsw*/
+//               FL_SCRAM_CAPT_ARR[index][site]   = tnib7+tnib6+tnib5+tnib4;  /*msw*/
 //            }   /*if v_dev_active*/
 //         index = index+2;
 //      }   /*for count*/
-//    /*-------- end of JTAG --------*/
-//#else
-//    /*-------- use DMLED --------*/
-//      data_pins = DMLED_OUTBUS;
-//      data_in   = DMLED_INBUS;
-//      istep = 8;   /*8 nibbles or 2 16bit word*/
-//      maxsrccount = 17;
-//      
-//      if(store_option < (ord(MBOXLOG_ARR)))  
-//         maxcapcount = X64MAXCNT;
-//      else
-//         maxcapcount = X64MAXCNT_MBOX;
-//
-//      halfcapcount = maxcapcount div 2;
-//
-//      curraddr = start_addr>>2;
-//      
-//      if((curraddr&0x1)==0)  
-//      {
-//         evenodd[1] = 0;  /*even*/
-//         evenodd[2] = 1;  /*odd*/
-//      }
-//      else
-//      {
-//         evenodd[1] = 1;
-//         evenodd[2] = 0;
-//      } 
-//
-//       /*dmled physical addr*/
-//      physaddr = curraddr>>1;
-//
-//       /*read even/odd*/
-//      for (i = 1;i <= 2;i++)
-//      {
-//         if(GL_DO_SOURCE_WITH_SCRAM)  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-//                     SourceArr[site][offsetcyc+1] = (physaddr & (0x1<<offsetcyc)) >> offsetcyc;
-//                  SourceArr[site][maxsrccount] = evenodd[i];
-//               } 
-//            
-//            if(i==1)  
-//               PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,halfcapcount,false,
-//                                           SourceArr,EvenCaptureArr)
-//            else
-//               PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,halfcapcount,false,
-//                                           SourceArr,OddCaptureArr);
-//         }
-//         else
-//         {
-//            IntToBinStr(physaddr,addr_str);
-//            for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//            {
-//               str2 = "000" + Mid(addr_str + 16-offsetcyc + 1);
-//               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_in,S_binary,str2);
-//            } 
-//            
-//            writestring(str1,evenodd[i]:1);
-//            while (len(str1)<4) do
-//            {
-//               str1 = "0" + str1;
-//            } 
-//            Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_in,S_binary,str1);
-//            
-//            if(i==1)  
-//               PatternDigitalCapture(tpatt,data_pins,halfcapcount,EvenCaptureArr);
-//            else
-//               PatternDigitalCapture(tpatt,data_pins,halfcapcount,OddCaptureArr);
-//         } 
-//      }   /*for i*/
-//      
-//       /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
-//      index = 1;
-//      for count = 1 to halfcapcount by istep do
-//      {
+//   }
+//   else
+//   {
+//      for count = 1 to maxcapcount by istep do
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //            {
-//               tnib0 = EvenCaptureArr[site][count];    /*ls nibble*/
-//               tnib1 = EvenCaptureArr[site][count+1]<<4;
-//               tnib2 = EvenCaptureArr[site][count+2]<<8;
-//               tnib3 = EvenCaptureArr[site][count+3]<<12;  /*ms nibble*/
-//               tnib4 = EvenCaptureArr[site][count+4];    /*ls nibble*/
-//               tnib5 = EvenCaptureArr[site][count+5]<<4;
-//               tnib6 = EvenCaptureArr[site][count+6]<<8;
-//               tnib7 = EvenCaptureArr[site][count+7]<<12;  /*ms nibble*/
-//               FL_SCRAM_CAPT_ARR[index+1][site] = tnib3+tnib2+tnib1+tnib0;  /*lsw*/
-//               FL_SCRAM_CAPT_ARR[index][site]   = tnib7+tnib6+tnib5+tnib4;  /*msw*/
-//               tnib0 = OddCaptureArr[site][count];    /*ls nibble*/
-//               tnib1 = OddCaptureArr[site][count+1]<<4;
-//               tnib2 = OddCaptureArr[site][count+2]<<8;
-//               tnib3 = OddCaptureArr[site][count+3]<<12;  /*ms nibble*/
-//               tnib4 = OddCaptureArr[site][count+4];    /*ls nibble*/
-//               tnib5 = OddCaptureArr[site][count+5]<<4;
-//               tnib6 = OddCaptureArr[site][count+6]<<8;
-//               tnib7 = OddCaptureArr[site][count+7]<<12;  /*ms nibble*/
-//               FL_SCRAM_CAPT_ARR[index+3][site] = tnib3+tnib2+tnib1+tnib0;  /*lsw*/
-//               FL_SCRAM_CAPT_ARR[index+2][site] = tnib7+tnib6+tnib5+tnib4;  /*msw*/
+//               FL_SCRAM_CAPT_ARR[count][site] = CaptureArr[site][count+1];   /*msw*/
+//               FL_SCRAM_CAPT_ARR[count+1][site] = CaptureArr[site][count];   /*lsw*/
 //            }   /*if v_dev_active*/
-//         index = index+4;
-//      }   /*for count*/
-//    /*-------- end of DMLED --------*/
-//#endif      
-//#else
-//      if(GL_USE_RAMPMT_X64)  
-//      {
-//         if(store_option < (ord(MBOXLOG_ARR)))  
-//            maxcapcount = X64MAXCNT;
-//         else
-//            maxcapcount = X64MAXCNT_MBOX;
-//         istep = 8;   /*8 nibbles or 2 16bit word*/
-//         maxsrccount = 4;
-//      }
-//      else
-//      {
-//         if(store_option < (ord(MBOXLOG_ARR)))  
-//            maxcapcount = X16MAXCNT;
-//         else
-//            maxcapcount = X16MAXCNT_MBOX;
-//         istep = 2;
-//         maxsrccount = 1;
-//      } 
-//
-//      data_pins = PMT_RAMBUS;
-//      data_in = PMT_RAMBUS;
-//      curraddr = start_addr>>2;
-//      IntToBinStr(curraddr,addr_str);
-//
-//      if(GL_USE_RAMPMT_X64)  
-//      {
-//         if(GL_DO_SOURCE_WITH_SCRAM)  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
-//                  {
-//                     SourceArr[site][offsetcyc+1] = (curraddr & ((0xf)<<(4*offsetcyc))) >> (4*offsetcyc);
-//                      /*
-//                       if(TIStdScreenPrint and ti_flashdebug) then
-//                       writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
-//                       */
-//                  } 
-//               } 
-//         }
-//         else
-//         {
-//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
-//               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                      data_pins,S_binary,
-//                                      Mid(addr_str,13-(4*offsetcyc),4));
-//         } 
-//      }
-//      else
-//      {
-//         offsetcyc = 0;
-//         if(GL_DO_SOURCE_WITH_SCRAM)  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  SourceArr[site][offsetcyc+1] = curraddr;
-//                   /*
-//                    if(TIStdScreenPrint and ti_flashdebug) then
-//                    writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
-//                    */
-//               } 
-//         }
-//         else
-//         {
-//             /*Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                    data_pins,S_binary,addr_str);} {KChau - using hardcoded address in pattern for now*/
-//         } 
-//      } 
-//      
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//         PatternDigitalSourceCapture(tpatt, data_pins, data_pins, maxsrccount, maxcapcount, false, SourceArr,CaptureArr);
-//      else
-//         PatternDigitalCapture(tpatt, data_pins, maxcapcount,CaptureArr);
-//         
-//
-//       /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
-//      if(GL_USE_RAMPMT_X64)  
-//      {
-//         index = 1;
-//         for count = 1 to maxcapcount by istep do
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  tnib0 = CaptureArr[site][count];    /*ls nibble*/
-//                  tnib1 = CaptureArr[site][count+1]<<4;
-//                  tnib2 = CaptureArr[site][count+2]<<8;
-//                  tnib3 = CaptureArr[site][count+3]<<12;  /*ms nibble*/
-//                  tnib4 = CaptureArr[site][count+4];    /*ls nibble*/
-//                  tnib5 = CaptureArr[site][count+5]<<4;
-//                  tnib6 = CaptureArr[site][count+6]<<8;
-//                  tnib7 = CaptureArr[site][count+7]<<12;  /*ms nibble*/
-//                  FL_SCRAM_CAPT_ARR[index+1][site] = tnib3+tnib2+tnib1+tnib0;  /*lsw*/
-//                  FL_SCRAM_CAPT_ARR[index][site]   = tnib7+tnib6+tnib5+tnib4;  /*msw*/
-//               }   /*if v_dev_active*/
-//            index = index+2;
-//         }   /*for count*/
-//      }
-//      else
-//      {
-//         for count = 1 to maxcapcount by istep do
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  FL_SCRAM_CAPT_ARR[count][site] = CaptureArr[site][count+1];   /*msw*/
-//                  FL_SCRAM_CAPT_ARR[count+1][site] = CaptureArr[site][count];   /*lsw*/
-//               }   /*if v_dev_active*/
-//      } 
-//      
-//#endif
-//
-//       /*store in global var arr*/
-//      if(store_option == (ord(TESTLOG_ARR)))  
-//      {
-//         index = X16MAXCNT;
-//         for (count = 1;count <= index;count++)
-//            FL_TESTLOG_ARR[count] = FL_SCRAM_CAPT_ARR[count];
-//      } 
-//      
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//      {
-//         addr = start_addr;
-//         cout << "Contents from starting cpu address " << addr:s_hex << endl;
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         
-//         if(store_option< (ord(MBOXLOG_ARR)))  
-//            index = X16MAXCNT;
-//         else
-//            index = X16MAXCNT_MBOX;
-//            
-//         for count = 1 to index by 2 do
-//         {
-//            writestring(str1,addr:s_hex:1);
-//            tdata = FL_SCRAM_CAPT_ARR[count];
-//            arraymultintegervalue(tdata,tdata,0x10000,v_sites);         /*msw*/
-//            tdata2 = FL_SCRAM_CAPT_ARR[count+1];   /*lsw*/
-//            arrayaddinteger(tdata,tdata,tdata2,v_sites);
-//            PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
-//            addr = addr+ADDR_RAM_INC;
-//         }   /*for count*/
-//      } 
-//      
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         cout << " GetRamContent_SCRAM TT : " << timernread(ttimer1) << endl;
-//      
-//      V_MemSetBistData = SaveMemsetBistData;
-//
-//      SetupSelect(prevDCSU,norm_fmsu);
-//   }    
-//}   /* GetRamContent_SCRAM */
+//   } 
 //   
-//
-// /*from cpu addr 0x00 to 0xff -- 128 16bit words*/
-//void Get_Flash_TestLogSpace_SCRAM()
-//{
-//   IntS addr,store_option;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         cout << "*** Get_Flash_TestLogSpace_SCRAM ***" << endl;
-//      addr = 0x0;
-//      store_option = ord(TESTLOG_ARR);   /*store contents in FL_TESTLOG_ARR*/
-//      GetRamContent_SCRAM(addr,store_option);
-//   }    
-//}   /* Get_Flash_TestLogSpace_SCRAM */
-//
-//
+#endif
+
+    /*store in global var arr*/
+   if(store_option == (int(TESTLOG_ARR)))  
+   {
+      index = X16MAXCNT;
+      for (count = 0; count < index ;count++)
+         FL_TESTLOG_ARR.SetValue(count, FL_SCRAM_CAPT_ARR[count]);
+   } 
+   
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+   {
+      IntS addr = start_addr;
+      cout << "Contents from starting cpu address " << hex << addr << endl;
+//      PrintHeaderBool(GL_PLELL_FORMAT);
+      
+      if(store_option< (int(MBOXLOG_ARR)))  
+         index = X16MAXCNT;
+      else
+         index = X16MAXCNT_MBOX;
+      
+      UnsignedM tdata;
+      for (count = 0; count < index; count+=2)
+      {
+         tdata = FL_SCRAM_CAPT_ARR[count] * 0x10000 + FL_SCRAM_CAPT_ARR[count+1];
+         // PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
+         // for now, just print it like this...make it like function above later, if needed
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            cout << "Address 0x" << addr << " Site " << *si << " Data 0x" << tdata[*si] << endl;
+         addr = addr+ADDR_RAM_INC;
+      }   /*for count*/
+      cout << dec; 
+   } 
+   
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+      cout << " GetRamContent_SCRAM TT : " << TIME.StopTimer() << endl;
+   
+}   /* GetRamContent_SCRAM */
+   
+
+ /*from cpu addr 0x00 to 0xff -- 128 16bit words*/
+void Get_Flash_TestLogSpace_SCRAM()
+{
+   IntS addr,store_option;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+      cout << "*** Get_Flash_TestLogSpace_SCRAM ***" << endl;
+   addr = 0x0;
+   store_option = int(TESTLOG_ARR);   /*store contents in FL_TESTLOG_ARR*/
+   GetRamContent_SCRAM(addr,store_option);
+}   /* Get_Flash_TestLogSpace_SCRAM */
+
+
 //void Get_TLogSpace_STAT1(    IntM msw_data,
 //                              IntM lsw_data)
 //{
@@ -3399,7 +3337,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_STAT1_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3437,7 +3375,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_STAT2_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3475,7 +3413,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_STAT3_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3513,7 +3451,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_STAT4_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3548,7 +3486,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //
 //      ret_val = tdata;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_TESTFREQ";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3556,40 +3494,27 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      } 
 //   } 
 //}   /* Get_TLogSpace_TESTFREQ */
-//
-//void Get_TLogSpace_PFBin(    IntM ret_val)
-//{
-//   const IntS X16_IND_PF_BIN = 66; 
-//
-//   IntS site,addr;
-//   IntM tdata;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      tdata = 0;
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         tdata = FL_TESTLOG_ARR[X16_IND_PF_BIN];
-//      }
-//      else
-//      {
-//         addr = ADDR_PF_BIN;
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr,tdata);
-//      } 
-//
-//      ret_val = tdata;
-//
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
-//      {
-//         str1 = "FL_PFBIN";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_PFBin */
-//
+
+void Get_TLogSpace_PFBin(    IntM &ret_val)
+{
+   const IntS X16_IND_PF_BIN = 66; 
+
+   IntS site,addr;
+   IntM tdata;
+   StringS str1;
+
+   tdata = 0;
+
+   tdata = FL_TESTLOG_ARR[X16_IND_PF_BIN];
+
+   ret_val = tdata;
+
+   if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
+   {
+      cout << "FL_PFBIN 0x" << hex << tdata << dec << endl;
+   } 
+}   /* Get_TLogSpace_PFBin */
+
 //void Get_TLogSpace_FAILADDR(    IntM msw_data,
 //                                 IntM lsw_data)
 //{
@@ -3617,7 +3542,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_FAILADDR_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3655,7 +3580,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_FAILDATA_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3665,46 +3590,23 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      } 
 //   } 
 //}   /* Get_TLogSpace_FAILDATA */
-//   
-//void Get_TLogSpace_TNUM(    IntM msw_data,
-//                             IntM lsw_data)
-//{
-//   const IntS X16_IND_TNUM_MSW = 71; 
-//   const IntS X16_IND_TNUM_LSW = 72; 
-//
-//   IntS addr_loc,site;
-//   IntM msw_val,lsw_val;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         msw_val = FL_TESTLOG_ARR[X16_IND_TNUM_MSW];
-//         lsw_val = FL_TESTLOG_ARR[X16_IND_TNUM_LSW];
-//      }
-//      else
-//      {
-//         addr_loc = ADDR_TEST_INFO;
-//          /*msw tnum @ cpuaddr 0x008c, lsw @ 0x008e*/
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr_loc,lsw_val);
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr_loc,msw_val);
-//      } 
-//
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
-//      {
-//         str1 = "FL_TNUM_MSW";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
-//         str1 = "FL_TNUM_LSW";
-//         PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_TNUM */
-//
+   
+void Get_TLogSpace_TNUM(    IntM &msw_data,
+                             IntM &lsw_data)
+{
+   const IntS X16_IND_TNUM_MSW = 71; 
+   const IntS X16_IND_TNUM_LSW = 72; 
+
+   msw_data = FL_TESTLOG_ARR[X16_IND_TNUM_MSW];
+   lsw_data = FL_TESTLOG_ARR[X16_IND_TNUM_LSW];
+
+   if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
+   {
+      DLOG.Value(msw_data, UTL_VOID, UTL_VOID, UTL_VOID, "FL_TNUM_MSW");
+      DLOG.Value(lsw_data, UTL_VOID, UTL_VOID, UTL_VOID, "FL_TNUM_LSW");
+   } 
+}   /* Get_TLogSpace_TNUM */
+
 //void Get_TLogSpace_MSTAT(      IntM msw_data, IntM lsw_data)
 //{
 //   const IntS X16_IND_MSTAT_MSW = 73; 
@@ -3731,7 +3633,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_MSTAT_MSW";
 //         PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
@@ -3765,15 +3667,38 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //
 //      ret_val = tdata;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_ERSPULSE";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
 //         PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
 //      } 
 //   } 
-//}   /* Get_TLogSpace_ErsPulse */
-//
+//}   /* Get_TLogSpace_MSTAT */
+   
+void Get_TLogSpace_ErsPulse(IntM ret_val) {
+   const IntS X16_IND_ERS_PULSE = 75; 
+
+   IntS site,addr;
+   IntM tdata;
+   StringS str1;
+
+   tdata = 0;
+
+ 
+   addr = ADDR_ERS_PULSE;
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,tdata);
+
+   ret_val = tdata;
+
+   if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_ERSPULSE";
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+      // TODO: Need datalog print here
+      // PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
+   }  
+}   // Get_TLogSpace_ErsPulse
+
 //void Get_TLogSpace_TRIMSOL(    IntM ret_val)
 //{
 //   const IntS X16_IND_TRIMSOL = 83; 
@@ -3798,7 +3723,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //
 //      ret_val = tdata;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_TRIMSOL";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3807,39 +3732,28 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //   } 
 //}   /* Get_TLogSpace_TRIMSOL */
 //   
-//void Get_TLogSpace_MaxPPulse(    IntM ret_val)
-//{
-//   const IntS X16_IND_MAXPP = 76; 
-//
-//   IntS site,addr;
-//   IntM tdata;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      tdata = 0;
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         tdata = FL_TESTLOG_ARR[X16_IND_MAXPP];
-//      }
-//      else
-//      {
-//         addr = ADDR_PROG_MAX_PULSE;
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr,tdata);
-//      } 
-//
-//      ret_val = tdata;
-//
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
-//      {
-//         str1 = "FL_MAXPPULSE";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_MaxPPulse */
-//
+void Get_TLogSpace_MaxPPulse(IntM ret_val) {
+   const IntS X16_IND_MAXPP = 76; 
+
+   IntS addr;
+   IntM tdata;
+   StringS str1;
+
+   tdata = 0;
+
+   addr = ADDR_PROG_MAX_PULSE;
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,tdata);
+
+   ret_val = tdata;
+
+   if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_MAXPPULSE";
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+      // TODO: Add datalog call here
+      // PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
+   } 
+}   // Get_TLogSpace_MaxPPulse
+
 //void Get_TLogSpace_TotPPulse(    IntM msw_data,
 //                                  IntM lsw_data)
 //{
@@ -3867,7 +3781,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_TOTPPULSE_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3905,7 +3819,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      msw_data = msw_val;
 //      lsw_data = lsw_val;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_MEASFREQ_MSW";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -3950,7 +3864,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      
 //      ret_val = tdata;
 //
-//      if(tistdscreenprint and ti_flashdebug and ti_flashdebug_print)  
+//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
 //      {
 //         str1 = "FL_RTIVALUE";
 //          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
@@ -4275,7 +4189,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                  GL_F021_COF_INFOS[index][site] =
 //                  GL_F021_COF_INFOS[index][site] + " + ";
 //                  
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                     cout << "Site " << site:3 << "  GL_F021_COF_INFOS[" << index:2 << 
 //                             " ] : " << GL_F021_COF_INFOS[index][site] << endl;
 //                  break;
@@ -4538,7 +4452,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      GetRamContentDec_16bit(ramread_nburst_lsw,addr,lsw_data);
 //      msw_data = ovrkey;
 //      WriteRamContentDec_32Bit(addr,lsw_data,true,msw_data,true,true);
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //               readramaddress(site,addr,addr+ADDR_RAM_INC);
@@ -4928,7 +4842,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,true,msw_data,true,true);
 //      
-//      debugprint = TIPrintPass and ti_flashdebug;
+//      debugprint = TIPrintPass and TI_FlashDebug;
 //      if(debugprint and tistdscreenprint)  
 //      {
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -5014,7 +4928,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,true,msw_data,true,true);
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         if(not wstate_autocalc)  
 //            cout << "Set ARB WAITSTATE == " << bit11_8:s_hex:6 << 
@@ -5026,7 +4940,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                    "  Pipeline Enable == " << wstate_pipe_ena:-6 << endl;
 //      } 
 //
-//      debugprint = TIPrintPass and TI_Flashdebug;
+//      debugprint = TIPrintPass and TI_FlashDebug;
 //      if(debugprint and tistdscreenprint)  
 //      {
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -6134,7 +6048,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               value[numword] = 1;
 //            else
 //               value[numword] = 0;
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               cout << "Override Efuse bit " << i:-4 << " value == " << value[numword]:-4 << endl;
 //         }   /*if efindex*/
 //      }   /*for i*/
@@ -6175,7 +6089,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //      } 
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << "+++++ TL_EngOvride_RPC_EF +++++" << endl;
 //         i = ADDR_RAM_MAILBOX;
@@ -6230,7 +6144,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               value[numword] = 1;
 //            else
 //               value[numword] = 0;
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               cout << "Override Efuse bit " << i:-4 << " value == " << value[numword]:-4 << endl;
 //         }   /*if efindex*/
 //      }   /*for i*/
@@ -6260,7 +6174,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //            cout << "None of Bank Efuse bit is selected for eng override" << endl;
 //      } 
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << "+++++ TL_EngOvride_BANK_EF +++++" << endl;
 //         i = ADDR_RAM_MAILBOX;
@@ -6353,7 +6267,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               value[numword] = 1;
 //            else
 //               value[numword] = 0;
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               cout << "Override Efuse bit " << i:-4 << " value == " << value[numword]:-4 << endl;
 //         }   /*if efindex*/
 //      }   /*for i*/
@@ -6394,7 +6308,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //      } 
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << "+++++ TL_EngOvride_RDM0_NMOS_EF +++++" << endl;
 //         i = ADDR_RAM_MAILBOX;
@@ -6453,7 +6367,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               value[numword] = 1;
 //            else
 //               value[numword] = 0;
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               cout << "Override Efuse bit " << i:-4 << " value == " << value[numword]:-4 << endl;
 //         }   /*if efindex*/
 //      }   /*for i*/
@@ -6504,7 +6418,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //      } 
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << "+++++ TL_EngOvride_RDM0_NMOS_EF_PVCT +++++" << endl;
 //         i = ADDR_RAM_MAILBOX;
@@ -6563,7 +6477,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type << " +++++" << endl;
 //
 //      msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
@@ -6611,7 +6525,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type << " VRD CT == " << ovr_data:s_hex:5 << " +++++" << endl;
 //
 //      msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
@@ -6734,7 +6648,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //   BoolS eccbank;
 //
 //   addr = ((msw_cpuaddr<<16)&0xffff0000) + lsw_cpuaddr;
-//   if(tistdscreenprint and ti_flashdebug)  
+//   if(tistdscreenprint and TI_FlashDebug)  
 //      cout << "cpu addr == " << addr:s_hex << endl;
 //   
 //   if((msw_cpuaddr>==B2_ECC_START_MSW) and (msw_cpuaddr<==B2_ECC_STOP_MSW))  
@@ -6742,7 +6656,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //       /*bank2 ecc*/
 //      bank_addr = B2_START + ((addr&BITMASKECC)*MULTFACTOR);
 //      eccbank = true;
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Bank2 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
 //   }
 //   else if(msw_cpuaddr>==B0_ECC_START_MSW)  
@@ -6750,7 +6664,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //       /*b0/b1 ecc*/
 //      bank_addr = B0_START + ((addr&BITMASKECC)*MULTFACTOR);
 //      eccbank = true;
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Bank0/1 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
 //   }
 //   else
@@ -6759,7 +6673,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      bank_addr = addr&BITMASKMAIN;
 //      byte_addr = addr&BITMASKBYTE;
 //      eccbank = false;
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Bank0/1/2 Main <<  bank_addr == " << bank_addr:s_hex:-12 << " byte_addr == " << byte_addr:s_hex << endl;
 //   } 
 //
@@ -6780,7 +6694,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //   } 
 //   bitpos = trunc(bitposreal);
 //
-//   if(tistdscreenprint and ti_flashdebug)  
+//   if(tistdscreenprint and TI_FlashDebug)  
 //      cout << "FData == " << fdata:s_hex:-12 << " bitposreal == " << bitposreal << "  bitpos == " << bitpos << endl;
 //
 //   if(eccbank)  
@@ -6845,7 +6759,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         if(v_dev_active[site])  
 //         {
 //            addr = ((msw_cpuaddr[site]<<16)&0xffff0000) + lsw_cpuaddr[site];
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << "Site" << site:-4 << " cpu addr == " << addr:s_hex << endl;
 //            
 //            if((msw_cpuaddr[site]>==B2_ECC_START_MSW) and (msw_cpuaddr[site]<==B2_ECC_STOP_MSW))  
@@ -6853,7 +6767,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                /*bank2 ecc*/
 //               bank_addr = B2_START + ((addr&BITMASKECC)*MULTFACTOR);
 //               eccbank = true;
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  cout << "Bank2 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
 //            }
 //            else if(msw_cpuaddr[site]>==B0_ECC_START_MSW)  
@@ -6861,7 +6775,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                /*b0/b1 ecc*/
 //               bank_addr = B0_START + ((addr&BITMASKECC)*MULTFACTOR);
 //               eccbank = true;
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  cout << "Bank0/1 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
 //            }
 //            else
@@ -6870,7 +6784,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               bank_addr = addr&BITMASKMAIN;
 //               byte_addr = addr&BITMASKBYTE;
 //               eccbank = false;
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  cout << "Bank0/1/2 Main <<  bank_addr == " << bank_addr:s_hex:-12 << " byte_addr == " << byte_addr:s_hex << endl;
 //            } 
 //            
@@ -6891,7 +6805,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //            } 
 //            bitpos = trunc(bitposreal);
 //            
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << "FData == " << fdata:s_hex:-12 << " bitposreal == " << bitposreal << "  bitpos == " << bitpos << endl;
 //            
 //            if(eccbank)  
@@ -6911,7 +6825,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //            lsw_mainaddr[site] = bank_addr&0x0000FFFF;
 //            SenAmpNum[site] = senamp;  /*return 1st encountered sense amp from failing data*/
 //            
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //            {
 //               cout << "Site" << site:-4 << "MSW_CPUADDR  == " << msw_cpuaddr[site]:s_hex:-8 << " LSW_CPUADDR == " << lsw_cpuaddr[site]:s_hex:-8 << 
 //                       "MSW_FDATA == " << msw_fdata[site]:s_hex:-8 << " LSW_FDATA == " << lsw_fdata[site]:s_hex:-8 << endl;
@@ -6991,9 +6905,12 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //       /*need to expand for other datawidth*/
 //   } 
 //} 
-//
-//
-//
+
+
+// Not converting this. It is the same, effectively, as F021_RunTestNumber_PMEX
+// except the pattern is tested and the pass pin is tested. When we get MatchVector
+// fixed, we will be testing pattern and I will add switch into _PMEX to allow
+// testing the pass pin.  - JT
 //BoolS F021_MatchLoopByPMU_MS(    StringS tpatt,
 //                                    PinML pass_pin,
 //                                    PinML done_pin,
@@ -7003,59 +6920,218 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                                    FloatM ret_timer,
 //                                    BoolM test_results)
 //{
-//   FloatS ttimer1, ttimer2;
-//   BoolM savestates;
-//   BoolS result;
-//   BoolM init_results;
-//   BoolM done_results;
-//   BoolM ndone_results;
-//   BoolM pass_results;
-//   BoolM tmp_results;
-//   FloatS tdelay;
-//   IntS tmpint;
-//   IntS site;
-//   BoolS debugprint;
-//   option databit_1, databit_2, databit_3;
-//   option config_1, config_2, config_3;
-//   BoolS drv_1, drv_2, drv_3;
-//   BoolS load_1, load_2, load_3;
-//   BoolS pmu_1, pmu_2, pmu_3;
-//   BoolS upmu_1, upmu_2, upmu_3;
-//   BoolS statmask_1, statmask_2, statmask_3;
-//   BoolM time_logged;
+////   FloatS ttimer1, ttimer2;
+////   BoolM savestates;
+////   BoolS result;
+////   BoolM init_results;
+////   BoolM done_results;
+////   BoolM ndone_results;
+////   BoolM pass_results;
+////   BoolM tmp_results;
+////   FloatS tdelay;
+////   IntS tmpint;
+////   IntS site;
+////   BoolS debugprint;
+////   option databit_1, databit_2, databit_3;
+////   option config_1, config_2, config_3;
+////   BoolS drv_1, drv_2, drv_3;
+////   BoolS load_1, load_2, load_3;
+////   BoolS pmu_1, pmu_2, pmu_3;
+////   BoolS upmu_1, upmu_2, upmu_3;
+////   BoolS statmask_1, statmask_2, statmask_3;
+////   BoolM time_logged;
+//
+//   debugprint = TI_FlashDebug and TIIgnoreFail;
+//   tdelay = 100us;
+//   timernstart(ttimer1);
+//
+//   savestates = v_dev_active;
+//   test_results = true;
+//   time_logged = false;
+////   DCconnectGet(nporrst,databit_1,config_1,drv_1,load_1,pmu_1,upmu_1,
+////                statmask_1);
+////
+////   Enable(S_PMEXIT);
+////   PMEXSetDelay(S_PFlags,pmstop);
+//   if (using_pattern_match) 
+//   {
+//      test_results = DIGITAL.TestPattern(f021_shell_exepat, true);
+//   } 
+//   else if (using_external_match)// using external match with sync clock or cpu loop in pattern
+//   {
+//      DIGITAL.ExecutePattern(f021_shell_exepat);
+//      DIGITAL.SetDriveMode(nporrst, DIGITAL_DRV_MODE_OFF);
+//      DIGITAL.SetLoadMode(nporrst, DIGITAL_LD_MODE_OFF);
+//      DIGITAL.Connect(nporrst, DIGITAL_DCL_TO_DUT);
+//
+//   // what all does vlct dcconnect do?
+//      DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
+//      DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
+//      DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
+//      DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
+//      DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
+//      DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
+//      
+//      TIME.Wait(tdelay);
+//      done = false;
+//      timer2_start = TIME.GetTimer();
+//
+//      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+//      {      
+//         done_results = DIGITAL.TestCompareState(F021_DONEPIN, DIGITAL_CMP_STATE_HIGH);
+//         test_results = done_results; // forget the history to remove past fails
+//         ndone_results = DIGITAL.TestCompareState(F021_NDONEPIN, DIGITAL_CMP_STATE_LOW);
+//         test_results = DLOG.AccumulateResults(test_results, ndone_results);
+//
+//          /*KChau 02/08/10 - removed passpin strobe on param tests*/
+//          /*if(TI_FlashDebug) then
+//             discard(CompareGet(F021_PASSPIN));*/
+//
+//         done = (test_results == TM_PASS);  // done will only be true if all sites passed
+//         if (!done)
+//         {
+//            TIME.Wait(tdelay);
+//         }
+//      }   /*while*/
+//   } else if (using_fail_flag) {
+//      DIGITAL.ExecutePattern(f021_shell_exepat);
+//      
+//      TIME.Wait(tdelay);
+//      done = false;
+//      timer2_start = TIME.GetTimer();
+//
+//      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
+//      {      
+//         DIGITAL.ReadFlag(F021_DONEPIN, DIGITAL_FLAG_FAIL, done_value, true);
+//         DIGITAL.ReadFlag(F021_NDONEPIN, DIGITAL_FLAG_FAIL, ndone_value, true);
+//         if (!((done_value == true) && (ndone_value == true))) // true is a fail and that's what we're looking for, pattern strobes low
+//         // above will be true unless all sites are done
+//         {
+//            TIME.Wait(tdelay);
+////            cout << "waiting on donepin" << endl;
+//         } else {
+//            done = true;
+//         }
+//      }   /*while*/
+//      // check for results
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      {
+//         if (done_value[*si])
+//            done_results[*si] = TM_PASS;
+//         else
+//            done_results[*si] = TM_FAIL;
+//         
+//         if (ndone_value[*si])
+//            ndone_results[*si] = TM_PASS;
+//         else
+//            ndone_results[*si] = TM_FAIL;
+//            
+//      }
+//      test_results = done_results;
+//      test_results = DLOG.AccumulateResults(test_results, ndone_results);
+//      
+//   } else if (using_long_repeat) {
+//      DIGITAL.ExecutePattern(f021_shell_exepat);
+//      test_results = TM_PASS; // just force a pass...this is debug :TODO: Remove this after debug
+//   }
+//   
+//   if (using_cpu_loop) // let's end the loop
+//   {
+//      DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
+//   } 
+//
+//   Patternexecute(tmpint,tpatt);
+//   ArrayAndBoolean(init_results,v_pf_status,v_dev_active,v_sites);
+////   dcconnect(nporrst,s_high,s_ldoff);
+//   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+//   {
+//      cout << "F021_MatchLoopByPMU LOAD  ";
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      {
+//         if(v_dev_active[site])  
+//         {
+//            if(init_results[site])  
+//               cout << "  /  ");
+//            else
+//               cout << "  X  ";
+//         }
+//         else
+//            cout << "  X  ";
+//      }   /*for site*/
+//      cout << endl;
+//   } 
+//            
+//   if((not tiignorefail) and (not TI_FlashCOFEna))  
+//      DevSetHoldStates(init_results);   /*de-activate failing site*/
 //
 //   if(V_any_dev_active)  
-//   {
-//      debugprint = TI_FlashDebug and TIIgnoreFail;
-//      tdelay = 100us;
-//      timernstart(ttimer1);
+//   {         
+//      DCConnect(done_pin,S_High,S_ldoff);  /*strobe hi*/
+//      DCConnect(ndone_pin,S_Low,S_ldoff);  /*strobe low*/
+//      DCConnect(pass_pin,s_High,s_ldoff);  /*strobe hi*/
+//      TIME.Wait(5ms);
+//      result = false;
+//      timernstart(ttimer2);
 //
-//      savestates = v_dev_active;
-//      test_results = true;
-//      time_logged = false;
-//      DCconnectGet(nporrst,databit_1,config_1,drv_1,load_1,pmu_1,upmu_1,
-//                   statmask_1);
-// /*
-//       DCconnectGet(pass_pin,databit_1,config_1,drv_1,load_1,pmu_1,upmu_1,
-//                    statmask_1);
-//       DCconnectGet(done_pin,databit_2,config_2,drv_2,load_2,pmu_2,upmu_2,
-//                    statmask_2);
-//       DCconnectGet(ndone_pin,databit_3,config_3,drv_3,load_3,pmu_3,upmu_3,
-//                    statmask_3);
-// */
-//      Enable(S_PMEXIT);
-//      PMEXSetDelay(S_PFlags,pmstop);
-//      Patternexecute(tmpint,tpatt);
-//      ArrayAndBoolean(init_results,v_pf_status,v_dev_active,v_sites);
-//      dcconnect(nporrst,s_high,s_ldoff);
+//      while((not result) and (timernread(ttimer2)<max_timeout)) do
+//      {
+//         VoltageCompareOpt(S_DATA);
+//         
+//         CompareGet(done_pin);
+//         done_results = v_pf_status;
+//         CompareGet(ndone_pin);
+//         ndone_results = v_pf_status;
+//         ArrayAndBoolean(tmp_results,done_results,ndone_results,v_sites);
+//         result = ArrayCompareBoolean(tmp_results,v_dev_active,v_sites);
+//
+//          /*record time for done site*/
+//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//            if(v_dev_active[site] and tmp_results[site] and
+//               (not time_logged[site]))  
+//            {
+//               ret_timer[site] = timernread(ttimer1);
+//               time_logged[site] = true;
+//            } 
+//         TIME.Wait(tdelay);
+//      }   /*while*/
+//
+//      CompareGet(pass_pin);
+//      pass_results = v_pf_status;
+//
+//       /*record time for time-out site*/
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//         if(v_dev_active[site] and (not time_logged[site]))  
+//         {
+//            ret_timer[site] = timernread(ttimer1);
+//            time_logged[site] = true;
+//         } 
+//
 //      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //      {
-//         cout << "F021_MatchLoopByPMU LOAD  ";
+//         cout << "        " << "DONE (1)":10 << "  " << "NDONE (0)":10 << "  " << 
+//                 "PASS (1)" << endl;
+//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//            if V_dev_active[site]  
+//               cout << "Site " << site:2 << "  " << done_results[site]:10 << 
+//                       "  " << ndone_results[site]:10 << "  " << pass_results[site] << endl;
+//      } 
+//      
+//      ArrayAndBoolean(tmp_results,tmp_results,pass_results,v_sites);
+//      ArrayAndBoolean(test_results,tmp_results,init_results,v_sites);
+//      
+//      if(tistdscreenprint and debugprint)  
+//         cout << "EXEC TT " << timernread(ttimer2) << endl;
+//      
+//      Disable(s_pmexit);
+//
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+//      {
+//         cout << "MatchLoopByPMU EXEC ";
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //         {
 //            if(v_dev_active[site])  
 //            {
-//               if(init_results[site])  
+//               if(test_results[site])  
 //                  cout << "  /  ");
 //               else
 //                  cout << "  X  ";
@@ -7064,106 +7140,17 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //               cout << "  X  ";
 //         }   /*for site*/
 //         cout << endl;
-//      } 
-//               
-//      if((not tiignorefail) and (not TI_FlashCOFEna))  
-//         DevSetHoldStates(init_results);   /*de-activate failing site*/
+//      }   /*if tistdscreenprint*/
 //
-//      if(V_any_dev_active)  
-//      {         
-//         DCConnect(done_pin,S_High,S_ldoff);  /*strobe hi*/
-//         DCConnect(ndone_pin,S_Low,S_ldoff);  /*strobe low*/
-//         DCConnect(pass_pin,s_High,s_ldoff);  /*strobe hi*/
-//         TIME.Wait(5ms);
-//         result = false;
-//         timernstart(ttimer2);
+//   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+//      cout << "MatchLoopByPMU TT : " << timernread(ttimer1) << endl;
 //
-//         while((not result) and (timernread(ttimer2)<max_timeout)) do
-//         {
-//            VoltageCompareOpt(S_DATA);
-//            
-//            CompareGet(done_pin);
-//            done_results = v_pf_status;
-//            CompareGet(ndone_pin);
-//            ndone_results = v_pf_status;
-//            ArrayAndBoolean(tmp_results,done_results,ndone_results,v_sites);
-//            result = ArrayCompareBoolean(tmp_results,v_dev_active,v_sites);
-//
-//             /*record time for done site*/
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and tmp_results[site] and
-//                  (not time_logged[site]))  
-//               {
-//                  ret_timer[site] = timernread(ttimer1);
-//                  time_logged[site] = true;
-//               } 
-//            TIME.Wait(tdelay);
-//         }   /*while*/
-//
-//         CompareGet(pass_pin);
-//         pass_results = v_pf_status;
-//
-//          /*record time for time-out site*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and (not time_logged[site]))  
-//            {
-//               ret_timer[site] = timernread(ttimer1);
-//               time_logged[site] = true;
-//            } 
-//
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         {
-//            cout << "        " << "DONE (1)":10 << "  " << "NDONE (0)":10 << "  " << 
-//                    "PASS (1)" << endl;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if V_dev_active[site]  
-//                  cout << "Site " << site:2 << "  " << done_results[site]:10 << 
-//                          "  " << ndone_results[site]:10 << "  " << pass_results[site] << endl;
-//         } 
-//         
-//         ArrayAndBoolean(tmp_results,tmp_results,pass_results,v_sites);
-//         ArrayAndBoolean(test_results,tmp_results,init_results,v_sites);
-//         
-//         if(tistdscreenprint and debugprint)  
-//            cout << "EXEC TT " << timernread(ttimer2) << endl;
-//         
-//         Disable(s_pmexit);
-//
-//         if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         {
-//            cout << "MatchLoopByPMU EXEC ";
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            {
-//               if(v_dev_active[site])  
-//               {
-//                  if(test_results[site])  
-//                     cout << "  /  ");
-//                  else
-//                     cout << "  X  ";
-//               }
-//               else
-//                  cout << "  X  ";
-//            }   /*for site*/
-//            cout << endl;
-//         }   /*if tistdscreenprint*/
-//
-// /*         DCConnect(nporrst,databit_1,config_1);*/
-// /*
-//          DCConnect(pass_pin,databit_1,config_1);
-//          DCConnect(done_pin,databit_2,config_2);
-//          DCConnect(ndone_pin,databit_3,config_3);
-//         */
-//      }   /*if v_any_dev_active*/
-//
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         cout << "MatchLoopByPMU TT : " << timernread(ttimer1) << endl;
-//
-//   }   /*if v_any_dev_active*/
 //   Devsetholdstates(savestates);
 //   DCConnect(nporrst,databit_1,config_1);
 //   Clockstopfreerun(s_clock1a);
 //   F021_MatchLoopByPMU_MS = v_any_dev_active;
 //}   /* F021_MatchLoopByPMU_MS */
+
 //BoolS F021_MatchLoopByPMU_MS_loader(    StringS tpatt,
 //                                    PinML pass_pin,
 //                                    PinML done_pin,
@@ -7298,7 +7285,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         
 //         Disable(s_pmexit);
 //
-//         if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //         {
 //            cout << "MatchLoopByPMU EXEC ";
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -7324,7 +7311,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //         */
 //      }   /*if v_any_dev_active*/
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //         cout << "MatchLoopByPMU_loader TT : " << timernread(ttimer1) << endl;
 //
 //   }   /*if v_any_dev_active*/
@@ -7380,50 +7367,22 @@ void F021_SetTestNum(IntS testnum)
    length = 4;
    hindex = 5;
 #endif
+
+   tpatt = f021_shell_exepat;
    
-   /* Below not converted because of if (false) if needed, :MANUAL FIX REQUIRED: */
-//   if(false )   /*GL_DO_SOURCE_WITH_SCRAM*/
-//   {
-//      tpatt = f021_shell_exepat; /*f021_shell_tnumpat ???*/
-//      SaveMemsetBistData = V_MemSetBistData;
-//      V_MemSetBistData = FALSE;
-//      
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         site = *si;
-//         for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//         {
-//            shiftbit = length*offsetcyc;
-//            SourceArr[site][offsetcyc+1]      = (tnumlo & (maskbit<<shiftbit)) >> shiftbit;
-//            SourceArr[site][offsetcyc+hindex] = (tnumhi & (maskbit<<shiftbit)) >> shiftbit;
-//             /*
-//             if(TIStdScreenPrint and TI_FlashDebug) then
-//             begin
-//                write(tiwindow,'SourceArr[ ',(offsetcyc+1):-2,'] = ',SourceArr[site,offsetcyc+1]:-2,'    ');
-//                writeln(tiwindow,'SourceArr[ ',(offsetcyc+hindex):-2,'] = ',SourceArr[site,offsetcyc+hindex]:-2);
-//             end;
-//             */
-//         } 
-//      }
-//      PatternDigitalSource(tpatt, data_pins, maxsrccount, False, SourceArr);
-//   }  /*gl_do_source_with_scram*/
-//   else
-//   {
-      tpatt = f021_shell_exepat;
-      
-      StringML SourceArrLo, SourceArrHi, SourceArr;
-      StringS vector_data;
-      for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-      {
-         shiftbit = length*offsetcyc;
-         vector_data = strlo.Substring(eindex-shiftbit, length); 
-         SourceArrLo += vector_data;
-         vector_data = strhi.Substring(eindex-shiftbit, length);
-         SourceArrHi += vector_data;
-      }
-      SourceArr = SourceArrLo + SourceArrHi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
-//   } 
+   StringML SourceArrLo, SourceArrHi, SourceArr;
+   StringS vector_data;
+   for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
+   {
+      shiftbit = length*offsetcyc;
+      vector_data = strlo.Substring(eindex-shiftbit, length); 
+      SourceArrLo += vector_data;
+      vector_data = strhi.Substring(eindex-shiftbit, length);
+      SourceArrHi += vector_data;
+   }
+   SourceArr = SourceArrLo + SourceArrHi;
+   DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
+
 #else
    StringML SourceArrLo, SourceArrHi, SourceArr;
    StringS vector_data;
@@ -7476,7 +7435,7 @@ void F021_SetTestNum(IntS testnum)
 //               tmp_results[site] = false;
 //      test_results = tmp_results;
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << "Check RAM expected TNUM " << expTnum:s_hex << endl;
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -7491,107 +7450,76 @@ void F021_SetTestNum(IntS testnum)
 //      } 
 //   } 
 //}   /* Check_RAM_TNUM */
-//      
-// /*Set Flash TestNumber in RAM and execute*/
-//BoolS F021_RunTestNumber(    IntS testnum,
-//                                FloatS maxtimeout,
-//                                FloatM ret_timer,
-//                                BoolM ret_result)
-//{
-//   IntS testnumber,i;
-//   IntS pmstop;
-//   BoolM test_results;
-//   BoolM exec_results;
-//   IntM value1,value2,value3;
-//   IntS count,site;
-//   FloatS ttimer1,maxtime;
-//   IntS addr_loc,addr_loc2;
-//   IntS tnumhi,tnumlo;
-//   DCSetUp prevDCSU;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and ti_flashdebug)  
-//         cout << "Running Test Number " << testnum:s_hex << endl;
-//      
-//      timernstart(ttimer1);      
-//
-//      if(maxtimeout>0s)  
-//         maxtime = maxtimeout;
-//      else
-//         maxtime = GL_F021_MAXTIME;
-//
-//      pmstop = 1;
-//
-//      testnumber = testnum;
-//      tnumhi = ((testnum&0xffff0000)>>16)&0x0000ffff;
-//      tnumlo = testnum&0x0000ffff;
-//      i = (tnumlo & 0x0f00) >>8;
-//      
-//      test_results = v_dev_active;
-//      exec_results = false;
-//      ret_timer = 0;
-//
-//      SetupGet(prevDCSU);
-//      SetupSelect(prevDCSU,norm_fmsu);
-//      
-//       /* +++ Set Test Number in RAM +++ */
-//      F021_SetTestNum(testnumber);
-//      
-//       /* +++ Execute test +++ */
-//      discard(f021_matchloopbypmu_ms(f021_shell_exepat,
-//              F021_PASSPIN,F021_DONEPIN,F021_NDONEPIN,
-//              maxtime,pmstop,ret_timer,exec_results));
-//
-//       /*overall result*/
-//      ArrayAndBoolean(test_results,test_results,exec_results,V_sites);
-//
-//       /*check to make sure correct testnumber is written in device ram.*/
-//       /*this is to preventing running previous testnumber due to problem*/
-//       /*during updating new testnumber which can cause false pass*/
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//         Get_Flash_TestLogSpace_SCRAM;
-//
-//      Get_TLogSpace_TNUM(value2,value1);
-//      
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and test_results[site])  
-//            if((value1[site]!=tnumlo) or (value2[site]!=tnumhi))  
-//               test_results[site] = false;
-//      
-//      ret_result = test_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//      {
-//         Get_TLogSpace_PFBin(value3);
-//         addr_loc2 = ADDR_PF_BIN;
-//         addr_loc  = ADDR_TEST_INFO;
-//         cout << "RAM Loc (PF/Tnum) @ " << (addr_loc2):s_hex << " / " << 
-//                 (addr_loc):s_hex << "  ==  " << endl;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if v_dev_active[site]  
-//               cout << "Site " << site:-5 << value3[site]:s_hex << " " << 
-//                       value2[site]:s_hex:8 << "  " << value1[site]:s_hex:8 << endl;
-//
-//         cout << "RunTestNumber " << testnum:s_hex:-12;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and test_results[site])  
-//               cout << "  /  ");
-//            else
-//               cout << "  X  ";
-//         cout << "  TT " << timernread(ttimer1) << endl;
-//      } 
-//
-//      if(tistdscreenprint and (not ti_flashcharena) and (not GL_DO_ESDA_WITH_SCRAM))  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and (not test_results[site]))  
-//               readramaddress(site,0,0xff);
-//
-//   }   /*if v_any_dev_active*/
-//
-//   F021_RunTestNumber = V_any_dev_active;
-//}   /* F021_RunTestNumber */
+      
+
+ /*Set Flash TestNumber in RAM and execute*/
+BoolS F021_RunTestNumber(    const IntS &testnum,
+                                const FloatS &maxtimeout,
+                                FloatM &ret_timer,
+                                TMResultM &ret_result)
+{
+   TMResultM test_results(TM_NOTEST);
+   TMResultM exec_results = TM_NOTEST;
+   TMResultM tmp_results = TM_NOTEST;
+   IntM value1,value2,value3;
+   FloatS maxtime;
+   IntS addr_loc,addr_loc2;
+   IntS tnumhi,tnumlo;
+   StringS str1;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "Running Test Number " << hex << testnum << dec << endl;
+      
+   // only start timer if we're going to stop it 
+   if(tistdscreenprint and TI_FlashDebug)  
+      TIME.StartTimer();  
+
+   if(maxtimeout>0s)  
+      maxtime = maxtimeout;
+   else
+      maxtime = GL_F021_MAXTIME;
+
+   tnumhi = ((testnum&IntS(0xffff0000))>>16)&0xffff;
+   tnumlo = testnum&0x0000ffff;
+   
+   ret_timer = 0;
+
+    /* +++ Execute test +++ */
+   exec_results = F021_RunTestNumber_PMEX(testnum, maxtime, true);
+
+    /*check to make sure correct testnumber is written in device ram.*/
+    /*this is to preventing running previous testnumber due to problem*/
+    /*during updating new testnumber which can cause false pass*/
+
+
+   Get_Flash_TestLogSpace_SCRAM();
+
+   Get_TLogSpace_TNUM(value2,value1);
+   
+   if (TI_FlashDebug)
+   {
+      Get_TLogSpace_PFBin(value3);
+      addr_loc2 = ADDR_PF_BIN;
+      addr_loc = ADDR_TEST_INFO;
+      IO.Print(str1, "RAM Loc (PF/Tnum) @ %x / %x  ==", addr_loc2, addr_loc);
+      DLOG.Text(str1);
+      DLOG.Value(value3, UTL_VOID, UTL_VOID, UTL_VOID, "FL_PFBIN");
+   }
+
+   tmp_results = DLOG.Value(value1, tnumlo, tnumlo, UTL_VOID, "Readback F021 Test Number Low");
+   test_results = DLOG.Value(value2, tnumhi, tnumhi, UTL_VOID, "Readback F021 Test Number High");
+   
+   ret_result = DLOG.AccumulateResults(tmp_results, test_results);
+
+   if(tistdscreenprint and TI_FlashDebug)  
+   {
+      DLOG.Value(ret_result, TM_PASS, TM_PASS, UTL_VOID, "RunTestNumber");
+      cout << "  TT " << TIME.StopTimer() << endl;
+   } 
+
+   return (true);
+}   /* F021_RunTestNumber */
+
 
 TMResultM F021_LoadFlashShell_func()
 {
@@ -8039,7 +7967,7 @@ void F021_Set_TPADS(IntS TCRnum,
 // 
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << endl;
 //
 //      fdlen1 = 5;
@@ -8249,7 +8177,7 @@ void F021_Set_TPADS(IntS TCRnum,
 //            {
 //               STDSetVRange(tsupply,vRange);
 //               STDSetVI(tsupply,vProg,iProg);
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //               {
 //                  cout << "Setting TPADs --  TCR " << tcrnum:-fdlen1 << endl;
 //                  cout << str1:-fdlen1 << " Vprog == " << vProg:-fdlen1:fdlen2 << 
@@ -8315,7 +8243,7 @@ void F021_Set_TPADS(IntS TCRnum,
 //            if(suppena)  
 //            {
 //               STDSetVI(tsupply,vProg,iProg);
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //               {
 //                  cout << " TPADs --  TCR " << tcrnum:-fdlen1 << endl;
 //                  cout << str1:-fdlen1 << " Vprog == " << vProg:-fdlen1:fdlen2 << 
@@ -8328,7 +8256,7 @@ void F021_Set_TPADS(IntS TCRnum,
 //      
 //      tdelay = 10us;
 //      TIME.Wait(tdelay);
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << endl;
 //   } 
 //}   /* F021_Set_TPADS_ByOrder */
@@ -8368,18 +8296,24 @@ void F021_TurnOff_AllTPADS()
 
    VI.Gate(FLTP1, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP2, VI_GATE_OFF_LOZ);
+   VI.Disconnect(FLTP1);
+   VI.Disconnect(FLTP2);
 //   STDSetVI(FLTP1,0V,1mA);
 //   STDSetVI(FLTP2,0V,1mA);
 #if $TP3_TO_TP5_PRESENT  
    VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP4, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP5, VI_GATE_OFF_LOZ);
+   VI.Disconnect(FLTP3);
+   VI.Disconnect(FLTP4);
+   VI.Disconnect(FLTP5);
 //   STDSetVI(FLTP3,0V,1mA);
 //   STDSetVI(FLTP4,0V,1mA);
 //   STDSetVI(FLTP5,0V,1mA);
 #endif
 #if $TADC_PRESENT  
    VI.Gate(P_TADC, VI_GATE_OFF_LOZ);
+   VI.Disconnect(P_TADC);
 //   STDSetVI(P_TADC,0V,1mA);
 #endif
       
@@ -8404,7 +8338,7 @@ void F021_TurnOff_AllTPADS()
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << endl;
 //         cout << "Ramping TPAD ... " << endl;
@@ -8466,7 +8400,7 @@ void F021_TurnOff_AllTPADS()
 //         vProg = vstart+(count*vstep);
 //         STDSetVI(tsupply,vProg,iProg);
 //         TIME.Wait(tdelay);
-//         if(tistdscreenprint and ti_flashdebug)  
+//         if(tistdscreenprint and TI_FlashDebug)  
 //            cout << "Ramping " << str1 << " @ " << vProg:fdlen1:fdlen2 << " @ " << iProg << endl;
 //      } 
 //
@@ -8474,7 +8408,7 @@ void F021_TurnOff_AllTPADS()
 //         STDSetVRange(tsupply,vstop);
 //      STDSetVI(tsupply,vstop,iProg);
 //      TIME.Wait(tdelay);            
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Ramping " << str1 << " @ " << vstop:fdlen1:fdlen2 << " @ " << iProg << endl;
 //      
 //   }   /*if v_any_dev_active*/
@@ -8661,32 +8595,16 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
 
  /*execute tnumber w/ pmex enable and remain w/o disable pmex*/
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
-                                     FloatS maxtimeout)
+                                     FloatS maxtimeout,
+                                     BoolS testPassPin)
 {
    FloatS maxtime,tdelay,ttimer1,timer2_start;
-   TMResultM done_results,ndone_results, test_results;
+   TMResultM test_results = TM_NOTEST;
    BoolS done,debugprint;
-   // only enable one of the following 4 options
-   bool using_pattern_match = false;
-   bool using_external_match = false;
-   bool using_fail_flag = true;
-   bool using_long_repeat = false;
-   
+   bool using_pattern_match = false;   
    bool using_cpu_loop = true;
-   BoolM done_value, ndone_value;
-//   option databit_1, databit_2, databit_3;
-//   option config_1, config_2, config_3;
-//   BoolS drv_1, drv_2, drv_3;
-//   BoolS load_1, load_2, load_3;
-//   BoolS pmu_1, pmu_2, pmu_3;
-//   BoolS upmu_1, upmu_2, upmu_3;
-//   BoolS statmask_1, statmask_2, statmask_3;
-//   DCSetUp prevDCSU;
-//   IntS site,pmstop,tmpint;
-//   BoolM pass_results;
+   BoolM done_value, ndone_value, pass_value, all_bool;
    
-   test_results = TM_NOTEST;
-
    TIME.StartTimer();
    debugprint = TI_FlashDebug and tiprintpass;      
    if(tistdscreenprint and debugprint)  
@@ -8699,57 +8617,13 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 
    tdelay = 100us;
 
-//   SetupGet(prevDCSU);
-//   SetupSelect(prevDCSU,norm_fmsu);
-//   DCconnectGet(nporrst,databit_1,config_1,drv_1,load_1,pmu_1,upmu_1,
-//                statmask_1);
-   
-//   pmstop = 1;
-//   Enable(S_pmexit);
-//   PMExSetdelay(S_PFLAGS,pmstop);  // don't understand all this pmstop stuff
    F021_SetTestNum(testnum);
    
    if (using_pattern_match) 
    {
       test_results = DIGITAL.TestPattern(f021_shell_exepat, true);
    } 
-   else if (using_external_match)// using external match with sync clock or cpu loop in pattern
-   {
-      DIGITAL.ExecutePattern(f021_shell_exepat);
-      DIGITAL.SetDriveMode(nporrst, DIGITAL_DRV_MODE_OFF);
-      DIGITAL.SetLoadMode(nporrst, DIGITAL_LD_MODE_OFF);
-      DIGITAL.Connect(nporrst, DIGITAL_DCL_TO_DUT);
-
-   // what all does vlct dcconnect do?
-      DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
-      DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
-      DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
-      DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
-      DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
-      DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
-      
-      TIME.Wait(tdelay);
-      done = false;
-      timer2_start = TIME.GetTimer();
-
-      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
-      {      
-         done_results = DIGITAL.TestCompareState(F021_DONEPIN, DIGITAL_CMP_STATE_HIGH);
-         test_results = done_results; // forget the history to remove past fails
-         ndone_results = DIGITAL.TestCompareState(F021_NDONEPIN, DIGITAL_CMP_STATE_LOW);
-         test_results = DLOG.AccumulateResults(test_results, ndone_results);
-
-          /*KChau 02/08/10 - removed passpin strobe on param tests*/
-          /*if(TI_FlashDebug) then
-             discard(CompareGet(F021_PASSPIN));*/
-
-         done = (test_results == TM_PASS);  // done will only be true if all sites passed
-         if (!done)
-         {
-            TIME.Wait(tdelay);
-         }
-      }   /*while*/
-   } else if (using_fail_flag) {
+   else {
       DIGITAL.ExecutePattern(f021_shell_exepat);
       
       TIME.Wait(tdelay);
@@ -8760,7 +8634,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       {      
          DIGITAL.ReadFlag(F021_DONEPIN, DIGITAL_FLAG_FAIL, done_value, true);
          DIGITAL.ReadFlag(F021_NDONEPIN, DIGITAL_FLAG_FAIL, ndone_value, true);
-         if (!((done_value == true) && (ndone_value == true))) // true is a fail and that's what we're looking for, pattern strobes low
+         if (!((done_value == true) & (ndone_value == true))) // true is a fail and that's what we're looking for, pattern strobes low
          // above will be true unless all sites are done
          {
             TIME.Wait(tdelay);
@@ -8769,26 +8643,21 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
             done = true;
          }
       }   /*while*/
+      
+      // And done and ndone and pass, if needed
+      if (testPassPin)
+      {
+         DIGITAL.ReadFlag(F021_PASSPIN, DIGITAL_FLAG_FAIL, pass_value, true);
+         all_bool = done_value & pass_value & ndone_value;
+      } else 
+      {
+         all_bool = done_value & ndone_value;
+      }
+      
       // check for results
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-      {
-         if (done_value[*si])
-            done_results[*si] = TM_PASS;
-         else
-            done_results[*si] = TM_FAIL;
-         
-         if (ndone_value[*si])
-            ndone_results[*si] = TM_PASS;
-         else
-            ndone_results[*si] = TM_FAIL;
-            
-      }
-      test_results = done_results;
-      test_results = DLOG.AccumulateResults(test_results, ndone_results);
+         test_results[*si] = all_bool[*si] ? TM_PASS : TM_FAIL;
       
-   } else if (using_long_repeat) {
-      DIGITAL.ExecutePattern(f021_shell_exepat);
-      test_results = TM_PASS; // just force a pass...this is debug :TODO: Remove this after debug
    }
    
    if (using_cpu_loop) // let's end the loop
@@ -8796,58 +8665,38 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
    } 
 
-//      DIGITAL.SetDriveMode(F021_DONEPIN, DIGITAL_DRV_MODE_OFF);
-//      DIGITAL.SetLoadMode(F021_DONEPIN, DIGITAL_LD_MODE_OFF);
-//      DIGITAL.Connect(F021_DONEPIN, DIGITAL_DCL_TO_DUT);
-//      DIGITAL.SetDriveMode(F021_NDONEPIN, DIGITAL_DRV_MODE_OFF);
-//      DIGITAL.SetLoadMode(F021_NDONEPIN, DIGITAL_LD_MODE_OFF);
-//      DIGITAL.Connect(F021_NDONEPIN, DIGITAL_DCL_TO_DUT);
-      
-//      TIME.Wait(tdelay);
-//      done = false;
-//      test_results = TM_NOTEST;
-//      timer2_start = TIME.GetTimer();
-//
-//      while((!done) && ((TIME.GetTimer() - timer2_start)<maxtime))
-//      {      
-//         DIGITAL.ReadCounter(F021_DONEPIN, DIGITAL_FAIL_COUNTER, done_value, 1);
-//         if (done_value.AllNotEqual(1))
-//         {
-//            TIME.Wait(tdelay);
-//            cout << "waiting on donepin" << endl;
-//         } else {
-//            done = true;
-//         }
-//
-//      }   /*while*/
-
    ttimer1 = TIME.StopTimer();
 
-//   DCConnect(nporrst,databit_1,config_1);
-   
    if(tistdscreenprint and debugprint)  
    {
-      IO.Print(IO.Stdout,"F021_DONEPIN  (H) : ");
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-         if(done_results[*si] == TM_PASS)  
-            IO.Print(IO.Stdout,"  /  ");
-         else
-            IO.Print(IO.Stdout,"  X  ");
-      IO.Print(IO.Stdout,"\n");
-      IO.Print(IO.Stdout,"F021_NDONEPIN (L) : ");
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-         if(ndone_results[*si] == TM_PASS)  
-            IO.Print(IO.Stdout,"  /  ");
-         else
-            IO.Print(IO.Stdout,"  X  ");
-      IO.Print(IO.Stdout,"\n");
-      // commented out PASSPIN code because check was commented out
-//      IO.Print(IO.Stdout,,"F021_PASSPIN (H) : ");
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(pass_results[*si] == TM_PASS)  
-//            IO.Print(IO.Stdout,,"/":5);
-//         else
-//            IO.Print(IO.Stdout,,"X":5);
+      // these values will be meaningless for matchvector
+      if (!using_pattern_match)
+      {
+         IO.Print(IO.Stdout,"F021_DONEPIN  (H) : ");
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            if(done_value[*si])  
+               IO.Print(IO.Stdout,"  /  ");
+            else
+               IO.Print(IO.Stdout,"  X  ");
+         IO.Print(IO.Stdout,"\n");
+         IO.Print(IO.Stdout,"F021_NDONEPIN (L) : ");
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            if(ndone_value[*si])  
+               IO.Print(IO.Stdout,"  /  ");
+            else
+               IO.Print(IO.Stdout,"  X  ");
+         IO.Print(IO.Stdout,"\n");
+         if (testPassPin)
+         {
+            IO.Print(IO.Stdout,"F021_PASSPIN  (H) : ");
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if(pass_value[*si])  
+                  IO.Print(IO.Stdout,"  /  ");
+               else
+                  IO.Print(IO.Stdout,"  X  ");
+            IO.Print(IO.Stdout,"\n");
+         }
+      }
       IO.Print(IO.Stdout,"\n");
       IO.Print(IO.Stdout,"F021_RunTestNumber_PMEX TT : %e\n",ttimer1);
       IO.Flush(IO.Stdout);
@@ -8881,7 +8730,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_IProg +++++" << endl;
 //
 //      wr_flag_num = 0x1234;
@@ -8944,7 +8793,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_ISenAmp +++++" << endl;
 //
 //      bcd_format  = true;
@@ -9696,7 +9545,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //      if(tistdscreenprint)  
 //      {
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site])  
 //                  readramaddress(site,addr_loc,addr_loc+(count*ADDR_RAM_INC));
@@ -9764,7 +9613,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //         
 //      if(tistdscreenprint)  
 //      {
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //         {
 //            PrintHeaderBool(GL_PLELL_FORMAT);
 //            PrintResultBool("ArbitraryRead",testnum,final_results,GL_PLELL_FORMAT);
@@ -9892,7 +9741,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      iref_rd_ARRAY =  0A;
 //      F021_Set_TPADS(tcrnum,tcrmode);
 //      TIME.Wait(tdelay1);
-//      if(ti_flashdebug)  
+//      if(TI_FlashDebug)  
 //      {
 //         F021_RunTestNumber_PMEX(tnum_iref,maxtime,tmp_results);
 //         TIME.Wait(tdelay2);
@@ -10658,106 +10507,98 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   }   /*if v_any_dev_active*/
 //      
 //}   /* TL_EngOvride_W89_RAM */
-//
-//
-//void TL_RunTestNum(IntS start_testnum,
-//                        StringS logstr)
-//{
-//   IntS site,bank,sblk,eblk;
-//   IntS testnum,pattype,count,i;
-//   FloatS maxtime;
-//   FloatM tt_timer;
-//   BoolM tmp_results;
-//   BoolS logena;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(logstr!="")  
-//      {
-//         str1 = logstr;
-//         logena = true;
-//      }
-//      else
-//      {
-//         str1 = "FLASHTEST";
-//         logena = false;
-//      } 
-//
-//      i = (start_testnum&0x00000f00) >> 8;
-//      switch(i) {
-//        case 0 : pattype = BANKTYPE;
-//        case 1 : pattype = SECTTYPE;
-//        case 2 : pattype = BLOCKTYPE;
-//        case 3 : pattype = QUADTYPE;
-//        default: pattype = OTPTYPE;
-//      }   /* case */
-//
-//      maxtime = GL_F021_MAXTIME;
-//
-//      PrintHeaderBool(GL_PLELL_FORMAT);
-//
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//         {
-//            sblk = bank;
-//            eblk = bank;
-//         }
-//         else if(pattype==BLOCKTYPE)  
-//         {
-//            sblk = 0;
-//            eblk = F021_Flash.MAXBLOCK[bank];
-//         }
-//         else if(pattype==QUADTYPE)  
-//         {
-//            sblk = 0;
-//            eblk = FL_MAX_QUADRANT;
-//         }
-//         else
-//         {
-//            sblk = 0;
-//            eblk = F021_Flash.MAXSECT[bank];
-//         } 
-//
-//         testnum = start_testnum+(bank<<4);
-//         
-//         for (count = sblk;count <= eblk;count++)
-//         {
-//            F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
-//            writestring(str2,bank:1);
-//            str2 = "_B" + str2;
-//            
-//            if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
-//            {
-//               writestring(str3,count:1);
-//               if(pattype==BLOCKTYPE)  
-//                  str3 = "BLK" + str3;
-//               else
-//                  str3 = "S" + str3;
-//               str2 = str2 + str3;
-//            } 
-//
-//            str4 = str1 + str2;
-//
-//            PrintResultBool(str4,testnum,tmp_results,GL_PLELL_FORMAT);
-//
-//            if(logena)  
-//            {
-//               str5 = str4 + "_TT";
-//               TWTRealToRealMS(tt_timer,realval,unitval);
-//               TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//            } 
-//
-//            testnum = testnum+1;
-//         }   /*count*/
-//      }   /*bank*/
-//
-//   } 
-//}   /*TL_RunTestNum*/
-//   
+
+
+void TL_RunTestNum(IntS start_testnum,
+                        StringS logstr)
+{
+   IntS bank,sblk,eblk;
+   IntS testnum,pattype,count,i;
+   FloatS maxtime;
+   FloatM tt_timer;
+   TMResultM tmp_results;
+   BoolS logena;
+   StringS str1,str2,str3,str4,str5;
+
+   if(logstr!="")  
+   {
+      str1 = logstr;
+      logena = true;
+   }
+   else
+   {
+      str1 = "FLASHTEST";
+      logena = false;
+   } 
+
+   i = (start_testnum&0x00000f00) >> 8;
+   switch(i) {
+     case 0 : pattype = BANKTYPE;
+     case 1 : pattype = SECTTYPE;
+     case 2 : pattype = BLOCKTYPE;
+     case 3 : pattype = QUADTYPE;
+     default: pattype = OTPTYPE;
+   }   /* case */
+
+   maxtime = GL_F021_MAXTIME;
+
+//   PrintHeaderBool(GL_PLELL_FORMAT);
+
+   for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
+   {
+      if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
+      {
+         sblk = bank;
+         eblk = bank;
+      }
+      else if(pattype==BLOCKTYPE)  
+      {
+         sblk = 0;
+         eblk = F021_Flash.MAXBLOCK[bank];
+      }
+      else if(pattype==QUADTYPE)  
+      {
+         sblk = 0;
+         eblk = FL_MAX_QUADRANT;
+      }
+      else
+      {
+         sblk = 0;
+         eblk = F021_Flash.MAXSECT[bank];
+      } 
+
+      testnum = start_testnum+(bank<<4);
+      
+      for (count = sblk;count <= eblk;count++)
+      {
+         F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
+         str2 = bank + "_B";
+         
+         if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
+         {
+            if(pattype==BLOCKTYPE)  
+               str3 = "BLK" + count;
+            else
+               str3 = "S" + count;
+            str2 = str2 + str3;
+         } 
+
+         str4 = str1 + str2;
+
+//         PrintResultBool(str4,testnum,tmp_results,GL_PLELL_FORMAT);
+
+         if(logena)  
+         {
+            str5 = str4 + "_TT";
+            TWPDLDataLogRealVariable(str5, "s",tt_timer,TWMinimumData);
+         } 
+
+         testnum = testnum+1;
+      }   /*count*/
+   }   /*bank*/
+}   /*TL_RunTestNum*/
+
+   
 //void TL_DumpOTP()
 //{
 //   IntS site,bank,tnum,i;
@@ -11270,7 +11111,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //            if(not v_any_dev_active)  
 //               break;
 //             /*abort if s key is pressed*/
-//            if(debugprint or ti_flashdebug)  
+//            if(debugprint or TI_FlashDebug)  
 //               if(Inkey(s))  
 //                  break;
 //
@@ -11483,12 +11324,12 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   }         /*v_any_dev_active*/
 //   
 //}   /* F021_Set_TPADS_ESDA */
-//   
-// /*F021_CollectESDA : expects passing sites (no need esda) active & failing sites (need esda) inactive*/
-// /*it temporary restores failing sites, do esda then disable that site.*/
+   
+// F021_CollectESDA : expects passing sites (no need esda) active & failing sites (need esda) inactive
+// it temporary restores failing sites, do esda then disable that site.
 //void F021_CollectESDA(IntS imagenum)
 //{
-//   const IntS OPERVTBCC = 5; 
+//   const  IntS OPERVTBCC = 5; 
 //   const  OPERPBIST = 0xB;  /* :MANUAL FIX REQUIRED: Unknown const type */
 //
 //   BoolM savesites,logsites,failsites,allfalse,drlsites;
@@ -11506,13 +11347,11 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   redena = false;
 //   do_ena = false;
 //
-//   if(TIIgnoreFail or TI_FlashCOFEna)  
-//   {
+//   if(TIIgnoreFail or TI_FlashCOFEna) {
 //      if(not ArrayCompareBoolean(failsites,allfalse,v_sites))  
 //         do_ena = true;
 //   }
-//   else
-//   {
+//   else {
 //      arrayandboolean(drlsites,GL_VT0DRL_RESULT,GL_VT1DRL_RESULT,v_sites);
 //      arrayandboolean(drlsites,drlsites,GL_BCC0DRL_RESULT,v_sites);
 //      arrayandboolean(drlsites,drlsites,GL_BCC1DRL_RESULT,v_sites);
@@ -11523,30 +11362,26 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //            do_ena = true;
 //   } 
 //   
-//   if(do_ena)  
-//   {
+//   if(do_ena) {
 //         sbool1  = true;
-//         maxtime = 2s;  /*GL_F021_MAXTIME;*/
+//         maxtime = 2s;  // GL_F021_MAXTIME;
 //
 //         i = ((FLEsda.Tnum&0xf0000000) >>28) & 0xf;
 //         if(i==OPERVTBCC)  
 //            sbool2 = true;
 //         
-//         if(i==OPERPBIST)  
-//         {
+//         if(i==OPERPBIST) {
 //            pbistena = true;
 //            if(GL_DO_REDENA)  
 //               redena = true;
 //         } 
 //
-//         if(pbistena)  
-//         {
+//         if(pbistena) {
 //            maskbit = 0xff3fffff;
 //            esdabit = 0x00400000;
 //            redbit  = 0x00800000;
 //         }
-//         else
-//         {
+//         else {
 //            maskbit = 0xfffcffff;
 //            esdabit = 0x00020000;
 //         } 
@@ -11634,8 +11469,8 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(sbool1)  
 //      DevSetHoldStates(savesites);
-//}   /* F021_CollectESDA */
-//   
+//}   // F021_CollectESDA
+   
 //   
 //void TL_BitHistogram(IntS pattype,
 //                          IntS testnum,
@@ -11707,9 +11542,9 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //      vProgunit = 1V;
 //      iProgunit = 1uA;
-//      debugprint = ti_flashdebug;
-//      save_fldbugprint = ti_flashdebug;
-//      ti_flashdebug = false;
+//      debugprint = TI_FlashDebug;
+//      save_fldbugprint = TI_FlashDebug;
+//      TI_FlashDebug = false;
 //      save_printpass = TIPrintPass;
 //      save_scrnprint = TIStdScreenPrint;
 //      if(not debugprint)  
@@ -11847,7 +11682,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      tmpstr3 = tmpstr3 + "_";
 //
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         cout << endl;
 //         cout << tmpstr3 << " max bits == " << max_bits:-10 << endl;
@@ -11864,12 +11699,12 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      
 //      if(max_bits != exp_max_bits)  
 //      {
-//         if(tistdscreenprint and ti_flashdebug)  
+//         if(tistdscreenprint and TI_FlashDebug)  
 //         {
 //            cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
 //            cout << "EXPECT== " << exp_max_bits:-10 << " ACTUAL== " << max_bits:-10 << endl;
 //         }
-//         else if(ti_flashdebug)  
+//         else if(TI_FlashDebug)  
 //         {
 //            cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
 //            cout << "EXPECT== " << exp_max_bits:-10 << " ACTUAL== " << max_bits:-10 << endl;
@@ -11913,7 +11748,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //      REPEAT
 //          /*abort if s key is pressed*/
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //            if(Inkey(s))   done = true;
 //
 //         if(tp_iref_ena)  
@@ -11926,7 +11761,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //            activesites = false;
 //            
 //             /*abort if s key is pressed*/
-//            if(ti_flashdebug)  
+//            if(TI_FlashDebug)  
 //               if(Inkey(s))   break;
 //
 //            if(tp_iref_ena)  
@@ -12101,7 +11936,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //      tistdscreenprint = save_scrnprint;
 //      tiprintpass = save_printpass;
-//      ti_flashdebug = save_fldbugprint;
+//      TI_FlashDebug = save_fldbugprint;
 //      
 //       /* Display data as a histogram */
 //      if(tistdscreenprint)  
@@ -12404,7 +12239,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Clear_MailBox_Key +++++" << endl;
 //
 //      bcd_format  = true;
@@ -12416,385 +12251,381 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //   } 
 //}   /* RAM_Clear_MailBox_Key */
-//
-//BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval)
-//{
-//   const IntS MININD = 390; 
-//   const IntS MAXIND = 425; 
-//   const IntS CTADDR = 0x3090; 
-//   PGSTEP      = 0.04V; /* didn"t match any chunk types, FIX */
-//   const IntS MAXITER = 40; 
-//   const IntS MAXSTEP = 10; 
-//   const IntS STEPINC = 5; 
-//   const IntS MAXITERPLUS = 41; 
-//var
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr,addr_emu;
-//   IntS minloop,maxloop,i;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim_pre,ulim_pre;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,ersct,pgct,pre_pgct;
-//   IntM lsw_data,msw_data,ovrshoot;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena,done,dolinear;
-//   IntM1D calcsol; /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
-//   IntM currsol,curriter;
-//   IntM1D prevsol; /* :MANUAL FIX REQUIRED: array dimensions are : 0..MAXITERPLUS */
-//   FloatM PgStepAvg;
-//    /*++++++++++++++++++++*/
-//   procedure DoIMeasure; /* didn"t match any chunk types, FIX */
-//   
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//#if $TP3_TO_TP5_PRESENT  
-//   STDDisconnect(FLTP3);
-//#endif
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim_pre,ulim_pre,meas_val,tmp_results);
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   }   /* DoIMeasure */
-//
-//   BoolS function IsPrevSearch;
-//   var
-//      IntS int1;
-//      BoolS bool1;
-//   {
-//      bool1 = false;
-//      for (int1 = 1;int1 <= curriter[site];int1++)
-//         if(prevsol[int1][site]==currsol[site])  
-//         {
-//            bool1 = true;
-//            break;
-//         } 
-//      IsPrevSearch = bool1;
-//   } 
-//    /*++++++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and ti_flashdebug)  
-//         cout << "+++++ F021_VHV_PG_CT_Trim_func +++++" << endl;
-//
-//      logena = true;  /*log to tw*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay = 10ms;
-//      
-//      tcrnum  = 115;
-//      tcrmode = ProgMode;
-//      testpad = FLTP1;
-//      testnum = TNUM_PUMP_VHVPROG;
-//
-//      llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
-//      ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
-//
-//      target = VHV_Prog_Target;
-//      toler = 0.005;  /*1%*/
-//      llim = target-(target*toler);
-//      ulim = target+(target*toler);
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      final_results = false;
-//      ovrshoot = 0;
-//
-//       /*OTP template in RAM : pgct/ersct*/
-//      addr = ADDR_RAM_TEMPL_VHVE_PMT;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,pre_pgct);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,ersct);
-//      pgct = pre_pgct;
-//      ctval = pre_pgct;
-//
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr,addr+(4*ADDR_RAM_INC));
-//      
-//      bcd_format = true;
-//      hexvalue = true;
-//      minloop = MININD;
-//      maxloop = MAXIND;
-//      lsw_data = ersct;
-//      PgStepAvg = PGSTEP;
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      str1 = "VHV_PG_CT_SFT_";
-//
-//      timernstart(ttimer1);
-//
-//      for (i = minloop;i <= minloop;i++)
-//      {
-//         activesites = v_dev_active;
-//     msw_data = i;
-//     WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         DoIMeasure;
-//
-//         writestring(str2,i:1);
-//         str3 = str1 + str2;
-//         PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//         tmp_val = meas_val;
-//
-//         if(logena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//         } 
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//               {
-//                  activesites[site] = false;
-//                  ctval[site] = i;
-//               } 
-//            } 
-//
-//         devsetholdstates(activesites);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for i*/
-//
-//      if(v_any_dev_active)  
-//      {
-//         dolinear = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               calcsol[1][site] = round(((target-meas_val[site])/PGSTEP)+minloop);
-//               if((calcsol[1][site]<0) or (calcsol[1][site]>511))  
-//                  calcsol[1][site] = minloop+5;
-//               currsol[site] = calcsol[1][site];
-//               if(dolinear)  
-//                  for (i = 2;i <= MAXITER;i++)
-//                     calcsol[i][site] = calcsol[i-1][site]+1;
-//            } 
-//
-//         activesites = v_dev_active;
-//
-//         if(not dolinear)  
-//         {
-//            curriter = 1;
-//            done = false;
-//            i = 0;
-//            
-//            while(not done) do
-//            {
-//               msw_data = currsol;
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               i = i+1;
-//               writestring(str2,i:1);
-//               str3 = "VHV_PG_CT_ITER_" + str2;
-//               PrintResultInt(str3,testnum,currsol,0,512,GL_PLELL_FORMAT);
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//               
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = currsol[site];
-//                     }
-//                     else 
-//                     {
-//                        delta = target-meas_val[site];
-//                        if(i==1)  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = currsol[site];
-//                           PgStepAvg[site] = abs(meas_val[site]-tmp_val[site])/abs(currsol[site]-minloop);
-//                        }
-//                        else
-//                        {
-//                           if(abs(delta) < abs(tmp_delta[site]))  
-//                           {
-//                              tmp_delta[site] = delta;
-//                              ctval[site] = currsol[site];
-//                           } 
-//                        } 
-//
-//                         /*save current and calc new solution*/
-//                        prevsol[i][site] = currsol[site];
-//                        
-//                        if(curriter[site]<==MAXSTEP)  
-//                        {
-//                           currsol[site] = round(delta/PgStepAvg[site])+currsol[site];
-//                           if(currsol[site]==prevsol[i][site])  
-//                              currsol[site] = currsol[site]+1;
-//                        }
-//                        else
-//                        {
-//                           if(curriter[site]==(MAXSTEP+1))  
-//                              currsol[site] = ctval[site];
-//                           if(meas_val[site]>target)  
-//                              currsol[site] = currsol[site]-STEPINC;
-//                           else
-//                              currsol[site] = currsol[site]+STEPINC+1;
-//                        } 
-//                        
-//                        if(currsol[site]>511)  
-//                           currsol[site] = 511;
-//                        else if(currsol[site]<==0)  
-//                           currsol[site] = minloop+STEPINC;
-//
-//                         /*ping pong*/
-//                        if(i>1)  
-//                           if(IsPrevSearch or (curriter[site]>==MAXITER))  
-//                           {
-//                              activesites[site] = false;
-//                           } 
-//
-//                     }   /*not w/in limits*/
-//                     curriter[site] = curriter[site]+1;
-//                  }   /*v_dev_active*/
-//               
-//               devsetholdstates(activesites);
-//               if((not v_any_dev_active) or (i>==MAXITER))then
-//                  done = true;
-//            }   /*while*/
-//         }
-//         else
-//         {  /*+++ do linear +++*/
-//            for (i = 1;i <= MAXITER;i++)
-//            {
-//               msw_data = calcsol[i];
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               
-//               writestring(str2,i:1);
-//               str3 = "VHV_PG_CT_ITER_" + str2;
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//               
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     delta = abs(meas_val[site]-target);
-//                     if(i==1)  
-//                     {
-//                        tmp_delta[site] = delta;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else
-//                     {
-//                        if(delta < tmp_delta[site])  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = calcsol[i][site];
-//                        } 
-//                     } 
-//                     
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else if(meas_val[site]>ulim)  
-//                     {
-//                        ovrshoot[site] = ovrshoot[site]+1;
-//                        if(ovrshoot[site]>2)  
-//                           activesites[site] = false;  /*use last iter ctval*/
-//                     } 
-//                  } 
-//               
-//               devsetholdstates(activesites);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for i*/
-//         }   /*+++ do linear +++*/
-//      }   /*if v_any_dev_active*/
-//
-//      devsetholdstates(savesites);
-//      TIME.Wait(2ms);
-//
-//       /*final check to see if w/in tolerance limit*/
-//      lsw_data = ersct;
-//      msw_data = ctval;
-//      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//       /*emu bank*/
-//      addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
-//      lsw_data = ersct;
-//      msw_data = ctval;
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//#endif
-//
-//      DoIMeasure;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((meas_val[site]>==llim_pre) and (meas_val[site]<==ulim_pre))  
-//               final_results[site] = true;
-//
-//      str4 = "VHV_PG_CT_TRIM_SOL";
-//      TWPDLDataLogVariable(str4,ctval,TWMinimumData);
-//      
-//      str5 = "VHV_PG_CT_TRIM_NM";
-//      TWTRealToRealMS(meas_val,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//  
-//      PrintResultInt(str4,testnum,ctval,0,512,GL_PLELL_FORMAT);
-//      PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//      ret_ctval = ctval;
-//      test_results = final_results;
-//
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//               readramaddress(site,addr,addr_emu+(4*ADDR_RAM_INC));;
-//#else
-//               readramaddress(site,addr,addr+(4*ADDR_RAM_INC));
-//#endif   
-//
-//      ttimer1 = timernread(ttimer1);
-//      str5 = "VHV_PG_TRIM_TTT";
-//
-//      if(logena)  
-//      {
-//         tt_timer = ttimer1;
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//         cout << str5 << "  " << ttimer1 << endl;
-//   } 
-//
-//   F021_VHV_PG_CT_Trim_func = v_any_dev_active;
-//   
-//}   /* F021_VHV_PG_CT_Trim_func */
-//
+
+#if 0
+void DoIMeasure() 
+{
+   F021_Set_TPADS(tcrnum,tcrmode);
+#if $TP3_TO_TP5_PRESENT  
+STDDisconnect(FLTP3);
+#endif
+   F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
+   TIME.Wait(tdelay);
+   F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim_pre,ulim_pre,meas_val,tmp_results);
+   Disable(s_pmexit);
+   F021_TurnOff_AllTPADS;
+}   /* DoIMeasure */
+
+BoolS IsPrevSearch()
+{
+   IntS int1;
+   BoolS bool1;
+   
+   bool1 = false;
+   for (int1 = 1;int1 <= curriter[site];int1++)
+      if(prevsol[int1][site]==currsol[site])  
+      {
+         bool1 = true;
+         break;
+      } 
+   IsPrevSearch = bool1;
+} 
+
+BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
+                                      IntM ret_ctval)
+{
+   const IntS MININD = 390; 
+   const IntS MAXIND = 425; 
+   const IntS CTADDR = 0x3090; 
+   const FloatS PGSTEP = 0.04V;
+   const IntS MAXITER = 40; 
+   const IntS MAXSTEP = 10; 
+   const IntS STEPINC = 5; 
+   const IntS MAXITERPLUS = 41; 
+
+   BoolM final_results,tmp_results;
+   BoolM savesites,activesites;
+   IntS site,testnum,addr,addr_emu;
+   IntS minloop,maxloop,i;
+   IntS tcrnum,tcrnum_src;
+   TPModeType tcrmode,tcrmode_src;
+   StringS str1,str2,str3,str4,str5;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatM tt_timer;
+   FloatS llim_pre,ulim_pre;
+   FloatS llim,ulim,target,delta;
+   FloatS toler;
+   PinM testpad;
+   FloatM meas_val,tmp_val,tmp_delta;
+   IntM ctval,ersct,pgct,pre_pgct;
+   IntM lsw_data,msw_data,ovrshoot;
+   BoolS bcd_format,hexvalue;
+   FloatM FloatSval;
+   TWunit unitval;
+   BoolS logena,done,dolinear;
+   IntM1D calcsol(MAXITERPLUS); /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
+   IntM currsol,curriter;
+   IntM1D prevsol(MAXITERPLUS); 
+   FloatM PgStepAvg;
+    /*++++++++++++++++++++*/
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_VHV_PG_CT_Trim_func +++++" << endl;
+
+   logena = true;  /*log to tw*/
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay = 10ms;
+   
+   tcrnum  = 115;
+   tcrmode = ProgMode;
+   testpad = FLTP1;
+   testnum = TNUM_PUMP_VHVPROG;
+
+   llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
+   ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
+
+   target = VHV_Prog_Target;
+   toler = 0.005;  /*1%*/
+   llim = target-(target*toler);
+   ulim = target+(target*toler);
+
+   savesites = v_dev_active;
+   tmp_results = v_dev_active;
+   final_results = false;
+   ovrshoot = 0;
+
+    /*OTP template in RAM : pgct/ersct*/
+   addr = ADDR_RAM_TEMPL_VHVE_PMT;
+   GetRamContentDec_16bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
+   GetRamContentDec_16bit("ramread_nburst_lsw_Thrd",addr,ersct);
+   pgct = pre_pgct;
+   ctval = pre_pgct;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)   
+      readramaddress(addr,addr+(4*ADDR_RAM_INC));
+   
+   bcd_format = true;
+   hexvalue = true;
+   minloop = MININD;
+   maxloop = MAXIND;
+   lsw_data = ersct;
+   PgStepAvg = PGSTEP;
+
+//   PrintHeaderParam(GL_PLELL_FORMAT);
+   str1 = "VHV_PG_CT_SFT_";
+
+   timernstart(ttimer1);
+
+   for (i = minloop;i <= minloop;i++)
+   {
+      activesites = v_dev_active;
+      msw_data = i;
+      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      DoIMeasure;
+
+      str3 = str1 + i;
+      TIDlog.Value(
+      PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
+      tmp_val = meas_val;
+
+      if(logena)  
+      {
+         TWTRealToRealMS(meas_val,realval,unitval);
+         TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
+      } 
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(v_dev_active[site])  
+         {
+            if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
+            {
+               activesites[site] = false;
+               ctval[site] = i;
+            } 
+         } 
+
+      devsetholdstates(activesites);
+
+      if(not v_any_dev_active)  
+         break;
+   }   /*for i*/
+
+   if(v_any_dev_active)  
+   {
+      dolinear = false;
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(v_dev_active[site])  
+         {
+            calcsol[1][site] = round(((target-meas_val[site])/PGSTEP)+minloop);
+            if((calcsol[1][site]<0) or (calcsol[1][site]>511))  
+               calcsol[1][site] = minloop+5;
+            currsol[site] = calcsol[1][site];
+            if(dolinear)  
+               for (i = 2;i <= MAXITER;i++)
+                  calcsol[i][site] = calcsol[i-1][site]+1;
+         } 
+
+      activesites = v_dev_active;
+
+      if(not dolinear)  
+      {
+         curriter = 1;
+         done = false;
+         i = 0;
+         
+         while(not done) do
+         {
+            msw_data = currsol;
+            WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+            DoIMeasure;
+            i = i+1;
+            writestring(str2,i:1);
+            str3 = "VHV_PG_CT_ITER_" + str2;
+            PrintResultInt(str3,testnum,currsol,0,512,GL_PLELL_FORMAT);
+            PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
+            
+            if(logena)  
+            {
+               TWTRealToRealMS(meas_val,realval,unitval);
+               TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
+            } 
+            
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if(v_dev_active[site])  
+               {
+                  if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
+                  {
+                     activesites[site] = false;
+                     ctval[site] = currsol[site];
+                  }
+                  else 
+                  {
+                     delta = target-meas_val[site];
+                     if(i==1)  
+                     {
+                        tmp_delta[site] = delta;
+                        ctval[site] = currsol[site];
+                        PgStepAvg[site] = abs(meas_val[site]-tmp_val[site])/abs(currsol[site]-minloop);
+                     }
+                     else
+                     {
+                        if(abs(delta) < abs(tmp_delta[site]))  
+                        {
+                           tmp_delta[site] = delta;
+                           ctval[site] = currsol[site];
+                        } 
+                     } 
+
+                      /*save current and calc new solution*/
+                     prevsol[i][site] = currsol[site];
+                     
+                     if(curriter[site]<==MAXSTEP)  
+                     {
+                        currsol[site] = round(delta/PgStepAvg[site])+currsol[site];
+                        if(currsol[site]==prevsol[i][site])  
+                           currsol[site] = currsol[site]+1;
+                     }
+                     else
+                     {
+                        if(curriter[site]==(MAXSTEP+1))  
+                           currsol[site] = ctval[site];
+                        if(meas_val[site]>target)  
+                           currsol[site] = currsol[site]-STEPINC;
+                        else
+                           currsol[site] = currsol[site]+STEPINC+1;
+                     } 
+                     
+                     if(currsol[site]>511)  
+                        currsol[site] = 511;
+                     else if(currsol[site]<==0)  
+                        currsol[site] = minloop+STEPINC;
+
+                      /*ping pong*/
+                     if(i>1)  
+                        if(IsPrevSearch or (curriter[site]>==MAXITER))  
+                        {
+                           activesites[site] = false;
+                        } 
+
+                  }   /*not w/in limits*/
+                  curriter[site] = curriter[site]+1;
+               }   /*v_dev_active*/
+            
+            devsetholdstates(activesites);
+            if((not v_any_dev_active) or (i>==MAXITER))then
+               done = true;
+         }   /*while*/
+      }
+      else
+      {  /*+++ do linear +++*/
+         for (i = 1;i <= MAXITER;i++)
+         {
+            msw_data = calcsol[i];
+            WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+            DoIMeasure;
+            
+            writestring(str2,i:1);
+            str3 = "VHV_PG_CT_ITER_" + str2;
+            PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
+            
+            if(logena)  
+            {
+               TWTRealToRealMS(meas_val,realval,unitval);
+               TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
+            } 
+            
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if(v_dev_active[site])  
+               {
+                  delta = abs(meas_val[site]-target);
+                  if(i==1)  
+                  {
+                     tmp_delta[site] = delta;
+                     ctval[site] = calcsol[i][site];
+                  }
+                  else
+                  {
+                     if(delta < tmp_delta[site])  
+                     {
+                        tmp_delta[site] = delta;
+                        ctval[site] = calcsol[i][site];
+                     } 
+                  } 
+                  
+                  if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
+                  {
+                     activesites[site] = false;
+                     ctval[site] = calcsol[i][site];
+                  }
+                  else if(meas_val[site]>ulim)  
+                  {
+                     ovrshoot[site] = ovrshoot[site]+1;
+                     if(ovrshoot[site]>2)  
+                        activesites[site] = false;  /*use last iter ctval*/
+                  } 
+               } 
+            
+            devsetholdstates(activesites);
+            
+            if(not v_any_dev_active)  
+               break;
+         }   /*for i*/
+      }   /*+++ do linear +++*/
+   }   /*if v_any_dev_active*/
+
+   devsetholdstates(savesites);
+   TIME.Wait(2ms);
+
+    /*final check to see if w/in tolerance limit*/
+   lsw_data = ersct;
+   msw_data = ctval;
+   WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+    /*emu bank*/
+   addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
+   lsw_data = ersct;
+   msw_data = ctval;
+   WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+#endif
+
+   DoIMeasure;
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      if(v_dev_active[site])  
+         if((meas_val[site]>==llim_pre) and (meas_val[site]<==ulim_pre))  
+            final_results[site] = true;
+
+   str4 = "VHV_PG_CT_TRIM_SOL";
+   TWPDLDataLogVariable(str4,ctval,TWMinimumData);
+   
+   str5 = "VHV_PG_CT_TRIM_NM";
+   TWTRealToRealMS(meas_val,realval,unitval);
+   TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
+
+   PrintResultInt(str4,testnum,ctval,0,512,GL_PLELL_FORMAT);
+   PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+
+   ret_ctval = ctval;
+   test_results = final_results;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(v_dev_active[site])  
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+            readramaddress(site,addr,addr_emu+(4*ADDR_RAM_INC));;
+#else
+            readramaddress(site,addr,addr+(4*ADDR_RAM_INC));
+#endif   
+
+   ttimer1 = timernread(ttimer1);
+   str5 = "VHV_PG_TRIM_TTT";
+
+   if(logena)  
+   {
+      tt_timer = ttimer1;
+      TWTRealToRealMS(tt_timer,realval,unitval);
+      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
+   } 
+   
+   if(tistdscreenprint)  
+      cout << str5 << "  " << ttimer1 << endl;
+
+   F021_VHV_PG_CT_Trim_func = v_any_dev_active;
+   
+}   /* F021_VHV_PG_CT_Trim_func */
+#endif
 //BoolS F021_VHV_ER_CT_Trim_func(    BoolM test_results,
 //                                      IntM ret_ctval)
 //{
@@ -12868,7 +12699,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //{
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_VHV_ER_CT_Trim_func +++++" << endl;
 //
 //      logena = true;  /*log to tw*/
@@ -12910,7 +12741,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      ersct = pre_ersct;
 //      ctval = pre_ersct;
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //      {
 //         k = ADDR_RAM_TEMPL_VHVE_SM;
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -12963,7 +12794,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //               } 
 //            } 
 //
-//         if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(v_dev_active[site])  
 //                  readramaddress(site,k,k+(8*ADDR_RAM_INC));
@@ -13147,7 +12978,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                     } 
 //                  } 
 //               
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                     if(v_dev_active[site])  
 //                        readramaddress(site,k,k+(8*ADDR_RAM_INC));
@@ -13213,7 +13044,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      ret_ctval = ctval;
 //      test_results = final_results;
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         j = ADDR_RAM_TEMPL_VHVE_SM;
 //         k = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
@@ -13312,7 +13143,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //{
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_VHV_PV_CT_Trim_func +++++" << endl;
 //
 //      logena = true;  /*log to tw*/
@@ -13344,7 +13175,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      pgct = pre_pgct;
 //      ctval = pre_pgct;
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //               readramaddress(site,addr-ADDR_RAM_INC,addr+(3*ADDR_RAM_INC));
@@ -13593,7 +13424,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      ret_ctval = ctval;
 //      test_results = final_results;
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //#if $FL_USE_NEW_VHV_TEMPL_ADDR  
@@ -13620,130 +13451,117 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //   
 //}   /* F021_VHV_PV_CT_Trim_func */
 //
+
 // /*modify shell OTP template pg/er/pv ct in RAM*/
-//void RAM_Upload_VHV_CT_TrimVal()
-//{
-//   const IntS CTADDR = 0x3090; 
-//   const IntS CTADDR_START = 0x3080; 
-//   const IntS CTADDR_STOP = 0x3084; 
-//
-//   IntS site,addr_loc,addr_emu;
-//   IntM msw_data,lsw_data;
-//   IntM tdata1,tdata2;
-//   BoolS bcd_format,hexvalue;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ RAM_Upload_VHV_CT_TrimVal +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_TEMPL_VHVE_PMT;
-//      
-//#if $TV2_VHV_CT_SWIZZLE  
-//   if(TITestType==MP1)  
-//   {
-//      ArrayAndIntegerValue(tdata1,VHV_ER_CT_TRIMSAVED,0x01f,v_sites);
-//      ArrayMultIntegerValue(tdata1,tdata1,0x10,v_sites);  /*<<4*/
-//      ArrayAndIntegerValue(tdata2,VHV_ER_CT_TRIMSAVED,0x1e0,v_sites);
-//      ArrayDivIntegerValue(tdata2,tdata2,0x20,v_sites);   /*>>5*/
-//      ArrayAddinteger(lsw_data,tdata1,tdata2,v_sites);
-//   }
-//   else
-//   {
-//      lsw_data = VHV_ER_CT_TRIMSAVED;
-//   } 
-//#else
-//      lsw_data = VHV_ER_CT_TRIMSAVED;
-//#endif
-//      msw_data = VHV_PG_CT_TRIMSAVED;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//      addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
-//   if(TITestType==MP1)  
-//   {
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   }
-//   else
-//   {
-//      lsw_data = VHV_ER_CT_TRIMSAVED_EMU;
-//      msw_data = VHV_PG_CT_TRIMSAVED_EMU;
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   }       
-//#endif
-//      
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      msw_data = VHV_PV_CT_TRIMSAVED;
-//      lsw_data = VHV_OTHER_CT_TRIMSAVED;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//      addr_emu = addr_emu+ADDR_RAM_INC;
-//   if(TITestType==MP1)  
-//   {
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   }
-//   else
-//   {
-//      msw_data = VHV_PV_CT_TRIMSAVED_EMU;
-//      lsw_data = VHV_OTHER_CT_TRIMSAVED_EMU;
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//#endif
-//      
-//       /*for SM reg*/
-//      addr_loc = ADDR_RAM_TEMPL_VHVE_SM;
-//      
-//#if $TV2_VHV_CT_SWIZZLE  
-//   if(TITestType==MP1)  
-//   {
-//      ArrayAndIntegerValue(tdata1,VHV_ER_CT_STARTSAVED,0x01f,v_sites);
-//      ArrayMultIntegerValue(tdata1,tdata1,0x10,v_sites);  /*<<4*/
-//      ArrayAndIntegerValue(tdata2,VHV_ER_CT_STARTSAVED,0x1e0,v_sites);
-//      ArrayDivIntegerValue(tdata2,tdata2,0x20,v_sites);   /*>>5*/
-//      ArrayAddinteger(msw_data,tdata1,tdata2,v_sites);
-//   }
-//   else
-//   {
-//      msw_data = VHV_ER_CT_STARTSAVED;
-//   } 
-//#else
-//      msw_data = VHV_ER_CT_STARTSAVED;
-//#endif
-//      lsw_data = VHV_ER_CT_STEPSAVED;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      
-//
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//      addr_emu = ADDR_RAM_TEMPL_VHVE_SM_EMU;
-//      if(TITestType==MP1)  
-//      {
-//         WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      }
-//      else
-//      {
-//         lsw_data = VHV_ER_CT_STEPSAVED_EMU;
-//         msw_data = VHV_ER_CT_STARTSAVED_EMU;
-//         WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      } 
-//#endif
-//      
-//      if(tistdscreenprint and ti_flashdebug)  
-//      {
-//         addr_loc = ADDR_RAM_TEMPL_VHVE_SM;
-//         addr_emu = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//               readramaddress(site,addr_loc,addr_emu+(8*ADDR_RAM_INC));;
-//#else
-//               readramaddress(site,addr_loc,addr_loc+(8*ADDR_RAM_INC));
-//#endif
-//      } 
-//   } 
-//}   /* RAM_Upload_VHV_CT_TrimVal */
+void RAM_Upload_VHV_CT_TrimVal() {
+   const IntS CTADDR = 0x3090; 
+   const IntS CTADDR_START = 0x3080; 
+   const IntS CTADDR_STOP = 0x3084; 
+
+   IntS site,addr_loc,addr_emu;
+   IntM msw_data,lsw_data;
+   IntM tdata1,tdata2;
+   BoolS bcd_format,hexvalue;
+
+   if (tistdscreenprint)  
+      cout << "+++++ RAM_Upload_VHV_CT_TrimVal +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_TEMPL_VHVE_PMT;
+      
+#if $TV2_VHV_CT_SWIZZLE  
+   if (TITestType==MP1) {
+      tdata1 = VHV_ER_CT_TRIMSAVED + 0x01f;
+      tdata1 *= 0x10;
+      tdata2 = VHV_ER_CT_TRIMSAVED + 0x1e0;
+      tdata2 /= 0x20;
+      lsw_data = tdata1 + tdata2;
+   }
+   else {
+      lsw_data = VHV_ER_CT_TRIMSAVED;
+   } 
+#else
+      lsw_data = VHV_ER_CT_TRIMSAVED;
+#endif
+      msw_data = VHV_PG_CT_TRIMSAVED;
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+   addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
+   if (SelectedTITestType==MP1) {
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   }
+   else {
+      lsw_data = VHV_ER_CT_TRIMSAVED_EMU;
+      msw_data = VHV_PG_CT_TRIMSAVED_EMU;
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   }       
+#endif
+      
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   msw_data = VHV_PV_CT_TRIMSAVED;
+   lsw_data = VHV_OTHER_CT_TRIMSAVED;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+   addr_emu = addr_emu+ADDR_RAM_INC;
+   if (SelectedTITestType==MP1) {
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   }
+   else {
+      msw_data = VHV_PV_CT_TRIMSAVED_EMU;
+      lsw_data = VHV_OTHER_CT_TRIMSAVED_EMU;
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   } 
+#endif
+      
+   /*for SM reg*/
+   addr_loc = ADDR_RAM_TEMPL_VHVE_SM;
+      
+#if $TV2_VHV_CT_SWIZZLE  
+   if (SelectedTITestType==MP1) {
+      tdata1 = VHV_ER_CT_STARTSAVED + 0x01f;
+      tdata1 *= 0x10;
+      tdata2 = VHV_ER_CT_STARTSAVED + 0x1e0;
+      tdata2 /= 0x20;
+      msw_data = tdata1 + tdata2;
+   }
+   else {
+      msw_data = VHV_ER_CT_STARTSAVED;
+   } 
+#else
+      msw_data = VHV_ER_CT_STARTSAVED;
+#endif
+
+   lsw_data = VHV_ER_CT_STEPSAVED;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      
+
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+   addr_emu = ADDR_RAM_TEMPL_VHVE_SM_EMU;
+   if (SelectedTITestType==MP1) {
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   }
+   else {
+      lsw_data = VHV_ER_CT_STEPSAVED_EMU;
+      msw_data = VHV_ER_CT_STARTSAVED_EMU;
+      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   } 
+#endif
+      
+   if(tistdscreenprint and TI_FlashDebug) {
+      addr_loc = ADDR_RAM_TEMPL_VHVE_SM;
+      addr_emu = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
+      
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+      ReadRamAddress(addr_loc,addr_emu+(8*ADDR_RAM_INC));;
+#else
+      ReadRamAddress(addr_loc,addr_loc+(8*ADDR_RAM_INC));
+#endif
+   }
+}   // RAM_Upload_VHV_CT_TrimVal
+
 //
 // /*use for otp data pgm*/
 //void RAM_Upload_VHV_PMOS_EngOvride(IntS bank)
@@ -13758,7 +13576,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Upload_VHV_PMOS_EngOvride +++++" << endl;
 //
 //      bcd_format  = true;
@@ -13928,7 +13746,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //      } 
 //
-//      debugprint = tiprintpass and ti_flashdebug;
+//      debugprint = tiprintpass and TI_FlashDebug;
 //      if(tistdscreenprint and debugprint)  
 //      {
 //         addr_loc = ADDR_RAM_MAILBOX;
@@ -13954,7 +13772,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Upload_PMOS_SoftTrim_Bank +++++" << endl;
 //
 //      bcd_format  = true;
@@ -14005,7 +13823,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Clear_PMOS_SoftTrim_Bank +++++" << endl;
 //
 //      bcd_format  = true;
@@ -14048,7 +13866,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Clear_PMOS_SoftTrim +++++" << endl;
 //
 //      bcd_format  = true;
@@ -14174,7 +13992,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //               readstring("0b" + dummstr2) + trimdata;
 //               IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
 //
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //                  cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
 //                          " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
 //            }   /*for count*/
@@ -14192,7 +14010,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                  readstring("0b" + dummstr2) + trimdata;
 //                  IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
 //
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                     cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
 //                             " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
 //               }   /*for count*/
@@ -14208,100 +14026,86 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //}   /* GetTrimCode_On_EFStr */
 //
 //
-//void RAM_Upload_PMOS_TrimCode()
-//{
-//   IntS site,addr_loc,trimenakey,bank,maxbk,i;
-//   IntM msw_data,lsw_data,edata,odata;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint,logena,sbool1;
-//   StringS str1,str2,str3;
-//   StringM logstr;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ RAM_Upload_PMOS_TrimCode +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0xaa55;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = IPMOS_BANKENA_LSW;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      logena = false;  /*log trimcode str to tw*/
-//      if(logena)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               logstr[site] = "";
-//
-//      maxbk = F021_Flash.MAXBANK;
-//      
-//      for bank = 0 to maxbk by 2 do
-//      {
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//         edata = IPMOS_TRIMCODE_VAL[bank][0];  /*even*/
-//         ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
-//         odata = IPMOS_TRIMCODE_VAL[bank][1];  /*odd*/
-//         ArrayAddInteger(msw_data,edata,odata,v_sites);
-//
-//         if((bank==maxbk) and ((bank mod 2)==0))  
-//            sbool1 = true;
-//         else
-//            sbool1 = false;
-//
-//         if(sbool1)  
-//            lsw_data = 0; /*dummy*/
-//         else
-//         {
-//            edata = IPMOS_TRIMCODE_VAL[bank+1][0];  /*even*/
-//            ArrayMultIntegerValue(edata,edata,256,v_sites);  /*lshift 8*/
-//            odata = IPMOS_TRIMCODE_VAL[bank+1][1];  /*odd*/
-//            ArrayAddInteger(lsw_data,edata,odata,v_sites);
-//         } 
-//            
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//         if(logena)  
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  writestring(str2,msw_data[site]:s_hex:1);
-//                  if(bank!=0)  
-//                  {
-//                     i = len(str2);
-//                     str2 = mid(str2,3,i-2);  /*remove 0x*/
-//                  } 
-//                  logstr[site] = logstr[site] + str2;
-//                  
-//                  if(not sbool1)  
-//                  {
-//                     writestring(str2,lsw_data[site]:s_hex:1);
-//                     i = len(str2);
-//                     str2 = mid(str2,3,i-2);
-//                     logstr[site] = logstr[site] + str2;
-//                  } 
-//               }   /*if v_dev_act*/
-//      } 
-//
-//      if(logena)  
-//      {
-//         str1 = "IPMOS_TRIMCODE_STR";
-//         TWPDLDataLogText(str1,logstr,TWMinimumData);
-//      } 
-//
-//      debugprint = tiprintpass and ti_flashdebug;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Upload_PMOS_TrimCode */
+void RAM_Upload_PMOS_TrimCode() {
+   IntS    site,addr_loc,trimenakey,bank,maxbk,i;
+   IntM    msw_data,lsw_data,edata,odata;
+   BoolS   bcd_format,hexvalue;
+   BoolS   debugprint,logena,sbool1;
+   StringS str1,str2,str3;
+   StringM logstr;
+
+   if(tistdscreenprint)  
+      cout << "+++++ RAM_Upload_PMOS_TrimCode +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0xaa55;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = IPMOS_BANKENA_LSW;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   logena = false;  /*log trimcode str to tw*/
+ 
+   if(logena) logstr = "";   // Null trimcode str
+
+   maxbk = F021_Flash.MAXBANK;
+   
+   for ( bank = 0; bank <= maxbk; bank += 2 ) {
+      addr_loc = addr_loc+ADDR_RAM_INC;
+      edata = IPMOS_TRIMCODE_VAL[bank][0];  /*even*/
+      edata *= 256;
+      odata = IPMOS_TRIMCODE_VAL[bank][1];  /*odd*/
+      msw_data = edata + odata;
+
+      if( (bank == maxbk) and (bank % 2) == 0 )
+         sbool1 = true;
+      else
+         sbool1 = false;
+
+      if(sbool1)  
+         lsw_data = 0; /*dummy*/
+      else {
+         edata = IPMOS_TRIMCODE_VAL[bank+1][0];  /*even*/
+         edata *= 256;
+         odata = IPMOS_TRIMCODE_VAL[bank+1][1];  /*odd*/
+         lsw_data = edata + odata;
+      } 
+         
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+      if(logena) {
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            IO.Print(str2, "0x%04x", msw_data);       
+            if(bank!=0) {
+               str2.Replace(str2.Find("0x"), 2, "");  /*remove 0x*/
+            } 
+            logstr += str2;
+         }
+         
+         if(not sbool1) {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               IO.Print(str2, "0x%04x", msw_data);
+               str2.Replace(str2.Find("0x"), 2, "");
+               logstr += str2;
+            } 
+         } 
+      }
+   }   
+
+   if(logena) {
+      str1 = "IPMOS_TRIMCODE_STR";
+      TWPDLDataLogText(str1,logstr,TWMinimumData);
+   } 
+
+   debugprint = tiprintpass and TI_FlashDebug;
+   if(tistdscreenprint and debugprint) {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX;  
+      ReadRamAddress(addr_loc,addr_loc+(6*ADDR_RAM_INC));
+   }  
+}   // RAM_Upload_PMOS_TrimCode
+
 //
 // /*pump efuse soft trim*/
 // /*note: bg=upper 8bit, iref=lower 8bit @0xd6, vsa5ct=upper 8bit, slopect=lower 8bit @0xd8, fosc=upper 8bit @0xda*/
@@ -14318,7 +14122,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Upload_SoftTrim_All +++++" << endl;
 //
 //      bcd_format  = true;
@@ -14363,7 +14167,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Upload_SoftTrim +++++" << endl;
 //
 //      bcd_format  = true;
@@ -14734,7 +14538,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active and parmena)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Bank_Para_func +++++" << endl;
 //      
 //      tdelay  = 10ms;
@@ -14975,7 +14779,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active and parmena)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Bank_Para_MBox_func +++++" << endl;
 //      
 //      tdelay  = 10ms;
@@ -15309,7 +15113,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Flash_Leak_func +++++" << endl;
 //
 //      tdelay  = 2ms;
@@ -15686,7 +15490,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Stress_func +++++" << endl;
 //
 //      rampup = true;
@@ -15888,7 +15692,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               if((special_opt==2) and ramp3vfl)  
 //               {
 //                  STDSetVI(FL_PUMP_SUPPLY_NAME,rampstop,vdds_iProg);
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                  {
 //                     writestring(tmpstr2,FL_PUMP_SUPPLY_NAME);
 //                     cout << "Pump Supply " << tmpstr2 << " @ " << rampstop << endl;
@@ -15906,7 +15710,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                  STDSetVI(testpad,vProg,iProg);
 //                  TIME.Wait(stresstime);
 //                  STDSetVI(testpad,0v,iProg);
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                     cout << " EG @ " << vProg:-5:3 << endl;
 //               }
 //               else if(special_opt==5)  
@@ -16073,7 +15877,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_RefArr_Erase_func +++++" << endl;
 //      
 //      maxtime = GL_F021_BANK_MAXTIME;
@@ -16577,7 +16381,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         do_bcc = false;
 //      } 
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ " << str2 << " +++++" << endl;
 //      
 //      savesites = v_dev_active;
@@ -16647,7 +16451,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                  FL_SAMP_ACCY_VT_FDATA_LSW[bank][count][site] = lsw_fdata[site];
 //                  FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count][site] = msw_fdata1[site];
 //                  FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count][site] = lsw_fdata1[site];
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                  {
 //                     cout << "Site" << site:-5 << " FL_SAMP_ACCY_VT["][bank:-2]["][ "][count:-2]["] == " << values[site] << endl;
 //                     cout << " ":-9 << " FL_SAMP_ACCY_VT_FADDR MSW/LSW == " << msw_faddr[site]:s_hex:-7 << " " << lsw_faddr[site]:s_hex:-7 << endl;
@@ -16658,7 +16462,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //          /*end;}  {tnum=pbist_ivt0*/
 //      }   /*do_save_samp_accy*/
 //      
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << str2 << " TNUM : " << tnum:s_hex << "  TT " << timernread(ttimer1) << endl;
 //   } 
 //}   /* MeasInternalVT */
@@ -16939,7 +16743,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //         VoltageCompareOpt(S_DATA);
 //
-//         if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //            if(VstatHi)  
 //               cout << "Set VSTAT High");
 //            else
@@ -16958,7 +16762,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         logsites = v_dev_active;
 //         if(not sameness)  
 //         {
-//        if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//        if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //           cout << "Set_TPAD" << endl;
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //               if(activestates[site])  
@@ -16969,7 +16773,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                  } 
 //                  STDSetVI(tp_cg,values[site],iclamp);
 //                  devsetholdstate(site,false);
-//          if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//          if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //             cout << "Site" << site:-5 << " TPAD @ " << values[site] << endl;
 //               } 
 //            devsetholdstates(logsites);
@@ -16981,7 +16785,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               STDSetVI(tp_iref,vrngiref,previref);
 //            } 
 //            STDSetVI(tp_cg,prevvalue,iclamp);
-//        if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//        if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //           cout << "Set_TPAD @ " << prevvalue << endl;
 //         } 
 //      }   /*v_any_dev_active*/
@@ -17032,10 +16836,10 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //{
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Binary Search Vt TTR ..." << endl;
 //      
-//      debugprint = TI_Flashdebug and TIPrintPass;
+//      debugprint = TI_FlashDebug and TIPrintPass;
 //      save_printpass = TIPrintPass;
 //      save_scrnprint = TIStdScreenPrint;
 //
@@ -17112,7 +16916,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      } 
 //      
 //
-//      if(ti_flashdebug and save_scrnprint)  
+//      if(TI_FlashDebug and save_scrnprint)  
 //      {
 //         tistdscreenprint = true;
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -17417,7 +17221,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      TIStdScreenPrint = save_scrnprint;
 //      v_no_supplyset_delay = savesupdelay;
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //      {
 //          /*writeln(tiwindow);*/
 //         cout << "F021_Vt_BinSearch TTR :  " << endl;
@@ -17471,7 +17275,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_VT_Delta_func +++++" << endl;
 //
 //       /*default to false on all vt_type. if ersstvt0 search*/
@@ -17916,7 +17720,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               FL_SAMP_ACCY_VT_FDATA_LSW[bank][count][i] = lsw_fdata[i];
 //               FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count][i] = msw_fdata1[i];
 //               FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count][i] = lsw_fdata1[i];
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //               {
 //                  cout << "Site" << i:-5 << " FL_SAMP_ACCY_VT["][bank:-2]["][ "][count:-2]["] == " << ivalues[i] << endl;
 //                  cout << " ":-9 << " FL_SAMP_ACCY_VT_FADDR MSW/LSW == " << msw_faddr[i]:s_hex:-7 << " " << lsw_faddr[i]:s_hex:-7 << endl;
@@ -17929,10 +17733,10 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //{
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "Binary Search BCC TTR ..." << endl;
 //      
-//      debugprint = TI_Flashdebug and TIPrintPass;
+//      debugprint = TI_FlashDebug and TIPrintPass;
 //      save_printpass = TIPrintPass;
 //      save_scrnprint = TIStdScreenPrint;
 //      savesupdelay = v_no_supplyset_delay;
@@ -18027,7 +17831,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      vProg = 2.5V;  /*iref vrng*/
 //      STDSetVRange(tsupply,vProg);
 //      
-//      if(ti_flashdebug and save_scrnprint)  
+//      if(TI_FlashDebug and save_scrnprint)  
 //      {
 //         tistdscreenprint = true;
 //         switch(opertype) {
@@ -18234,7 +18038,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      TIStdScreenPrint = save_scrnprint;
 //      v_no_supplyset_delay = savesupdelay;
 //
-//      if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //      {
 //         cout << "F021_BCC_BinSearch TTR :  " << endl;
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -18283,7 +18087,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_BCCVT_func +++++" << endl;
 //
 //      save_printpass = tiprintpass;
@@ -19290,7 +19094,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_BCC_Delta_func +++++" << endl;
 //
 //       /*default to false on all vt_type. if ersstvt0 search*/
@@ -19723,7 +19527,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Program_func +++++" << endl;
 //
 //      opertype = none_ena;   /*set to default normal operation*/
@@ -19924,7 +19728,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            {
 //               switch(opertype) {
 //                 case cmpress_ena :  
-//                    if(tistdscreenprint and ti_flashdebug)  
+//                    if(tistdscreenprint and TI_FlashDebug)  
 //                       cout << "Upload correction factor for compressed pgming..." << endl;
 //                    addr_loc_mbox = ADDR_RAM_MAILBOX;
 //                    src_data2 = wr_flag_num;  /*msword*/
@@ -20065,340 +19869,303 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //   
 //   
 //   
-//BoolS F021_Erase_func(    IntS start_testnum,
-//                             StringS tname,
-//                             BoolM test_results)
-//{
-//   const IntS TARGET_BANK = 0; 
-//   const IntS TARGET_SECT = 1; 
-//   const IntS TARGET_OTP = 4; 
-//   const IntS TARGET_SEMIOTP = 5; 
-//   const IntS TOPT_W_PREC = 1; 
-//   const IntS TOPT_WO_PREC = 0; 
-//
-//   BoolM savesites;
-//   IntM erspulse,cmptpulse,preconpulse;
-//   BoolM tmp_results,final_results;
-//   BoolM ers_results,cmpt_results;
-//   IntS bankcount,count;
-//   IntS site,opertype,pattype;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   StringS tmpstr5;
-//   IntS testnum;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname,fl_testname2;
-//   FloatS maxtime;
-//   IntS1D addr_loc(4);
-//   IntS length;
-//   BoolM logsites;
-//   IntS ers_llimit;
-//   IntM rti_timer;
-//   StringM site_cof_inst_str;
-//   IntS target_bits;
-//   BoolS ersstr_ena;
-//   IntS blkstart,blkstop;
-//   BoolS faildetect;
-//
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and ti_flashdebug)  
-//         cout << "+++++ F021_Erase_func +++++" << endl;
-//      
-//      ersstr_ena = false;  /*true=use to disable tw log, compare limits for fast/slow-ers stress*/
-//
-//      writestring(tmpstr1,tname);
-//      length = len(tmpstr1);
-//      writestring(tmpstr1,mid(tmpstr1,2,length-6));  /*remove _Test*/
-//      fl_testname = tname;
-//      
-//      timernstart(ttimer1);
-//
-//      TestOpen(fl_testname);
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      savesites = V_dev_active;
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//      ers_results = V_dev_active;
-//
-//      testnum = start_testnum;
-//
-//      target_bits = (testnum & 0x00000f00) >>8;
-//      switch(target_bits) {
-//        case TARGET_BANK : pattype = BANKTYPE;
-//        case TARGET_SECT : pattype = SECTTYPE;
-//        case  TARGET_OTP: case TARGET_SEMIOTP :  pattype = OTPTYPE;
-//        default:     pattype = MODTYPE;
-//      }   /*case*/
-//
-//       /*check bank/sector bits*/
-//      if((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0))  
-//      {
-//         if(tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         if(not tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         pattype = MODTYPE;
-//      } 
-//
-//      if((((testnum&0xf0000000)>>28) & 0x0000000f)!=0x6)  
-//      {
-//          /*check bit16*/
-//         if(((testnum&0x00010000)>>16)==1)  
-//            opertype = TOPT_W_PREC;
+BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results) {
+
+   enum TargetType   { TARGET_BANK = 0, TARGET_SECT, TARGET_OTP = 4, TARGET_SEMIOTP };
+   enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC };
+   
+//   IntS TARGET_BANK = 0; 
+//   IntS TARGET_SECT = 1; 
+//   IntS TARGET_OTP = 4; 
+//   IntS TARGET_SEMIOTP = 5; 
+//   IntS TOPT_W_PREC = 1; 
+//   IntS TOPT_WO_PREC = 0; 
+
+   IntM erspulse,cmptpulse,preconpulse;
+   TMResultM tmp_results, savesites, final_results, ers_results, cmpt_results;
+   IntS bankcount,count;
+   IntS site,opertype,pattype;
+   FloatS ttimer1,ttimer2;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   StringS tmpstr5;
+   IntS testnum;
+   FloatM FloatSval;
+   StringS unitval;
+   StringS fl_testname,fl_testname2;
+   FloatS maxtime;
+   IntS1D addr_loc(4);
+   IntS length;
+   BoolM logsites;
+   IntS ers_llimit;
+   IntM rti_timer;
+   StringM site_cof_inst_str;
+   IntS target_bits;
+   BoolS ersstr_ena;
+   IntS blkstart,blkstop;
+   BoolS faildetect;
+   
+
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_Erase_func +++++" << endl;
+   
+   ersstr_ena = false;  // true=use to disable tw log, compare limits for fast/slow-ers stress
+   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+   
+   TIME.StartTimer();
+//   TestOpen(fl_testname);
+
+// Clear string function
+//   if (TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+   savesites     = DLOG.AccumulateResults(savesites, test_results);
+   tmp_results   = DLOG.AccumulateResults(tmp_results, test_results);
+   final_results = DLOG.AccumulateResults(final_results, test_results);
+   ers_results   = DLOG.AccumulateResults(ers_results, test_results);
+
+   testnum = start_testnum;
+
+   target_bits = (testnum & 0x00000f00) >> 8;
+   switch(target_bits) {
+     case TARGET_BANK:    pattype = BANKTYPE; break;
+     case TARGET_SECT:    pattype = SECTTYPE; break;
+     case TARGET_OTP: 
+     case TARGET_SEMIOTP: pattype = OTPTYPE;  break;
+     default:             pattype = MODTYPE;  break;
+   }
+
+   // check bank/sector bits
+   if ((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0)) {
+      if (tistdscreenprint)  
+         cout << "*** ERROR: Bank/Sector bits do not start @0." << 
+                 "  Please double check!!! ***" << endl;
+      if (not tistdscreenprint)  
+         cout << "*** ERROR: Bank/Sector bits do not start @0." << 
+                 "  Please double check!!! ***" << endl;
+      pattype = MODTYPE;
+   } 
+  
+   if ((((testnum & IntS(0xf0000000)) >>28 ) & 0x0000000f)!=0x6) {
+      // check bit16
+      if (((testnum&0x00010000)>>16)==1)  
+         opertype = TOPT_W_PREC;
+      else
+         opertype = TOPT_WO_PREC;
+      
+      // check override pulse limits bit22
+      if ((testnum&0x00400000)>0) {
+         if (tistdscreenprint) {
+            cout << endl;
+            cout << "*** WARNING: OVERRIDE PULSE LIMITS are Enabled." << 
+                    "  MAKE SURE THE INTENTION IS TO OVERRIDE <<  i.e. Engineering Debug Only ***" << endl;
+            cout << endl;
+         } 
+         // make sure not use in production unless
+         if (not TI_FlashCOFEna) {
+            pattype = MODTYPE;
+            if (tistdscreenprint)  
+               cout << "*** PLS SET TI_FlashCOFEna true" << 
+                       " TO OVERRIDE PULSE LIMITS. ***" << endl;
+         } 
+      } 
+   }
+   else {
+      opertype = TOPT_WO_PREC;
+   } 
+      
+   if (TI_FlashESDAEna) FLEsda.Pattype = pattype;
+
+   
+   if(pattype == MODTYPE) {
+      // +++ Module operation +++
+      final_results = TM_NOTEST;
+      if (tistdscreenprint)  
+         cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
+   }
+   else {
+      // ++++++++ Bank operation ++++++++
+      // KChau 03/27/08 - added ers_llimit so won"t fail on
+      // erspulse of 0 for fast & slow erase tests since shell
+      // don"t have pulse log at mstat3 location.
+      if ((testnum==TNUM_BANK_ERS_STRESS_FAST) or
+          (testnum==TNUM_BANK_ERS_STRESS_SLOW) or
+          (testnum==TNUM_BANK_ERS_WEAK)) {
+         ers_llimit = 1;
+         ersstr_ena = true;
+      }
+      else
+         ers_llimit = 0;
+
+// TODO: Add some sort of datalog here
+//      if (tistdscreenprint and (not ersstr_ena)) {
+//         if (opertype==1)
+//            PrintHeaderErsProg(0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
+//                               0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
 //         else
-//            opertype = TOPT_WO_PREC;
-//         
-//          /*check override pulse limits bit22*/
-//         if((testnum&0x00400000)>0)  
-//         {
-//            if(tistdscreenprint)  
-//            {
-//               cout << endl;
-//               cout << "*** WARNING: OVERRIDE PULSE LIMITS is Enable." << 
-//                       "  MAKE SURE THIS IS INTENTIONALLY DONE SO <<  i.e. Engineering Debug Only ***" << endl;
-//               cout << endl;
-//            } 
-//             /*make sure not use in production unless*/
-//            if(not ti_flashcofena)  
-//            {
-//               pattype = MODTYPE;
-//               if(tistdscreenprint)  
-//                  cout << "*** PLS SET TI_FlashCOFEna true" << 
-//                          " IF INTENTION OVERRIDE PULSE LIMITS. ***" << endl;
-//            } 
-//         } 
-//      }
-//      else
-//      {
-//         opertype = TOPT_WO_PREC;
+//            PrintHeaderErsProg(0,0,ers_llimit,BANK_ERS_ULimit,
+//                               0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
 //      } 
-//         
-//      if(TI_FlashESDAEna)  
-//         FLEsda.Pattype  = pattype;
-//
-//      
-//      if(pattype == MODTYPE)  
-//      {
-//          /*+++ Module operation +++*/
-//         final_results = false;
-//         if(tistdscreenprint)  
-//            cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
-//      }
-//      else
-//      {
-//          /*++++++++ Bank operation ++++++++*/
-//          /*KChau 03/27/08 - added ers_llimit so won"t fail on*/
-//          /*erspulse of 0 for fast & slow erase tests since shell*/
-//          /*don"t have pulse log at mstat3 location.*/
-//         if((testnum==TNUM_BANK_ERS_STRESS_FAST) or
-//            (testnum==TNUM_BANK_ERS_STRESS_SLOW) or
-//            (testnum==TNUM_BANK_ERS_WEAK))  
-//         {
-//            ers_llimit = 1;
-//            ersstr_ena = true;
-//         }
-//         else
-//            ers_llimit = 0;
-//
-//         if(tistdscreenprint and (not ersstr_ena))  
-//         {
-//            if(opertype==1)  
-//               PrintHeaderErsProg(0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
-//                                  0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT))
-//            else
-//               PrintHeaderErsProg(0,0,ers_llimit,BANK_ERS_ULimit,
-//                                  0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
-//         } 
-//
-//         maxtime = GL_F021_BANK_ERS_MAXTIME;
-//
-//         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//         {
-//            if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//            {
-//               blkstart = bankcount;
-//               blkstop  = bankcount;
-//            }
-//            else if(pattype==BLOCKTYPE)  
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXBLOCK[bankcount];
-//            }
-//            else
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXSECT[bankcount];
-//            } 
-//
-//            testnum  = start_testnum+(bankcount<<4);
-//
-//            for (count = blkstart;count <= blkstop;count++)
-//            {
-//               faildetect = false;
-//               logsites = v_dev_active;
-//               F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               
-//               if(not ersstr_ena)  
-//               {
-//                  erspulse = 0;
-//                  if(opertype==1)    /*w/ precon*/
-//                  {
-//                     preconpulse = 0;
-//                     Get_TLogSpace_MaxPPulse(preconpulse);
-//                  } 
-//
-//                  Get_TLogSpace_ErsPulse(erspulse);
-//                  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  {
-//                     if(v_dev_active[site])  
-//                     {
-//                        if(opertype==1)    /*w/ precon*/
-//                           if(preconpulse[site] > BANK_PRECON_ULimit)  
-//                           {
-//                              final_results[site] = false;
-//                              tmp_results[site] = false;
-//                              ers_results[site] = false;
-//                           } 
-//                        
-//                        if((erspulse[site] < ers_llimit) or
-//                           (erspulse[site] > BANK_ERS_ULimit))  
-//                        {
-//                           final_results[site] = false;                     
-//                           tmp_results[site] = false;
-//                           ers_results[site] = false;
-//                        } 
-//                     }   /*if v_dev_active*/
-//                  }   /*for site*/
-//               }
-//               else  /*fast/slow-ers*/
-//               {
-//                  ArrayAndBoolean(ers_results,ers_results,tmp_results,v_sites);
-//               } 
-//               
-//               
-//                /*log to TW*/
-//               writestring(tmpstr2,bankcount:1);
-//               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-//               
-//               if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
-//               {
-//                  writestring(tmpstr3,count:1);
-//                  if(pattype==BLOCKTYPE)  
-//                     tmpstr3 = "BLK" + tmpstr3;
-//                  else
-//                     tmpstr3 = "S" + tmpstr3;
-//                  tmpstr2 = tmpstr2 + tmpstr3;
-//               } 
-//               
-//               tmpstr3 = tmpstr1 + tmpstr2;
-//               tmpstr4 = tmpstr3 + "_TT";
-//               TWTRealToRealMS(tt_timer,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//               
-//               if(not ersstr_ena)  
-//               {
-//                  if(opertype==1)    /*erase w/ precon*/
-//                  {
-//                     tmpstr4 = tmpstr3 + "_PREC_PLS";
-//                     TWPDLDataLogVariable(tmpstr4,preconpulse, TWMinimumData);
-//                  } 
-//                  
-//                  tmpstr4 = tmpstr3 + "_Ers_PLS";
-//                  TWPDLDataLogVariable(tmpstr4,erspulse, TWMinimumData);
-//               } 
-//               
-//                /*log RTI timer (internal vclock cycle value) to tw*/
-//               rti_timer = 0;
-//               GetRTIValue(rti_timer);
-//               tmpstr4 = tmpstr3 + "_RTI_TT";
-//               TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
-//               
-//               if(tistdscreenprint and (not ersstr_ena))  
-//               {
-//                  if(opertype==1)  
-//                     PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
-//                                        0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
-//                                        0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT))
-//                  else
-//                     PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
-//                                        0,0,ers_llimit,BANK_ERS_ULimit,
-//                                        0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
-//               } 
-//               
-//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//               {
-//                  faildetect = true;
-//                  F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
-//                  
-//                  if(TI_FlashCOFEna)  
-//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-//
-//                  if(TI_FlashESDAEna)  
-//                     if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//                        SetFlashESDAVars(tmp_results,bankcount,bankcount);
-//                     else
-//                        SetFlashESDAVars(tmp_results,bankcount,count);
-//               } 
-//               
-//               testnum = testnum+1; 
-//
-//               if(faildetect)  
-//                  if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                     Devsetholdstates(final_results);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for count*/
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for bankcount*/
-//      }    /*+++ End of Bank operation +++*/
-//
-//       /*restore all active sites*/
-//      Devsetholdstates(savesites);
-//
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//
-//      test_results = final_results;
-//      
-//      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      }         /*if tistdscreenprint*/
-//      
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         DevSetHoldStates(final_results);
+
+      maxtime = GL_F021_BANK_ERS_MAXTIME;
+
+      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
+         if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
+            blkstart = bankcount;
+            blkstop  = bankcount;
+         }
+         else if (pattype==BLOCKTYPE) {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXBLOCK[bankcount];
+         }
+         else {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXSECT[bankcount];
+         } 
+
+         testnum  = start_testnum+(bankcount<<4);
+
+         for (count = blkstart;count <= blkstop;count++) {
+            faildetect = false;
+            F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+            
+            if (not ersstr_ena) {
+               erspulse = 0;
+               if (opertype==1) {   // with precon
+                  preconpulse = 0;
+                  Get_TLogSpace_MaxPPulse(preconpulse);
+                  final_results = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
+                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                  tmp_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
+                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                  ers_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
+                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+               } 
+
+               Get_TLogSpace_ErsPulse(erspulse);                           
+               final_results = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
+                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);   
+               tmp_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
+                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+               ers_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
+                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+            }
+            else { /*fast/slow-ers*/
+               ers_results = DLOG.AccumulateResults(ers_results, tmp_results);
+            } 
+            
+            // TODO: TestWare Datalogging
+            // log to TW
+//            TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, UTL_VOID, true, TWMinimumData);
+            tmpstr2 = CONV.IntToString(bankcount);
+            tmpstr2 = "_B" + tmpstr2;  // _B#
+           
+            if ((pattype==BLOCKTYPE) or (pattype==SECTTYPE)) {
+               tmpstr3 = CONV.IntToString(count);
+               if(pattype==BLOCKTYPE)  
+                  tmpstr3 = "BLK" + tmpstr3;
+               else
+                  tmpstr3 = "S" + tmpstr3;
+               tmpstr2 = tmpstr2 + tmpstr3;
+            } 
+            
+            tmpstr3 = tmpstr1 + tmpstr2;
+            tmpstr4 = tmpstr3 + "_TT";
+//            TWTRealToRealMS(tt_timer,realval,unitval);
+//            TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
 //            
-//   }   /*if v_any_dev_active*/
-//   
-//   F021_Erase_func = V_any_dev_active;
-//}   /*F021_Erase_func*/
-//
+            if (not ersstr_ena) {
+               if (opertype==1) {   // erase w/ precon
+                  tmpstr4 = tmpstr3 + "_PREC_PLS";
+//                  TWPDLDataLogVariable(tmpstr4,preconpulse, TWMinimumData);
+               } 
+              
+               tmpstr4 = tmpstr3 + "_Ers_PLS";
+//               TWPDLDataLogVariable(tmpstr4,erspulse, TWMinimumData);
+            }
+            
+            // log RTI timer (internal vclock cycle value) to tw
+            rti_timer = 0;
+            // GetRTIValue(rti_timer);
+            tmpstr4 = tmpstr3 + "_RTI_TT";
+//            TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
+
+            // TODO: Add some sort of datalog here
+            if (tistdscreenprint and (not ersstr_ena)) {
+               if (opertype==1)
+                  ;
+//                  PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
+//                                     0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
+//                                     0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
+               else
+                  ;
+//                  PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
+//                                     0,0,ers_llimit,BANK_ERS_ULimit,
+//                                     0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
+            } 
+            
+            if (not(tmp_results == TM_PASS)) {
+               faildetect = true;
+               // :TODO: TestWare Logging
+               // F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+               
+               if (TI_FlashCOFEna)
+                  ;
+                    // :TODO: Test string size
+                    // F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+
+               if (TI_FlashESDAEna)  
+                  if ((pattype==BANKTYPE) or (pattype==OTPTYPE))
+                     ;
+                     // :TODO: ESDA
+                     // SetFlashESDAVars(tmp_results,bankcount,bankcount);
+                  else
+                     ;
+                     // SetFlashESDAVars(tmp_results,bankcount,count);
+            } 
+            
+            testnum = testnum+1; 
+
+            if (faildetect)  
+               if ((not RunAllTests) and (not TI_FlashCOFEna))
+                  ;  // Dummy statement placeholder
+                  // Devsetholdstates(final_results);
+
+         }   // for count
+      }   // for bankcount
+   }    // +++ End of Bank operation +++
+
+   // restore all active sites
+//   Devsetholdstates(savesites);
+
+   test_results = DLOG.AccumulateResults(test_results, final_results);
+
+//   COF = Continue-On-Fail
+//   if (TI_FlashCOFEna)  
+//      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
+   
+   tt_timer = TIME.StopTimer();
+
+   tmpstr4 = tmpstr1 + "_TTT";
+//   TWTRealToRealMS(tt_timer,realval,unitval);
+//   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+   
+   if (tistdscreenprint) {
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+      // PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   }
+   
+   if ((not RunAllTests) and (not TI_FlashCOFEna))
+      ;
+      // DevSetHoldStates(final_results);
+   
+   return(1);
+}   // F021_Erase_func
+
 //
 //
 //BoolS F021_Read_func(    IntS start_testnum,
@@ -20439,7 +20206,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Read_func +++++" << endl;      
 //
 //      writestring(tmpstr1,tname);
@@ -20837,7 +20604,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ Compare_FlashEfuse_OTP_Chksum_func +++++" << endl;
 //
 //      writestring(tmpstr1,tname);
@@ -21293,7 +21060,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake1_BCC0 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT0] != MainBCC.MEMCFG[CHKVT0DRL])  
@@ -21316,7 +21083,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake1_BCC1 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT1] != MainBCC.MEMCFG[CHKVT1DRL])  
@@ -21339,7 +21106,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake2_BCC0 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT0] != MainBCC.MEMCFG[CHKVT0DRL])  
@@ -21362,7 +21129,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake2_BCC1 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT1] != MainBCC.MEMCFG[CHKVT1DRL])  
@@ -21385,7 +21152,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake3_BCC0 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT0] != MainBCC.MEMCFG[CHKVT0DRL])  
@@ -21408,7 +21175,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake3_BCC1 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT1] != MainBCC.MEMCFG[CHKVT1DRL])  
@@ -21431,7 +21198,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake4_BCC0 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT0] != MainBCC.MEMCFG[CHKVT0DRL])  
@@ -21454,7 +21221,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake4_BCC1 ***" << endl;
 //
 //      if(MainBCC.MEMCFG[CHKVT1] != MainBCC.MEMCFG[CHKVT1DRL])  
@@ -22153,7 +21920,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake1_VT0 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT0] != MainVT.MEMCFG[CHKVT0DRL])  
@@ -22176,7 +21943,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake1_VT1 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT1] != MainVT.MEMCFG[CHKVT1DRL])  
@@ -22199,7 +21966,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake2_VT0 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT0] != MainVT.MEMCFG[CHKVT0DRL])  
@@ -22222,7 +21989,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake2_VT1 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT1] != MainVT.MEMCFG[CHKVT1DRL])  
@@ -22245,7 +22012,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake3_VT0 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT0] != MainVT.MEMCFG[CHKVT0DRL])  
@@ -22268,7 +22035,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake3_VT1 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT1] != MainVT.MEMCFG[CHKVT1DRL])  
@@ -22291,7 +22058,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake4_VT0 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT0] != MainVT.MEMCFG[CHKVT0DRL])  
@@ -22314,7 +22081,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "*** Get_PreBake4_VT1 ***" << endl;
 //
 //      if(MainVT.MEMCFG[CHKVT1] != MainVT.MEMCFG[CHKVT1DRL])  
@@ -22429,7 +22196,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            
 //      test_results = final_results;
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //      {
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
@@ -23852,7 +23619,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               FRM_OTP_BANK_EFSUM_HI_VAL[bankcount][site] = OTP_ID_INFO_VAL[bankcount][IND_EFCHKSUM_HI][site];
 //               FRM_OTP_BANK_EFSUM_LO_BCD[bankcount][site] = OTP_ID_INFO[bankcount][IND_EFCHKSUM_LO][site];
 //               FRM_OTP_BANK_EFSUM_LO_VAL[bankcount][site] = OTP_ID_INFO_VAL[bankcount][IND_EFCHKSUM_LO][site];
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //                  cout << "Site " << site:-5 << " Bank" << bankcount:-2 << 
 //                          " EFCHKSUM_MSW==" << FRM_OTP_BANK_EFSUM_HI_VAL[bankcount][site]:s_hex:6 << 
 //                          " EFCHKSUM_LSW==" << FRM_OTP_BANK_EFSUM_LO_VAL[bankcount][site]:s_hex:6 << endl;
@@ -24131,7 +23898,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      maxtime = GL_F021_MAXTIME;
 //      rd_flag_num = 0x4321;
 //
-//      if(ti_flashdebug)  
+//      if(TI_FlashDebug)  
 //      {
 //         numword     = 0;
 //         numword_max = 127;
@@ -24144,7 +23911,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         
 //      final_results = v_dev_active;
 //
-//      if(ti_flashdebug)  
+//      if(TI_FlashDebug)  
 //         maxbank = F021_Flash.MAXBANK;
 //      else
 //         maxbank = 0;
@@ -24158,7 +23925,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         if(GL_DO_ESDA_WITH_SCRAM)  
 //            Get_Flash_MBoxSpace_OTP_SCRAM;
 //
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //         {
 //            Get_MBoxSpace_FlagNum(msw_data,lsw_data);
 //            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -24178,7 +23945,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         
 //         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
 //
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //         {
 //            loop = 0;
 //            row  = 0;
@@ -24219,7 +23986,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            } 
 //         }   /*for count*/
 //
-//         if(not ti_flashdebug)  
+//         if(not TI_FlashDebug)  
 //         {
 //            loop = 0;
 //            row  = 11;
@@ -24262,7 +24029,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               FRM_OTP_BANK_EFSUM_HI_VAL[bankcount][site] = OTP_ID_INFO_VAL[bankcount][IND_EFCHKSUM_HI][site];
 //               FRM_OTP_BANK_EFSUM_LO_BCD[bankcount][site] = OTP_ID_INFO[bankcount][IND_EFCHKSUM_LO][site];
 //               FRM_OTP_BANK_EFSUM_LO_VAL[bankcount][site] = OTP_ID_INFO_VAL[bankcount][IND_EFCHKSUM_LO][site];
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //                  cout << "Site " << site:-5 << " Bank" << bankcount:-2 << 
 //                          " EFCHKSUM_MSW==" << FRM_OTP_BANK_EFSUM_HI_VAL[bankcount][site]:s_hex:6 << 
 //                          " EFCHKSUM_LSW==" << FRM_OTP_BANK_EFSUM_LO_VAL[bankcount][site]:s_hex:6 << endl;
@@ -24278,7 +24045,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //               {
 //                  cout << "BANK " << bankcount:-4 << endl;
-//                  if(ti_flashdebug)  
+//                  if(TI_FlashDebug)  
 //                  {
 //                     loop = 0;
 //                     row  = 0;
@@ -24334,7 +24101,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            FRM_OTP_XPOS_BCD[site]    = OTP_ID_INFO[0][IND_XPOS][site];
 //            FRM_OTP_YPOS_BCD[site]    = OTP_ID_INFO[0][IND_YPOS][site];
 //
-//            if(ti_flashdebug)  
+//            if(TI_FlashDebug)  
 //            {
 //               FRM_OTP_OTPCHKSUM_HI_BCD[site] = OTP_ID_INFO[0][IND_OTPCHKSUM_HI][site];
 //               FRM_OTP_OTPCHKSUM_LO_BCD[site] = OTP_ID_INFO[0][IND_OTPCHKSUM_LO][site];
@@ -24626,7 +24393,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //         if(v_dev_active[site])  
 //         {
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << "Site" << site:-5 << str2;
 //
 //            loop = 0;
@@ -24635,14 +24402,14 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               writestring(str1,OTP_LOG1_INFO_VAL[0][count][site]:s_hex:1);
 //               FRM_OTP_WD8[loop][site] = str1;
 //               loop = loop+1;
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  cout << " " << str1 << " ";
 //            } 
 //
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << endl;
 //
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << "Site" << site:-5 << str3;
 //            
 //            loop = 0;
@@ -24651,11 +24418,11 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               writestring(str1,OTP_LOG1_INFO_VAL[0][count][site]:s_hex:1);
 //               FRM_OTP_WD9[loop][site] = str1;
 //               loop = loop+1;
-//               if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //                  cout << " " << str1 << " ";
 //            } 
 //
-//            if(tistdscreenprint and ti_flashdebug and tiprintpass)  
+//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
 //               cout << endl;
 //         } 
 //
@@ -24839,7 +24606,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_RestoreOTPInfo_func +++++" << endl;
 //   
 //      final_results = V_dev_active;
@@ -25014,7 +24781,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      TL_SetARBADDR(0,0);
 //      TL_SetARBLENGTH(0,0);
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         TL_DumpOTP;
 //      
 //      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
@@ -25067,7 +24834,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //   if(V_any_dev_active)  
 //   {
 //      timernstart(ttimer1);
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_ReadOTPInfo_func +++++" << endl;
 //   
 //      final_results = V_dev_active;
@@ -25077,7 +24844,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         rd_option = 0  ; /*read all locations for restore if needed*/
 //      else
 //         rd_option = 1;  /*read w8 & w9 only*/
-//      if(ti_flashdebug and tistdscreenprint)  
+//      if(TI_FlashDebug and tistdscreenprint)  
 //         rd_option = 0;
 //      F021_ReadLog1OTP_func(tmp_results,rd_option);
 //      Arrayandboolean(final_results,final_results,tmp_results,v_sites);
@@ -25122,7 +24889,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_DieID +++++" << endl;
 //
 //      wr_flag_num = 0x1234;
@@ -25248,7 +25015,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_PgmRev +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25290,7 +25057,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_PkgMem +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25330,7 +25097,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_EFChkSum +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25370,7 +25137,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_EFChkSum_Pump_Trim +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25436,7 +25203,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_FlwByte +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25514,7 +25281,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MBox_Upload_LPO_CAL +++++" << endl;
 //
 //      bcd_format  = true;
@@ -25583,7 +25350,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Write_OTP_MBox_func +++++" << endl;
 //
 //      switch(wr_option) {
@@ -25756,7 +25523,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_OTP_WrEngRow_func +++++" << endl;
 //
 //      timernstart(ttimer1);      
@@ -26873,7 +26640,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //               while(not done) do
 //               {
-//                  if(ti_flashdebug)  
+//                  if(TI_FlashDebug)  
 //                     if(Inkey(s))   break;
 //                  BGValue = currsol;
 //                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
@@ -27133,7 +26900,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           } 
 //                        } 
 //                        
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                           cout << "Site " << site:-5 << " Loop==" << loop:-4 << " VRD soft==" << tmp_meas_value[site]:-5:3 << 
 //                                   "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
 //                                   "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
@@ -27564,7 +27331,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //                     currsol[site] = calcsol[site];
 //
-//                     if(tistdscreenprint and ti_flashdebug)  
+//                     if(tistdscreenprint and TI_FlashDebug)  
 //                        cout << "Site" << site:-5 << " CalcSol == " << calcsol[site]:-5 << endl;
 //                  }   /*v_dev_active*/
 //
@@ -27574,7 +27341,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //               while(not done) do
 //               {
-//                  if(ti_flashdebug)  
+//                  if(TI_FlashDebug)  
 //                     if(Inkey(s))   break;
 //                  BGValue = currsol;
 //                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
@@ -27838,7 +27605,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           } 
 //                        } 
 //                        
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                           cout << "Site " << site:-5 << " Loop==" << loop:-4 << " VRD soft==" << tmp_meas_value[site]:-5:3 << 
 //                                   "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
 //                                   "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
@@ -28360,7 +28127,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           } 
 //                        } 
 //
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //            {
 //               cout << "Site " << site:-5 << " Loop==" << loop:-4 << " VRD soft==" << tmp_meas_value[site]:-5:3 << 
 //                                   "  SoftTrim==" << adapt_iteration[loop][site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
@@ -28842,7 +28609,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                                  break; 
 //                           }   /* case */
 //                        } 
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                           if(found_range[site])  
 //                              cout << "Site" << site:-5 << " Start search ranges: " << srng1[site] << "  " << srng2[site] << "  " << srng3[site] << "  " << srng4[site] << endl;
 //                     }   /*if tmp_meas_value*/
@@ -28903,7 +28670,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                        } 
 //                     } 
 //
-//                     if(tistdscreenprint and ti_flashdebug)  
+//                     if(tistdscreenprint and TI_FlashDebug)  
 //                        cout << "Site " << site:-5 << " Loop==" << loop:-4 << " IREF soft==" << tmp_meas_value[site]:-5:3 << 
 //                                "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
 //                                "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
@@ -29073,7 +28840,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_FOSC_SoftTrim_func +++++" << endl;
 //      
 //      timernstart(ttimer1);
@@ -29136,7 +28903,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                  cout << "  Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
 //            } 
 //            
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               readramaddress(site,0,0xff);
 //         } 
 //
@@ -29198,7 +28965,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_VHV_SLOPECT_SoftTrim_func +++++" << endl;
 //
 //      bgval = MAINBG_TRIMSAVED;
@@ -29389,7 +29156,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      ret_ctval = ctval;
 //      test_results = final_results;
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //               readramaddress(site,addr,addr+ADDR_RAM_INC);
@@ -29444,7 +29211,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_VSA5CT_SoftTrim_func +++++" << endl;
 //
 //      bgval = MAINBG_TRIMSAVED;
@@ -29618,7 +29385,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      ret_ctval = ctval;
 //      test_results = final_results;
 //
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //               readramaddress(site,addr,addr+ADDR_RAM_INC);
@@ -30211,7 +29978,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      trim_valid = V_dev_active;
 //      activesites = V_dev_active;
 //
-//      debugprint = ti_flashdebug and tiprintpass ; /*false*/
+//      debugprint = TI_FlashDebug and tiprintpass ; /*false*/
 //      iteration  = MAXITER;
 //
 //      minloop = EVENNUM;
@@ -30240,7 +30007,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      if(GL_BANKTYPE==FLESBANK)  
 //         maxloop = EVENNUM;
 //
-//      if(ti_flashdebug)  
+//      if(TI_FlashDebug)  
 //         PrintHeaderParam(GL_PLELL_FORMAT);
 //      
 //      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
@@ -30272,7 +30039,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               
 //                /*-- calculate ratio --*/
 //               DoIMeasure;  /*store in meas_val*/
-//               if(ti_flashdebug)  
+//               if(TI_FlashDebug)  
 //                  PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                  if(v_dev_active[site])  
@@ -30356,7 +30123,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                     
 //                     RAM_Upload_PMOS_SoftTrim_Bank(bank,even_ena,odd_ena,msw_val,lsw_val);
 //                     DoIMeasure;
-//                     if(ti_flashdebug)  
+//                     if(TI_FlashDebug)  
 //                        PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                     sftival[bank][loop][j] = meas_val;
 //                     RAM_Clear_PMOS_SoftTrim_Bank(bank);
@@ -30857,7 +30624,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      trim_valid = V_dev_active;
 //      activesites = V_dev_active;
 //
-//      debugprint = ti_flashdebug;
+//      debugprint = TI_FlashDebug;
 //      iteration  = MAXITER;
 //
 //      minloop = EVENNUM;
@@ -30886,7 +30653,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      if(GL_BANKTYPE==FLESBANK)  
 //         maxloop = EVENNUM;
 //
-//      if(ti_flashdebug)  
+//      if(TI_FlashDebug)  
 //         PrintHeaderParam(GL_PLELL_FORMAT);
 //      
 //      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
@@ -30923,7 +30690,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               llim    = TCR.TP2_LLim[TCRnum][TCRMode];
 //               ulim    = TCR.TP2_ULim[TCRnum][TCRMode];
 //               DoIMeasure;  /*store in meas_val*/
-//               if(ti_flashdebug)  
+//               if(TI_FlashDebug)  
 //                  PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                  if(v_dev_active[site])  
@@ -31050,7 +30817,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                     str4 = str4 + str5;
 //                     
 //                     DoIMeasure;
-//                     if(ti_flashdebug)  
+//                     if(TI_FlashDebug)  
 //                        PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                     sftival[bank][loop][j] = meas_val;
 //                     
@@ -31101,7 +30868,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31115,7 +30882,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31131,7 +30898,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31145,7 +30912,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31161,7 +30928,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31175,7 +30942,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
 //                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
 //                           DoIMeasure;
-//                           if(ti_flashdebug) then
+//                           if(TI_FlashDebug) then
 //                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
 //                           TWTRealToRealMS(meas_val,realval,unitval);
 //                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
@@ -31586,7 +31353,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ RAM_Upload_FakeRepair +++++" << endl;
 //
 //      debugprint  = TIStdscreenprint and TI_FlashDebug and TIPrintPass;
@@ -31693,7 +31460,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ Run_Update_FakeRepair +++++" << endl;
 //
 //      writestring(tmpstr1,tname);
@@ -31856,7 +31623,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ SAMP_Noise_Screen_func +++++" << endl;
 //
 //      writestring(str1,tname);
@@ -32004,7 +31771,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               if(tp_iref_ena)  
 //                  STDSetVI(tp_iref,iref_vprog,iref_iprog);
 //               TIME.Wait(tdelay);
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //                  cout << "IREF @ " << iref_iprog << endl;
 //
 //               if(charena)  
@@ -32037,7 +31804,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                        FData[site] = (fdata_msw[site]<<16) + fdata_lsw[site];
 //                        if(not charena)  
 //                           devsetholdstate(site,false);
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                           cout << "Site" << site:-5 << " FAddr==" << FAddr[site]:s_hex:-12 << " FData==" << FData[site]:s_hex:-12 << " FBCC==" << FBCC[site] << endl;
 //                     } 
 //                  }   /*v_dev_active*/
@@ -32635,7 +32402,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                     {
 //                        found_bit = false;
 //                        faddr[site] = 0x08000000 + (FL_WORSTBIT_FADDR[site]<<4);
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                        {
 //                           cout << "Site" << site:-5 << " BitHistogram FADDR == " << faddr[site]:s_hex << endl;
 //                           cout << "FDATA == ";
@@ -32677,7 +32444,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           } 
 //                        }   /*for i*/
 //                        fdata[10][site] = 0xffff;
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                        {
 //                           cout << "Site" << site:-5 << " First Worst Bit Info: " << endl;
 //                           cout << "FADDR == " << faddr[site]:s_hex:-12 << " SA == " << senampnum[site]:-5;
@@ -32702,7 +32469,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                     WriteRamContentDec_32Bit(addr_loc,lsw_data,true,msw_data,true,true);
 //                     addr_loc = addr_loc+ADDR_RAM_INC;
 //                  } 
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                  {
 //                     i = ADDR_RAM_MAILBOX;
 //                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -32752,12 +32519,12 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //                  for loop_v = start_v to stop_v by inc_v do
 //                  {
-//                     if(ti_flashdebug)  
+//                     if(TI_FlashDebug)  
 //                        if(Inkey(s))   break;
 //                     bccval = 0uA;
 //                     for loop_i = 40ua downto 2ua by 2ua do
 //                     {
-//                        if(ti_flashdebug)  
+//                        if(TI_FlashDebug)  
 //                           if(Inkey(s))   break;
 //                        TRealToStr(loop_v,str4);
 //                        str5 = "TCR6" + str2;
@@ -32795,7 +32562,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                                  /*senamp := senampnum[site] mod 16;*/
 //                                 j = fdata_bitindex[site];
 //                                 k = ((FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+2][site]) >> j) &0x01;
-//                                 if(tistdscreenprint and ti_flashdebug)  
+//                                 if(tistdscreenprint and TI_FlashDebug)  
 //                                 {
 //                                     /*writeln(tiwindow,"i=",i:-5," senamp=",senamp:-5," j=",j:s_hex:-7," k=",k:s_hex:-7);*/
 //                                    cout << "FL_SCRAM_CAPT_ARR["][IND_STARTADDR+i+2]["] " << FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+2][site]:s_hex << endl;
@@ -32806,12 +32573,12 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                                    if(tistdscreenprint)  
 //                                    {
 //                                       cout << "Site" << site:-5 << str5 << " " << bccval[site] << endl;
-//                                       if(ti_flashdebug)  
+//                                       if(TI_FlashDebug)  
 //                                          readramaddress(site,0x500,0x52c);
 //                                    } 
 //                                    devsetholdstate(site,false);
 //                                 }   /*if k*/
-//                                 if(v_dev_active[site] and tistdscreenprint and ti_flashdebug)  
+//                                 if(v_dev_active[site] and tistdscreenprint and TI_FlashDebug)  
 //                                 {
 //                                    cout << str5 << endl;
 //                                    readramaddress(site,0x500,0x52c);
@@ -32993,7 +32760,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //             WriteRamContentDec_32Bit(addr_loc,lsw_data,true,msw_data,true,true);
 //             addr_loc := addr_loc+ADDR_RAM_INC;
 //          end;
-//                   if(tistdscreenprint and ti_flashdebug) then
+//                   if(tistdscreenprint and TI_FlashDebug) then
 //                   begin
 //                      i := ADDR_RAM_MAILBOX;
 //                      for site := 1 to v_sites do
@@ -33002,7 +32769,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                   end;
 //          */
 //          /*savescreenprint := TIStdScreenPrint;
-//          if(not ti_flashdebug) then
+//          if(not TI_FlashDebug) then
 //             TIStdScreenPrint := false;*/
 //         
 //          /*taking iv serially*/
@@ -33046,7 +32813,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         tnum = stnum_tcr6+TNUM_TARGET_ARB+TNUM_TOPTION_ESDARD;
 //
 //         savescreenprint = TIStdScreenPrint;
-//         if(not ti_flashdebug)  
+//         if(not TI_FlashDebug)  
 //            TIStdScreenPrint = false;
 //         
 //         PrintHeaderBool(GL_PLELL_FORMAT);
@@ -33056,14 +32823,14 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         for loop_v = start_v to stop_v by inc_v do
 //         {
 //            counter = counter+1;
-//            if(ti_flashdebug)  
+//            if(TI_FlashDebug)  
 //               if(Inkey(s))   break;
 //            bccval = 0uA;
 //
 //             /*sweep from pass-to-fail*/
 //            for loop_i = iref_start downto iref_stop by iref_inc do
 //            {
-//               if(ti_flashdebug)  
+//               if(TI_FlashDebug)  
 //                  if(Inkey(s))   break;
 //               TRealToStr(loop_v,str4);
 //               str5 = "TCR6" + str2;
@@ -33092,7 +32859,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               arraymultintegervalue(expfailcnt,expfailcnt,0x10000,v_sites);
 //               arrayaddinteger(expfailcnt,expfailcnt,FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW],v_sites);
 //
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //               {
 //                  cout << "Vcg == " << loop_v << " Iref == " << loop_i << endl;
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -33111,7 +32878,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                        i = fdata_index[site];
 //                        j = fdata_bitindex[site];
 //                        k = ((FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+3][site]) >> j) &0x01;
-//                        if(tistdscreenprint and ti_flashdebug)  
+//                        if(tistdscreenprint and TI_FlashDebug)  
 //                        {
 //                            /*writeln(tiwindow,"i=",i:-5," senamp=",senamp:-5," j=",j:s_hex:-7," k=",k:s_hex:-7);*/
 //                           cout << "FL_SCRAM_CAPT_ARR["][IND_STARTADDR+i+3]["] " << FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+3][site]:s_hex << endl;
@@ -33124,7 +32891,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           if(tistdscreenprint)  
 //                           {
 //                              cout << "Site" << site:-5 << str5 << " " << bccval[site] << endl;
-//                               /*if(ti_flashdebug) then
+//                               /*if(TI_FlashDebug) then
 //                                  readramaddress(site,0x500,0x500+(11*ADDR_RAM_INC));*/
 //                           } 
 //                           devsetholdstate(site,false);
@@ -33134,7 +32901,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           tcr6_val[counter][site] = 0uA;
 //                        } 
 //                        
-//                         /*if(v_dev_active[site] and tistdscreenprint and ti_flashdebug) then
+//                         /*if(v_dev_active[site] and tistdscreenprint and TI_FlashDebug) then
 //                         begin
 //                            writeln(tiwindow,str5);
 //                            readramaddress(site,0x500,0x500+(11*ADDR_RAM_INC));
@@ -33340,7 +33107,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            }   /*v_dev_active*/
 //
 //         savescreenprint = TIStdScreenPrint;
-//         if(not ti_flashdebug)  
+//         if(not TI_FlashDebug)  
 //            TIStdScreenPrint = false;
 //            
 //         iomin = start_senamp;  /*0;*/
@@ -33348,7 +33115,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         
 //         for (senamp = iomin;senamp <= iomax;senamp++)
 //         {
-//            if(ti_flashdebug)  
+//            if(TI_FlashDebug)  
 //               if(Inkey(s))   break;
 //
 //             /*+++ iv curve tcr1 +++*/
@@ -33397,14 +33164,14 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //            for loop_v = start_v to stop_v by inc_v do
 //            {
 //               counter = counter+1;
-//               if(ti_flashdebug)  
+//               if(TI_FlashDebug)  
 //                  if(Inkey(s))   break;
 //               bccval = 0uA;
 //               
 //                /*sweep from pass-to-fail*/
 //               for loop_i = iref_start downto iref_stop by iref_inc do
 //               {
-//                  if(ti_flashdebug)  
+//                  if(TI_FlashDebug)  
 //                     if(Inkey(s))   break;
 //                  TRealToStr(loop_v,str4);
 //                  str5 = "TCR6" + str2;
@@ -33433,7 +33200,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                  arraymultintegervalue(expfailcnt,expfailcnt,0x10000,v_sites);
 //                  arrayaddinteger(expfailcnt,expfailcnt,FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW],v_sites);
 //                  
-//                  if(tistdscreenprint and ti_flashdebug)  
+//                  if(tistdscreenprint and TI_FlashDebug)  
 //                  {
 //                     cout << "Vcg == " << loop_v << " Iref == " << loop_i << endl;
 //                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -33452,7 +33219,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                           i = senamp div 16;
 //                           j = senamp mod 16;  /*fdata_bitindex[site];*/
 //                           k = ((FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+3][site]) >> j) &0x01;
-//                           if(tistdscreenprint and ti_flashdebug)  
+//                           if(tistdscreenprint and TI_FlashDebug)  
 //                           {
 //                               /*writeln(tiwindow,"i=",i:-5," senamp=",senamp:-5," j=",j:s_hex:-7," k=",k:s_hex:-7);*/
 //                              cout << "FL_SCRAM_CAPT_ARR["][IND_STARTADDR+i+3]["] " << FL_SCRAM_CAPT_ARR[IND_STARTADDR+i+3][site]:s_hex << endl;
@@ -33465,7 +33232,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                              if(tistdscreenprint)  
 //                              {
 //                                 cout << "Site" << site:-5 << str5 << " " << bccval[site] << endl;
-//                                  /*if(ti_flashdebug) then
+//                                  /*if(TI_FlashDebug) then
 //                                     readramaddress(site,0x500,0x52c);*/
 //                              } 
 //                              devsetholdstate(site,false);
@@ -33475,7 +33242,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                              tcr6_val[counter][site] = 0uA;
 //                           } 
 //                           
-//                            /*if(v_dev_active[site] and tistdscreenprint and ti_flashdebug) then
+//                            /*if(v_dev_active[site] and tistdscreenprint and TI_FlashDebug) then
 //                            begin
 //                               writeln(tiwindow,str5);
 //                               readramaddress(site,0x500,0x52c);
@@ -33524,7 +33291,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                     cout << endl;
 //                     cout << endl;
 //                  }   /*if v_dev_active*/
-//               if(not ti_flashdebug)  
+//               if(not TI_FlashDebug)  
 //                  tistdscreenprint = false;
 //            }   /*screenprint*/
 //                  
@@ -33572,7 +33339,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ FlashCode_WR_EXE_func +++++" << endl;
 //
 //      writestring(str1,tname);
@@ -33718,7 +33485,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ FlashCode_RdPsa_func +++++" << endl;
 //
 //      writestring(str1,tname);
@@ -33883,7 +33650,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(V_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_Special_Program_func +++++" << endl;
 //
 //      opertype = none_ena;   /*set to default normal operation*/
@@ -34661,7 +34428,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //      while(not done) do
 //      {
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //        if(Inkey(s))   break;
 //            
 //         logsites = v_dev_active;
@@ -34864,7 +34631,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //      index = 0;
 //      
 //      REPEAT
-//         if(ti_flashdebug)  
+//         if(TI_FlashDebug)  
 //            if(Inkey(s))   done = true;
 //         
 //         ClockStopFreeRun(s_clock1a);
@@ -35537,7 +35304,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ MeasPinTMU_func +++++" << endl;
 //
 //      tpatt = tpattern;
@@ -35596,7 +35363,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               clockstopfreerun(s_clock1a);
 //               tmeas_val[site] = v_tmu_value[site];
 //               tmp_results[site] = v_pf_status[site];
-//               if(tistdscreenprint and ti_flashdebug)  
+//               if(tistdscreenprint and TI_FlashDebug)  
 //                  cout << "Site" << site:-5 << "Pin TMURead return status : " << status:-5 << endl;
 //               devsetholdstate(site,false);
 //            } 
@@ -35616,7 +35383,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //         TMURead(status,tmeas,time_llim,time_ulim);
 //         Disable(S_TMU);
 //         Disable(s_pmexit);
-//         if(tistdscreenprint and ti_flashdebug)  
+//         if(tistdscreenprint and TI_FlashDebug)  
 //            cout << "Pin TMURead return status : " << status:-5 << endl;
 //         tmp_results = v_pf_status;
 //         tmeas_val = v_tmu_value;
@@ -35639,7 +35406,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //               gettnum = false;
 //            } 
 //            fmeas_val[site] = (rcp(single(tmeas_val[site])))*1Hz;
-//            if(tistdscreenprint and ti_flashdebug)  
+//            if(tistdscreenprint and TI_FlashDebug)  
 //               cout << "Site" << site:-5 << " Meas Time == " << tmeas_val[site]:-6:3 << " Meas Freq == " << fmeas_val[site]:-6:3 << final_results[site] << endl;
 //         } 
 //
@@ -35683,7 +35450,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //
 //   if(v_any_dev_active)  
 //   {
-//      if(tistdscreenprint and ti_flashdebug)  
+//      if(tistdscreenprint and TI_FlashDebug)  
 //         cout << "+++++ F021_FOSC_SoftTrim_External_func +++++" << endl;
 //      
 //      timernstart(ttimer1);
@@ -35865,5 +35632,55 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //   F021_FOSC_SoftTrim_External_func = v_any_dev_active;
 //}   /* F021_FOSC_SoftTrim_External_func */
 //#endif
-//   
 
+// Additions to the ps_Val switch statement must be reflected
+// in the PowerUpType enum definition (f021_flashglobal.h)
+void PowerUpDn ( PowerUpType ps_Val ) {
+   // Execute PowerUp routine as execution of Levels object
+   Levels ps_lev;
+   BoolS  bad_lev = false;
+   IntS num_cols = 0;
+   LevelsSeqPowerInfo seq_info;
+   LevelsVIInfo vi_info;
+   StringS   ps_pin;
+   FloatM ps_val;
+   
+   switch ( ps_Val ) {
+      case PWRDN_ALL:       ps_lev = "DCSetup_PowerDown";      break;
+      case PWRUP_VMIN:      ps_lev = "DCSetup_LooseVMin";      break;
+      case PWRUP_VNOM:      ps_lev = "DCSetup_LooseVNom";      break;
+      case PWRUP_VMAX:      ps_lev = "DCSetup_LooseVMax";      break;
+      case PWRUP_EFUSEREAD: ps_lev = "DCSetup_LooseEFuseRead"; break;
+      default:
+         bad_lev = true;
+         ERR.ReportError(ERR_GENERIC_ADVISORY, "Existing Levels being used for Power Up", UTL_VOID, NO_SITES, UTL_VOID);
+         break;
+   }
+   
+   if ( !bad_lev ) {
+      ps_lev.Execute();
+   
+      if ( tistdscreenprint ) {
+         num_cols = ps_lev.GetNumberOfColumns();
+         for ( int ii = 0; ii < num_cols; ++ii ) {
+            if (    (ps_lev.GetColumnType(ii) == SEQ_POWER_COLUMN) 
+                 or (ps_lev.GetColumnType(ii) == VI_COLUMN)        ) {
+               if ( ps_lev.GetColumnType(ii) == SEQ_POWER_COLUMN ) {
+                  seq_info = ps_lev.GetSequencedPowerInfo(ii);
+                  ps_pin = seq_info.Pins.GetName();
+                  ps_val = seq_info.PowerSupply;
+               }
+               else if ( ps_lev.GetColumnType(ii) == VI_COLUMN ) {
+                  vi_info = ps_lev.GetVIInfo(ii);
+                  ps_pin = vi_info.Pins.GetName();
+                  ps_val = vi_info.ForceValue;
+               }
+               
+               cout << "   Supply: " << ps_pin << " @ " << ps_val << endl;
+            }   
+            
+            
+         }
+      }
+   }
+}

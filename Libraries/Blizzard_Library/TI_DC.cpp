@@ -124,7 +124,7 @@ void TI_DC::TestData (IntS row) {
         row_test_result[row] = TIDlog.ValueLS (row_results[row], test_pins[row], opens_limits[row], use_testware, testware_datatype[row], do_clo);
         TMResultM shorts_result;
         shorts_result = TIDlog.ValueLS(row_results[row], test_pins[row], shorts_limits[row], use_testware, testware_datatype[row], do_clo);
-        DLOG.AccumulateResults(row_test_result[row], shorts_result);
+        row_test_result[row] = DLOG.AccumulateResults(row_test_result[row], shorts_result);
     }
     else {
         row_test_result[row] = TIDlog.ValueLS (row_results[row], test_pins[row], test_limits[row], use_testware, testware_datatype[row], do_clo);

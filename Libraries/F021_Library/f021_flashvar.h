@@ -24,7 +24,6 @@
 
 #include <Unison.h>
 #include <f021_flashglobal.h>
-
 extern      F021_FlashRec F021_Flash;
 extern      F021_RunCodeRec F021_RunCode;
 extern      F021_MBIRec F021_MBI;
@@ -34,8 +33,8 @@ extern      FlashVTBCCRec MainVT,OtpVT;
 extern      FlashVTBCCRec MainBCC,OtpBCC;
 extern      FlashStressRec TPadSeq;
 
-extern      IntM1D FL_TESTLOG_ARR; /* array dimensions were : 1..136,1..NumSites */
-extern      IntM1D FL_SCRAM_CAPT_ARR; /* array dimensions were : 1..4096,1..NumSites */
+extern      UnsignedM1D FL_TESTLOG_ARR; 
+extern      UnsignedM1D FL_SCRAM_CAPT_ARR;
 
 
 extern      IntS GL_FLTESTID;
@@ -396,7 +395,7 @@ extern     IntS ADDR_RAM_ARB_FREQ, ADDR_RAM_ARB_WAIT, ADDR_RAM_ARB_TGADDR,
 extern     IntS ADDR_RAM_EFSOFTTRIM, ADDR_RAM_BGAP_TRIM, ADDR_RAM_PUMP_IREF_TRIM,
     ADDR_RAM_FOSC_TRIM, ADDR_RAM_SLOPECT_TRIM, ADDR_RAM_IGNOREOTP;
 
-extern     IntS1D ADDR_TIOTP_HI,ADDR_TIOTP_LO; /* array dimensions were : 0..7 */
+extern     IntS1D ADDR_TIOTP_HI,ADDR_TIOTP_LO; 
 
 extern     IntS ADDR_RAM_OTP_TEMP_W8;
 extern     IntS ADDR_RAM_TEMPL_VHVE_PMT, ADDR_RAM_TEMPL_VHVE_SM, ADDR_RAM_TEMPL_VHVPV_PMT;
@@ -978,72 +977,60 @@ extern    IntS TNUM_OTP_WR_MISCLOC1;
 extern    IntS TNUM_OTP_WR_MISCLOC2;
 extern    IntS TNUM_BANK_RDSUPERM1S;
 
-    /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6] of */
-extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][7]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D PUMP_PARA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,pre..post */
-    /* array[0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BANK_PARA_VALUE[8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /* array[0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    StringS BANK_PARA_TWSTR[129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    StringS PUMP_BANK_PARA_TESTNAME[129][6][7][2][9]; 
+extern    BoolS PUMP_BANK_PARA_ENABLE[129][6][7]; 
+extern    BoolS PUMP_BANK_PARA_BINOUT[129][6][7]; 
+extern    FloatM2D PUMP_PARA_VALUE; 
+//extern    FloatM BANK_PARA_VALUE[8][129][6][7][2][9]; 
+//extern    StringS BANK_PARA_TWSTR[129][6][7][2][9]; 
     
      /*[bank,block,tcrnum,tcrmode,tpnum,prepost,vcorner]*/
-    /*array[0..7,0..7,0..128,TPModeType,1..6,pre..post,VCornerType] of */
-extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][7][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+// unneeded, really...looks to be a debug only thing and eats tons of memory
+//extern    FloatM BLOCK_PARA_VALUE[8][8][129][6][7][2][9]; 
     
      /*[bank,even..odd,tcrnum,tcrmode,prepost,vcorner]*/
-    /*array[0..7,0..1,TPModeType,pre..post,VCornerType] of */
-extern    FloatM BANK_IREFARR_VALUE[8][2][6][2][9]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+// used to store value, but never used again
+//extern    FloatM BANK_IREFARR_VALUE[8][2][6][2][9]; 
 
-extern    FloatM2D PUMP_LEAK_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : TPModeType,VCornerType */
-    /*array[TPModeType,pre..post,1..2] of */
-extern    FloatM TPAD_LEAK_VALUE[6][2][3]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
+extern    FloatM2D PUMP_LEAK_VALUE; 
+extern    FloatM TPAD_LEAK_VALUE[6][2][3]; 
 
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_VT_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_VT_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D OTP_VT_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
+extern    FloatM BANK_VT_VALUE[8][16][25][2]; 
+extern    FloatM RED_VT_VALUE[8][16][25][2]; 
+// make bank_vt_delta_value a local array
+//extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; 
+extern    FloatM OTP_VT_VALUE[8][25][2]; 
+//extern    FloatM2D OTP_VT_DELTA_VALUE; 
 
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM BANK_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype,prepostcorner] of */
-extern    FloatM RED_BCC_VALUE[8][16][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,0..15,vttype] of */
-extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-    /*array[0..7,vttype,prepostcorner] of */
-extern    FloatM OTP_BCC_VALUE[8][25][2]; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-extern    FloatM2D OTP_BCC_DELTA_VALUE; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,vttype */
+extern    FloatM BANK_BCC_VALUE[8][16][25][2];
+extern    FloatM RED_BCC_VALUE[8][16][25][2];
+// make bank_vt_delta_value a local array
+//extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25];
+extern    FloatM OTP_BCC_VALUE[8][25][2]; 
+//extern    FloatM2D OTP_BCC_DELTA_VALUE; 
 
 extern     BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;
 
 
-extern     IntM2D BANK_ERS_PULSE; /* array dimensions were : 0..7,0..15 */
-extern     IntM2D BANK_PRECON_PULSE; /* array dimensions were : 0..7,0..15 */
+//extern     IntM2D BANK_ERS_PULSE;
+//extern     IntM2D BANK_PRECON_PULSE;
 
                         /*bank,row#,word#,site*/
-extern     StringM2D OTP_ID_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_ID_INFO; */
-extern     IntM2D OTP_ID_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     StringM2D OTP_VT_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_VT_INFO; */
-extern     FloatM2D OTP_VT_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     StringM2D OTP_BCC_INFO; /* array[0..7,0..128,1..NUMSITES] of string[4] OTP_BCC_INFO; */
-extern     FloatM2D OTP_BCC_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_BCC_INFO_INTVAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_LOG1_INFO_VAL; /* array dimensions were : 0..7,0..128 */
-extern     IntM2D OTP_LOG3_INFO_VAL; /* array dimensions were : 0..7,0..128 */
+extern     StringM2D OTP_ID_INFO;
+extern     IntM2D OTP_ID_INFO_VAL; 
+extern     StringM2D OTP_VT_INFO;
+extern     FloatM2D OTP_VT_INFO_VAL;
+extern     StringM2D OTP_BCC_INFO; 
+extern     FloatM2D OTP_BCC_INFO_VAL; 
+extern     IntM2D OTP_BCC_INFO_INTVAL; 
+extern     IntM2D OTP_LOG1_INFO_VAL; 
+extern     IntM2D OTP_LOG3_INFO_VAL; 
 
 extern     IntM EFCHKSUM_MSW, EFCHKSUM_LSW;
-extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; /* array dimensions were : 0..7 */
-extern     IntM1D FRM_OTP_BANK_EFSUM_HI_VAL, FRM_OTP_BANK_EFSUM_LO_VAL; /* array dimensions were : 0..7 */
-extern     StringM1D FRM_OTP_BANK_FOSC_HI_BCD, FRM_OTP_BANK_FOSC_LO_BCD; /* array dimensions were : 0..7 */
-extern     IntM1D FRM_OTP_BANK_FOSC_HI_VAL, FRM_OTP_BANK_FOSC_LO_VAL; /* array dimensions were : 0..7 */
+extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; 
+extern     IntM1D FRM_OTP_BANK_EFSUM_HI_VAL, FRM_OTP_BANK_EFSUM_LO_VAL; 
+//extern     StringM1D FRM_OTP_BANK_FOSC_HI_BCD, FRM_OTP_BANK_FOSC_LO_BCD; 
+//extern     IntM1D FRM_OTP_BANK_FOSC_HI_VAL, FRM_OTP_BANK_FOSC_LO_VAL; 
 
 
     /*+++ Global test frequency +++*/
@@ -1090,10 +1077,10 @@ extern    FlashBankType GL_BANKTYPE;
 extern    StringM GL_F021_FAIL_PATT;
 extern    BoolM GL_F021_LOG_FAIL_PATT;
 extern    BoolM GL_F021_COF_PASS;
-extern    StringM GL_F021_COF_1STFAILTEST; /* array dimensions were : 1..NUMSITES */
+extern    StringM GL_F021_COF_1STFAILTEST; 
     /*for continue-on-fail*/
-extern    StringM1D GL_F021_COF_INFOS; /* array dimensions were : 1..40 */
-extern    BoolM1D GL_F021_COF_INFOS_FULL; /* array dimensions were : 1..40 */
+extern    StringM1D GL_F021_COF_INFOS; 
+extern    BoolM1D GL_F021_COF_INFOS_FULL; 
     /*for esda delta-vt*/
 extern    IntS GL_PREV_TNUM_VT;
 extern    BoolM GL_FLASH_RETEST;
@@ -1174,18 +1161,18 @@ extern    BoolS GL_DO_BOOST_REFARR;
     /*added for repair*/
 extern    BoolS GL_DO_REPAIR;
 extern    BoolM SITE_TO_REPAIR;
-extern    BoolM2D BLOCK_TO_REPAIR; /* array dimensions were : 0..7,0..15 */
-extern    BoolM1D BANK_TO_REPAIR; /* array dimensions were : 0..7 */
+extern    BoolM2D BLOCK_TO_REPAIR; 
+extern    BoolM1D BANK_TO_REPAIR; 
 extern    BoolM SITE_TO_REPAIR_FAST;
 extern    BoolM SITE_GOOD_REPAIR_FAST;
 extern    BoolM SITE_TO_REPAIR_SLOW;
 extern    BoolM SITE_GOOD_REPAIR_SLOW;
-extern    IntS FAKEREP_SOL[8][16][4]; /*array[0..7,0..15,0..3] of IntS FAKEREP_SOL;*/ /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */ /*hold pre-defined artificial rep solution*/
+extern    IntS FAKEREP_SOL[8][16][4]; /*hold pre-defined artificial rep solution*/
 extern    IntS GL_FAKEREP_SAMPLING, GL_FAKEREP_COUNT;
 extern    BoolS GL_FAKEREP_ENA;
 extern    IntS GL_PMOS_TRIM_COUNT;
 
-extern    StringM1D FRM_OTP_WD8, FRM_OTP_WD9; /* array dimensions were : 0..7 */
+extern    StringM1D FRM_OTP_WD8, FRM_OTP_WD9; 
 extern    StringM FRM_OTP_VERSION_BCD;
 
 extern    StringM FRM_OTP_ASICHI_BCD, FRM_OTP_ASICLO_BCD,
@@ -1209,36 +1196,36 @@ extern    StringM FRM_OTP_OTPCHKSUM_HI_BCD,FRM_OTP_OTPCHKSUM_LO_BCD,FRM_OTP_NUMS
    FRM_OTP_MP4FT1REV_BCD,FRM_OTP_MP5FT2REV_BCD,FRM_OTP_MP6FT3REV_BCD,
    FRM_OTP_FT4REV_BCD,FRM_OTP_FT5REV_BCD;
 
-extern    StringM FRM_OTP_IREFPMOS_BCD,FRM_OTP_IREFCV_BCD;
-
-extern    StringM2D FRM_OTP_SECT_PREDRL_VT_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM2D FRM_OTP_SECT_PREFT1_VT_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM1D FRM_OTP_BANK_PREDRL_VT_BCD; /* array dimensions were : 0..7 */
-extern    StringM1D FRM_OTP_BANK_PREFT1_VT_BCD; /* array dimensions were : 0..7 */
-
-    /*pre-Drl Vt0/1 in otp at mp1 before bake*/
-extern    StringM2D FRM_OTP_BLOCK_PREDRL_VT0_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM2D FRM_OTP_BLOCK_PREDRL_VT1_BCD; /* array dimensions were : 0..7,0..15 */
-    /*pre-Drl2 Vt0/1 in otp at mp2 before bake and going to mp3 testing*/
-extern    StringM2D FRM_OTP_BLOCK_PREDRL2_VT0_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM2D FRM_OTP_BLOCK_PREDRL2_VT1_BCD; /* array dimensions were : 0..7,0..15 */
-    /*pre-Drl3 Vt0/1 in otp at mp3 before going to mp4/ft testing*/
-extern    StringM2D FRM_OTP_BLOCK_PREDRL3_VT0_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM2D FRM_OTP_BLOCK_PREDRL3_VT1_BCD; /* array dimensions were : 0..7,0..15 */
-extern    StringM2D FRM_OTP_BLOCK_PREFT1_VT_BCD; /* array dimensions were : 0..7,0..15 */
-
-extern    FloatM2D FRM_OTP_SECT_PREDRL_VT_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_SECT_PREFT1_VT_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM1D FRM_OTP_BANK_PREDRL_VT_VAL; /* array dimensions were : 0..7 */
-extern    FloatM1D FRM_OTP_BANK_PREFT1_VT_VAL; /* array dimensions were : 0..7 */
-
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL_VT0_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL_VT1_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL2_VT0_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL2_VT1_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL3_VT0_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREDRL3_VT1_VAL; /* array dimensions were : 0..7,0..15 */
-extern    FloatM2D FRM_OTP_BLOCK_PREFT1_VT_VAL; /* array dimensions were : 0..7,0..15 */
+//extern    StringM FRM_OTP_IREFPMOS_BCD,FRM_OTP_IREFCV_BCD;
+//
+//extern    StringM2D FRM_OTP_SECT_PREDRL_VT_BCD; 
+//extern    StringM2D FRM_OTP_SECT_PREFT1_VT_BCD; 
+//extern    StringM1D FRM_OTP_BANK_PREDRL_VT_BCD; 
+//extern    StringM1D FRM_OTP_BANK_PREFT1_VT_BCD; 
+//
+//    /*pre-Drl Vt0/1 in otp at mp1 before bake*/
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL_VT0_BCD; 
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL_VT1_BCD; 
+//    /*pre-Drl2 Vt0/1 in otp at mp2 before bake and going to mp3 testing*/
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL2_VT0_BCD; 
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL2_VT1_BCD; 
+//    /*pre-Drl3 Vt0/1 in otp at mp3 before going to mp4/ft testing*/
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL3_VT0_BCD; 
+//extern    StringM2D FRM_OTP_BLOCK_PREDRL3_VT1_BCD; 
+//extern    StringM2D FRM_OTP_BLOCK_PREFT1_VT_BCD; 
+//
+//extern    FloatM2D FRM_OTP_SECT_PREDRL_VT_VAL;
+//extern    FloatM2D FRM_OTP_SECT_PREFT1_VT_VAL;
+//extern    FloatM1D FRM_OTP_BANK_PREDRL_VT_VAL; 
+//extern    FloatM1D FRM_OTP_BANK_PREFT1_VT_VAL; 
+//
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL_VT0_VAL; 
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL_VT1_VAL; 
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL2_VT0_VAL;
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL2_VT1_VAL; 
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL3_VT0_VAL; 
+//extern    FloatM2D FRM_OTP_BLOCK_PREDRL3_VT1_VAL; 
+//extern    FloatM2D FRM_OTP_BLOCK_PREFT1_VT_VAL; 
 
    
     /*use to specify module/bank/sector/block/quad testing (0,1,2,3,4,5 respectively)*/
@@ -1254,15 +1241,6 @@ extern prepostcorner prepost_type;
  /*OtpOper_type : OtpOper; import;*/
 
 
-extern    BoolM spare_msbool1,spare_msbool2,
-   spare_msbool3,spare_msbool4;
-extern    IntM spare_msint1,spare_msint2,
-   spare_msint3,spare_msint4,spare_msint5;   
-extern    FloatM spare_msFloatS1,spare_msFloatS2,
-   spare_msFloatS3,spare_msFloatS4;
-extern    StringS spare_str1_256,spare_str2_256;
-
-
  /*KChau effuse 02/01/7 - added for flash efuse trimming*/
 extern    BoolS enableFTrim;   /*KChau effuse 02/01/7*/
 
@@ -1275,116 +1253,37 @@ extern    StringM AUXBG_EFSTR_SHORT, MAINBG_EFSTR_SHORT;
 
  /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-
-       /*+++ Ers/Prog/Rd Limit +++*/
-extern     FloatS SECT_PRECON_IVDD_ULimit;
-extern     FloatS SECT_PRECON_IVDD_LLimit;
-extern     FloatS SECT_ERS_IVDD_ULimit;
-extern     FloatS SECT_ERS_IVDD_LLimit;
-extern     FloatS SECT_READ_IVDD_ULimit;
-extern     FloatS SECT_READ_IVDD_LLimit;
-extern     FloatS SECT_PRECON_IVDD3VFL_ULimit;
-extern     FloatS SECT_PRECON_IVDD3VFL_LLimit;
-extern     FloatS SECT_ERS_IVDD3VFL_ULimit;
-extern     FloatS SECT_ERS_IVDD3VFL_LLimit;
-extern     FloatS SECT_READ_IVDD3VFL_ULimit;
-extern     FloatS SECT_READ_IVDD3VFL_LLimit;
-
-extern     FloatS BANK_PRECON_IVDD_ULimit;
-extern     FloatS BANK_PRECON_IVDD_LLimit;
-extern     FloatS BANK_ERS_IVDD_ULimit;
-extern     FloatS BANK_ERS_IVDD_LLimit;
-extern     FloatS BANK_READ_IVDD_ULimit;
-extern     FloatS BANK_READ_IVDD_LLimit;
-extern     FloatS BANK_PRECON_IVDD3VFL_ULimit;
-extern     FloatS BANK_PRECON_IVDD3VFL_LLimit;
-extern     FloatS BANK_ERS_IVDD3VFL_ULimit;
-extern     FloatS BANK_ERS_IVDD3VFL_LLimit;
-extern     FloatS BANK_READ_IVDD3VFL_ULimit;
-extern     FloatS BANK_READ_IVDD3VFL_LLimit;
+// below are defined in cfginclude, but never used
+//       /*+++ Ers/Prog/Rd Limit +++*/
+//extern     FloatS SECT_PRECON_IVDD_ULimit;
+//extern     FloatS SECT_PRECON_IVDD_LLimit;
+//extern     FloatS SECT_ERS_IVDD_ULimit;
+//extern     FloatS SECT_ERS_IVDD_LLimit;
+//extern     FloatS SECT_READ_IVDD_ULimit;
+//extern     FloatS SECT_READ_IVDD_LLimit;
+//extern     FloatS SECT_PRECON_IVDD3VFL_ULimit;
+//extern     FloatS SECT_PRECON_IVDD3VFL_LLimit;
+//extern     FloatS SECT_ERS_IVDD3VFL_ULimit;
+//extern     FloatS SECT_ERS_IVDD3VFL_LLimit;
+//extern     FloatS SECT_READ_IVDD3VFL_ULimit;
+//extern     FloatS SECT_READ_IVDD3VFL_LLimit;
+//
+//extern     FloatS BANK_PRECON_IVDD_ULimit;
+//extern     FloatS BANK_PRECON_IVDD_LLimit;
+//extern     FloatS BANK_ERS_IVDD_ULimit;
+//extern     FloatS BANK_ERS_IVDD_LLimit;
+//extern     FloatS BANK_READ_IVDD_ULimit;
+//extern     FloatS BANK_READ_IVDD_LLimit;
+//extern     FloatS BANK_PRECON_IVDD3VFL_ULimit;
+//extern     FloatS BANK_PRECON_IVDD3VFL_LLimit;
+//extern     FloatS BANK_ERS_IVDD3VFL_ULimit;
+//extern     FloatS BANK_ERS_IVDD3VFL_LLimit;
+//extern     FloatS BANK_READ_IVDD3VFL_ULimit;
+//extern     FloatS BANK_READ_IVDD3VFL_LLimit;
 
 
      /*for capture esda*/
 extern     StringS GL_ESDA_PROGID, my_this_wfrid,my_lotid,my_scribeid;
-
-//extern     IntS ESDA_IMG_BLK1;
-//extern     IntS ESDA_IMG_BLKM1;
-//extern     IntS ESDA_IMG_BLK1_RED;
-//extern     IntS ESDA_IMG_BLKM1_RED;
-//extern     IntS ESDA_IMG_BLK1_SHIP;
-//extern     IntS ESDA_IMG_BLKM1_SHIP;
-//      
-//extern     IntS ESDA_IMG_BLK0;
-//extern     IntS ESDA_IMG_BLKM0;
-//extern     IntS ESDA_IMG_BLK0_RED;
-//extern     IntS ESDA_IMG_BLKM0_RED;
-//        
-//extern     IntS ESDA_IMG_OCHK;
-//extern     IntS ESDA_IMG_MOCHK;
-//extern     IntS ESDA_IMG_ECHK;
-//extern     IntS ESDA_IMG_MECHK;
-//        
-//extern     IntS ESDA_IMG_UV;
-//        
-//extern     IntS ESDA_IMG_PREWLSVT0;
-//extern     IntS ESDA_IMG_PSTWLSVT0;
-//extern     IntS ESDA_IMG_PREBLSVT0;
-//extern     IntS ESDA_IMG_PSTBLSVT0;
-//extern     IntS ESDA_IMG_PRESLSVT0;
-//extern     IntS ESDA_IMG_PSTSLSVT0;
-//        
-//extern     IntS ESDA_IMG_PREWLSVT1;
-//extern     IntS ESDA_IMG_PSTWLSVT1;
-//        
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT0MIN;
-//extern     IntS ESDA_IMG_PSTDRLOCHK_VT0MIN;
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT0MAX;
-//extern     IntS ESDA_IMG_PREDRLECHK_VT0MIN;
-//extern     IntS ESDA_IMG_PSTDRLECHK_VT0MIN;
-//extern     IntS ESDA_IMG_PREDRLECHK_VT0MAX;
-//        
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT1;
-//extern     IntS ESDA_IMG_PSTDRLOCHK_VT1;
-//extern     IntS ESDA_IMG_PREDRLECHK_VT1;
-//extern     IntS ESDA_IMG_PSTDRLECHK_VT1;
-//        
-//extern     IntS ESDA_IMG_SHIP_VT1;
-//
-//           
-//extern     IntS ESDA_IMG_BLK1_OTP;
-//extern     IntS ESDA_IMG_BLKM1_OTP;
-//extern     IntS ESDA_IMG_BLK1_SHIP_OTP;
-//extern     IntS ESDA_IMG_BLKM1_SHIP_OTP;
-//        
-//extern     IntS ESDA_IMG_BLK0_OTP;
-//extern     IntS ESDA_IMG_BLKM0_OTP;
-//        
-//extern     IntS ESDA_IMG_OCHK_OTP;
-//extern     IntS ESDA_IMG_MOCHK_OTP;
-//extern     IntS ESDA_IMG_ECHK_OTP;
-//extern     IntS ESDA_IMG_MECHK_OTP;
-//        
-//extern     IntS ESDA_IMG_UV_OTP;
-//        
-//extern     IntS ESDA_IMG_PREWLSVT0_OTP;
-//extern     IntS ESDA_IMG_PSTWLSVT0_OTP;
-//extern     IntS ESDA_IMG_PREBLSVT0_OTP;
-//extern     IntS ESDA_IMG_PSTBLSVT0_OTP;
-//extern     IntS ESDA_IMG_PRESLSVT0_OTP;
-//extern     IntS ESDA_IMG_PSTSLSVT0_OTP;
-//        
-//extern     IntS ESDA_IMG_PREWLSVT1_OTP;
-//extern     IntS ESDA_IMG_PSTWLSVT1_OTP;
-//        
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT0MIN_OTP;
-//extern     IntS ESDA_IMG_PSTDRLOCHK_VT0MIN_OTP;
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT0MAX_OTP;
-//extern     IntS ESDA_IMG_PREDRLECHK_VT0MIN_OTP;
-//extern     IntS ESDA_IMG_PSTDRLECHK_VT0MIN_OTP;
-//extern     IntS ESDA_IMG_PREDRLECHK_VT0MAX_OTP;
-//        
-//extern     IntS ESDA_IMG_PREDRLOCHK_VT1_OTP;
-//extern     IntS ESDA_IMG_PSTDRLOCHK_VT1_OTP;
 
 extern IntS ESDA_IMG_BLK0,ESDA_IMG_BLK1,ESDA_IMG_ECHK,ESDA_IMG_OCHK;
 extern IntS    ESDA_IMG_PGM0S,ESDA_IMG_RDM0S,ESDA_IMG_ERS,ESDA_IMG_RDM1S,
@@ -1436,21 +1335,21 @@ extern     BoolS GL_PLELL_FORMAT;
 
      /*reference variables*/
 extern     FloatS IBIT_DESIGN_LIM, IBIT_CMPT_LIM;
-extern     FloatS1D IREF_PMOSRATIO; /* array dimensions were : 0..31 */
-extern     IntS1D IREF_PMOSCODE; /* array dimensions were : 0..31 */
-extern     StringS1D IREF_PMOSCODE_STR; /* array dimensions were : 0..31 */
+extern     FloatS1D IREF_PMOSRATIO; 
+extern     IntS1D IREF_PMOSCODE; 
+extern     StringS1D IREF_PMOSCODE_STR; 
      /*hold pmos trim code/solution per bank*/
-extern     StringM1D IREF_PMOSTRIMCODE_STR; /* array dimensions were : 0..7 */
+extern     StringM1D IREF_PMOSTRIMCODE_STR; 
 extern     StringS BANKEF_BIT0_4, BANKEF_BIT10_23, BANKEF_BIT29_31, BANKEF_BIT10_23_BIT17SET;
-extern     StringS1D BANKEF_BIT10_23_BANKNUM; /* array dimensions were : 0..7 */
-extern     BoolM1D BANK_TO_PMOS_TRIM; /* array dimensions were : 0..7 */
+extern     StringS1D BANKEF_BIT10_23_BANKNUM; 
+extern     BoolM1D BANK_TO_PMOS_TRIM; 
 extern     BoolM SITE_IPMOS_TRIMMED;
 extern     IntM IPMOS_BANKENA_MSW, IPMOS_BANKENA_LSW;
-extern     IntM IPMOS_TRIMCODE1_MSW, IPMOS_TRIMCODE1_LSW;
-extern     IntM IPMOS_TRIMCODE2_MSW, IPMOS_TRIMCODE2_LSW;
-extern     IntM2D IPMOS_TRIMCODE_SAVED; /* array dimensions were : 0..7,0..1 */
-extern     IntM2D IPMOS_TRIMCODE_EFUSE; /* array dimensions were : 0..7,0..1 */
-extern     IntM2D IPMOS_TRIMCODE_VAL; /* array dimensions were : 0..7,0..1 */
+//extern     IntM IPMOS_TRIMCODE1_MSW, IPMOS_TRIMCODE1_LSW;
+//extern     IntM IPMOS_TRIMCODE2_MSW, IPMOS_TRIMCODE2_LSW;
+extern     IntM2D IPMOS_TRIMCODE_SAVED; 
+//extern     IntM2D IPMOS_TRIMCODE_EFUSE; 
+extern     IntM2D IPMOS_TRIMCODE_VAL; 
 
 extern     BoolS GL_DO_VHV_CT_TRIM;
 extern     IntM VHV_PG_CT_TRIMSAVED, VHV_ER_CT_TRIMSAVED, VHV_PV_CT_TRIMSAVED, VHV_OTHER_CT_TRIMSAVED;
@@ -1585,29 +1484,29 @@ extern    IntS W8_0_DEF_CAT0, W8_4_DEF_CAT0, W8_8_DEF_CAT0, W8_C_DEF_CAT0,
 extern    BoolS IsMainArray, IsBcc;
 
 extern    BoolS GL_DO_GET_WORSTBIT;
-extern    FloatM FL_WORSTBIT_IREF, FL_WORSTBIT_VCG;
-extern    IntM FL_WORSTBIT_FADDR, FL_WORSTBIT_FCOUNT;
-extern    IntM1D FL_WORSTBIT_FDATA; /* array dimensions were : 1..10 */
+//extern    FloatM FL_WORSTBIT_IREF, FL_WORSTBIT_VCG;
+extern    IntM FL_WORSTBIT_FADDR; //, FL_WORSTBIT_FCOUNT;
+extern    IntM1D FL_WORSTBIT_FDATA; 
 
 extern    BoolS GL_SKIP_MP2_FLASHFLOW;
 extern    StringS GL_EFUSE_RD_CODEOPTION, GL_EFUSE_PG_CODEOPTION;
 
-extern    FloatM1D FL_IV_DATA; /* array dimensions were : 1..512 */
+//extern    FloatM1D FL_IV_DATA; 
 extern    IntS FL_IV_DATA_COUNT;
 extern    BoolS GL_DO_SAVE_IV_DATA;
 
-extern    FloatS1D SAMP_NOISE_ULIM; /* array dimensions were : 0..7 */
-extern    FloatS1D DRLVT0_LDELTA, DRLVT0_UDELTA, DRLVT0_Median_ULimit; /* array dimensions were : 0..7 */
-extern    FloatS1D DRLBCC1_Median_ULimit; /* array dimensions were : 0..7 */
+extern    FloatS1D SAMP_NOISE_ULIM; 
+extern    FloatS1D DRLVT0_LDELTA, DRLVT0_UDELTA, DRLVT0_Median_ULimit; 
+extern    FloatS1D DRLBCC1_Median_ULimit; 
 
 extern    IntS ADDR_RAM_INC;
 
 extern    BoolS GL_DO_CHARZ_SAMP_ACCY, GL_DO_SAVE_SAMP_ACCY_DATA;
 extern    IntS GL_DO_CHARZ_SAMP_ACCY_COUNT, GL_DO_CHARZ_SAMP_ACCY_SAMPLING;
-extern    FloatM2D FL_SAMP_ACCY_VT; /* array dimensions were : 0..7,0..15 */
+extern    FloatM2D FL_SAMP_ACCY_VT; 
 extern    IntM2D FL_SAMP_ACCY_VT_FADDR_MSW,FL_SAMP_ACCY_VT_FADDR_LSW,
    FL_SAMP_ACCY_VT_FDATA_MSW,FL_SAMP_ACCY_VT_FDATA_LSW,
-   FL_SAMP_ACCY_VT_FDATA1_MSW,FL_SAMP_ACCY_VT_FDATA1_LSW; /* array dimensions were : 0..7,0..15 */
+   FL_SAMP_ACCY_VT_FDATA1_MSW,FL_SAMP_ACCY_VT_FDATA1_LSW;
 
 extern PinM FL_PUMP_SUPPLY_NAME;
 

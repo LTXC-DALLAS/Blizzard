@@ -5061,6 +5061,7 @@ TMResultM Pump_Iref_Vnom_func()
    VCornerType vcorner;
    Sites initial_sites = ActiveSites;
 
+   //:TODO: power up at Vnom here
 
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
@@ -5076,8 +5077,8 @@ TMResultM Pump_Iref_Vnom_func()
    F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
 
    // disable failing sites (disables sites w/ false).
-   Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS)); 
-   if(ActiveSites.GetNumSites() > 0)  
+   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
       F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode, final_results);
@@ -5143,102 +5144,102 @@ TMResultM Pump_BGap_Vnom_func()
    return(final_results);
 }   /* Pump_BGap_Vnom_func */
 
-//TMResultM Pump_VHV_Vmin_func()
-//{
-//   const IntS TESTID = 17; 
-//
-//   TMResultM final_results,tmp_results;
-//   BoolM alldisable;
-//   Sites savesites, disable_sites, initial_sites;
-//   VCornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,site;
-//   TPModeType tcrmode;
-//   IntM ctval;
-//   
-//   initial_sites = ActiveSites;
-//
-//    /*vhv ct trimming*/
-//   if(GL_DO_VHV_CT_TRIM)  
-//   {
-//      // Don't know how we'll do this yet...set levels different than our current category
-//      //PwrupAtVnom_1;
-//      current_shell = 'FlashShell';
-//      if(GL_PREVIOUS_SHELL <> current_shell)        
-//         F021_LoadFlashShell_func();
-//
-//      alldisable = false;
-//      if !(alldisable == GL_FLASH_RETEST)  // all sites must match for this to be true (then negated by the !)
-//      {
-//         savesites = ActiveSites;
-//         // Disable sites that have retest of false
-//         RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(GL_FLASH_RETEST)); 
-//               
-//         if(!ActiveSites.Begin().End())  // if there is an active site
-//         {
-//            TL_RunTestNum(TNUM_BANK_PRECON,'');
-//            TL_RunTestNum(TNUM_OTP_PRECON ,''); /*PROG*/
-//         } 
-//         RunTime.SetActiveSites(savesites);
-//      } 
-//
-//      F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
-//      VHV_PG_CT_TRIMSAVED = ctval;
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR        
-//      VHV_PG_CT_TRIMSAVED_EMU = ctval;
-//#endif
-//      
-//      F021_VHV_ER_CT_Trim_func(tmp_results,ctval);
-//      VHV_ER_CT_TRIMSAVED = ctval;
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR        
-//      VHV_ER_CT_TRIMSAVED_EMU = ctval;
-//#endif
-//      
-//      F021_VHV_PV_CT_Trim_func(tmp_results,ctval);
-//      VHV_PV_CT_TRIMSAVED = ctval;
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR        
-//      VHV_PV_CT_TRIMSAVED_EMU = ctval;
-//#endif
-//
-//      RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
-//   } 
-//   
-//   // Hmmm....
-//   // PwrupAtVmin_1;
-//
-//   current_shell = 'FlashShell';
-//   if(GL_PREVIOUS_SHELL <> current_shell)        
-//      F021_LoadFlashShell_func();
-//
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 115;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS))); 
-//   if(!ActiveSites.Begin().End())  // we have an active site
-//   {
-//      tcrmode = PvfyMode;
-//      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results.Equal(TM_PASS))); 
-//   if(!ActiveSites.Begin().End())  
-//   {
-//      tcrmode = ErsMode;
-//      /* PatternLoad(f021_shell_loadpat, 'VVS/PAT_F771727_PBx16/Garnet_Shell064_T072C009S007_A3_v1p4'); 
-//        {added because of LDO bypass issue JRR}
-//          discard(patternexecute(num_clks,f021_shell_loadpat));
-//          wait(5mS); */
-//      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
-//      RAM_Upload_VHV_CT_TrimVal; /*added to reload the softtrims for VHV JRR*/
-//   } 
-//   
-//   RunTime.SetActiveSites(initial_sites);
-//   return (final_results);
-//}   /* Pump_VHV_Vmin_func */
+#if 0
+TMResultM Pump_VHV_Vmin_func()
+{
+   const IntS TESTID = 17; 
+
+   TMResultM final_results,tmp_results;
+   Sites savesites, disable_sites, initial_sites;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   IntM ctval;
+   
+   initial_sites = ActiveSites;
+
+    /*vhv ct trimming*/
+   if(GL_DO_VHV_CT_TRIM)  
+   {
+
+//      PwrupAtVnom_1;
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+
+      if (!(GL_FLASH_RETEST == false))   // all sites must match for this to be true (then negated by the !)
+      {
+         savesites = ActiveSites;
+         // Disable sites that have retest of false
+         ActiveSites.DisableFailingSites(GL_FLASH_RETEST); 
+               
+         if(!ActiveSites.Begin().End())   //if there is an active site
+         {
+            TL_RunTestNum(TNUM_BANK_PRECON,"");
+            TL_RunTestNum(TNUM_OTP_PRECON ,""); /*PROG*/
+         } 
+         RunTime.SetActiveSites(savesites);
+      } 
+
+      F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
+      VHV_PG_CT_TRIMSAVED = ctval;
+#if $FL_USE_NEW_VHV_TEMPL_ADDR        
+      VHV_PG_CT_TRIMSAVED_EMU = ctval;
+#endif
+      
+      F021_VHV_ER_CT_Trim_func(tmp_results,ctval);
+      VHV_ER_CT_TRIMSAVED = ctval;
+#if $FL_USE_NEW_VHV_TEMPL_ADDR        
+      VHV_ER_CT_TRIMSAVED_EMU = ctval;
+#endif
+      
+      F021_VHV_PV_CT_Trim_func(tmp_results,ctval);
+      VHV_PV_CT_TRIMSAVED = ctval;
+#if $FL_USE_NEW_VHV_TEMPL_ADDR        
+      VHV_PV_CT_TRIMSAVED_EMU = ctval;
+#endif
+
+      RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
+   } 
+   
+//    Hmmm....
+//    PwrupAtVmin_1;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 115;
+   tcrmode = ProgMode;
+   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
+
+   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   if(!ActiveSites.Begin().End())   //we have an active site
+   {
+      tcrmode = PvfyMode;
+      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
+   } 
+   
+   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   if(!ActiveSites.Begin().End())  
+   {
+      tcrmode = ErsMode;
+      /* PatternLoad(f021_shell_loadpat, 'VVS/PAT_F771727_PBx16/Garnet_Shell064_T072C009S007_A3_v1p4'); 
+        {added because of LDO bypass issue JRR}
+          discard(patternexecute(num_clks,f021_shell_loadpat));
+          wait(5mS); */
+      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
+      RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
+   } 
+   
+   RunTime.SetActiveSites(initial_sites);
+   return (final_results);
+}   /* Pump_VHV_Vmin_func */
+#endif
 
 //BoolS Pump_VHV_Vmax_func()
 //{
@@ -10722,69 +10723,63 @@ TMResultM Pump_BGap_Vnom_func()
 //}   /* FGWLVT1DeltaOTP_func */
 //   
 //
-//BoolS BankErs_PreTunOxide_func()
-//{
-//   const IntS TESTID = 181; 
-//
-//   BoolM final_results,logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//#if $GL_USE_DMLED_RAMPMT  
-//    /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-//      PowerDownAll;
-//      TIME.Wait(2ms);
-//      GL_PREVIOUS_SHELL = "";
-//#endif
-//      
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)   
-//         F021_LoadFlashShell_func;
-//      
-//#if $GL_USE_DMLED_RAMPMT  
-//    /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-//      RAM_Upload_PMOS_TrimCode;
-//      RAM_Upload_VHV_CT_TrimVal;
-//#endif
-//      GL_FLTESTID = TESTID;
-//      tname = Ers_PreTunOx_Test;
-//      
-//      if(v_any_dev_active)  
-//      {
-//         logsites = v_dev_active;
-//         if(GL_DO_ERS_BY_SECTOR)  
-//         {
-//            testnum = TNUM_SECT_ERS_NOPRECON_SM;
-//         }
-//         else
-//            testnum = TNUM_BANK_ERS_NOPRECON;
-//         if(GL_DO_REDENA)  
-//            testnum = testnum+TNUM_REDUNDENA;
-//         F021_Erase_func(testnum,tname,final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Tnum = TNUM_BANK_RDM1s;
-//               FLEsda.Imagenum = ESDA_IMG_TUNOX_ERS;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      } 
-//   } 
-//   
-//   BankErs_PreTunOxide_func = v_any_dev_active;
-//}   /* BankErs_PreTunOxide_func */
+TMResultM BankErs_PreTunOxide_func() {
+   const IntS TESTID = 181; 
+
+   TMResultM final_results,logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena) {
+#if $GL_USE_DMLED_RAMPMT  
+      /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
+      PowerUpDn(PWRDN_ALL);
+      TIME.Wait(2ms);
+      GL_PREVIOUS_SHELL = "";
+#endif
+      
+      PowerUpDn(PWRUP_VNOM);
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)   
+         F021_LoadFlashShell_func();
+      
+#if $GL_USE_DMLED_RAMPMT  
+      /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
+      RAM_Upload_PMOS_TrimCode();
+      RAM_Upload_VHV_CT_TrimVal();
+#endif
+      GL_FLTESTID = TESTID;
+      tname = "Ers_PreTunOx_Test";
+      
+      if(GL_DO_ERS_BY_SECTOR) {
+         testnum = TNUM_SECT_ERS_NOPRECON_SM;
+      }
+      else
+         testnum = TNUM_BANK_ERS_NOPRECON;
+         
+      if(GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
+      
+      F021_Erase_func(testnum,tname,final_results);
+      
+      if(TI_FlashESDAEna)
+         if (not(final_results == TM_PASS)) {
+            FLEsda.Tnum = TNUM_BANK_RDM1S;
+            FLEsda.ImageNum = ESDA_IMG_TUNOX_ERS;
+         //   F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   }
+   
+   return (final_results);
+}   /* BankErs_PreTunOxide_func */
 //   
 //
 //BoolS PreTunOxideVT1_func()

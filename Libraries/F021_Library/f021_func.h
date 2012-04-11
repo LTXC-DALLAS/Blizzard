@@ -113,9 +113,9 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
                                    BoolS data2_hexvalue,
                                    BoolS bcd_format);
 
-//void GetRamContent_SCRAM(IntS start_addr,
-//                              IntS store_option);
-//void Get_Flash_TestLogSpace_SCRAM();
+void GetRamContent_SCRAM(IntS start_addr,
+                              IntS store_option);
+void Get_Flash_TestLogSpace_SCRAM();
 //void Get_TLogSpace_STAT1(    IntM msw_data,
 //                              IntM lsw_data);
 //void Get_TLogSpace_STAT2(    IntM msw_data,
@@ -125,13 +125,13 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //void Get_TLogSpace_STAT4(    IntM msw_data,
 //                              IntM lsw_data);
 //void Get_TLogSpace_TESTFREQ(    IntM ret_val);
-//void Get_TLogSpace_PFBin(    IntM ret_val);
+void Get_TLogSpace_PFBin(    IntM &ret_val);
 //void Get_TLogSpace_FAILADDR(    IntM msw_data,
 //                                 IntM lsw_data);
 //void Get_TLogSpace_FAILDATA(    IntM msw_data,
 //                                 IntM lsw_data);
-//void Get_TLogSpace_TNUM(    IntM msw_data,
-//                             IntM lsw_data);
+void Get_TLogSpace_TNUM(    IntM &msw_data,
+                             IntM &lsw_data);
 //void Get_TLogSpace_MSTAT(      IntM msw_data, IntM lsw_data);
 //void Get_TLogSpace_ErsPulse(    IntM ret_val);
 //void Get_TLogSpace_TRIMSOL(    IntM ret_val);
@@ -205,9 +205,9 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                                    IntS pmstop,
 //                                    FloatM ret_timer,
 //                                    BoolM test_results);
-//
-//void F021_SetTestNum(IntS testnum);
-//
+
+void F021_SetTestNum(IntS testnum);
+
 //void Check_RAM_TNUM(    IntS expTnum,
 //                             BoolM test_results);
 //
@@ -217,11 +217,11 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                                       FlashCodeType code_type,
 //                                       IntS ovr_data);
 //
-//BoolS F021_RunTestNumber(IntS testnum,
-//                            FloatS maxtimeout,
-//                                FloatM ret_timer,
-//                                BoolM ret_result);
-//
+BoolS F021_RunTestNumber(const IntS &testnum,
+                            const FloatS &maxtimeout,
+                            FloatM &ret_timer,
+                            TMResultM &ret_result);
+
 //void CmpTRealLULim(    FloatM test_val,
 //                            FloatS test_LLimit,
 //                            FloatS test_ULimit,
@@ -240,16 +240,16 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //                            BoolM Test_results);
 //
 //
-//void F021_Set_TPADS(IntS TCRnum,
-//                         TPModeType TCRMode);
+void F021_Set_TPADS(IntS TCRnum,
+                         TPModeType TCRMode);
 //void F021_Set_TPADS_ByOrder(IntS TCRnum,
 //                                 TPModeType TCRMode,
 //                                 BoolS rampup);
 //
 //void F021_UnSet_TPADS(IntS TCRnum);
-//
-//void F021_TurnOff_AllTPADS();
-//
+
+void F021_TurnOff_AllTPADS();
+
 //void F021_Ramp_TPAD(PinM TPAD,
 //                         FloatS rampstart,
 //                         FloatS rampstop,
@@ -264,7 +264,8 @@ TMResultM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  FloatM &Meas_Value);
 
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
-                                     FloatS maxtimeout);
+                                     FloatS maxtimeout,
+                                     BoolS testPassPin = false);
 
 //void MBox_Upload_IProg(IntS senampnum);
 //
@@ -392,9 +393,9 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                               IntS nmos_rm1ratio,
 //                               IntS nmos_rdratio);
 //
-//void TL_RunTestNum(IntS start_testnum,
-//                        StringS logstr);
-//
+void TL_RunTestNum(IntS start_testnum,
+                        StringS logstr);
+
 //void TL_DumpOTP();
 //
 //void TL_DumpRawESDA_ToFile(IntS imgnum,
@@ -435,15 +436,15 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //void GoRestoreOTP_OnFail();
 //
 //void RAM_Clear_MailBox_Key();
-//
-//BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval);
-//BoolS F021_VHV_ER_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval);
-//BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval);
-//void RAM_Upload_VHV_CT_TrimVal();
-//
+
+BoolS F021_VHV_PG_CT_Trim_func(    TMResultM &test_results,
+                                      IntM &ret_ctval);
+BoolS F021_VHV_ER_CT_Trim_func(    TMResultM &test_results,
+                                      IntM &ret_ctval);
+BoolS F021_VHV_PV_CT_Trim_func(    TMResultM &test_results,
+                                      IntM &ret_ctval);
+void RAM_Upload_VHV_CT_TrimVal();
+
 BoolS F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
                                  VCornerType vcorner_type,
@@ -538,11 +539,9 @@ TMResultM F021_InitFLGlobalvars_func();
 //BoolS F021_Program_func(    IntS start_testnum,
 //                               StringS tname,
 //                               BoolM test_results);
-//
-//BoolS F021_Erase_func(    IntS start_testnum,
-//                             StringS tname,
-//                             BoolM test_results);
-//
+
+BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,
 //                            BoolM test_results);
@@ -649,7 +648,7 @@ void RAM_Clear_SoftTrim_All();
 //void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
 //void RAM_Clear_PMOS_SoftTrim();
 //void GetTrimCode_On_EFStr();
-//void RAM_Upload_PMOS_TrimCode();
+void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
 //BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //void TL_Mod_OTP_PMOS_SoftTrim();
@@ -765,6 +764,8 @@ void RAM_Clear_SoftTrim_All();
 //#if $FL_USE_DCC_TRIM_FOSC=FALSE then
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
+
+void PowerUpDn (PowerUpType ps_Val);
 
 #endif
 
