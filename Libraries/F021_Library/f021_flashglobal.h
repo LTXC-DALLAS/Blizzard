@@ -53,18 +53,15 @@ extern IntS SelectedTITestType;
 
 extern BoolS RunAllTests;
 
-extern StringS NULL_TestName;
 extern BoolS tistdscreenprint;
 extern BoolS tiprintpass;
 extern BoolS TI_FlashDebug;
 extern BoolS TI_FlashCharEna; 
 extern BoolS TI_FlashESDAEna; 
 extern BoolS TI_FlashCOFEna; 
-//extern BoolM v_dev_active;
 
 extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
-//extern StringS f021_shell_exepat_name;
 extern StringS f021_shell_exepat_vco_kc;
 extern StringS ldo_bypass_init_thread;
 extern StringS f021_shell_rcodepat;

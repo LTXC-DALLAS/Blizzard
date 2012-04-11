@@ -716,11 +716,11 @@ TMResultM F021_InitFLGlobalvars_func()
       // No need for site loop, vars are SV Types and can initialize without loops
       // if every value is the same
       
-      GL_F021_COF_1STFAILTEST = NULL_TestName;
+//      GL_F021_COF_1STFAILTEST = "";
       for (index = 1;index <= maxstrnum;index++) // kept because only <=maxstrnum being init-ed
       {
          GL_F021_COF_INFOS.SetValue(index, "");
-         GL_F021_COF_INFOS_FULL.SetValue(index, false);
+//         GL_F021_COF_INFOS_FULL.SetValue(index, false);
       } 
        /*init for deplete bank/sect*/
       GL_F021_LOG_SOFTBIN_STAT = "";
@@ -764,7 +764,7 @@ TMResultM F021_InitFLGlobalvars_func()
       GL_FLASH_SAVESITES = true;
 
       GL_FLASH_RETEST = false;
-      GL_FLASH_RETEST_GEC = false;
+//      GL_FLASH_RETEST_GEC = false;
 
       GL_DO_RESTORE_OTP_ON_FAIL = false;
       SITE_TO_RESTORE_OTP = false;

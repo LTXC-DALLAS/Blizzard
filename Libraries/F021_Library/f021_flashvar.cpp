@@ -1031,19 +1031,27 @@ BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;
 //IntM2D BANK_PRECON_PULSE(8,16);
 
                   /*bank,row#,word#,site*/
-StringM2D OTP_ID_INFO(8,129);
+// The 'INFO' variables commented out are just string representations of 
+// one of the _VAL or _INTVAL variables. If needed, just convert over the 
+// numeric to string where needed instead of converting and storing strings
+// as extra variables.
+//StringM2D OTP_ID_INFO(8,129);
 IntM2D OTP_ID_INFO_VAL(8,129);
-StringM2D OTP_VT_INFO(8,129); 
+//StringM2D OTP_VT_INFO(8,129); 
 FloatM2D OTP_VT_INFO_VAL(8,129);
-StringM2D OTP_BCC_INFO;
+//StringM2D OTP_BCC_INFO;
 FloatM2D OTP_BCC_INFO_VAL(8,129);
 IntM2D OTP_BCC_INFO_INTVAL(8,129);
 IntM2D OTP_LOG1_INFO_VAL(8,129);
 IntM2D OTP_LOG3_INFO_VAL(8,129);
 
 IntM EFCHKSUM_MSW, EFCHKSUM_LSW;
-StringM1D FRM_OTP_BANK_EFSUM_HI_BCD(8), FRM_OTP_BANK_EFSUM_LO_BCD(8);
+// Next line is just string representation of the val next. It's only 
+// used one other place, so convert the val into a string there instead 
+// of storing the string.
+//StringM1D FRM_OTP_BANK_EFSUM_HI_BCD(8), FRM_OTP_BANK_EFSUM_LO_BCD(8);
 IntM1D FRM_OTP_BANK_EFSUM_HI_VAL(8), FRM_OTP_BANK_EFSUM_LO_VAL(8);
+// below unused
 //StringM1D FRM_OTP_BANK_FOSC_HI_BCD(8), FRM_OTP_BANK_FOSC_LO_BCD(8);
 //IntM1D FRM_OTP_BANK_FOSC_HI_VAL(8), FRM_OTP_BANK_FOSC_LO_VAL(8);
 
@@ -1089,19 +1097,27 @@ BoolS GL_MP3PKG_FLOW;
 BoolS GL_VPP_PRESENT;
 FlashPumpType GL_PUMPTYPE;
 FlashBankType GL_BANKTYPE;
-StringM GL_F021_FAIL_PATT;
+// Fail_pat should be a local, only used locally
+//StringM GL_F021_FAIL_PATT;
 BoolM GL_F021_LOG_FAIL_PATT;
 BoolM GL_F021_COF_PASS;
-StringM GL_F021_COF_1STFAILTEST;
+//Not sure about this guy. If needed, uncomment, but don't
+//understand purpose for Unison.
+//StringM GL_F021_COF_1STFAILTEST;
 /*for continue-on-fail*/
 StringM1D GL_F021_COF_INFOS(41);
-BoolM1D GL_F021_COF_INFOS_FULL(41);
+// calculate if full...below is continue on fail only, so 
+// a little test time extra shouldn't kill us. If test 
+// time is a factor, this might improve it, but not much.
+//BoolM1D GL_F021_COF_INFOS_FULL(41);
 /*for esda delta-vt*/
 IntS GL_PREV_TNUM_VT;
 BoolM GL_FLASH_RETEST;
-BoolM GL_FLASH_RETEST_GEC;
+// Set, but never looked at beyond setting it.
+//BoolM GL_FLASH_RETEST_GEC;
 BoolM GL_FLASH_SAVESITES;
-BoolM GL_FLASH_EGSTRESS_STATUS;
+// commented out, except one place where it is set.
+//BoolM GL_FLASH_EGSTRESS_STATUS;
 StringM GL_F021_LOG_SOFTBIN_STAT;
 StringM GL_F021_LOG_SOFTBIN_PATT;
 
@@ -1174,13 +1190,15 @@ BoolS GL_DO_BOOST_REFARR;
 
 /*added for repair*/
 BoolS GL_DO_REPAIR;
-BoolM SITE_TO_REPAIR;
-BoolM2D BLOCK_TO_REPAIR(8,16);
-BoolM1D BANK_TO_REPAIR(8);
-BoolM SITE_TO_REPAIR_FAST;
-BoolM SITE_GOOD_REPAIR_FAST;
-BoolM SITE_TO_REPAIR_SLOW;
-BoolM SITE_GOOD_REPAIR_SLOW;
+// below never used
+//BoolM SITE_TO_REPAIR;
+//BoolM2D BLOCK_TO_REPAIR(8,16);
+//BoolM1D BANK_TO_REPAIR(8);
+// next 4 only used in one place in an if...but never set to anything...
+//BoolM SITE_TO_REPAIR_FAST;
+//BoolM SITE_GOOD_REPAIR_FAST;
+//BoolM SITE_TO_REPAIR_SLOW;
+//BoolM SITE_GOOD_REPAIR_SLOW;
 IntS FAKEREP_SOL[8][16][4];  /*hold pre-defined artificial rep solution*/
 IntS GL_FAKEREP_SAMPLING, GL_FAKEREP_COUNT;
 BoolS GL_FAKEREP_ENA;
@@ -1257,12 +1275,12 @@ prepostcorner prepost_type;
 /*KChau effuse 02/01/7 - added for flash efuse trimming*/
 BoolS enableFTrim;   /*KChau effuse 02/01/7*/
 
-StringM TempDieIDChainStr;
+//StringM TempDieIDChainStr;
 StringM margFlashChainStr;
-StringM FlashProgString, TempProgString;
+StringM FlashProgString; //, TempProgString;
 StringM SaveFlashProgString;
-StringM BANK_EFSTR, AUXBG_EFSTR, MAINBG_EFSTR, VHV_SLPCT_EFSTR, VSA5CT_EFSTR;
-StringM AUXBG_EFSTR_SHORT, MAINBG_EFSTR_SHORT;
+StringM BANK_EFSTR, MAINBG_EFSTR; //, AUXBG_EFSTR, VHV_SLPCT_EFSTR, VSA5CT_EFSTR;
+//StringM AUXBG_EFSTR_SHORT, MAINBG_EFSTR_SHORT;
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

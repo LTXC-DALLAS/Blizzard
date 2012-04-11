@@ -4122,8 +4122,7 @@ using namespace std;
 
 TMResultM Flash_ISleep_func()
 {
-// Think we'll handle levels via Levels Objects
-//   PwrupAtVmax_1;
+   PowerUpDn(PWRUP_VMAX);
 
    return TM_PASS;
 }   /* Flash_ISleep_func */
@@ -5059,9 +5058,10 @@ TMResultM Pump_Iref_Vnom_func()
    IntS tcrnum;
    TPModeType tcrmode;
    VCornerType vcorner;
-   Sites initial_sites = ActiveSites;
+   Sites initial_sites(ActiveSites);
+   Sites new_active_sites(ActiveSites);
 
-   //:TODO: power up at Vnom here
+   PowerUpDn(PWRUP_VNOM);
 
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
@@ -5077,7 +5077,8 @@ TMResultM Pump_Iref_Vnom_func()
    F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
 
    // disable failing sites (disables sites w/ false).
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
    if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
@@ -5134,6 +5135,8 @@ TMResultM Pump_BGap_Vnom_func()
    tcrnum = 124;
    tcrmode = ReadMode;
    vcorner = VNM;
+   
+   PowerUpDn(PWRUP_VNOM);
 
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
@@ -5150,7 +5153,7 @@ TMResultM Pump_VHV_Vmin_func()
    const IntS TESTID = 17; 
 
    TMResultM final_results,tmp_results;
-   Sites savesites, disable_sites, initial_sites;
+   Sites savesites, new_active_sites, initial_sites;
    VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
@@ -5163,7 +5166,7 @@ TMResultM Pump_VHV_Vmin_func()
    if(GL_DO_VHV_CT_TRIM)  
    {
 
-//      PwrupAtVnom_1;
+      PowerUpDn(PWRUP_VNOM);
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -5171,8 +5174,10 @@ TMResultM Pump_VHV_Vmin_func()
       if (!(GL_FLASH_RETEST == false))   // all sites must match for this to be true (then negated by the !)
       {
          savesites = ActiveSites;
+         new_active_sites = ActiveSites;
          // Disable sites that have retest of false
-         ActiveSites.DisableFailingSites(GL_FLASH_RETEST); 
+         new_active_sites.DisableFailingSites(GL_FLASH_RETEST); 
+         RunTime.SetActiveSites(new_active_sites);
                
          if(!ActiveSites.Begin().End())   //if there is an active site
          {
@@ -5203,9 +5208,8 @@ TMResultM Pump_VHV_Vmin_func()
       RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
    } 
    
-//    Hmmm....
-//    PwrupAtVmin_1;
-
+   PowerUpDn(PWRUP_VMIN);
+   
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
@@ -5217,14 +5221,17 @@ TMResultM Pump_VHV_Vmin_func()
    tcrmode = ProgMode;
    F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
 
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   RunTime.SetActiveSites(new_active_sites);
    if(!ActiveSites.Begin().End())   //we have an active site
    {
       tcrmode = PvfyMode;
       F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
    } 
    
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = ErsMode;
