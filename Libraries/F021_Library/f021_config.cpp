@@ -44,8 +44,11 @@ void F021_FlashConfig()
    IntM test_type("TITestType");
    IntM test_temp("TITestTemp");
    
-   SelectedTITestType = test_type[ActiveSites.Begin().GetValue()];
-   SelectedTITestTemp = test_temp[ActiveSites.Begin().GetValue()];
+   // :IMPORTANT: :TODO:
+   // Change these back before doing more than room temp MP1 in Production
+   // These are hard-coded for ease of debug only!
+   SelectedTITestType = IntS(MP1); //test_type[ActiveSites.Begin().GetValue()];
+   SelectedTITestTemp = IntS(TEMP_30_DEG); //test_temp[ActiveSites.Begin().GetValue()];
    
     /*Device Specific*/
 
