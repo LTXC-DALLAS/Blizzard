@@ -1175,6 +1175,12 @@ __SubFlow F021FlashFlow_S {
         __TestID = "";
         __Exec = F021_Pump;
     }
+    __Node F021_TunOxide_360 {
+        __XCoord = (197,199);
+        __InputPosition = 268;
+        __TestID = "";
+        __Exec = F021_TunOxide;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
@@ -2310,3 +2316,17 @@ __SubFlow F021_Pump {
     }
 }
 
+__SubFlow F021_TunOxide {
+    __Node BankErs_PreTunOxide_func_T_371 {
+        __XCoord = (153,105);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 0;
+        __TestID = "93000000";
+        __Exec = BankErs_PreTunOxide_func_T;
+    }
+}

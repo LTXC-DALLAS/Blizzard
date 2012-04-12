@@ -765,7 +765,5 @@ void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
 
-void PowerUpDn (PowerUpType ps_Val);
-
 #endif
 
