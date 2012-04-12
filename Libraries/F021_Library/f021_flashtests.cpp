@@ -4122,7 +4122,8 @@ using namespace std;
 
 TMResultM Flash_ISleep_func()
 {
-   PowerUpDn(PWRUP_VMAX);
+   // use levels objects
+   //PowerUpDn(PWRUP_VMAX);
 
    return TM_PASS;
 }   /* Flash_ISleep_func */
@@ -5061,7 +5062,7 @@ TMResultM Pump_Iref_Vnom_func()
    Sites initial_sites(ActiveSites);
    Sites new_active_sites(ActiveSites);
 
-   PowerUpDn(PWRUP_VNOM);
+   // PowerUpDn(PWRUP_VNOM);
 
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
@@ -5136,7 +5137,7 @@ TMResultM Pump_BGap_Vnom_func()
    tcrmode = ReadMode;
    vcorner = VNM;
    
-   PowerUpDn(PWRUP_VNOM);
+   // PowerUpDn(PWRUP_VNOM);
 
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
@@ -5166,7 +5167,7 @@ TMResultM Pump_VHV_Vmin_func()
    if(GL_DO_VHV_CT_TRIM)  
    {
 
-      PowerUpDn(PWRUP_VNOM);
+      // PowerUpDn(PWRUP_VNOM);
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -5208,7 +5209,7 @@ TMResultM Pump_VHV_Vmin_func()
       RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
    } 
    
-   PowerUpDn(PWRUP_VMIN);
+   // PowerUpDn(PWRUP_VMIN);
    
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
