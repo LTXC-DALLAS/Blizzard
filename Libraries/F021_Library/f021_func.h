@@ -21,6 +21,7 @@
 #define F021_FUNC_H
 
 #include <f021_flashvar.h>
+#include <std_vi.h>
 #include <TestwareSupport.h>
 
 //void F021_FlashConfig();

@@ -293,142 +293,32 @@
 using namespace std; 
 
 
-//#include "$TYPES"
-//#include "var.h" 
-//#include "power.h"
-//#include "utility.h"
-//#include "$STD_PATH/stdMeas.h"
-//#include "efuse.h"
-
-/* JAT  03/07/2012                                                */
-/******************************************************************/
-/* I think this is the equivalent of the VLCT STDSetVI, except    */
-/* ranging happens here as well. This will set the I clamps and   */
-/* range. It will set the force V and range and gate the          */
-/* instrument on (I don't see a gate in VLCT, so hope the force   */
-/* does it.)                                                      */
-/* I also didn't see that the VLCT could force current...or at    */
-/* least didn't in this procedure.                                */
-/*                                                                */
-/* If you don't pass the range, the previous range is kept        */
-/******************************************************************/
-void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI, const TPMeasType &measType, const FloatM &vRange = UTL_VOID)
+void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
+                                                   VIMeasureTypeS &vimeas_type)
 {
-//   SITE active_site = ActiveSites.Begin().GetValue();
-   
-   switch (measType)
+// So far, it works out that if we are measuring current, we force voltage
+// and vice-versa...so no force I meas I in this library.
+// If we are just forcing voltage, we say that we are 
+// measuring current so that the measure range gets set and doesn't 
+// interfere with the force. (Some instruments have a separate measure 
+// range than the clamp settings, which can still cause clamping.
+   switch (meastype)
    {
-      case ForceCurrType: // force current
-      case MeasVoltType:  // we force current and measure voltage
-         if (vRange != UTL_VOID)
-         {
-            VI.SetMeasureVRange(viPin, vRange);
-            VI.SetClampsV(viPin, vRange, -vRange);
-         } else {
-            VI.SetClampsV(viPin, setV, -setV);
-         }
-         VI.ForceI(viPin, setI, setI);
+      case ForceVoltType:
+      case MeasCurrType:
+         viforce_type = VI_FORCE_V;
+         vimeas_type = VI_MEASURE_I;
          break;
-      case ForceVoltType: // force voltage
-      case MeasCurrType: // we force voltage and measure current
-         VI.SetClampsI(viPin, setI);
-         VI.SetMeasureIRange(viPin, setI);
-         if (vRange == UTL_VOID) 
-            VI.ForceV(viPin, setV);
-         else
-            VI.ForceV(viPin, setV, vRange);
+      case ForceCurrType:
+      case MeasVoltType:
+         viforce_type = VI_FORCE_I;
+         vimeas_type = VI_MEASURE_V;
          break;
       default:
-         return; // do nothing, don't gate on
-   }
-   if (VI.GetGateState(viPin).AnyGreater(VI_GATE_ON)) // if any are gated off
-   {
-      VI.Gate(viPin, VI_GATE_ON);
-   }
-}
-
-bool STDGetConnect (const PinM &myPin, const BoolS &checkDCL = false)
-{
-   PinType my_type = myPin.GetPinType();
-   switch (my_type.GetBasicType())
-   {
-      case PINTYPE_DIGITAL_PIN:
-         if (checkDCL)
-            return (DIGITAL.GetConnectState(myPin, DIGITAL_DCL_TO_DUT).AnyEqual(CONNECT_OFF));
-            // fall through to the VI syntax for ppmu
-      case PINTYPE_ANALOG_PIN:
-      case PINTYPE_POWER_PIN:
-         return (!VI.GetConnectPath(myPin).AnyGreater(VI_TO_DUT));
-      default:
-         return (false);
-   }
-}
-
-void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_REMOTE, 
-               const BoolS &connectDCL = false)
-{
-   PinType my_type = myPin.GetPinType();
-   switch (my_type.GetBasicType())
-   {
-      case PINTYPE_DIGITAL_PIN:
-         if (connectDCL) 
-         {
-            DIGITAL.Connect(myPin, DIGITAL_DCL_TO_DUT);
-            break;
-         }
-         DIGITAL.Disconnect(myPin, DIGITAL_ALL_PATHS);
-         // fall through to connect PPMU
-      case PINTYPE_ANALOG_PIN:
-      case PINTYPE_POWER_PIN:
-         VI.Connect(myPin, VI_TO_DUT, connectMode);
+         viforce_type = UTL_VOID;
+         vimeas_type = UTL_VOID;
          break;
-      default:
-         return;
    }
-}
-
-void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
-{
-   VI.SetMeasureSamples(myPin, averages); 
-   VI.MeasureVAverage(myPin, measValue, simValue);
-   measValue.SetUnits("V");
-}
-
-void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, const FloatM &simValue)
-{
-   VI.SetMeasureSamples(myPin, averages);
-   VI.MeasureIAverage(myPin, measValue, simValue);
-   measValue.SetUnits("A");
-}
-
-// PPMU has no sampled mode, so do it manually
-// This is just for debug of stability/repeatability
-void STDMeasVSampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
-{
-   FloatM measurement;
-   VI.SetMeasureSamples(myPin, 1);
-   for (int i = 0; i < samples; ++i)
-   {
-      VI.MeasureVAverage(myPin, measurement, simValue);
-      measValues.SetValue(i, measurement);
-      TIME.Wait(100us);
-   }
-   measValues.SetUnits("V");
-}
-
-// PPMU has no sampled mode, so do it manually
-// This is just for debug of stability/repeatability
-void STDMeasISampled (const PinM &myPin, const UnsignedS &samples, FloatM1D &measValues, const FloatM &simValue)
-{
-   FloatM measurement;
-   VI.SetMeasureSamples(myPin, 1);
-   for (int i = 0; i < samples; ++i)
-   {
-      VI.MeasureIAverage(myPin, measurement, simValue);
-      measValues.SetValue(i, measurement);
-      TIME.Wait(100us);
-   }
-   measValues.SetUnits("A");
 }
 
 // If needed, uncomment. However, I think the only use for this is when 
@@ -7727,6 +7617,8 @@ void F021_Set_TPADS(IntS TCRnum,
    StringS str1;
    BoolS suppena;
    TPMeasType meastype;
+   VIForceTypeS viforce_type;
+   VIMeasureTypeS vimeas_type;
 
    if(tistdscreenprint and TI_FlashDebug)  
       IO.Print(IO.Stdout,"\n");
@@ -7899,7 +7791,8 @@ void F021_Set_TPADS(IntS TCRnum,
          { 
             STDConnect(tsupply);
          }
-         STDSetVI(tsupply, vProg, iProg, meastype, vRange);
+         GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
+         STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
             IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);
@@ -7936,7 +7829,8 @@ void F021_Set_TPADS(IntS TCRnum,
 
       if(suppena)  
       {
-         STDSetVI(tsupply, vProg, iProg, meastype, vRange);
+         GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
+         STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
             IO.Print(IO.Stdout,"Setting TPADs --  TCR %5d\n",TCRnum);

@@ -1132,18 +1132,3 @@ __Test SCAN_PATHDELAY_1_DBG_PG {
         }
     }
 }
-//__Plot edgePlot {
-//    __Axis =     __Axis  {
-//        __NumberSteps = __Expression { __String = "40"; }
-//        __ParameterVariance {
-//            __Param stb;
-//            __Start = __Expression { __String = "-20ns"; __Type = s; }
-//            __Stop = __Expression { __String = "10ns"; __Type = s; }
-//        }
-//    }
-//    __TestSpace {
-//        __DataSpace {
-//        	__DataGen = __Expression { }
-//        }
-//    }
-//}
