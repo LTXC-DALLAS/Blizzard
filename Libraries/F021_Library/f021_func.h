@@ -218,10 +218,9 @@ void F021_SetTestNum(IntS testnum);
 //                                       FlashCodeType code_type,
 //                                       IntS ovr_data);
 //
-BoolS F021_RunTestNumber(const IntS &testnum,
+TMResultM F021_RunTestNumber(const IntS &testnum,
                             const FloatS &maxtimeout,
-                            FloatM &ret_timer,
-                            TMResultM &ret_result);
+                            FloatM &ret_timer);
 
 //void CmpTRealLULim(    FloatM test_val,
 //                            FloatS test_LLimit,
@@ -257,12 +256,9 @@ void F021_TurnOff_AllTPADS();
 //                         FloatS iProg,
 //                         Option pgmMode);
 //
-TMResultM F021_Meas_TPAD_PMEX(    PinM TPAD,
+FloatM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  IntS TCRnum,
-                                 TPModeType TCRMode,
-                                 FloatS test_llim,
-                                 FloatS test_ulim,
-                                 FloatM &Meas_Value);
+                                 TPModeType TCRMode);
 
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
                                      FloatS maxtimeout,
@@ -446,12 +442,11 @@ BoolS F021_VHV_PV_CT_Trim_func(    TMResultM &test_results,
                                       IntM &ret_ctval);
 void RAM_Upload_VHV_CT_TrimVal();
 
-BoolS F021_Pump_Para_func(    IntS start_testnum,
+TMResultM F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
                                  VCornerType vcorner_type,
                                  IntS TCRnum,
-                                 TPModeType TCRMode,
-                                 TMResultM &test_results);
+                                 TPModeType TCRMode);
 
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
 //                                 prepostcorner prepost_type,
@@ -541,7 +536,7 @@ TMResultM F021_InitFLGlobalvars_func();
 //                               StringS tname,
 //                               BoolM test_results);
 
-BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,

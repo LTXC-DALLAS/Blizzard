@@ -5075,7 +5075,7 @@ TMResultM Pump_Iref_Vnom_func()
    tcrnum = 126;
    tcrmode = ReadMode;
    vcorner = VNM;
-   F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode);
 
    // disable failing sites (disables sites w/ false).
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
@@ -5083,7 +5083,7 @@ TMResultM Pump_Iref_Vnom_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
-      F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode, final_results);
+      final_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
    }    
    
    // re-enable any sites we've messed around with 
@@ -5143,7 +5143,7 @@ TMResultM Pump_BGap_Vnom_func()
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
    
-   F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode,final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode);
 
    return(final_results);
 }   /* Pump_BGap_Vnom_func */
@@ -5187,7 +5187,7 @@ TMResultM Pump_VHV_Vmin_func()
          } 
          RunTime.SetActiveSites(savesites);
       } 
-
+//:HERE:
       F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
       VHV_PG_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
@@ -10774,7 +10774,7 @@ TMResultM BankErs_PreTunOxide_func() {
          
       if(GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
       
-      F021_Erase_func(testnum,tname,final_results);
+      final_results = F021_Erase_func(testnum,tname);
       
       if(TI_FlashESDAEna)
          if (not(final_results == TM_PASS)) {

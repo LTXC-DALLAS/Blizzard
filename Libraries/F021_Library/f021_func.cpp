@@ -7343,10 +7343,9 @@ void F021_SetTestNum(IntS testnum)
       
 
  /*Set Flash TestNumber in RAM and execute*/
-BoolS F021_RunTestNumber(    const IntS &testnum,
+TMResultM F021_RunTestNumber(    const IntS &testnum,
                                 const FloatS &maxtimeout,
-                                FloatM &ret_timer,
-                                TMResultM &ret_result)
+                                FloatM &ret_timer)
 {
    TMResultM test_results(TM_NOTEST);
    TMResultM exec_results = TM_NOTEST;
@@ -7399,15 +7398,16 @@ BoolS F021_RunTestNumber(    const IntS &testnum,
    tmp_results = DLOG.Value(value1, tnumlo, tnumlo, UTL_VOID, "Readback F021 Test Number Low");
    test_results = DLOG.Value(value2, tnumhi, tnumhi, UTL_VOID, "Readback F021 Test Number High");
    
-   ret_result = DLOG.AccumulateResults(tmp_results, test_results);
+   test_results = DLOG.AccumulateResults(tmp_results, test_results);
+   test_results = DLOG.AccumulateResults(test_results, exec_results);
 
    if(tistdscreenprint and TI_FlashDebug)  
    {
-      DLOG.Value(ret_result, TM_PASS, TM_PASS, UTL_VOID, "RunTestNumber");
+      DLOG.Value(test_results, TM_PASS, TM_PASS, UTL_VOID, "RunTestNumber");
       cout << "  TT " << TIME.StopTimer() << endl;
    } 
 
-   return (true);
+   return (test_results);
 }   /* F021_RunTestNumber */
 
 
@@ -8308,12 +8308,10 @@ void F021_TurnOff_AllTPADS()
 //   }   /*if v_any_dev_active*/
 //}   /* F021_Ramp_TPAD */
 
-TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
+// This is just a measure function now. Do the testing elsewhere.
+FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
                                  IntS TCRnum,
-                                 TPModeType TCRMode,
-                                 FloatS test_llim,
-                                 FloatS test_ulim,
-                                 FloatM &Meas_Value)
+                                 TPModeType TCRMode)
 {
    BoolS read_voltage;
    PinM tsupply;
@@ -8322,24 +8320,10 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
    BoolS validsupp,validpgm;
    UnsignedS count;
    BoolS debugprint;
-   FloatM Sim_Value;
+   FloatM Sim_Value = 0.0;
+   FloatM Meas_Value;
    
    bool debug_sample_repeatability = false;
-   
-   if (SYS.TesterSimulated()) {
-      if ((test_llim != UTL_VOID) and (test_ulim != UTL_VOID))
-      {
-         Sim_Value = (test_ulim - test_llim) / 2. + test_llim;
-      } 
-      else if (test_llim != UTL_VOID) 
-      {
-         Sim_Value = test_llim + MATH.Abs(test_llim) / 10.; // create passing sim value
-      }
-      else
-      {
-         Sim_Value = test_ulim - MATH.Abs(test_ulim) / 10.;
-      }
-   }
 
    validsupp = false;
    tsupply = TPAD;
@@ -8416,8 +8400,6 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
    if(validsupp)  
    {
       count = 10;
-      ulim = test_ulim;
-      llim = test_llim;
       
       // remove after debug
       FloatM1D meas_values(1000,0);
@@ -8443,11 +8425,6 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
          STDMeasI(tsupply, count, Meas_Value, Sim_Value);
       }
 
-      // use DLOG.Value to do the limit comparison - set DLOGEnable to false
-      // so it doesn't go the datalog stream, however.
-      final_results = DLOG.Value(tsupply, Meas_Value, llim, ulim, UTL_VOID, UTL_VOID, 
-                                 UTL_VOID, UTL_VOID, UTL_VOID, ER_PASS, false);
-
       // since other messages go to stdout and not the datalog stream buffer, we
       // should probably keep the debug data here in stdout instead of using 
       // the datalog stream from DLOG.Value.
@@ -8455,35 +8432,8 @@ TMResultM F021_Meas_TPAD_PMEX(   PinM TPAD,
       if(debugprint and tistdscreenprint)  
          for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
             cout << "Site " << *si << " Meas_Value=" << Meas_Value[*si] << endl;
-
-/* KChau - temp commented out since stdmeas doesn't have get vrange stment         
-       {check make sure supply is proper pgmed}
-       for site := 1 to v_sites do
-          if(v_dev_active[site]) then
-          begin
-             STDGetVI(tsupply,vProg,iProg);
-             case read_opt of
-               S_Current : tmpval := iProg;
-               S_Voltage : tmpval := vProg;
-             end; { case }
-             
-             if(ulim > tmpval) then
-             begin
-                validpgm := false;
-                if(tistdscreenprint) then
-                   writeln(tiwindow,'*** WARNING: ULim is greater than clamp value ***');
-             end
-             else
-                validpgm := true;
-             break;
-          end;
-
-       if(not validpgm) then
-          ArraySetBoolean(tmp_results,false);
-       */
-   }   /*if validsupp*/
-
-   return final_results;
+   }
+   return (Meas_Value);
 
 }   /* F021_Meas_TPAD_PMEX */
 
@@ -10465,7 +10415,7 @@ void TL_RunTestNum(IntS start_testnum,
       
       for (count = sblk;count <= eblk;count++)
       {
-         F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
+         tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
          str2 = bank + "_B";
          
          if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
@@ -12147,17 +12097,17 @@ void TL_RunTestNum(IntS start_testnum,
 //}   /* RAM_Clear_MailBox_Key */
 
 #if 0
-void DoIMeasure() 
+void DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay, ) 
 {
    F021_Set_TPADS(tcrnum,tcrmode);
 #if $TP3_TO_TP5_PRESENT  
-STDDisconnect(FLTP3);
+   STDDisconnect(FLTP3);
 #endif
    F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
    TIME.Wait(tdelay);
-   F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim_pre,ulim_pre,meas_val,tmp_results);
-   Disable(s_pmexit);
-   F021_TurnOff_AllTPADS;
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+//   Disable(s_pmexit);
+   F021_TurnOff_AllTPADS();
 }   /* DoIMeasure */
 
 BoolS IsPrevSearch()
@@ -12187,30 +12137,30 @@ BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
    const IntS STEPINC = 5; 
    const IntS MAXITERPLUS = 41; 
 
-   BoolM final_results,tmp_results;
-   BoolM savesites,activesites;
-   IntS site,testnum,addr,addr_emu;
-   IntS minloop,maxloop,i;
-   IntS tcrnum,tcrnum_src;
-   TPModeType tcrmode,tcrmode_src;
-   StringS str1,str2,str3,str4,str5;
-   FloatS ttimer1,maxtime,tdelay;
-   FloatM tt_timer;
-   FloatS llim_pre,ulim_pre;
-   FloatS llim,ulim,target,delta;
-   FloatS toler;
-   PinM testpad;
-   FloatM meas_val,tmp_val,tmp_delta;
-   IntM ctval,ersct,pgct,pre_pgct;
-   IntM lsw_data,msw_data,ovrshoot;
-   BoolS bcd_format,hexvalue;
-   FloatM FloatSval;
-   TWunit unitval;
-   BoolS logena,done,dolinear;
-   IntM1D calcsol(MAXITERPLUS); /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
-   IntM currsol,curriter;
-   IntM1D prevsol(MAXITERPLUS); 
-   FloatM PgStepAvg;
+//   BoolM final_results,tmp_results;
+//   BoolM savesites,activesites;
+//   IntS site,testnum,addr,addr_emu;
+//   IntS minloop,maxloop,i;
+//   IntS tcrnum,tcrnum_src;
+//   TPModeType tcrmode,tcrmode_src;
+//   StringS str1,str2,str3,str4,str5;
+//   FloatS ttimer1,maxtime,tdelay;
+//   FloatM tt_timer;
+//   FloatS llim_pre,ulim_pre;
+//   FloatS llim,ulim,target,delta;
+//   FloatS toler;
+//   PinM testpad;
+//   FloatM meas_val,tmp_val,tmp_delta;
+//   IntM ctval,ersct,pgct,pre_pgct;
+//   IntM lsw_data,msw_data,ovrshoot;
+//   BoolS bcd_format,hexvalue;
+//   FloatM FloatSval;
+//   TWunit unitval;
+//   BoolS logena,done,dolinear;
+//   IntM1D calcsol(MAXITERPLUS); /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
+//   IntM currsol,curriter;
+//   IntM1D prevsol(MAXITERPLUS); 
+//   FloatM PgStepAvg;
     /*++++++++++++++++++++*/
 
    if(tistdscreenprint and TI_FlashDebug)  
@@ -12258,11 +12208,11 @@ BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
 //   PrintHeaderParam(GL_PLELL_FORMAT);
    str1 = "VHV_PG_CT_SFT_";
 
-   timernstart(ttimer1);
+   TIME.StartTimer(); //timernstart(ttimer1);
 
-   for (i = minloop;i <= minloop;i++)
+   for (i = minloop;i <= minloop;i++) //huh...it's a loop that only ever executes once..maybe debug had it do more?
    {
-      activesites = v_dev_active;
+//      activesites = v_dev_active;
       msw_data = i;
       WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
       DoIMeasure;
@@ -14125,12 +14075,11 @@ void RAM_Clear_SoftTrim_All()
    } 
 }   /* RAM_Clear_SoftTrim_All */
 
-BoolS F021_Pump_Para_func(    IntS start_testnum,
+TMResultM F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
                                  VCornerType vcorner_type,
                                  IntS TCRnum,
-                                 TPModeType TCRMode, 
-                                 TMResultM &test_results)
+                                 TPModeType TCRMode)
 {
    FloatS tdelay,maxtime;
    TMResultM final_results, rtest_results, tmp_results;
@@ -14267,10 +14216,9 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 
             TIME.Wait(tdelay);
 
-            tmp_results = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode,
-                           llim,ulim,meas_value);
+            meas_value = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
 
-            tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
+//            tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
          
              /*store/copy to global var vhv params*/
             if(TCRnum==0)  
@@ -14298,21 +14246,16 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 
             unitval = meas_value.GetUnits(); // V or A set during F021_Meas_TPAD_PMEX
 
-// making this a TIDLOG statement...was a separate TWPDL call and a 'Print Result Param'
-// Also...why is the test done inside F021_Meas_TPAD_PMEX and not here...do we want 
-// to double-test?? :TODO: Check if F021_Meas_TPAD_PMEX is always called with a 
-// print and twpdl afterwards...if so, remove the 'test' portion from F021_Meas_TPAD_PMEX
-// and have it just return the measurement            
             IO.Print(dlog_comment, "F021_Pump_Para_func testnum is 0x%x.\n", testnum);
             DLOG.Text(dlog_comment);
-            TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, 
-                         UTL_VOID, true, TWMinimumData);
+            tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, 
+                                       UTL_VOID, true, TWMinimumData);
+            
+            final_results = DLOG.AccumulateResults(tmp_results, rtest_results);
             
              /*bin out on post meas/efuse trim only*/
             if((prepost == post) && (PUMP_BANK_PARA_BINOUT[TCRnum][TCRMode][tpnum]))
             {
-               final_results = tmp_results; // no need for and, only works on active sites
-
                // if any site has failed
                if(final_results.AnyEqual(TM_FAIL))  
                {
@@ -14360,11 +14303,10 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
       // want to turn on any sites that we turned off during the loop 
       // so that results get reported
       RunTime.SetActiveSites(savesites);
-      test_results = final_results;
       
    }   /*if parmena*/
 
-   return (true);
+   return (final_results);
 }   /*F021_Pump_Para_func*/
 
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
@@ -19763,7 +19705,7 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //   
 //   
 //   
-BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results) {
+TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
    enum TargetType   { TARGET_BANK = 0, TARGET_SECT, TARGET_OTP = 4, TARGET_SEMIOTP };
    enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC };
@@ -19776,6 +19718,7 @@ BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_result
 //   IntS TOPT_WO_PREC = 0; 
 
    IntM erspulse,cmptpulse,preconpulse;
+   TMResultM test_results = TM_NOTEST;
    TMResultM tmp_results, savesites, final_results, ers_results, cmpt_results;
    IntS bankcount,count;
    IntS site,opertype,pattype;
@@ -19922,7 +19865,7 @@ BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_result
 
          for (count = blkstart;count <= blkstop;count++) {
             faildetect = false;
-            F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
+            tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
             
             if (not ersstr_ena) {
@@ -20057,7 +20000,7 @@ BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_result
       ;
       // DevSetHoldStates(final_results);
    
-   return(1);
+   return(test_results);
 }   // F021_Erase_func
 
 //
