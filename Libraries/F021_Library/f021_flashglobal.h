@@ -364,7 +364,3 @@ enum SCRAM_STORE_OPTION {TEMPLOG_ARR, TESTLOG_ARR, MBOXOTP_ARR, MBOXLOG_ARR};
 #define $FL_USE_AUTO_FLOW false
 
 #endif
-
-// Additions to the PowerUpType enum must be reflected in the
-// switch statement of the PowerUpDn function (f021_func.cpp) 
-enum PowerUpType { PWRDN_ALL, PWRUP_VMIN, PWRUP_VNOM, PWRUP_VMAX, PWRUP_EFUSEREAD };

@@ -10731,7 +10731,7 @@ TMResultM BankErs_PreTunOxide_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-
+   
    if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
       do_ena = true;
@@ -10741,12 +10741,10 @@ TMResultM BankErs_PreTunOxide_func() {
    if(do_ena) {
 #if $GL_USE_DMLED_RAMPMT  
       /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-      PowerUpDn(PWRDN_ALL);
+
       TIME.Wait(2ms);
       GL_PREVIOUS_SHELL = "";
 #endif
-      
-      PowerUpDn(PWRUP_VNOM);
       
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)   
