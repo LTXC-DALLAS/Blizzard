@@ -2318,14 +2318,24 @@ __SubFlow F021_Pump {
 
 __SubFlow F021_TunOxide {
     __Node BankErs_PreTunOxide_func_T_371 {
-        __XCoord = (153,105);
+        __XCoord = (50,50);
         __Port[0] {
-            __PortPosition = 160;
+            __PortPosition = 90;
         }
         __Port[1] {
             __PortPosition = 180;
         }
-        __InputPosition = 0;
+        __InputPosition = 270;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_1"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
         __TestID = "93000000";
         __Exec = BankErs_PreTunOxide_func_T;
     }

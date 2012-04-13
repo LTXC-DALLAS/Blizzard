@@ -19749,11 +19749,6 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //   if (TI_FlashCOFEna)  
 //      F021_Init_COF_Inst_Str(site_cof_inst_str);
 
-   savesites     = DLOG.AccumulateResults(savesites, test_results);
-   tmp_results   = DLOG.AccumulateResults(tmp_results, test_results);
-   final_results = DLOG.AccumulateResults(final_results, test_results);
-   ers_results   = DLOG.AccumulateResults(ers_results, test_results);
-
    testnum = start_testnum;
 
    target_bits = (testnum & 0x00000f00) >> 8;
@@ -19847,8 +19842,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
          for (count = blkstart;count <= blkstop;count++) {
             faildetect = false;
-            tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
-            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+//            final_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
             
             if (not ersstr_ena) {
                erspulse = 0;
