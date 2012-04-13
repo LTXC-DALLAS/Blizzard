@@ -19708,14 +19708,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
    enum TargetType   { TARGET_BANK = 0, TARGET_SECT, TARGET_OTP = 4, TARGET_SEMIOTP };
-   enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC };
-   
-//   IntS TARGET_BANK = 0; 
-//   IntS TARGET_SECT = 1; 
-//   IntS TARGET_OTP = 4; 
-//   IntS TARGET_SEMIOTP = 5; 
-//   IntS TOPT_W_PREC = 1; 
-//   IntS TOPT_WO_PREC = 0; 
+   enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC }; 
 
    IntM erspulse,cmptpulse,preconpulse;
    TMResultM test_results = TM_NOTEST;
@@ -19723,7 +19716,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    IntS bankcount,count;
    IntS site,opertype,pattype;
    FloatS ttimer1,ttimer2;
-   FloatM tt_timer;
+   FloatM tt_timer = 0.0;
    StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
    StringS tmpstr5;
    IntS testnum;
@@ -19751,7 +19744,6 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    fl_testname = tname;
    
    TIME.StartTimer();
-//   TestOpen(fl_testname);
 
 // Clear string function
 //   if (TI_FlashCOFEna)  
@@ -19835,16 +19827,6 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
       else
          ers_llimit = 0;
 
-// TODO: Add some sort of datalog here
-//      if (tistdscreenprint and (not ersstr_ena)) {
-//         if (opertype==1)
-//            PrintHeaderErsProg(0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
-//                               0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
-//         else
-//            PrintHeaderErsProg(0,0,ers_llimit,BANK_ERS_ULimit,
-//                               0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
-//      } 
-
       maxtime = GL_F021_BANK_ERS_MAXTIME;
 
       for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
@@ -19874,28 +19856,26 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                   preconpulse = 0;
                   Get_TLogSpace_MaxPPulse(preconpulse);
                   final_results = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
                   tmp_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
                   ers_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
                } 
 
                Get_TLogSpace_ErsPulse(erspulse);                           
                final_results = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);   
+                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);   
                tmp_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
                ers_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FLASHERSBANK", UTL_VOID, UTL_VOID, ER_PASS, false);
+                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
             }
             else { /*fast/slow-ers*/
                ers_results = DLOG.AccumulateResults(ers_results, tmp_results);
             } 
             
-            // TODO: TestWare Datalogging
-            // log to TW
-//            TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, UTL_VOID, true, TWMinimumData);
+            // log to TW   
             tmpstr2 = CONV.IntToString(bankcount);
             tmpstr2 = "_B" + tmpstr2;  // _B#
            
@@ -19910,37 +19890,44 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             
             tmpstr3 = tmpstr1 + tmpstr2;
             tmpstr4 = tmpstr3 + "_TT";
-//            TWTRealToRealMS(tt_timer,realval,unitval);
-//            TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//            
+            TIDlog.Value(tt_timer, UTL_VOID, 0, UTL_VOID, unitval, tmpstr4,
+                         UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);  
+            
             if (not ersstr_ena) {
                if (opertype==1) {   // erase w/ precon
                   tmpstr4 = tmpstr3 + "_PREC_PLS";
-//                  TWPDLDataLogVariable(tmpstr4,preconpulse, TWMinimumData);
+                  TIDlog.Value(preconpulse, UTL_VOID, UTL_VOID, BANK_PRECON_ULimit, unitval, tmpstr4,
+                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                } 
               
                tmpstr4 = tmpstr3 + "_Ers_PLS";
-//               TWPDLDataLogVariable(tmpstr4,erspulse, TWMinimumData);
+               TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr4,
+                            UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
             }
             
             // log RTI timer (internal vclock cycle value) to tw
             rti_timer = 0;
             // GetRTIValue(rti_timer);
             tmpstr4 = tmpstr3 + "_RTI_TT";
-//            TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
+            TIDlog.Value(rti_timer, UTL_VOID, 0, UTL_VOID, unitval, tmpstr4,
+                         UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
 
-            // TODO: Add some sort of datalog here
+
             if (tistdscreenprint and (not ersstr_ena)) {
-               if (opertype==1)
-                  ;
-//                  PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
-//                                     0,BANK_PRECON_ULimit,ers_llimit,BANK_ERS_ULimit,
-//                                     0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
-               else
-                  ;
-//                  PrintResultErsProg(tmpstr3,testnum,preconpulse,erspulse,cmptpulse,
-//                                     0,0,ers_llimit,BANK_ERS_ULimit,
-//                                     0,BANK_CMPT_ULimit,(not GL_PLELL_FORMAT));
+               if (opertype==1) {   // w/precon
+                  TIDlog.Value(preconpulse, UTL_VOID, UTL_VOID, BANK_PRECON_ULimit, unitval, tmpstr3,
+                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
+                  TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr3,
+                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
+                  TIDlog.Value(cmptpulse, UTL_VOID, UTL_VOID, BANK_CMPT_ULimit, unitval, tmpstr3,
+                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
+               }
+               else {               // w/o precon
+                  TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr3,
+                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
+                  TIDlog.Value(cmptpulse, UTL_VOID, UTL_VOID, BANK_CMPT_ULimit, unitval, tmpstr3,
+                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
+               }
             } 
             
             if (not(tmp_results == TM_PASS)) {
@@ -19965,17 +19952,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             
             testnum = testnum+1; 
 
-            if (faildetect)  
-               if ((not RunAllTests) and (not TI_FlashCOFEna))
-                  ;  // Dummy statement placeholder
-                  // Devsetholdstates(final_results);
-
          }   // for count
       }   // for bankcount
    }    // +++ End of Bank operation +++
-
-   // restore all active sites
-//   Devsetholdstates(savesites);
 
    test_results = DLOG.AccumulateResults(test_results, final_results);
 
@@ -19986,8 +19965,8 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    tt_timer = TIME.StopTimer();
 
    tmpstr4 = tmpstr1 + "_TTT";
-//   TWTRealToRealMS(tt_timer,realval,unitval);
-//   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+   TIDlog.Value(tt_timer, UTL_VOID, 0, UTL_VOID, unitval, tmpstr4,
+                UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false); 
    
    if (tistdscreenprint) {
       // PrintHeaderBool(GL_PLELL_FORMAT);
