@@ -3547,8 +3547,9 @@ __Test BankErs_PreTunOxide_func_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
+    __Entry[1] = DCsetup_Loose;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
