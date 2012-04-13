@@ -2327,7 +2327,7 @@ __SubFlow F021_TunOxide {
         }
         __InputPosition = 270;
         __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_1"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
@@ -2339,4 +2339,5 @@ __SubFlow F021_TunOxide {
         __TestID = "93000000";
         __Exec = BankErs_PreTunOxide_func_T;
     }
+    __StartNode = BankErs_PreTunOxide_func_T_371;
 }
