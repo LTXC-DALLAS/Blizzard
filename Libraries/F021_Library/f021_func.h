@@ -540,7 +540,7 @@ TMResultM F021_InitFLGlobalvars_func();
 //                               StringS tname,
 //                               BoolM test_results);
 
-BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+TMResultM F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
 
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,
