@@ -19711,8 +19711,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC }; 
 
    IntM erspulse,cmptpulse,preconpulse;
-   TMResultM test_results = TM_NOTEST;
-   TMResultM tmp_results, savesites, final_results, ers_results, cmpt_results;
+   TMResultM final_results, test_results;
    IntS bankcount,count;
    IntS site,opertype,pattype;
    FloatS ttimer1,ttimer2;
@@ -19739,7 +19738,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    if (tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ F021_Erase_func +++++" << endl;
    
-   ersstr_ena = false;  // true=use to disable tw log, compare limits for fast/slow-ers stress
+   ersstr_ena = false;  // true = use to disable tw log, compare limits for fast/slow-ers stress
+   
+   tmpstr1 = tname;
    tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
    fl_testname = tname;
    
@@ -19844,59 +19845,55 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             faildetect = false;
 //            final_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
             
-            if (not ersstr_ena) {
-               erspulse = 0;
-               if (opertype==1) {   // with precon
-                  preconpulse = 0;
-                  Get_TLogSpace_MaxPPulse(preconpulse);
-                  final_results = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
-                  tmp_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
-                  ers_results   = DLOG.Value(UTL_VOID, preconpulse, UTL_VOID, BANK_PRECON_ULimit, UTL_VOID,
-                                             "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
-               } 
-
-               Get_TLogSpace_ErsPulse(erspulse);                           
-               final_results = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);   
-               tmp_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
-               ers_results   = DLOG.Value(UTL_VOID, erspulse, ers_llimit, BANK_ERS_ULimit, UTL_VOID,
-                                          "Comment", "F_FUNC_Vmin_3", UTL_VOID, UTL_VOID, ER_PASS, false);
-            }
-            else { /*fast/slow-ers*/
-               ers_results = DLOG.AccumulateResults(ers_results, tmp_results);
-            } 
+            // TW strings
+            tmpstr2 = "_B";  // _B#
+//            tmpstr2 += CONV.IntToString(bankcount);  // Bug: Can't convert zero to a string
+            if ( bankcount == 0 )
+               tmpstr2 += "0";
+            else
+               tmpstr2 += CONV.IntToString(bankcount);
             
-            // log to TW   
-            tmpstr2 = CONV.IntToString(bankcount);
-            tmpstr2 = "_B" + tmpstr2;  // _B#
            
             if ((pattype==BLOCKTYPE) or (pattype==SECTTYPE)) {
-               tmpstr3 = CONV.IntToString(count);
-               if(pattype==BLOCKTYPE)  
-                  tmpstr3 = "BLK" + tmpstr3;
+            
+               if (pattype==BLOCKTYPE)
+                  tmpstr3 = "BLK";
                else
-                  tmpstr3 = "S" + tmpstr3;
-               tmpstr2 = tmpstr2 + tmpstr3;
+                  tmpstr3 = "S";
+               
+//            tmpstr2 += CONV.IntToString(count);  // Bug: Can't convert zero to a string
+               if ( count == 0 )
+                  tmpstr3 += "0";
+               else
+                  tmpstr3 += CONV.IntToString(count);
+               tmpstr2 += tmpstr3;
             } 
             
             tmpstr3 = tmpstr1 + tmpstr2;
             tmpstr4 = tmpstr3 + "_TT";
             TIDlog.Value(tt_timer, UTL_VOID, 0, UTL_VOID, unitval, tmpstr4,
-                         UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);  
+                         UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
             
             if (not ersstr_ena) {
-               if (opertype==1) {   // erase w/ precon
+               erspulse = 0;
+               
+               if (opertype==1) {   // erase w/precon
+                  preconpulse = 0;
+                  Get_TLogSpace_MaxPPulse(preconpulse);
                   tmpstr4 = tmpstr3 + "_PREC_PLS";
-                  TIDlog.Value(preconpulse, UTL_VOID, UTL_VOID, BANK_PRECON_ULimit, unitval, tmpstr4,
-                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+                  final_results = TIDlog.Value(preconpulse, UTL_VOID, UTL_VOID, BANK_PRECON_ULimit, unitval, tmpstr4,
+                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                } 
-              
+
+               Get_TLogSpace_ErsPulse(erspulse);
                tmpstr4 = tmpstr3 + "_Ers_PLS";
-               TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr4,
-                            UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+               final_results = TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr4,
+                                            UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+               final_results = TIDlog.Value(cmptpulse, UTL_VOID, UTL_VOID, BANK_CMPT_ULimit, unitval, tmpstr3,
+                                            UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);                            
+            }
+            else { /*fast/slow-ers*/
+               ;
             }
             
             // log RTI timer (internal vclock cycle value) to tw
@@ -19906,49 +19903,30 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             TIDlog.Value(rti_timer, UTL_VOID, 0, UTL_VOID, unitval, tmpstr4,
                          UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
 
-
-            if (tistdscreenprint and (not ersstr_ena)) {
-               if (opertype==1) {   // w/precon
-                  TIDlog.Value(preconpulse, UTL_VOID, UTL_VOID, BANK_PRECON_ULimit, unitval, tmpstr3,
-                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
-                  TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr3,
-                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
-                  TIDlog.Value(cmptpulse, UTL_VOID, UTL_VOID, BANK_CMPT_ULimit, unitval, tmpstr3,
-                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
-               }
-               else {               // w/o precon
-                  TIDlog.Value(erspulse, UTL_VOID, ers_llimit, BANK_ERS_ULimit, unitval, tmpstr3,
-                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
-                  TIDlog.Value(cmptpulse, UTL_VOID, UTL_VOID, BANK_CMPT_ULimit, unitval, tmpstr3,
-                               UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);
-               }
-            } 
-            
-            if (not(tmp_results == TM_PASS)) {
+            if (not(final_results == TM_PASS)) {
                faildetect = true;
-               // :TODO: TestWare Logging
-               // F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+//                :TODO: TestWare Logging
+//                F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
                
                if (TI_FlashCOFEna)
                   ;
-                    // :TODO: Test string size
-                    // F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+//                     :TODO: Test string size
+//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,final_results);
 
                if (TI_FlashESDAEna)  
                   if ((pattype==BANKTYPE) or (pattype==OTPTYPE))
                      ;
-                     // :TODO: ESDA
-                     // SetFlashESDAVars(tmp_results,bankcount,bankcount);
+//                      :TODO: ESDA
+//                      SetFlashESDAVars(final_results,bankcount,bankcount);
                   else
                      ;
-                     // SetFlashESDAVars(tmp_results,bankcount,count);
+//                      SetFlashESDAVars(final_results,bankcount,count);
             } 
             
             testnum = testnum+1; 
-
          }   // for count
       }   // for bankcount
-   }    // +++ End of Bank operation +++
+   }   // +++ End of Bank operation +++
 
    test_results = DLOG.AccumulateResults(test_results, final_results);
 
