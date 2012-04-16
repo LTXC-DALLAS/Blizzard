@@ -17745,12 +17745,11 @@ TMResultM BankErs_PreTunOxide_func() {
 //   
 //   ErsOTP_PrePunchThru_func = v_any_dev_active;
 //}   /* ErsOTP_PrePunchThru_func */
-//   
-//BoolS ErsOTP_PreTunOxide_func()
-//{
-//   const IntS TESTID = 182; 
-//
-//   BoolM final_results;
+  
+TMResultM ErsOTP_PreTunOxide_func() {
+   const IntS TESTID = 182; 
+
+   TMResultM final_results = TM_NOTEST;
 //   StringS current_shell;
 //   IntS testnum;
 //   StringS tname;
@@ -17776,9 +17775,9 @@ TMResultM BankErs_PreTunOxide_func() {
 //      F021_Erase_func(testnum,tname,final_results);
 //   } 
 //   
-//   ErsOTP_PreTunOxide_func = v_any_dev_active;
-//}   /* ErsOTP_PreTunOxide_func */
-//   
+    return(final_results);
+}   /* ErsOTP_PreTunOxide_func */
+   
 //BoolS ErsOTP_PreThinOxide_func()
 //{
 //   const IntS TESTID = 191; 
