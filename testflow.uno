@@ -2408,10 +2408,10 @@ __SubFlow F021_TunOxide {
         __Exec = TunOxideStress_func_T;
     }
     __Node PstTunOxide_VT1_func_T_350 {
-        __XCoord = (650,180);
+        __XCoord = (650,250);
         __Port[0] { __PortPosition = 270; }
         __Port[1] { __PortPosition = 180; }
-        __InputPosition = 0;
+        __InputPosition = 90;
         __SpecPairs {
             ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
@@ -2426,7 +2426,7 @@ __SubFlow F021_TunOxide {
         __Exec = PstTunOxide_VT1_func_T;
     }
     __Node PstTunOxide_VT1OTP_func_T_360 {
-        __XCoord = (500,180);
+        __XCoord = (500,250);
         __Port[0] { __PortPosition = 270; }
         __Port[1] { __PortPosition = 180; }
         __InputPosition = 90;
@@ -2444,7 +2444,7 @@ __SubFlow F021_TunOxide {
         __Exec = PstTunOxide_VT1OTP_func_T;
     }
     __Node TunOxide_VT1Delta_func_T_370 {
-        __XCoord = (350,180);
+        __XCoord = (350,250);
         __Port[0] { __PortPosition = 270; }
         __Port[1] { __PortPosition = 180; }
         __InputPosition = 90;
@@ -2462,7 +2462,7 @@ __SubFlow F021_TunOxide {
         __Exec = TunOxide_VT1Delta_func_T;
     }
     __Node TunOxide_VT1DeltaOTP_func_T_380 {
-        __XCoord = (200,180);
+        __XCoord = (200,250);
         __Port[0] { __PortPosition = 270; }
         __Port[1] { __PortPosition = 180; }
         __InputPosition = 90;
@@ -2480,7 +2480,7 @@ __SubFlow F021_TunOxide {
         __Exec = TunOxide_VT1DeltaOTP_func_T;
     }
     __Node FlowNode_390 {
-        __XCoord = (40,190);
+        __XCoord = (40,260);
         __InputPosition = 90;
         __TestID = "\'FlowNode\'";
         __PortSelect = "0";

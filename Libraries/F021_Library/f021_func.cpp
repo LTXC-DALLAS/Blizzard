@@ -717,20 +717,15 @@ TMResultM F021_InitFLGlobalvars_func()
    return (TM_PASS);
 }   /* F021_InitFLGlobalvars_func */
 
-//void SetFlashESDAVars(BoolM logsites,
-//                           IntS bank,
-//                           IntS sect)
-//{
-//   IntS site;
-//
-//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if(v_dev_active[site] and (not logsites[site]))  
-//      {
-//         GL_SITE_TO_ESDA[site] = true;
-//         GL_BANK_TO_ESDA[bank][sect][site] = true;
-//      } 
-//}   /* SetFlashESDAVars */
-//         
+void SetFlashESDAVars(TMResultM logsites, IntS bank, IntS sect) {
+
+   IntS site;
+
+    // GL_SITE_TO_ESDA[site] = true;
+    // GL_BANK_TO_ESDA[bank][sect][site] = true;
+
+}   // SetFlashESDAVars
+         
 //void ClearFlashESDAVars(IntS bank,
 //                             IntS sect)
 //{
@@ -19910,17 +19905,15 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                
                if (TI_FlashCOFEna)
                   ;
-//                     :TODO: Test string size
-//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,final_results);
+//                :TODO: Test string size
+//                F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,final_results);
 
                if (TI_FlashESDAEna)  
                   if ((pattype==BANKTYPE) or (pattype==OTPTYPE))
-                     ;
-//                      :TODO: ESDA
-//                      SetFlashESDAVars(final_results,bankcount,bankcount);
+//                   :TODO: ESDA
+                     SetFlashESDAVars(final_results,bankcount,bankcount);
                   else
-                     ;
-//                      SetFlashESDAVars(final_results,bankcount,count);
+                     SetFlashESDAVars(final_results,bankcount,count);
             } 
             
             testnum = testnum+1; 

@@ -17750,31 +17750,28 @@ TMResultM ErsOTP_PreTunOxide_func() {
    const IntS TESTID = 182; 
 
    TMResultM final_results = TM_NOTEST;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      testnum = TNUM_OTP_ERS_NOPRECON;
-//      tname = ErsOTP_PreTunOx_Test;
-//      F021_Erase_func(testnum,tname,final_results);
-//   } 
-//   
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {  
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      testnum = TNUM_OTP_ERS_NOPRECON;
+      tname = "ErsOTP_PreTunOx_Test";
+      final_results = F021_Erase_func(testnum,tname);
+   }    
     return(final_results);
 }   /* ErsOTP_PreTunOxide_func */
    

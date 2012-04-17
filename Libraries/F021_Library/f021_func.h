@@ -402,11 +402,11 @@ void TL_RunTestNum(IntS start_testnum,
 //
 //void F021_GetESDA_NonSCRAM(IntS imgnum,
 //                                IntS banknum);
-//
-//void SetFlashESDAVars(BoolM logsites,
-//                           IntS bank,
-//                           IntS sect);
-//
+
+void SetFlashESDAVars(BoolM logsites,
+                           IntS bank,
+                           IntS sect);
+
 //void ClearFlashESDAVars(IntS bank,
 //                             IntS sect);
 //
