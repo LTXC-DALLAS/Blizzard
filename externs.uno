@@ -189,9 +189,9 @@ __ApplicationLibrary STD_Library {
    __LibraryPath = "./Libraries/STD_Library";
    __BuildPath = "./Libraries/STD_Library";
    __LibraryType = __Debug;
-   __Source = "./Libraries/STD_Library/search_utils.cpp";
+   __Source = "./Libraries/STD_Library/SearchMod.cpp";
    __Source = "./Libraries/STD_Library/std_vi.cpp";
    __IncludePath = "./Libraries/STD_Library";
    __Include = "std_vi.h";
-   __Include = "search_utils.h";
+   __Include = "SearchMod.h";
 }
