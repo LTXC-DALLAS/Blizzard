@@ -22,6 +22,7 @@
 
 #include <f021_flashvar.h>
 #include <std_vi.h>
+#include <SearchMod.h>
 #include <TestwareSupport.h>
 
 //void F021_FlashConfig();
@@ -434,12 +435,10 @@ void TL_RunTestNum(IntS start_testnum,
 //
 //void RAM_Clear_MailBox_Key();
 
-BoolS F021_VHV_PG_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
-BoolS F021_VHV_ER_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
-BoolS F021_VHV_PV_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
+TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval);
+TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval);
+TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval);
+
 void RAM_Upload_VHV_CT_TrimVal();
 
 TMResultM F021_Pump_Para_func(    IntS start_testnum,
