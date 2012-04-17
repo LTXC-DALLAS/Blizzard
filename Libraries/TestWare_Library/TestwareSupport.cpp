@@ -557,22 +557,6 @@ TMResultM TIDatalog::Value (const FloatM &dataToTest, const PinML &testPins, con
     
         if (useTestware) 
         {
-            FloatM tw_value = dataToTest;
-            if (SYS.TesterSimulated())
-            {
-                if ((loLim != UTL_VOID) && (hiLim != UTL_VOID)) 
-                {
-                    tw_value = hiLim - loLim / 2. + loLim;
-                } 
-                else if (loLim != UTL_VOID)
-                {
-                    tw_value = loLim + MATH.Abs(loLim) / 10.;
-                }
-                else
-                {
-                    tw_value = hiLim - MATH.Abs(hiLim) / 10.;
-                }
-            }
             StringS tw_units;
             
             if (units == "" or units == "=")
@@ -594,7 +578,7 @@ TMResultM TIDatalog::Value (const FloatM &dataToTest, const PinML &testPins, con
 //                IntS test_id = RunTimeCache.GetTestID(minorID);
 //                WriteVar (tw_name, test_id, SV_FLOAT, testLimit);
 //            }
-            TWPDLDataLogRealVariable (testName, tw_units, tw_value, testwareDatatype);           
+            TWPDLDataLogRealVariable (testName, tw_units, dataToTest, testwareDatatype);           
         }
     }
     else if ((gCloFunction == CLO_GENERATE) && gCloGenerateOk && doClo) 
@@ -649,24 +633,7 @@ TMResultM TIDatalog::Value (const FloatM1D &dataToTest, const PinML &testPins, c
     
         if (useTestware) 
         {
-            FloatM1D tw_value = dataToTest;
-            if (SYS.TesterSimulated())
-            {
-                if ((loLim != UTL_VOID) && (hiLim != UTL_VOID)) 
-                {
-                    tw_value = hiLim - loLim / 2. + loLim;
-                } 
-                else if (loLim != UTL_VOID)
-                {
-                    tw_value = loLim + MATH.Abs(loLim) / 10.;
-                }
-                else
-                {
-                    tw_value = hiLim - MATH.Abs(hiLim) / 10.;
-                }
-            }
             StringS tw_units;
-            StringS tw_name = testName;
             
             if (units == "" or units == "=")
                 tw_units = "";
@@ -691,7 +658,7 @@ TMResultM TIDatalog::Value (const FloatM1D &dataToTest, const PinML &testPins, c
 //                    WriteVar (tw_name, test_id, SV_FLOAT, testLimit);
 //                }
 // TIME.StartTimer();
-                TWPDLDataLogRealVariable (tw_name, tw_units, tw_value[0], testwareDatatype);  
+                TWPDLDataLogRealVariable (testName, tw_units, dataToTest[0], testwareDatatype);  
 // std::cout << "TWPDLDataLogRealVariable took: " << TIME.StopTimer() << std::endl;
             }
             else
@@ -699,11 +666,11 @@ TMResultM TIDatalog::Value (const FloatM1D &dataToTest, const PinML &testPins, c
                 IntS index = 0;
                 for (PinMLIter pin_iter = testPins.Begin(); !pin_iter.End(); ++pin_iter, ++index)
                 {
-                    StringS tw_name_plus_pin = tw_name + "_" + (*pin_iter).GetName();
+                    StringS tw_name_plus_pin = testName + "_" + (*pin_iter).GetName();
                     // check the name length...it might be possible to correct
                     // for long pin names here by using an index
                     if (tw_name_plus_pin.Length() > TW_MAX_NAME_LENGTH)
-                        tw_name_plus_pin = tw_name + "_" + index; 
+                        tw_name_plus_pin = testName + "_" + index; 
                     // since TWPDLDataLogRealVariable checks the name length when 
                     // adding the log row, let it do the check to see if the name 
                     // with _index is ok. This way we don't take a double-execution
@@ -716,7 +683,7 @@ TMResultM TIDatalog::Value (const FloatM1D &dataToTest, const PinML &testPins, c
 //                        WriteVar (tw_name_plus_pin, test_id, SV_FLOAT, testLimit);
 //                    }
 // TIME.StartTimer();
-                    TWPDLDataLogRealVariable (tw_name_plus_pin, tw_units, tw_value[index], testwareDatatype); 
+                    TWPDLDataLogRealVariable (tw_name_plus_pin, tw_units, dataToTest[index], testwareDatatype); 
 // std::cout << "TWPDLDataLogRealVariable took: " << TIME.StopTimer() << std::endl;
                 }
             }
@@ -766,30 +733,13 @@ TMResultM TIDatalog::Value (const IntM &dataToTest, const PinML &testPins, const
     
         if (useTestware) 
         {
-            IntM tw_value = dataToTest;
-            if (SYS.TesterSimulated())
-            {
-                if ((loLim != UTL_VOID) && (hiLim != UTL_VOID)) 
-                {
-                    tw_value = hiLim - loLim / 2 + loLim;
-                } 
-                else if (loLim != UTL_VOID)
-                {
-                    tw_value = loLim;
-                }
-                else
-                {
-                    tw_value = hiLim;
-                }
-            }
-
             // :TODO: Add write var support for non-LS
 //            if (WRITE_TW_VARS_FILE) 
 //            {
 //                IntS test_id = RunTimeCache.GetTestID(minorID);
 //                WriteVar (tw_name, test_id, SV_INT, testLimit);
 //            }
-            TWPDLDataLogVariable (testName, tw_value, testwareDatatype);           
+            TWPDLDataLogVariable (testName, dataToTest, testwareDatatype);           
         }
     }
     else if ((gCloFunction == CLO_GENERATE) && gCloGenerateOk && doClo) 
@@ -845,22 +795,6 @@ TMResultM TIDatalog::Value (const IntM1D &dataToTest, const PinML &testPins, con
     
         if (useTestware) 
         {
-            IntM1D tw_value = dataToTest;
-            if (SYS.TesterSimulated())
-            {
-                if ((loLim != UTL_VOID) && (hiLim != UTL_VOID)) 
-                {
-                    tw_value = hiLim - loLim / 2 + loLim;
-                } 
-                else if (loLim != UTL_VOID)
-                {
-                    tw_value = loLim;
-                }
-                else
-                {
-                    tw_value = hiLim;
-                }
-            }
             StringS tw_name = testName;
            
             if (testPins.GetNumPins() < 2) // don't loop, only one test
@@ -872,7 +806,7 @@ TMResultM TIDatalog::Value (const IntM1D &dataToTest, const PinML &testPins, con
 //                    WriteVar (tw_name, test_id, SV_FLOAT, testLimit);
 //                }
 // TIME.StartTimer();
-                TWPDLDataLogVariable (tw_name, tw_value[0], testwareDatatype);  
+                TWPDLDataLogVariable (tw_name, dataToTest[0], testwareDatatype);  
 // std::cout << "TWPDLDataLogRealVariable took: " << TIME.StopTimer() << std::endl;
             }
             else
@@ -897,7 +831,7 @@ TMResultM TIDatalog::Value (const IntM1D &dataToTest, const PinML &testPins, con
 //                        WriteVar (tw_name_plus_pin, test_id, SV_FLOAT, testLimit);
 //                    }
 // TIME.StartTimer();
-                    TWPDLDataLogVariable (tw_name_plus_pin, tw_value[index], testwareDatatype); 
+                    TWPDLDataLogVariable (tw_name_plus_pin, dataToTest[index], testwareDatatype); 
 // std::cout << "TWPDLDataLogRealVariable took: " << TIME.StopTimer() << std::endl;
                 }
             }

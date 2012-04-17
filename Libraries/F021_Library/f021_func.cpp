@@ -12091,71 +12091,49 @@ void TL_RunTestNum(IntS start_testnum,
 //   } 
 //}   /* RAM_Clear_MailBox_Key */
 
-#if 0
-void DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay, ) 
+
+FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
+                const TPModeType &tcrmode, const IntS &testnum, 
+                const FloatS &maxtime, const FloatS &tdelay) 
 {
+   FloatM meas_val;
+   
    F021_Set_TPADS(tcrnum,tcrmode);
 #if $TP3_TO_TP5_PRESENT  
    STDDisconnect(FLTP3);
 #endif
-   F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
+   F021_RunTestNumber_PMEX(testnum,maxtime);
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
 //   Disable(s_pmexit);
    F021_TurnOff_AllTPADS();
+   
+   return (meas_val);
 }   /* DoIMeasure */
 
-BoolS IsPrevSearch()
+TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
 {
-   IntS int1;
-   BoolS bool1;
-   
-   bool1 = false;
-   for (int1 = 1;int1 <= curriter[site];int1++)
-      if(prevsol[int1][site]==currsol[site])  
-      {
-         bool1 = true;
-         break;
-      } 
-   IsPrevSearch = bool1;
-} 
-
-BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
-                                      IntM ret_ctval)
-{
-   const IntS MININD = 390; 
-   const IntS MAXIND = 425; 
-   const IntS CTADDR = 0x3090; 
    const FloatS PGSTEP = 0.04V;
-   const IntS MAXITER = 40; 
-   const IntS MAXSTEP = 10; 
-   const IntS STEPINC = 5; 
-   const IntS MAXITERPLUS = 41; 
+   const unsigned MAXITER = 40; 
 
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr,addr_emu;
-//   IntS minloop,maxloop,i;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim_pre,ulim_pre;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,ersct,pgct,pre_pgct;
-//   IntM lsw_data,msw_data,ovrshoot;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena,done,dolinear;
-//   IntM1D calcsol(MAXITERPLUS); /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
-//   IntM currsol,curriter;
-//   IntM1D prevsol(MAXITERPLUS); 
-//   FloatM PgStepAvg;
+   Sites new_active_sites;
+   Sites savesites = ActiveSites;
+   TMResultM final_results,tmp_results;
+   TMResultM test_results = TM_NOTEST;
+   IntS testnum,addr,addr_emu;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   StringS str1;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatS llim_pre,ulim_pre;
+   FloatS llim,ulim,target; 
+   FloatS toler;
+   PinM testpad;
+   FloatM meas_val;
+   IntM ctval,ersct,pgct,pre_pgct;
+   IntM lsw_data,msw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS logena; 
     /*++++++++++++++++++++*/
 
    if(tistdscreenprint and TI_FlashDebug)  
@@ -12178,232 +12156,54 @@ BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
    llim = target-(target*toler);
    ulim = target+(target*toler);
 
-   savesites = v_dev_active;
-   tmp_results = v_dev_active;
-   final_results = false;
-   ovrshoot = 0;
-
     /*OTP template in RAM : pgct/ersct*/
    addr = ADDR_RAM_TEMPL_VHVE_PMT;
-   GetRamContentDec_16bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
-   GetRamContentDec_16bit("ramread_nburst_lsw_Thrd",addr,ersct);
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);
    pgct = pre_pgct;
    ctval = pre_pgct;
 
    if(tistdscreenprint and TI_FlashDebug and tiprintpass)   
-      readramaddress(addr,addr+(4*ADDR_RAM_INC));
+      ReadRamAddress(addr,addr+(4*ADDR_RAM_INC));
    
    bcd_format = true;
    hexvalue = true;
-   minloop = MININD;
-   maxloop = MAXIND;
    lsw_data = ersct;
-   PgStepAvg = PGSTEP;
 
-//   PrintHeaderParam(GL_PLELL_FORMAT);
-   str1 = "VHV_PG_CT_SFT_";
+   TIME.StartTimer();
 
-   TIME.StartTimer(); //timernstart(ttimer1);
-
-   for (i = minloop;i <= minloop;i++) //huh...it's a loop that only ever executes once..maybe debug had it do more?
+   if(ActiveSites.Begin().End())  
    {
-//      activesites = v_dev_active;
-      msw_data = i;
+      return (TM_NOTEST);
+   }
+      
+   SearchMod ct_search;
+   ct_search.SASearchBegin(FloatM(0.),FloatM(511.),FloatM(toler*target), FloatM(target), MAXITER);
+   ct_search.SkipMinMax(true);
+
+   IntS i = 0;
+   while (ct_search.searchNotDone)
+   {
+      msw_data = MATH.LegacyRound(ct_search.xForceValueMS);
       WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-      DoIMeasure;
+      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      
+      // Dlog the trim code tried...but don't really care if it passes or don't send to TW
+      str1 = "VHV_PG_CT_ITER_CODE_" + i;
+      TIDlog.Value(msw_data, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, false, TWMinimumData);
+      // Dlog the value of the measure...send to TW if logena
+      str1 = "VHV_PG_CT_ITER_" + i;
+      TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), 
+                                 str1, UTL_VOID, UTL_VOID, logena, TWMinimumData); 
+      
+      // put this at end of loop because it will disable sites
+      // sites will be re-enabled by this routine when the search is done
+      ct_search.SearchNext(meas_val);
+   }
 
-      str3 = str1 + i;
-      TIDlog.Value(
-      PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-      tmp_val = meas_val;
+   // Round the final val just like we did when using it
+   ctval = MATH.LegacyRound(ct_search.xForceValueMS);
 
-      if(logena)  
-      {
-         TWTRealToRealMS(meas_val,realval,unitval);
-         TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-      } 
-
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-         if(v_dev_active[site])  
-         {
-            if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-            {
-               activesites[site] = false;
-               ctval[site] = i;
-            } 
-         } 
-
-      devsetholdstates(activesites);
-
-      if(not v_any_dev_active)  
-         break;
-   }   /*for i*/
-
-   if(v_any_dev_active)  
-   {
-      dolinear = false;
-
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-         if(v_dev_active[site])  
-         {
-            calcsol[1][site] = round(((target-meas_val[site])/PGSTEP)+minloop);
-            if((calcsol[1][site]<0) or (calcsol[1][site]>511))  
-               calcsol[1][site] = minloop+5;
-            currsol[site] = calcsol[1][site];
-            if(dolinear)  
-               for (i = 2;i <= MAXITER;i++)
-                  calcsol[i][site] = calcsol[i-1][site]+1;
-         } 
-
-      activesites = v_dev_active;
-
-      if(not dolinear)  
-      {
-         curriter = 1;
-         done = false;
-         i = 0;
-         
-         while(not done) do
-         {
-            msw_data = currsol;
-            WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-            DoIMeasure;
-            i = i+1;
-            writestring(str2,i:1);
-            str3 = "VHV_PG_CT_ITER_" + str2;
-            PrintResultInt(str3,testnum,currsol,0,512,GL_PLELL_FORMAT);
-            PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-            
-            if(logena)  
-            {
-               TWTRealToRealMS(meas_val,realval,unitval);
-               TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-            } 
-            
-            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-               if(v_dev_active[site])  
-               {
-                  if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-                  {
-                     activesites[site] = false;
-                     ctval[site] = currsol[site];
-                  }
-                  else 
-                  {
-                     delta = target-meas_val[site];
-                     if(i==1)  
-                     {
-                        tmp_delta[site] = delta;
-                        ctval[site] = currsol[site];
-                        PgStepAvg[site] = abs(meas_val[site]-tmp_val[site])/abs(currsol[site]-minloop);
-                     }
-                     else
-                     {
-                        if(abs(delta) < abs(tmp_delta[site]))  
-                        {
-                           tmp_delta[site] = delta;
-                           ctval[site] = currsol[site];
-                        } 
-                     } 
-
-                      /*save current and calc new solution*/
-                     prevsol[i][site] = currsol[site];
-                     
-                     if(curriter[site]<==MAXSTEP)  
-                     {
-                        currsol[site] = round(delta/PgStepAvg[site])+currsol[site];
-                        if(currsol[site]==prevsol[i][site])  
-                           currsol[site] = currsol[site]+1;
-                     }
-                     else
-                     {
-                        if(curriter[site]==(MAXSTEP+1))  
-                           currsol[site] = ctval[site];
-                        if(meas_val[site]>target)  
-                           currsol[site] = currsol[site]-STEPINC;
-                        else
-                           currsol[site] = currsol[site]+STEPINC+1;
-                     } 
-                     
-                     if(currsol[site]>511)  
-                        currsol[site] = 511;
-                     else if(currsol[site]<==0)  
-                        currsol[site] = minloop+STEPINC;
-
-                      /*ping pong*/
-                     if(i>1)  
-                        if(IsPrevSearch or (curriter[site]>==MAXITER))  
-                        {
-                           activesites[site] = false;
-                        } 
-
-                  }   /*not w/in limits*/
-                  curriter[site] = curriter[site]+1;
-               }   /*v_dev_active*/
-            
-            devsetholdstates(activesites);
-            if((not v_any_dev_active) or (i>==MAXITER))then
-               done = true;
-         }   /*while*/
-      }
-      else
-      {  /*+++ do linear +++*/
-         for (i = 1;i <= MAXITER;i++)
-         {
-            msw_data = calcsol[i];
-            WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-            DoIMeasure;
-            
-            writestring(str2,i:1);
-            str3 = "VHV_PG_CT_ITER_" + str2;
-            PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-            
-            if(logena)  
-            {
-               TWTRealToRealMS(meas_val,realval,unitval);
-               TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-            } 
-            
-            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-               if(v_dev_active[site])  
-               {
-                  delta = abs(meas_val[site]-target);
-                  if(i==1)  
-                  {
-                     tmp_delta[site] = delta;
-                     ctval[site] = calcsol[i][site];
-                  }
-                  else
-                  {
-                     if(delta < tmp_delta[site])  
-                     {
-                        tmp_delta[site] = delta;
-                        ctval[site] = calcsol[i][site];
-                     } 
-                  } 
-                  
-                  if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-                  {
-                     activesites[site] = false;
-                     ctval[site] = calcsol[i][site];
-                  }
-                  else if(meas_val[site]>ulim)  
-                  {
-                     ovrshoot[site] = ovrshoot[site]+1;
-                     if(ovrshoot[site]>2)  
-                        activesites[site] = false;  /*use last iter ctval*/
-                  } 
-               } 
-            
-            devsetholdstates(activesites);
-            
-            if(not v_any_dev_active)  
-               break;
-         }   /*for i*/
-      }   /*+++ do linear +++*/
-   }   /*if v_any_dev_active*/
-
-   devsetholdstates(savesites);
    TIME.Wait(2ms);
 
     /*final check to see if w/in tolerance limit*/
@@ -12419,877 +12219,338 @@ BoolS F021_VHV_PG_CT_Trim_func(    BoolM test_results,
    WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 #endif
 
-   DoIMeasure;
+   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
 
-   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-      if(v_dev_active[site])  
-         if((meas_val[site]>==llim_pre) and (meas_val[site]<==ulim_pre))  
-            final_results[site] = true;
-
-   str4 = "VHV_PG_CT_TRIM_SOL";
-   TWPDLDataLogVariable(str4,ctval,TWMinimumData);
+   str1 = "VHV_PG_CT_TRIM_SOL";
+   tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
    
-   str5 = "VHV_PG_CT_TRIM_NM";
-   TWTRealToRealMS(meas_val,realval,unitval);
-   TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
+   str1 = "VHV_PG_CT_TRIM_NM";
+   final_results = TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), str1,
+                                UTL_VOID, UTL_VOID, true, TWMinimumData);
 
-   PrintResultInt(str4,testnum,ctval,0,512,GL_PLELL_FORMAT);
-   PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-
+   test_results = DLOG.AccumulateResults(tmp_results, final_results);
    ret_ctval = ctval;
-   test_results = final_results;
 
-   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-         if(v_dev_active[site])  
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)   
 #if $FL_USE_NEW_VHV_TEMPL_ADDR  
-            readramaddress(site,addr,addr_emu+(4*ADDR_RAM_INC));;
+            ReadRamAddress(addr,addr_emu+(4*ADDR_RAM_INC));;
 #else
-            readramaddress(site,addr,addr+(4*ADDR_RAM_INC));
+            ReadRamAddress(addr,addr+(4*ADDR_RAM_INC));
 #endif   
 
-   ttimer1 = timernread(ttimer1);
-   str5 = "VHV_PG_TRIM_TTT";
+   ttimer1 = TIME.StopTimer();
+   str1 = "VHV_PG_TRIM_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "s", str1, UTL_VOID, UTL_VOID, logena, TWMinimumData);
 
-   if(logena)  
-   {
-      tt_timer = ttimer1;
-      TWTRealToRealMS(tt_timer,realval,unitval);
-      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-   } 
-   
-   if(tistdscreenprint)  
-      cout << str5 << "  " << ttimer1 << endl;
-
-   F021_VHV_PG_CT_Trim_func = v_any_dev_active;
+   return(test_results);
    
 }   /* F021_VHV_PG_CT_Trim_func */
+
+TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval)
+{
+   const FloatS PGSTEP = 0.04V;
+   const unsigned MAXITER = 40; 
+   const IntS CTOFFSET = 96;
+
+   Sites new_active_sites;
+   Sites savesites = ActiveSites;
+   TMResultM final_results,tmp_results;
+   TMResultM test_results = TM_NOTEST;
+   IntS testnum,addr,addr_emu;
+   IntS tcrnum, k;
+   TPModeType tcrmode;
+   StringS str1;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatS llim_pre,ulim_pre;
+   FloatS llim,ulim,target; 
+   FloatS toler;
+   PinM testpad;
+   FloatM meas_val;
+   IntM ctval,ersct,pgct,pre_pgct, pre_ersct;
+   IntM lsw_data,msw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS logena; 
+    /*++++++++++++++++++++*/
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_VHV_ER_CT_Trim_func +++++" << endl;
+
+   logena = true;  /*log to tw*/
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay = 10ms;
+   
+   tcrnum  = 115;
+   tcrmode = ErsMode;
+   testpad = FLTP1;
+   testnum = TNUM_PUMP_VHVERS;
+
+   llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
+   ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
+
+   target = VHV_Ers_Target;
+   toler = 0.005;  /*1%*/
+   llim = target-(target*toler);  // vlct uses ...(target*toler*0.5) with toler of 0.01, but SearchMod doesn't allow different
+                                  // lower and upper tolerance limits...going to try to use the tighter toler for both
+   ulim = target+(target*toler);
+
+   addr = ADDR_RAM_TEMPL_VHVE_SM;
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED);
+   
+#if $FL_USE_NEW_VHV_TEMPL_ADDR 
+   addr = ADDR_RAM_TEMPL_VHVE_SM_EMU;
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED_EMU);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED_EMU);
 #endif
-//BoolS F021_VHV_ER_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval)
-//{
-//   const IntS MININD = 400; 
-//   const IntS MAXIND = 475; 
-//   const IntS CTADDR = 0x3090; 
-//   const IntS CTADDR_START = 0x3080; 
-//   const IntS CTADDR_STOP = 0x3084; 
-//   const IntS CTOFFSET = 96; 
-//   ERSTEP       = 0.05V; /* didn"t match any chunk types, FIX */
-//   const IntS MAXITER = 40; 
-//   const IntS MAXSTEP = 10; 
-//   const IntS STEPINC = 5; 
-//   const IntS MAXITERPLUS = 41; 
-//var
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr,addr_emu;
-//   IntS minloop,maxloop,i,j,k;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim_pre,ulim_pre;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,ersct,pgct,pre_ersct;
-//   IntM ersct_start,ersct_step,ersct_stop,maxpp;
-//   IntM lsw_data,msw_data;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena,done,dolinear;
-//   IntM tdata1,tdata2,ovrshoot;
-//   IntM1D calcsol; /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
-//   IntM currsol,curriter;
-//   IntM1D prevsol; /* :MANUAL FIX REQUIRED: array dimensions are : 0..MAXITERPLUS */
-//   FloatM PgStepAvg;
-//    /*++++++++++++++++++++*/
-//   procedure DoIMeasure; /* didn"t match any chunk types, FIX */
-//   
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//#if $TP3_TO_TP5_PRESENT  
-//   STDDisconnect(FLTP3);
-//#endif
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim_pre,ulim_pre,meas_val,tmp_results);
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   }       
-//
-//   BoolS function IsPrevSearch;
-//   var
-//      IntS int1;
-//      BoolS bool1;
-//   {
-//      bool1 = false;
-//      for (int1 = 1;int1 <= curriter[site];int1++)
-//         if(prevsol[int1][site]==currsol[site])  
-//         {
-//            bool1 = true;
-//            break;
-//         } 
-//      IsPrevSearch = bool1;
-//   } 
-//    /*++++++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_VHV_ER_CT_Trim_func +++++" << endl;
-//
-//      logena = true;  /*log to tw*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay = 10ms;
-//      
-//      tcrnum  = 115;
-//      tcrmode = ErsMode;
-//      testpad = FLTP1;
-//      testnum = TNUM_PUMP_VHVERS;
-//
-//      llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
-//      ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
-//
-//      target = VHV_Ers_Target;
-//      toler = 0.01;  /*1%*/
-//      llim = target-(target*toler*0.5);
-//      ulim = target+(target*toler);
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      final_results = false;
-//      ovrshoot = 0;
-//
-//      addr = ADDR_RAM_TEMPL_VHVE_SM;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,VHV_ER_CT_STARTSAVED);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,VHV_ER_CT_STEPSAVED);
-//      
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//      addr = ADDR_RAM_TEMPL_VHVE_SM_EMU;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,VHV_ER_CT_STARTSAVED_EMU);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,VHV_ER_CT_STEPSAVED_EMU);
-//#endif
-//
-//       /*OTP template in RAM : pgct/ersct*/
-//      addr = ADDR_RAM_TEMPL_VHVE_PMT;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,pgct);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,pre_ersct);
-//      ersct = pre_ersct;
-//      ctval = pre_ersct;
-//
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//      {
-//         k = ADDR_RAM_TEMPL_VHVE_SM;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,k,k+(8*ADDR_RAM_INC));
-//      } 
-//      
-//      bcd_format = true;
-//      hexvalue = true;
-//      minloop = MININD;
-//      maxloop = MAXIND;
-//      msw_data = pgct;
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      str1 = "VHV_ER_CT_SFT_";
-//
-//      timernstart(ttimer1);      
-//      
-//      for (i = minloop;i <= minloop;i++)
-//      {
-//         activesites = v_dev_active;
-//
-//#if $TV2_VHV_CT_SWIZZLE  
-//         j = ((i&0x01f)<<4) + ((i&0x1e0)>>5);  /*swizzle ct*/
-//         lsw_data = j;
-//#else
-//         lsw_data = i;
-//#endif
-//     WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         DoIMeasure;
-//
-//         writestring(str2,i:1);
-//         str3 = str1 + str2;
-//         PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//         tmp_val = meas_val;
-//
-//         if(logena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//         } 
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//               {
-//                  activesites[site] = false;
-//                  ctval[site] = i;
-//               } 
-//            } 
-//
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//                  readramaddress(site,k,k+(8*ADDR_RAM_INC));
-//      
-//         devsetholdstates(activesites);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for i*/
-//
-//      if(v_any_dev_active)  
-//      {
-//         dolinear = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               calcsol[1][site] = round(((target-meas_val[site])/ERSTEP)+minloop);
-//               if((calcsol[1][site]<0) or (calcsol[1][site]>511))  
-//                  calcsol[1][site] = minloop+5;
-//               currsol[site] = calcsol[1][site];
-//               if(dolinear)  
-//                  for (i = 2;i <= MAXITER;i++)
-//                     calcsol[i][site] = calcsol[i-1][site]+1;
-//            } 
-//         
-//         activesites = v_dev_active;
-//
-//         if(not dolinear)  
-//         {
-//            curriter = 1;
-//            done = false;
-//            i = 0;
-//            
-//            while(not done) do
-//            {
-//#if $TV2_VHV_CT_SWIZZLE  
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     lsw_data[site] = ((currsol[site]&0x01f)<<4) + ((currsol[site]&0x1e0)>>5);  /*swizzle ct*/
-//                  } 
-//#else
-//               lsw_data = currsol;
-//#endif
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               i = i+1;
-//               writestring(str2,i:1);
-//               str3 = "VHV_ER_CT_ITER_" + str2;
-//               PrintResultInt(str3,testnum,currsol,0,512,GL_PLELL_FORMAT);
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//               
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//            
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = currsol[site];
-//                     }
-//                     else 
-//                     {
-//                        delta = target-meas_val[site];
-//                        if(i==1)  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = currsol[site];
-//                           PgStepAvg[site] = abs(meas_val[site]-tmp_val[site])/abs(currsol[site]-minloop);
-//                        }
-//                        else
-//                        {
-//                           if(abs(delta) < abs(tmp_delta[site]))  
-//                           {
-//                              tmp_delta[site] = delta;
-//                              ctval[site] = currsol[site];
-//                           } 
-//                        } 
-//                        
-//                         /*save current and calc new solution*/
-//                        prevsol[i][site] = currsol[site];
-//
-//                        if(curriter[site]<==MAXSTEP)  
-//                        {
-//                           currsol[site] = round(delta/PgStepAvg[site])+currsol[site];
-//                           if(currsol[site]==prevsol[i][site])  
-//                              currsol[site] = currsol[site]+1;
-//                        }
-//                        else
-//                        {
-//                           if(curriter[site]==(MAXSTEP+1))  
-//                              currsol[site] = ctval[site];
-//                           if(meas_val[site]>target)  
-//                              currsol[site] = currsol[site]-STEPINC;
-//                           else
-//                              currsol[site] = currsol[site]+STEPINC+1;
-//                        } 
-//                        
-//                        if(currsol[site]>511)  
-//                           currsol[site] = 511;
-//                        else if(currsol[site]<==0)  
-//                           currsol[site] = minloop+STEPINC;
-//
-//                         /*ping pong*/
-//                        if(i>1)  
-//                           if(IsPrevSearch or (curriter[site]>==MAXITER))  
-//                           {
-//                              activesites[site] = false;
-//                           } 
-//
-//                     }   /*not w/in limits*/
-//                     curriter[site] = curriter[site]+1;
-//                  }   /*v_dev_active*/
-//               
-//               devsetholdstates(activesites);
-//               if((not v_any_dev_active) or (i>==MAXITER))then
-//                  done = true;
-//            }   /*while*/
-//         }
-//         else
-//         {  /*+++ do linear +++*/
-//            for (i = 1;i <= MAXITER;i++)
-//            {
-//
-//#if $TV2_VHV_CT_SWIZZLE  
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     lsw_data[site] = ((calcsol[i][site]&0x01f)<<4) + ((calcsol[i][site]&0x1e0)>>5);  /*swizzle ct*/
-//                  } 
-//#else
-//               lsw_data = calcsol[i];
-//#endif
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               
-//               writestring(str2,i:1);
-//               str3 = "VHV_ER_CT_ITER_" + str2;
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//               
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     delta = abs(meas_val[site]-target);
-//                     if(i==1)  
-//                     {
-//                        tmp_delta[site] = delta;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else
-//                     {
-//                        if(delta < tmp_delta[site])  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = calcsol[i][site];
-//                        } 
-//                     } 
-//                     
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else if(meas_val[site]>ulim)  
-//                     {
-//                        ovrshoot[site] = ovrshoot[site]+1;
-//                        if(ovrshoot[site]>2)  
-//                           activesites[site] = false;  /*use last iter ctval*/
-//                     } 
-//                  } 
-//               
-//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site])  
-//                        readramaddress(site,k,k+(8*ADDR_RAM_INC));
-//               
-//               devsetholdstates(activesites);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for i*/
-//         }   /*+++ do linear +++*/
-//      }   /*if v_any_dev_active*/
-//         
-//      devsetholdstates(savesites);
-//      TIME.Wait(2ms);
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            VHV_ER_CT_STARTSAVED[site] = ctval[site]-CTOFFSET;  /*for ~9v*/
-//            VHV_ER_CT_STOPSAVED[site]  = ctval[site];
-//            
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//            VHV_ER_CT_STARTSAVED_EMU[site] = ctval[site]-CTOFFSET;  /*for ~9v*/
-//            VHV_ER_CT_STOPSAVED_EMU[site]  = ctval[site];
-//#endif
-//         }             
-//
-//       /*final check to see if w/in tolerance limit*/
-//#if $TV2_VHV_CT_SWIZZLE  
-//      ArrayAndIntegerValue(tdata1,ctval,0x01f,v_sites);
-//      ArrayMultIntegerValue(tdata1,tdata1,0x10,v_sites);  /*<<4*/
-//      ArrayAndIntegerValue(tdata2,ctval,0x1e0,v_sites);
-//      ArrayDivIntegerValue(tdata2,tdata2,0x20,v_sites);   /*>>5*/
-//      ArrayAddinteger(lsw_data,tdata1,tdata2,v_sites);
-//#else
-//      lsw_data = ctval;
-//#endif
-//      msw_data = pgct;
-//      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//      addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//#endif
-//      
-//      DoIMeasure;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((meas_val[site]>==llim_pre) and (meas_val[site]<==ulim_pre))  
-//               final_results[site] = true;
-//
-//      str4 = "VHV_ER_CT_SOL";
-//      TWPDLDataLogVariable(str4,ctval,TWMinimumData);
-//      
-//      str5 = "VHV_ER_CT_NM";
-//      TWTRealToRealMS(meas_val,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//  
-//      PrintResultInt(str4,testnum,ctval,0,512,GL_PLELL_FORMAT);
-//      PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//      ret_ctval = ctval;
-//      test_results = final_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//      {
-//         j = ADDR_RAM_TEMPL_VHVE_SM;
-//         k = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//               readramaddress(site,j,k+(8*ADDR_RAM_INC));;
-//#else
-//               readramaddress(site,j,j+(8*ADDR_RAM_INC));
-//#endif
-//      } 
-//
-//      ttimer1 = timernread(ttimer1);
-//      str5 = "VHV_ER_CT_TRIM_TTT";
-//
-//      if(logena)  
-//      {
-//         tt_timer = ttimer1;
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//         cout << str5 << "  " << ttimer1 << endl;
-//   } 
-//
-//   F021_VHV_ER_CT_Trim_func = v_any_dev_active;
-//   
-//}   /* F021_VHV_ER_CT_Trim_func */
-//   
-//BoolS F021_VHV_PV_CT_Trim_func(    BoolM test_results,
-//                                      IntM ret_ctval)
-//{
-//   const IntS MININD = 100; 
-//   const IntS MAXIND = 145; 
-//   const IntS CTADDR = 0x3094; 
-//   PVSTEP      = 0.02V; /* didn"t match any chunk types, FIX */
-//   const IntS MAXITER = 30; 
-//   const IntS MAXSTEP = 10; 
-//   const IntS STEPINC = 5; 
-//   const IntS MAXITERPLUS = 31; 
-//var
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr,addr_emu;
-//   IntS minloop,maxloop,i;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim_pre,ulim_pre;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,ersct,pgct,pre_pgct;
-//   IntM lsw_data,msw_data,ovrshoot;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena,done,dolinear;
-//   IntM1D calcsol; /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITERPLUS */
-//   IntM currsol,curriter;
-//   IntM1D prevsol; /* :MANUAL FIX REQUIRED: array dimensions are : 0..MAXITERPLUS */
-//   FloatM PgStepAvg;
-//    /*++++++++++++++++++++*/
-//   procedure DoIMeasure; /* didn"t match any chunk types, FIX */
-//   
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//#if $TP3_TO_TP5_PRESENT  
-//   STDDisconnect(FLTP3);
-//#endif
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim_pre,ulim_pre,meas_val,tmp_results);
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   } 
-//
-//   BoolS function IsPrevSearch;
-//   var
-//      IntS int1;
-//      BoolS bool1;
-//   {
-//      bool1 = false;
-//      for (int1 = 1;int1 <= curriter[site];int1++)
-//         if(prevsol[int1][site]==currsol[site])  
-//         {
-//            bool1 = true;
-//            break;
-//         } 
-//      IsPrevSearch = bool1;
-//   } 
-//    /*++++++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_VHV_PV_CT_Trim_func +++++" << endl;
-//
-//      logena = true;  /*log to tw*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay = 10ms;
-//      
-//      tcrnum  = 115;
-//      tcrmode = PvfyMode;
-//      testpad = FLTP1;
-//      testnum = TNUM_PUMP_VHVPVFY;
-//
-//      llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
-//      ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
-//
-//      target = VHV_Pvfy_Target;
-//      toler = 0.01;  /*1%*/
-//      llim = target-(target*toler*0.5);
-//      ulim = target+(target*toler);
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      final_results = false;
-//      ovrshoot = 0;
-//
-//       /*OTP template in RAM : pvfy/other*/
-//      addr = ADDR_RAM_TEMPL_VHVPV_PMT;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,pre_pgct);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,ersct);
-//      pgct = pre_pgct;
-//      ctval = pre_pgct;
-//
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr-ADDR_RAM_INC,addr+(3*ADDR_RAM_INC));
-//
-//       /*store other ct to global var*/
-//      VHV_OTHER_CT_TRIMSAVED = ersct;
-//      
-//      bcd_format = true;
-//      hexvalue = true;
-//      minloop = MININD;
-//      maxloop = MAXIND;
-//      lsw_data = ersct;
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      str1 = "VHV_PV_CT_SFT_";
-//
-//      timernstart(ttimer1);
-//      
-//      for (i = minloop;i <= minloop;i++)
-//      {
-//         activesites = v_dev_active;
-//     msw_data = i;
-//     WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         DoIMeasure;
-//         writestring(str2,i:1);
-//         str3 = str1 + str2;
-//         PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//         tmp_val = meas_val;
-//
-//         if(logena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//         } 
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//               {
-//                  activesites[site] = false;
-//                  ctval[site] = i;
-//               } 
-//            } 
-//
-//         devsetholdstates(activesites);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for i*/
-//
-//      if(v_any_dev_active)  
-//      {
-//         dolinear = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               calcsol[1][site] = round(((target-meas_val[site])/PVSTEP)+minloop);
-//               if((calcsol[1][site]<0) or (calcsol[1][site]>511))  
-//                  calcsol[1][site] = minloop+5;
-//               currsol[site] = calcsol[1][site];
-//               if(dolinear)  
-//                  for (i = 2;i <= MAXITER;i++)
-//                     calcsol[i][site] = calcsol[i-1][site]+1;
-//            } 
-//
-//         activesites = v_dev_active;
-//
-//         if(not dolinear)  
-//         {
-//            curriter = 1;
-//            done = false;
-//            i = 0;
-//            
-//            while(not done) do
-//            {
-//               msw_data = currsol;
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               i = i+1;
-//               writestring(str2,i:1);
-//               str3 = "VHV_PV_CT_ITER_" + str2;
-//               PrintResultInt(str3,testnum,currsol,0,512,GL_PLELL_FORMAT);
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//            
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = currsol[site];
-//                     }
-//                     else 
-//                     {
-//                        delta = target-meas_val[site];
-//                        if(i==1)  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = currsol[site];
-//                           PgStepAvg[site] = abs(meas_val[site]-tmp_val[site])/abs(currsol[site]-minloop);
-//                        }
-//                        else
-//                        {
-//                           if(abs(delta) < abs(tmp_delta[site]))  
-//                           {
-//                              tmp_delta[site] = delta;
-//                              ctval[site] = currsol[site];
-//                           } 
-//                        } 
-//                        
-//                         /*save current and calc new solution*/
-//                        prevsol[i][site] = currsol[site];
-//                        
-//                        if(curriter[site]<==MAXSTEP)  
-//                        {
-//                           currsol[site] = round(delta/PgStepAvg[site])+currsol[site];
-//                           if(currsol[site]==prevsol[i][site])  
-//                              currsol[site] = currsol[site]+1;
-//                        }
-//                        else
-//                        {
-//                           if(curriter[site]==(MAXSTEP+1))  
-//                              currsol[site] = ctval[site];
-//                           if(meas_val[site]>target)  
-//                              currsol[site] = currsol[site]-STEPINC;
-//                           else
-//                              currsol[site] = currsol[site]+STEPINC+1;
-//                        } 
-//                        
-//                        if(currsol[site]>511)  
-//                           currsol[site] = 511;
-//                        else if(currsol[site]<==0)  
-//                           currsol[site] = minloop+STEPINC;
-//
-//                         /*ping pong*/
-//                        if(i>1)  
-//                           if(IsPrevSearch or (curriter[site]>==MAXITER))  
-//                           {
-//                              activesites[site] = false;
-//                           } 
-//
-//                     }   /*not w/in limits*/
-//                     curriter[site] = curriter[site]+1;
-//                  }   /*v_dev_active*/
-//               
-//               devsetholdstates(activesites);
-//               if((not v_any_dev_active) or (i>==MAXITER))then
-//                  done = true;
-//            }   /*while*/
-//         }
-//         else
-//         {  /*+++ do linear +++*/
-//            for (i = 1;i <= MAXITER;i++)
-//            {
-//               msw_data = calcsol[i];
-//               WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//               DoIMeasure;
-//               writestring(str2,i:1);
-//               str3 = "VHV_PV_CT_ITER_" + str2;
-//               PrintResultParam(str3,testnum,tmp_results,llim_pre,ulim_pre,meas_val,GL_PLELL_FORMAT);
-//               
-//               if(logena)  
-//               {
-//                  TWTRealToRealMS(meas_val,realval,unitval);
-//                  TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     delta = abs(meas_val[site]-target);
-//                     if(i==1)  
-//                     {
-//                        tmp_delta[site] = delta;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else
-//                     {
-//                        if(delta < tmp_delta[site])  
-//                        {
-//                           tmp_delta[site] = delta;
-//                           ctval[site] = calcsol[i][site];
-//                        } 
-//                     } 
-//                     
-//                     if((meas_val[site]>==llim) and (meas_val[site]<==ulim))  
-//                     {
-//                        activesites[site] = false;
-//                        ctval[site] = calcsol[i][site];
-//                     }
-//                     else if(meas_val[site]>ulim)  
-//                     {
-//                        ovrshoot[site] = ovrshoot[site]+1;
-//                        if(ovrshoot[site]>2)  
-//                           activesites[site] = false;  /*use last iter ctval*/
-//                     } 
-//                  } 
-//               
-//               devsetholdstates(activesites);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for i*/
-//         }   /*+++ do linear +++*/
-//      }   /*if v_any_dev_active*/
-//
-//      devsetholdstates(savesites);
-//      TIME.Wait(2ms);
-//
-//       /*final check to see if w/in tolerance limit*/
-//      lsw_data = ersct;
-//      msw_data = ctval;
-//      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//       /*emu bank*/
-//      addr_emu = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
-//      WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//#endif
-//
-//      DoIMeasure;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((meas_val[site]>==llim_pre) and (meas_val[site]<==ulim_pre))  
-//               final_results[site] = true;
-//
-//      str4 = "VHV_PV_CT_TRIM_SOL";
-//      TWPDLDataLogVariable(str4,ctval,TWMinimumData);
-//      
-//      str5 = "VHV_PV_CT_TRIM_NM";
-//      TWTRealToRealMS(meas_val,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//  
-//      PrintResultInt(str4,testnum,ctval,0,512,GL_PLELL_FORMAT);
-//      PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//      ret_ctval = ctval;
-//      test_results = final_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//#if $FL_USE_NEW_VHV_TEMPL_ADDR  
-//               readramaddress(site,addr-ADDR_RAM_INC,addr_emu+(3*ADDR_RAM_INC));;
-//#else
-//               readramaddress(site,addr-ADDR_RAM_INC,addr+(3*ADDR_RAM_INC));
-//#endif
-//
-//      ttimer1 = timernread(ttimer1);
-//      str5 = "VHV_PV_TRIM_TTT";
-//
-//      if(logena)  
-//      {
-//         tt_timer = ttimer1;
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//         cout << str5 << "  " << ttimer1 << endl;
-//   } 
-//
-//   F021_VHV_PV_CT_Trim_func = v_any_dev_active;
-//   
-//}   /* F021_VHV_PV_CT_Trim_func */
-//
+
+    /*OTP template in RAM : pgct/ersct*/
+   addr = ADDR_RAM_TEMPL_VHVE_PMT;
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,pre_ersct);
+   ersct = pre_ersct;
+   ctval = pre_ersct;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
+   {
+      k = ADDR_RAM_TEMPL_VHVE_SM;
+      ReadRamAddress(k,k+(8*ADDR_RAM_INC));
+   }
+   
+   bcd_format = true;
+   hexvalue = true;
+   msw_data = pgct;
+
+   TIME.StartTimer();
+
+   if(ActiveSites.Begin().End())  
+   {
+      return (TM_NOTEST);
+   }
+      
+   SearchMod ct_search;
+   ct_search.SASearchBegin(FloatM(0.),FloatM(511.),FloatM(toler*target), FloatM(target), MAXITER);
+   ct_search.SkipMinMax(true);
+
+   IntS i = 0;
+   IntM temp_intm;
+   while (ct_search.searchNotDone)
+   {
+#if $TV2_VHV_CT_SWIZZLE
+      temp_intm = MATH.LegacyRound(ct_search.xForceValueMS);
+      lsw_data = ((temp_intm & 0x01f) << 4) + ((temp_intm & 0x1e0) >> 5);
+#else
+      lsw_data = MATH.LegacyRound(ct_search.xForceValueMS);
+#endif
+      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      
+      // Dlog the trim code tried...but don't really care if it passes or don't send to TW
+      str1 = "VHV_ER_CT_ITER_CODE_" + i;
+      TIDlog.Value(msw_data, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, false, TWMinimumData);
+      // Dlog the value of the measure...send to TW if logena
+      str1 = "VHV_ER_CT_ITER_" + i;
+      TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), 
+                                 str1, UTL_VOID, UTL_VOID, logena, TWMinimumData); 
+      
+      
+      if (tistdscreenprint and TI_FlashDebug and tiprintpass)
+         ReadRamAddress(k, k+(8*ADDR_RAM_INC));
+ 
+      
+      // put this at end of loop because it will disable sites
+      // sites will be re-enabled by this routine when the search is done
+      ct_search.SearchNext(meas_val);
+   }
+
+   // Round the final val just like we did when using it
+   ctval = MATH.LegacyRound(ct_search.xForceValueMS);
+
+   TIME.Wait(2ms);
+
+   VHV_ER_CT_STARTSAVED = ctval - CTOFFSET; /*for ~9V*/
+   VHV_ER_CT_STOPSAVED = ctval;
+   
+   /*final check to see if w/in tolerance limit*/
+#if $TV2_VHV_CT_SWIZZLE
+   lsw_data = ((ctval & 0x01f) << 4) + ((ctval & 0x1e0) >> 5);
+#else
+   lsw_data = ctval;
+#endif
+   msw_data = pgct;
+   WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+   addr_emu = ADDR_RAM_TEMPL_VHVE_PMT_EMU;
+   WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+#endif
+
+   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+
+   str1 = "VHV_ER_CT_SOL";
+   tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+   str1 = "VHV_ER_CT_NM";
+   final_results = TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), str1,
+                                UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+   test_results = DLOG.AccumulateResults(tmp_results, final_results);
+   ret_ctval = ctval;
+
+   if(tistdscreenprint and TI_FlashDebug)   
+   {
+      IntS j = ADDR_RAM_TEMPL_VHVE_SM;
+      k = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+      ReadRamAddress(j,k+(8*ADDR_RAM_INC));;
+#else
+      ReadRamAddress(j,j+(8*ADDR_RAM_INC));
+#endif   
+   }
+
+   ttimer1 = TIME.StopTimer();
+   str1 = "VHV_ER_CT_TRIM_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "s", str1, UTL_VOID, UTL_VOID, logena, TWMinimumData);
+
+   return(test_results);
+   
+}   /* F021_VHV_PG_CT_Trim_func */
+
+TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval)
+{
+   const FloatS PGSTEP = 0.02V;
+   const unsigned MAXITER = 30; 
+
+   Sites new_active_sites;
+   Sites savesites = ActiveSites;
+   TMResultM final_results,tmp_results;
+   TMResultM test_results = TM_NOTEST;
+   IntS testnum,addr,addr_emu;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   StringS str1;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatS llim_pre,ulim_pre;
+   FloatS llim,ulim,target; 
+   FloatS toler;
+   PinM testpad;
+   FloatM meas_val;
+   IntM ctval,ersct,pgct,pre_pgct;
+   IntM lsw_data,msw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS logena; 
+    /*++++++++++++++++++++*/
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_VHV_PV_CT_Trim_func +++++" << endl;
+
+   logena = true;  /*log to tw*/
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay = 10ms;
+   
+   tcrnum  = 115;
+   tcrmode = PvfyMode;
+   testpad = FLTP1;
+   testnum = TNUM_PUMP_VHVPVFY;
+
+   llim_pre = TCR.TP1_LLim[tcrnum][tcrmode];
+   ulim_pre = TCR.TP1_ULim[tcrnum][tcrmode];
+
+   target = VHV_Pvfy_Target;
+   toler = 0.005;  /*1%*/
+   llim = target-(target*toler);  // VLCT used a llim of ...(target*toler*0.5) w/ toler of 0.01...but 
+                                  // search module does not allow different lower and upper tolerance
+                                  // see if this is ok on DiamondX using tighter tolerance all around
+   ulim = target+(target*toler);
+
+    /*OTP template in RAM : pvfy/other*/
+   addr = ADDR_RAM_TEMPL_VHVPV_PMT;
+   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);
+   pgct = pre_pgct;
+   ctval = pre_pgct;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)   
+      ReadRamAddress(addr,addr+(4*ADDR_RAM_INC));
+   
+   VHV_OTHER_CT_TRIMSAVED = ersct;
+   
+   bcd_format = true;
+   hexvalue = true;
+   lsw_data = ersct;
+
+   TIME.StartTimer();
+
+   if(ActiveSites.Begin().End())  
+   {
+      return (TM_NOTEST);
+   }
+      
+   SearchMod ct_search;
+   ct_search.SASearchBegin(FloatM(0.),FloatM(511.),FloatM(toler*target), FloatM(target), MAXITER);
+   ct_search.SkipMinMax(true);
+
+   IntS i = 0;
+   while (ct_search.searchNotDone)
+   {
+      msw_data = MATH.LegacyRound(ct_search.xForceValueMS);
+      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      
+      // Dlog the trim code tried...but don't really care if it passes or don't send to TW
+      str1 = "VHV_PV_CT_ITER_CODE_" + i;
+      TIDlog.Value(msw_data, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, false, TWMinimumData);
+      // Dlog the value of the measure...send to TW if logena
+      str1 = "VHV_PV_CT_ITER_" + i;
+      TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), 
+                                 str1, UTL_VOID, UTL_VOID, logena, TWMinimumData); 
+      
+      // put this at end of loop because it will disable sites
+      // sites will be re-enabled by this routine when the search is done
+      ct_search.SearchNext(meas_val);
+   }
+
+   // Round the final val just like we did when using it
+   ctval = MATH.LegacyRound(ct_search.xForceValueMS);
+
+   TIME.Wait(2ms);
+
+    /*final check to see if w/in tolerance limit*/
+   lsw_data = ersct;
+   msw_data = ctval;
+   WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+    /*emu bank*/
+   addr_emu = ADDR_RAM_TEMPL_VHVPV_PMT_EMU;
+   WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+#endif
+
+   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+
+   str1 = "VHV_PV_CT_TRIM_SOL";
+   tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+   str1 = "VHV_PV_CT_TRIM_NM";
+   final_results = TIDlog.Value(meas_val, testpad, llim_pre, ulim_pre, meas_val.GetUnits(), str1,
+                                UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+   test_results = DLOG.AccumulateResults(tmp_results, final_results);
+   ret_ctval = ctval;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)   
+#if $FL_USE_NEW_VHV_TEMPL_ADDR  
+            ReadRamAddress(addr-ADDR_RAM_INC,addr_emu+(3*ADDR_RAM_INC));;
+#else
+            ReadRamAddress(addr-ADDR_RAM_INC,addr+(3*ADDR_RAM_INC));
+#endif   
+
+   ttimer1 = TIME.StopTimer();
+   str1 = "VHV_PV_TRIM_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "s", str1, UTL_VOID, UTL_VOID, logena, TWMinimumData);
+
+   return(test_results);
+   
+}   /* F021_VHV_PV_CT_Trim_func */
 
 // /*modify shell OTP template pg/er/pv ct in RAM*/
 void RAM_Upload_VHV_CT_TrimVal() {
@@ -14243,6 +13504,11 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 
             IO.Print(dlog_comment, "F021_Pump_Para_func testnum is 0x%x.\n", testnum);
             DLOG.Text(dlog_comment);
+            
+            // force a passing value in the simulator
+            if (SYS.TesterSimulated())
+               meas_value = ((ulim - llim) / 2.) + llim;
+               
             tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, unitval, test_name, UTL_VOID, 
                                        UTL_VOID, true, TWMinimumData);
             

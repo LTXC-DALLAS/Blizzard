@@ -5148,7 +5148,6 @@ TMResultM Pump_BGap_Vnom_func()
    return(final_results);
 }   /* Pump_BGap_Vnom_func */
 
-#if 0
 TMResultM Pump_VHV_Vmin_func()
 {
    const IntS TESTID = 17; 
@@ -5187,20 +5186,20 @@ TMResultM Pump_VHV_Vmin_func()
          } 
          RunTime.SetActiveSites(savesites);
       } 
-//:HERE:
-      F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
+
+      tmp_results = F021_VHV_PG_CT_Trim_func(ctval);
       VHV_PG_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_PG_CT_TRIMSAVED_EMU = ctval;
 #endif
       
-      F021_VHV_ER_CT_Trim_func(tmp_results,ctval);
+      tmp_results = F021_VHV_ER_CT_Trim_func(ctval);
       VHV_ER_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_ER_CT_TRIMSAVED_EMU = ctval;
 #endif
       
-      F021_VHV_PV_CT_Trim_func(tmp_results,ctval);
+      tmp_results = F021_VHV_PV_CT_Trim_func(ctval);
       VHV_PV_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_PV_CT_TRIMSAVED_EMU = ctval;
@@ -5209,7 +5208,10 @@ TMResultM Pump_VHV_Vmin_func()
       RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
    } 
    
-   // PowerUpDn(PWRUP_VMIN);
+   // This will execute the loose levels
+   // Flow should set category to VMin
+   Levels loose_levels("DCSetup_Loose");
+   loose_levels.Execute();
    
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
@@ -5220,7 +5222,7 @@ TMResultM Pump_VHV_Vmin_func()
 
    tcrnum = 115;
    tcrmode = ProgMode;
-   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode);
 
    new_active_sites = ActiveSites;
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS)); 
@@ -5228,7 +5230,8 @@ TMResultM Pump_VHV_Vmin_func()
    if(!ActiveSites.Begin().End())   //we have an active site
    {
       tcrmode = PvfyMode;
-      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
+      // can reuse the final_results b/c sites disabled won't get new values
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
    } 
    
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
@@ -5240,14 +5243,13 @@ TMResultM Pump_VHV_Vmin_func()
         {added because of LDO bypass issue JRR}
           discard(patternexecute(num_clks,f021_shell_loadpat));
           wait(5mS); */
-      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
       RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
    } 
    
    RunTime.SetActiveSites(initial_sites);
    return (final_results);
 }   /* Pump_VHV_Vmin_func */
-#endif
 
 //BoolS Pump_VHV_Vmax_func()
 //{
