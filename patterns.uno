@@ -266,6 +266,10 @@ __PatternMap DefaultPatternMap {
         __File "TestPatScan";
         __Path "./Patterns/Ascii";
     }
+    __Pattern SCAN_SA_PG_glob {
+        __File "SCAN_SA_PG_glob";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern ScanDebug {
         __File "ScanDebug";
         __Path "./Patterns/Ascii";
@@ -288,6 +292,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern wdtimer0_reset_pll_v23 {
         __File "wdtimer0_reset_pll_v23";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern wdtimer1_reset_pll_v23 {
+        __File "wdtimer1_reset_pll_v23";
         __Path "./Patterns/Ascii";
     }
     __Pattern a_st_tk_1_DSH {
@@ -449,6 +457,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern qei0dirintlpbk {
         __File "qei0dirintlpbk";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pwm_0_int_check {
+        __File "pwm_0_int_check";
         __Path "./Patterns/Ascii";
     }
     __Pattern pwm_1_int_check {
@@ -1159,6 +1171,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern a_st_tk_10_v22 {
         __File "a_st_tk_10_v22";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_st_tk_11_v22 {
+        __File "a_st_tk_11_v22";
         __Path "./Patterns/Ascii";
     }
     __Pattern a_st_tk_12_v22 {

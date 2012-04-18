@@ -265,6 +265,10 @@ __Spec ACSpecs {
         tperAsync.Max = "62.5ns";
         charEn_tper = "TRUE";
         charEn_tperAsync = "TRUE";
+        stb_bit = "7ns";
+        edg1_bit = "0ns";
+        edg2_bit = "4ns";
+        edg3_bit = "0ns";
     }
     __Category AC_cat_4 {
         __Inherit CommonACdata;
@@ -385,5 +389,9 @@ __Spec ACSpecs {
             charID_tfreqAsync { __Type = STRING; }
             charEn_tfreqAsync { __Type = BOOLEAN; }
             charStep_tfreqAsync { __Type = Hz; }
+            stb_bit { __Type = s; }
+            edg1_bit { __Type = s; }
+            edg2_bit { __Type = s; }
+            edg3_bit { __Type = s; }
     }
 }

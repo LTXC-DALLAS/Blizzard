@@ -23,6 +23,7 @@ Unison:U1.0c:S5.3;
 
 __TestProg BllizarA0 {
     __Comment = "converted with E2U source md5sum=b600b06c0f017fa0f0ca643f007a03db";
+//    __ResolveAndLoad __OnProgramLoad;
     __ParamCheck = 0;
         __OperatorVariable[0] = TIAdapterBoard;
         __OperatorVariable[1] = TIFlow;

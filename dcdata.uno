@@ -61,7 +61,7 @@ __Spec DCSpecs {
     __Category CommonDCdata {
         ccf = "TIccf";
         dcf = "TIdcf";
-        scf = "TIscf";
+        scf = "12mV{TIscf VLCT program sets this to 12mV}";
         vihCal = "3V";
         vilCal = "0V";
         vohCal = "2V";

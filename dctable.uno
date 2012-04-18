@@ -1500,3 +1500,472 @@ __Levels CTLevels {
     	Vref = __Expression { __String = "0V"; }
     }
 }
+__Levels DCsetup_LooseVmin {
+    __Column[0] {
+    	__LevelsColumnType = __DigitalType;
+    	__Group = __Expression { __String = "ALLPINS"; }
+    	Vil = __Expression { __String = "VIL_Loose"; }
+    	Vih = __Expression { __String = "VIH_Loose"; }
+    	Vol = __Expression { __String = "VOL_Loose"; }
+    	Voh = __Expression { __String = "VOH_Loose"; }
+    	Voc = __Expression { __String = "VLoad"; }
+    	Iol = __Expression { __String = "0pA"; }
+    	Ioh = __Expression { __String = "0pA"; }
+    	Vref = __Expression { __String = "VLoad"; }
+    }
+}
+__Levels PowerDownWithoutRead {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDS"; }
+    	ExecSeq = __Expression { __String = "0"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "5"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "6"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "7"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+}
+__Levels PowerUpAtEfuseRead {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDS"; }
+    	PowerSupply = __Expression { __String = "VDDS_VEfuseR"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "1mS"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "VDD_Vnom"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "VDDA_VEfuseR"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "VBAT_VEfuseR"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "VPP_Vnom"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "5"; }
+    	PowerSupply = __Expression { __String = "VNWA_Vnom"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "6"; }
+    	PowerSupply = __Expression { __String = "VDDAR_Vnom"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "7"; }
+    	PowerSupply = __Expression { __String = "VDDPGM_Vnom"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+}
+
+__Levels PowerUpAtVmin {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDS"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "1mS"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "VDD_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "VDDA_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "VPP_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "5"; }
+    	PowerSupply = __Expression { __String = "VNWA_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "6"; }
+    	PowerSupply = __Expression { __String = "VDDAR_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "7"; }
+    	PowerSupply = __Expression { __String = "VDDPGM_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+}
+__Levels PowerUpAtVboxhi {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDS"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "1mS"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "VDD_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "VDDA_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "VPP_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "5"; }
+    	PowerSupply = __Expression { __String = "VNWA_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "6"; }
+    	PowerSupply = __Expression { __String = "VDDAR_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "7"; }
+    	PowerSupply = __Expression { __String = "VDDPGM_Vboxhi"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+}
+__Levels DCsetup_LooseVboxHi {
+    __Column[0] {
+    	__LevelsColumnType = __DigitalType;
+    	__Group = __Expression { __String = "ALLPINS"; }
+    	Vil = __Expression { __String = "VIL_Loose"; }
+    	Vih = __Expression { __String = "Domain_3P3V_Vboxhi - 0.05V"; }
+    	Vol = __Expression { __String = "Domain_3P3V_Vboxhi/2+0.2V"; }
+    	Voh = __Expression { __String = "Domain_3P3V_Vboxhi/2-0.2V"; }
+    	Voc = __Expression { __String = "Domain_3P3V_Vboxhi*0.5"; }
+    	Iol = __Expression { __String = "0pA"; }
+    	Ioh = __Expression { __String = "0pA"; }
+    	Vref = __Expression { __String = "Domain_3P3V_Vboxhi*0.5"; }
+    }
+}
+
+__Levels PowerDownWORead_PowerUpAtVmin {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDS_PwrDown;
+    	__Group = __Expression { __String = "VDDS"; }
+    	ExecSeq = __Expression { __String = "0"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDA_PwrDown;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDD_PwrDown;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VBAT_PwrDown;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VNWA_PwrDown;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VPP_PwrDown;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "5"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDAR_PwrDown;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "6"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "1us"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDPGM_PwrDown;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "7"; }
+    	PowerSupply = __Expression { __String = "0V"; }
+    	StepSize = __Expression { __String = "900mV"; }
+    	StepDelay = __Expression { __String = "1us"; }
+    	Delay = __Expression { __String = "100us"; }
+    }
+    __Column[8] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDS_PwrUp;
+    	__Group = __Expression { __String = "VDDS"; }
+    	ExecSeq = __Expression { __String = "8"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[9] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDD_PwrUp;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "9"; }
+    	PowerSupply = __Expression { __String = "VDD_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[10] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDA_PwrUp;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "10"; }
+    	PowerSupply = __Expression { __String = "VDDA_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[11] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VBAT_PwrUp;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "11"; }
+    	PowerSupply = __Expression { __String = "VBAT_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[12] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VPP_PwrUp;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "12"; }
+    	PowerSupply = __Expression { __String = "VPP_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[13] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VNWA_PwrUp;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "13"; }
+    	PowerSupply = __Expression { __String = "VNWA_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[14] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDAR_PwrUp;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "14"; }
+    	PowerSupply = __Expression { __String = "VDDAR_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+    __Column[15] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Title = VDDPGM_PwrUp;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "15"; }
+    	PowerSupply = __Expression { __String = "VDDPGM_Vmin"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    }
+}

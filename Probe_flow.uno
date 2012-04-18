@@ -72,7 +72,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = Srchs_Vmin_Pre_S;
     }
     __Node Iddq0_VboxLO_S_1747 {
-        __XCoord = (622,151);
+        __XCoord = (508,151);
         __Port[0] {
             __PortPosition = 264;
         }
@@ -102,11 +102,11 @@ __SubFlow Probe_SUB_FLOW {
             ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "27000000";
         __Exec = WrEngRow_func;
@@ -193,7 +193,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = Currents_S;
     }
     __Node DieID_Prog_S_1803 {
-        __XCoord = (506,155);
+        __XCoord = (621,151);
         __Port[0] {
             __PortPosition = 267;
         }
@@ -223,11 +223,11 @@ __SubFlow Probe_SUB_FLOW {
             ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "43000000";
         __Exec = SupplyShorts;
@@ -263,11 +263,11 @@ __SubFlow Probe_SUB_FLOW {
             ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "63000000";
         __Exec = Digital_Continuity;
@@ -285,11 +285,11 @@ __SubFlow Probe_SUB_FLOW {
             ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "62000000";
         __Exec = FF_InitCheck_T;
@@ -319,11 +319,11 @@ __SubFlow Probe_SUB_FLOW {
             ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "64000000";
         __Exec = SupplyShorts;
@@ -398,14 +398,14 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = Iddq_Delta_S;
     }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = Digital_Continuity_321;
+    __StartNode = Continuity_1785;
     __PortConnections {
         Continuity_1785 __Port[0] = FuseCtlr_S_309;
         ATPG_CPU_Vmin_S_1699 __Port[0] = PathDelay_Vmin_S_1743;
         PathDelay_Vmin_S_1743 __Port[0] = DieID_S_321;
         RAMBIST_Vmin_S_1711 __Port[0] = Trim_S_331;
-        Srchs_Vmin_Pre_S_1726 __Port[0] = Iddq0_VboxLO_S_1747;
-        Iddq0_VboxLO_S_1747 __Port[0] = DieID_Prog_S_1803;
+        Srchs_Vmin_Pre_S_1726 __Port[0] = DieID_Prog_S_1803;
+        Iddq0_VboxLO_S_1747 __Port[0] = F021FlashFlow_S_1753;
         F021FlashFlow_S_1753 __Port[0] = PgmAnalogTrims_S_348;
         Test_0_1758 __Port[0] = SupplyShorts_1818;
         ATPG_CPU_VboxHi_S_1732 __Port[0] = RAMBIST_VBoxHi_S_1980;
@@ -417,7 +417,7 @@ __SubFlow Probe_SUB_FLOW {
         ATPG_CPU_VboxLo_S_1777 __Port[0] = RAMBIST_VBoxLo_S_1781;
         RAMBIST_VBoxLo_S_1781 __Port[0] = SrchFrq_Vmin_Post_S_1755;
         Currents_S_387 __Port[0] = Test_0_1758;
-        DieID_Prog_S_1803 __Port[0] = F021FlashFlow_S_1753;
+        DieID_Prog_S_1803 __Port[0] = Iddq0_VboxLO_S_1747;
         FuncBIST_Vmax_S_378 __Port[0] = Currents_S_387;
         SupplyShorts_1818 __Port[0] = GOOD_UNIT_1822;
         SupplyShorts_1818 __Port[1] = F_OS_SHRT_VDD_1868;
@@ -488,7 +488,6 @@ __SubFlow Probe_SUB_FLOW {
         __Data = (0,0,177,140,0,0,30,0,0,3,0,0,1,0,0,0);
     }
 }
-
 //Commented out preliminarily for x-series to diamond program conversion -BJP
 /*	__Node  Probe_OpenShrt_S_602 {
 		__XCoord = (50,150);
