@@ -7225,49 +7225,46 @@ TMResultM Pump_VHV_Vmin_func()
 //   
 //   FGWL_Stress_func = v_any_dev_active;
 //}   /* FGWL_Stress_func */
-//
-//
-// /*oxide below FG stress*/
-//BoolS TunOxide_Stress_func()
-//{
-//   const IntS TESTID = 185; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//#if $TP3_TO_TP5_PRESENT  
-//   tcrnum = 52;;
-//#else
-//   tcrnum = 108;
-//#endif
-//   
-//       /*KChau -- A08 mix mode - use mms*/
-//      tcrnum = 108;
-//      tcrmode = EvfyMode;   /*actual mode is ProgMode*/
-//      
-//      F021_Stress_func(TNUM_BANK_TUNOX_STRESS,TunOx_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   TunOxide_Stress_func = v_any_dev_active;
-//}   /* TunOxide_Stress_func */
-//
+
+
+// oxide below FG stress
+TMResultM TunOxideStress_func() {
+   const IntS TESTID = 185; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+
+   if(MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {  
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+#if $TP3_TO_TP5_PRESENT  
+   tcrnum = 52;;
+#else
+   tcrnum = 108;
+#endif
+   
+       /*KChau -- A08 mix mode - use mms*/
+      tcrnum = 108;
+      tcrmode = EvfyMode;   /*actual mode is ProgMode*/
+      
+      final_results = F021_Stress_func(TNUM_BANK_TUNOX_STRESS, "TunOx_Stress_Test", tcrnum, tcrmode);
+   }
+   
+   return (final_results);
+}   // TunOxide_Stress_func
+
 //
 //BoolS ONO_Stress_func()
 //{
@@ -10786,114 +10783,100 @@ TMResultM BankErs_PreTunOxide_func() {
    
    return (final_results);
 }   /* BankErs_PreTunOxide_func */
-//   
-//
-//BoolS PreTunOxideVT1_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)      
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = BANKTYPE;
-//      vtcat   = TUNOXVT1;
-//      prepost = pre;
-//      
-//      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreTunOxVT1_Test;
+   
+
+TMResultM PreTunOxideVT1_func() {
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)      
+         F021_LoadFlashShell_func();
+      
+      tdata   = BANKTYPE;
+      vtcat   = TUNOXVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreTunOxVT1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PreTunOxBCC1_Test;
+         tname = "PreTunOxBCC1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_TUNOX_VT1_PRE;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PreTunOxBCC1_Test;
+         if (TI_FlashESDAEna) {
+            FLEsda.ImageNum = ESDA_IMG_TUNOX_VT1_PRE;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+      }
+      else {
+         tname = "PreTunOxBCC1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PreTunOxVT1_Test;
+         tname = "PreTunOxVT1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PreTunOxideVT1_func = v_any_dev_active;
-//}   /* PreTunOxideVT1_func */
-//   
-//
-//BoolS PreTunOxideVT1OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = TUNOXVT1;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreTunOxVT1OTP_Test;
+      } 
+   } 
+   
+   return (final_results);
+}   /* PreTunOxideVT1_func */
+   
+
+TMResultM PreTunOxideVT1OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {  
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = TUNOXVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreTunOxVT1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PreTunOxBCC1OTP_Test;
+         tname = "PreTunOxBCC1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreTunOxBCC1OTP_Test;
+      }
+      else {
+         tname = "PreTunOxBCC1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PreTunOxVT1OTP_Test;
+         tname = "PreTunOxVT1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PreTunOxideVT1OTP_func = v_any_dev_active;
-//}   /* PreTunOxideVT1OTP_func */
-//
+      } 
+   } 
+   
+   return(final_results);
+}   /* PreTunOxideVT1OTP_func */
+
 //
 //BoolS PstTunOxideVT1_func()
 //{

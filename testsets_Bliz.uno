@@ -3575,13 +3575,35 @@ __Test ErsOTP_PreTunOxide_func_T {
         }
     }
 }
-__Test PreTunOxide_VT1_func_T{
+__Test PreTunOxideVT1_func_T{
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PreTunOxideVT1;
+        __TestMethod {
+            __Name = PreTunOxideVT1_func;
+        }
+    }
 }
-__Test PreTunOxide_VT1OTP_func_T {
+__Test PreTunOxideVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PreTunOxideVT1OTP;
+        __TestMethod {
+            __Name = PreTunOxideVT1OTP_func;
+        }
+    }
 }
 __Test TunOxideStress_func_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
