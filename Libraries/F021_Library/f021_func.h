@@ -128,8 +128,8 @@ void Get_Flash_TestLogSpace_SCRAM();
 //                              IntM lsw_data);
 //void Get_TLogSpace_TESTFREQ(    IntM ret_val);
 void Get_TLogSpace_PFBin(    IntM &ret_val);
-//void Get_TLogSpace_FAILADDR(    IntM msw_data,
-//                                 IntM lsw_data);
+void Get_TLogSpace_FAILADDR(    IntM msw_data,
+                                 IntM lsw_data);
 //void Get_TLogSpace_FAILDATA(    IntM msw_data,
 //                                 IntM lsw_data);
 void Get_TLogSpace_TNUM(    IntM &msw_data,
@@ -404,16 +404,14 @@ void TL_RunTestNum(IntS start_testnum,
 //void F021_GetESDA_NonSCRAM(IntS imgnum,
 //                                IntS banknum);
 
-void SetFlashESDAVars(BoolM logsites,
-                           IntS bank,
-                           IntS sect);
+void SetFlashESDAVars(TMResultM logsites, IntS bank, IntS sect);
 
 //void ClearFlashESDAVars(IntS bank,
 //                             IntS sect);
 //
 //void F021_Set_TPADS_ESDA(  IntS bank, IntS  sect);
 //
-//void F021_CollectESDA(IntS imagenum);
+void F021_CollectESDA(IntS imagenum);
 //
 //void TL_BitHistogram(IntS pattype,
 //                          IntS testnum,
@@ -471,13 +469,9 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                                  TPModeType TCRMode,
 //                                  BoolM test_results);
 //
-//
-//BoolS F021_Stress_func(    IntS start_testnum,
-//                              StringS tname,
-//                              IntS TCRnum,
-//                              TPModeType TCRMode,
-//                              BoolM test_results);
-//
+
+TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode);
+
 //BoolS F021_RefArr_Erase_func(    StringS tname,
 //                                    BoolS adaptiveEna,
 //                                    BoolM test_results);

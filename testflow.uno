@@ -2353,7 +2353,7 @@ __SubFlow F021_TunOxide {
         __TestID = "90000000";
         __Exec = ErsOTP_PreTunOxide_func_T;
     }
-    __Node PreTunOxide_VT1_func_T_320 {
+    __Node PreTunOxideVT1_func_T_320 {
         __XCoord = (350,50);
         __Port[0] { __PortPosition =  90; }
         __Port[1] { __PortPosition = 180; }
@@ -2363,15 +2363,15 @@ __SubFlow F021_TunOxide {
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
-            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
             Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
         }
         __TestID = "91000000";
-        __Exec = PreTunOxide_VT1_func_T;
+        __Exec = PreTunOxideVT1_func_T;
     }
-    __Node PreTunOxide_VT1OTP_func_T_330 {
+    __Node PreTunOxideVT1OTP_func_T_330 {
         __XCoord = (500,50);
         __Port[0] { __PortPosition =  90; }
         __Port[1] { __PortPosition = 180; }
@@ -2381,13 +2381,13 @@ __SubFlow F021_TunOxide {
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
             TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
-            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
             Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
         }
         __TestID = "92000000";
-        __Exec = PreTunOxide_VT1OTP_func_T;
+        __Exec = PreTunOxideVT1OTP_func_T;
     }
     __Node TunOxideStress_func_T_340 {
         __XCoord = (650,50);
@@ -2490,9 +2490,9 @@ __SubFlow F021_TunOxide {
     __StartNode = BankErs_PreTunOxide_func_T_300;
     __PortConnections {
         BankErs_PreTunOxide_func_T_300 __Port[0] = ErsOTP_PreTunOxide_func_T_310;
-        ErsOTP_PreTunOxide_func_T_310 __Port[0] = PreTunOxide_VT1_func_T_320;
-        PreTunOxide_VT1_func_T_320 __Port[0] = PreTunOxide_VT1OTP_func_T_330;
-        PreTunOxide_VT1OTP_func_T_330 __Port[0] = TunOxideStress_func_T_340;
+        ErsOTP_PreTunOxide_func_T_310 __Port[0] = PreTunOxideVT1_func_T_320;
+        PreTunOxideVT1_func_T_320 __Port[0] = PreTunOxideVT1OTP_func_T_330;
+        PreTunOxideVT1OTP_func_T_330 __Port[0] = TunOxideStress_func_T_340;
         TunOxideStress_func_T_340 __Port[0] = PstTunOxide_VT1_func_T_350;
         PstTunOxide_VT1_func_T_350 __Port[0] = PstTunOxide_VT1OTP_func_T_360;
         PstTunOxide_VT1OTP_func_T_360 __Port[0] = TunOxide_VT1Delta_func_T_370;
