@@ -4122,8 +4122,8 @@ using namespace std;
 
 TMResultM Flash_ISleep_func()
 {
-// Think we'll handle levels via Levels Objects
-//   PwrupAtVmax_1;
+   // use levels objects
+   //PowerUpDn(PWRUP_VMAX);
 
    return TM_PASS;
 }   /* Flash_ISleep_func */
@@ -5059,9 +5059,10 @@ TMResultM Pump_Iref_Vnom_func()
    IntS tcrnum;
    TPModeType tcrmode;
    VCornerType vcorner;
-   Sites initial_sites = ActiveSites;
+   Sites initial_sites(ActiveSites);
+   Sites new_active_sites(ActiveSites);
 
-   //:TODO: power up at Vnom here
+   // PowerUpDn(PWRUP_VNOM);
 
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
@@ -5074,14 +5075,15 @@ TMResultM Pump_Iref_Vnom_func()
    tcrnum = 126;
    tcrmode = ReadMode;
    vcorner = VNM;
-   F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode, final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode);
 
    // disable failing sites (disables sites w/ false).
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
    if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
-      F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode, final_results);
+      final_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
    }    
    
    // re-enable any sites we've messed around with 
@@ -5134,23 +5136,24 @@ TMResultM Pump_BGap_Vnom_func()
    tcrnum = 124;
    tcrmode = ReadMode;
    vcorner = VNM;
+   
+   // PowerUpDn(PWRUP_VNOM);
 
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
    
-   F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode,final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_MAINBG,post,vcorner,tcrnum,tcrmode);
 
    return(final_results);
 }   /* Pump_BGap_Vnom_func */
 
-#if 0
 TMResultM Pump_VHV_Vmin_func()
 {
    const IntS TESTID = 17; 
 
    TMResultM final_results,tmp_results;
-   Sites savesites, disable_sites, initial_sites;
+   Sites savesites, new_active_sites, initial_sites;
    VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
@@ -5163,7 +5166,7 @@ TMResultM Pump_VHV_Vmin_func()
    if(GL_DO_VHV_CT_TRIM)  
    {
 
-//      PwrupAtVnom_1;
+      // PowerUpDn(PWRUP_VNOM);
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -5171,8 +5174,10 @@ TMResultM Pump_VHV_Vmin_func()
       if (!(GL_FLASH_RETEST == false))   // all sites must match for this to be true (then negated by the !)
       {
          savesites = ActiveSites;
+         new_active_sites = ActiveSites;
          // Disable sites that have retest of false
-         ActiveSites.DisableFailingSites(GL_FLASH_RETEST); 
+         new_active_sites.DisableFailingSites(GL_FLASH_RETEST); 
+         RunTime.SetActiveSites(new_active_sites);
                
          if(!ActiveSites.Begin().End())   //if there is an active site
          {
@@ -5182,19 +5187,19 @@ TMResultM Pump_VHV_Vmin_func()
          RunTime.SetActiveSites(savesites);
       } 
 
-      F021_VHV_PG_CT_Trim_func(tmp_results,ctval);
+      tmp_results = F021_VHV_PG_CT_Trim_func(ctval);
       VHV_PG_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_PG_CT_TRIMSAVED_EMU = ctval;
 #endif
       
-      F021_VHV_ER_CT_Trim_func(tmp_results,ctval);
+      tmp_results = F021_VHV_ER_CT_Trim_func(ctval);
       VHV_ER_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_ER_CT_TRIMSAVED_EMU = ctval;
 #endif
       
-      F021_VHV_PV_CT_Trim_func(tmp_results,ctval);
+      tmp_results = F021_VHV_PV_CT_Trim_func(ctval);
       VHV_PV_CT_TRIMSAVED = ctval;
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_PV_CT_TRIMSAVED_EMU = ctval;
@@ -5203,9 +5208,11 @@ TMResultM Pump_VHV_Vmin_func()
       RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
    } 
    
-//    Hmmm....
-//    PwrupAtVmin_1;
-
+   // This will execute the loose levels
+   // Flow should set category to VMin
+   Levels loose_levels("DCSetup_Loose");
+   loose_levels.Execute();
+   
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
@@ -5215,16 +5222,20 @@ TMResultM Pump_VHV_Vmin_func()
 
    tcrnum = 115;
    tcrmode = ProgMode;
-   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode);
 
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   RunTime.SetActiveSites(new_active_sites);
    if(!ActiveSites.Begin().End())   //we have an active site
    {
       tcrmode = PvfyMode;
-      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
+      // can reuse the final_results b/c sites disabled won't get new values
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
    } 
    
-   ActiveSites.DisableFailingSites(final_results.Equal(TM_PASS)); 
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = ErsMode;
@@ -5232,14 +5243,13 @@ TMResultM Pump_VHV_Vmin_func()
         {added because of LDO bypass issue JRR}
           discard(patternexecute(num_clks,f021_shell_loadpat));
           wait(5mS); */
-      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
       RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
    } 
    
    RunTime.SetActiveSites(initial_sites);
    return (final_results);
 }   /* Pump_VHV_Vmin_func */
-#endif
 
 //BoolS Pump_VHV_Vmax_func()
 //{
@@ -7217,49 +7227,46 @@ TMResultM Pump_VHV_Vmin_func()
 //   
 //   FGWL_Stress_func = v_any_dev_active;
 //}   /* FGWL_Stress_func */
-//
-//
-// /*oxide below FG stress*/
-//BoolS TunOxide_Stress_func()
-//{
-//   const IntS TESTID = 185; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//#if $TP3_TO_TP5_PRESENT  
-//   tcrnum = 52;;
-//#else
-//   tcrnum = 108;
-//#endif
-//   
-//       /*KChau -- A08 mix mode - use mms*/
-//      tcrnum = 108;
-//      tcrmode = EvfyMode;   /*actual mode is ProgMode*/
-//      
-//      F021_Stress_func(TNUM_BANK_TUNOX_STRESS,TunOx_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   TunOxide_Stress_func = v_any_dev_active;
-//}   /* TunOxide_Stress_func */
-//
+
+
+// oxide below FG stress
+TMResultM TunOxideStress_func() {
+   const IntS TESTID = 185; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+
+   if(MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {  
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+#if $TP3_TO_TP5_PRESENT  
+   tcrnum = 52;;
+#else
+   tcrnum = 108;
+#endif
+   
+       /*KChau -- A08 mix mode - use mms*/
+      tcrnum = 108;
+      tcrmode = EvfyMode;   /*actual mode is ProgMode*/
+      
+      final_results = F021_Stress_func(TNUM_BANK_TUNOX_STRESS, "TunOx_Stress_Test", tcrnum, tcrmode);
+   }
+   
+   return (final_results);
+}   // TunOxide_Stress_func
+
 //
 //BoolS ONO_Stress_func()
 //{
@@ -10731,7 +10738,7 @@ TMResultM BankErs_PreTunOxide_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-
+   
    if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
       do_ena = true;
@@ -10741,12 +10748,10 @@ TMResultM BankErs_PreTunOxide_func() {
    if(do_ena) {
 #if $GL_USE_DMLED_RAMPMT  
       /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-      PowerUpDn(PWRDN_ALL);
+
       TIME.Wait(2ms);
       GL_PREVIOUS_SHELL = "";
 #endif
-      
-      PowerUpDn(PWRUP_VNOM);
       
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)   
@@ -10768,7 +10773,7 @@ TMResultM BankErs_PreTunOxide_func() {
          
       if(GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
       
-      F021_Erase_func(testnum,tname,final_results);
+      final_results = F021_Erase_func(testnum,tname);
       
       if(TI_FlashESDAEna)
          if (not(final_results == TM_PASS)) {
@@ -10780,114 +10785,100 @@ TMResultM BankErs_PreTunOxide_func() {
    
    return (final_results);
 }   /* BankErs_PreTunOxide_func */
-//   
-//
-//BoolS PreTunOxideVT1_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)      
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = BANKTYPE;
-//      vtcat   = TUNOXVT1;
-//      prepost = pre;
-//      
-//      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreTunOxVT1_Test;
+   
+
+TMResultM PreTunOxideVT1_func() {
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)      
+         F021_LoadFlashShell_func();
+      
+      tdata   = BANKTYPE;
+      vtcat   = TUNOXVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreTunOxVT1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PreTunOxBCC1_Test;
+         tname = "PreTunOxBCC1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_TUNOX_VT1_PRE;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PreTunOxBCC1_Test;
+         if (TI_FlashESDAEna) {
+            FLEsda.ImageNum = ESDA_IMG_TUNOX_VT1_PRE;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+      }
+      else {
+         tname = "PreTunOxBCC1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PreTunOxVT1_Test;
+         tname = "PreTunOxVT1_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PreTunOxideVT1_func = v_any_dev_active;
-//}   /* PreTunOxideVT1_func */
-//   
-//
-//BoolS PreTunOxideVT1OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = TUNOXVT1;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreTunOxVT1OTP_Test;
+      } 
+   } 
+   
+   return (final_results);
+}   /* PreTunOxideVT1_func */
+   
+
+TMResultM PreTunOxideVT1OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {  
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = TUNOXVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreTunOxVT1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PreTunOxBCC1OTP_Test;
+         tname = "PreTunOxBCC1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreTunOxBCC1OTP_Test;
+      }
+      else {
+         tname = "PreTunOxBCC1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PreTunOxVT1OTP_Test;
+         tname = "PreTunOxVT1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PreTunOxideVT1OTP_func = v_any_dev_active;
-//}   /* PreTunOxideVT1OTP_func */
-//
+      } 
+   } 
+   
+   return(final_results);
+}   /* PreTunOxideVT1OTP_func */
+
 //
 //BoolS PstTunOxideVT1_func()
 //{
@@ -17739,40 +17730,36 @@ TMResultM BankErs_PreTunOxide_func() {
 //   
 //   ErsOTP_PrePunchThru_func = v_any_dev_active;
 //}   /* ErsOTP_PrePunchThru_func */
-//   
-//BoolS ErsOTP_PreTunOxide_func()
-//{
-//   const IntS TESTID = 182; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
-//      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      testnum = TNUM_OTP_ERS_NOPRECON;
-//      tname = ErsOTP_PreTunOx_Test;
-//      F021_Erase_func(testnum,tname,final_results);
-//   } 
-//   
-//   ErsOTP_PreTunOxide_func = v_any_dev_active;
-//}   /* ErsOTP_PreTunOxide_func */
-//   
+  
+TMResultM ErsOTP_PreTunOxide_func() {
+   const IntS TESTID = 182; 
+
+   TMResultM final_results = TM_NOTEST;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+      (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {  
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      testnum = TNUM_OTP_ERS_NOPRECON;
+      tname = "ErsOTP_PreTunOx_Test";
+      final_results = F021_Erase_func(testnum,tname);
+   }    
+    return(final_results);
+}   /* ErsOTP_PreTunOxide_func */
+   
 //BoolS ErsOTP_PreThinOxide_func()
 //{
 //   const IntS TESTID = 191; 

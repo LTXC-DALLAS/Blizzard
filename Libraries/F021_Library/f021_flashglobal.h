@@ -53,18 +53,15 @@ extern IntS SelectedTITestType;
 
 extern BoolS RunAllTests;
 
-extern StringS NULL_TestName;
 extern BoolS tistdscreenprint;
 extern BoolS tiprintpass;
 extern BoolS TI_FlashDebug;
 extern BoolS TI_FlashCharEna; 
 extern BoolS TI_FlashESDAEna; 
 extern BoolS TI_FlashCOFEna; 
-//extern BoolM v_dev_active;
 
 extern StringS f021_shell_loadpat;
 extern StringS f021_shell_exepat;
-//extern StringS f021_shell_exepat_name;
 extern StringS f021_shell_exepat_vco_kc;
 extern StringS ldo_bypass_init_thread;
 extern StringS f021_shell_rcodepat;
@@ -364,7 +361,3 @@ enum SCRAM_STORE_OPTION {TEMPLOG_ARR, TESTLOG_ARR, MBOXOTP_ARR, MBOXLOG_ARR};
 #define $FL_USE_AUTO_FLOW false
 
 #endif
-
-// Additions to the PowerUpType enum must be reflected in the
-// switch statement of the PowerUpDn function (f021_func.cpp) 
-enum PowerUpType { PWRDN_ALL, PWRUP_VMIN, PWRUP_VNOM, PWRUP_VMAX, PWRUP_EFUSEREAD };

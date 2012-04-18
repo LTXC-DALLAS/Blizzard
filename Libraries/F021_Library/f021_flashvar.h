@@ -1016,18 +1016,18 @@ extern     BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1D
 //extern     IntM2D BANK_PRECON_PULSE;
 
                         /*bank,row#,word#,site*/
-extern     StringM2D OTP_ID_INFO;
+//extern     StringM2D OTP_ID_INFO;
 extern     IntM2D OTP_ID_INFO_VAL; 
-extern     StringM2D OTP_VT_INFO;
+//extern     StringM2D OTP_VT_INFO;
 extern     FloatM2D OTP_VT_INFO_VAL;
-extern     StringM2D OTP_BCC_INFO; 
+//extern     StringM2D OTP_BCC_INFO; 
 extern     FloatM2D OTP_BCC_INFO_VAL; 
 extern     IntM2D OTP_BCC_INFO_INTVAL; 
 extern     IntM2D OTP_LOG1_INFO_VAL; 
 extern     IntM2D OTP_LOG3_INFO_VAL; 
 
 extern     IntM EFCHKSUM_MSW, EFCHKSUM_LSW;
-extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; 
+//extern     StringM1D FRM_OTP_BANK_EFSUM_HI_BCD, FRM_OTP_BANK_EFSUM_LO_BCD; 
 extern     IntM1D FRM_OTP_BANK_EFSUM_HI_VAL, FRM_OTP_BANK_EFSUM_LO_VAL; 
 //extern     StringM1D FRM_OTP_BANK_FOSC_HI_BCD, FRM_OTP_BANK_FOSC_LO_BCD; 
 //extern     IntM1D FRM_OTP_BANK_FOSC_HI_VAL, FRM_OTP_BANK_FOSC_LO_VAL; 
@@ -1074,19 +1074,19 @@ extern    BoolS GL_MP3PKG_FLOW;
 extern    BoolS GL_VPP_PRESENT;
 extern    FlashPumpType GL_PUMPTYPE;
 extern    FlashBankType GL_BANKTYPE;
-extern    StringM GL_F021_FAIL_PATT;
+//extern    StringM GL_F021_FAIL_PATT;
 extern    BoolM GL_F021_LOG_FAIL_PATT;
 extern    BoolM GL_F021_COF_PASS;
-extern    StringM GL_F021_COF_1STFAILTEST; 
+//extern    StringM GL_F021_COF_1STFAILTEST; 
     /*for continue-on-fail*/
 extern    StringM1D GL_F021_COF_INFOS; 
-extern    BoolM1D GL_F021_COF_INFOS_FULL; 
+//extern    BoolM1D GL_F021_COF_INFOS_FULL; 
     /*for esda delta-vt*/
 extern    IntS GL_PREV_TNUM_VT;
 extern    BoolM GL_FLASH_RETEST;
-extern    BoolM GL_FLASH_RETEST_GEC;
+//extern    BoolM GL_FLASH_RETEST_GEC;
 extern    BoolM GL_FLASH_SAVESITES; 
-extern    BoolM GL_FLASH_EGSTRESS_STATUS;
+//extern    BoolM GL_FLASH_EGSTRESS_STATUS;
 extern    StringM GL_F021_LOG_SOFTBIN_STAT;
 extern    StringM GL_F021_LOG_SOFTBIN_PATT;
 
@@ -1244,12 +1244,12 @@ extern prepostcorner prepost_type;
  /*KChau effuse 02/01/7 - added for flash efuse trimming*/
 extern    BoolS enableFTrim;   /*KChau effuse 02/01/7*/
 
-extern    StringM TempDieIDChainStr;
+//extern    StringM TempDieIDChainStr;
 extern    StringM margFlashChainStr;
-extern    StringM FlashProgString, TempProgString;
+extern    StringM FlashProgString; //, TempProgString;
 extern    StringM SaveFlashProgString;
-extern    StringM BANK_EFSTR, AUXBG_EFSTR, MAINBG_EFSTR, VHV_SLPCT_EFSTR, VSA5CT_EFSTR;
-extern    StringM AUXBG_EFSTR_SHORT, MAINBG_EFSTR_SHORT;
+extern    StringM BANK_EFSTR, MAINBG_EFSTR; //, AUXBG_EFSTR, VHV_SLPCT_EFSTR, VSA5CT_EFSTR;
+//extern    StringM AUXBG_EFSTR_SHORT, MAINBG_EFSTR_SHORT;
 
  /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

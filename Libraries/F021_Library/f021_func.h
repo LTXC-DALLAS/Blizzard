@@ -21,6 +21,8 @@
 #define F021_FUNC_H
 
 #include <f021_flashvar.h>
+#include <std_vi.h>
+#include <SearchMod.h>
 #include <TestwareSupport.h>
 
 //void F021_FlashConfig();
@@ -126,8 +128,8 @@ void Get_Flash_TestLogSpace_SCRAM();
 //                              IntM lsw_data);
 //void Get_TLogSpace_TESTFREQ(    IntM ret_val);
 void Get_TLogSpace_PFBin(    IntM &ret_val);
-//void Get_TLogSpace_FAILADDR(    IntM msw_data,
-//                                 IntM lsw_data);
+void Get_TLogSpace_FAILADDR(    IntM msw_data,
+                                 IntM lsw_data);
 //void Get_TLogSpace_FAILDATA(    IntM msw_data,
 //                                 IntM lsw_data);
 void Get_TLogSpace_TNUM(    IntM &msw_data,
@@ -217,10 +219,9 @@ void F021_SetTestNum(IntS testnum);
 //                                       FlashCodeType code_type,
 //                                       IntS ovr_data);
 //
-BoolS F021_RunTestNumber(const IntS &testnum,
+TMResultM F021_RunTestNumber(const IntS &testnum,
                             const FloatS &maxtimeout,
-                            FloatM &ret_timer,
-                            TMResultM &ret_result);
+                            FloatM &ret_timer);
 
 //void CmpTRealLULim(    FloatM test_val,
 //                            FloatS test_LLimit,
@@ -256,12 +257,9 @@ void F021_TurnOff_AllTPADS();
 //                         FloatS iProg,
 //                         Option pgmMode);
 //
-TMResultM F021_Meas_TPAD_PMEX(    PinM TPAD,
+FloatM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  IntS TCRnum,
-                                 TPModeType TCRMode,
-                                 FloatS test_llim,
-                                 FloatS test_ulim,
-                                 FloatM &Meas_Value);
+                                 TPModeType TCRMode);
 
 TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
                                      FloatS maxtimeout,
@@ -405,17 +403,15 @@ void TL_RunTestNum(IntS start_testnum,
 //
 //void F021_GetESDA_NonSCRAM(IntS imgnum,
 //                                IntS banknum);
-//
-//void SetFlashESDAVars(BoolM logsites,
-//                           IntS bank,
-//                           IntS sect);
-//
+
+void SetFlashESDAVars(TMResultM logsites, IntS bank, IntS sect);
+
 //void ClearFlashESDAVars(IntS bank,
 //                             IntS sect);
 //
 //void F021_Set_TPADS_ESDA(  IntS bank, IntS  sect);
 //
-//void F021_CollectESDA(IntS imagenum);
+void F021_CollectESDA(IntS imagenum);
 //
 //void TL_BitHistogram(IntS pattype,
 //                          IntS testnum,
@@ -437,20 +433,17 @@ void TL_RunTestNum(IntS start_testnum,
 //
 //void RAM_Clear_MailBox_Key();
 
-BoolS F021_VHV_PG_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
-BoolS F021_VHV_ER_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
-BoolS F021_VHV_PV_CT_Trim_func(    TMResultM &test_results,
-                                      IntM &ret_ctval);
+TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval);
+TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval);
+TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval);
+
 void RAM_Upload_VHV_CT_TrimVal();
 
-BoolS F021_Pump_Para_func(    IntS start_testnum,
+TMResultM F021_Pump_Para_func(    IntS start_testnum,
                                  prepostcorner prepost_type,
                                  VCornerType vcorner_type,
                                  IntS TCRnum,
-                                 TPModeType TCRMode,
-                                 TMResultM &test_results);
+                                 TPModeType TCRMode);
 
 //BoolS F021_Bank_Para_func(    IntS start_testnum,
 //                                 prepostcorner prepost_type,
@@ -476,13 +469,9 @@ BoolS F021_Pump_Para_func(    IntS start_testnum,
 //                                  TPModeType TCRMode,
 //                                  BoolM test_results);
 //
-//
-//BoolS F021_Stress_func(    IntS start_testnum,
-//                              StringS tname,
-//                              IntS TCRnum,
-//                              TPModeType TCRMode,
-//                              BoolM test_results);
-//
+
+TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode);
+
 //BoolS F021_RefArr_Erase_func(    StringS tname,
 //                                    BoolS adaptiveEna,
 //                                    BoolM test_results);
@@ -540,7 +529,7 @@ TMResultM F021_InitFLGlobalvars_func();
 //                               StringS tname,
 //                               BoolM test_results);
 
-BoolS F021_Erase_func( IntS start_testnum, StringS tname, TMResultM& test_results);
+TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 
 //BoolS F021_Read_func(    IntS start_testnum,
 //                            StringS tname,
@@ -764,8 +753,6 @@ void RAM_Upload_PMOS_TrimCode();
 //#if $FL_USE_DCC_TRIM_FOSC=FALSE then
 //BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
 //#endif
-
-void PowerUpDn (PowerUpType ps_Val);
 
 #endif
 

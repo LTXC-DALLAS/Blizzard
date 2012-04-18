@@ -9,7 +9,6 @@ IntS SelectedTITestTemp;
 IntS SelectedTITestType;
 
 StringS1D TestOptFieldArr(21);
-StringS NULL_TestName = "";
 BoolS tistdscreenprint = true; // for now, we're printing what we can
 BoolS tiprintpass = true; // for now, we're printing what we can
 
@@ -20,11 +19,9 @@ BoolS  TI_FlashDebug = true;  // for now, we're debugging
 BoolS  TI_FlashCharEna = false; 
 BoolS  TI_FlashESDAEna = false; 
 BoolS  TI_FlashCOFEna = false; 
-//BoolM  v_dev_active;
 
 StringS f021_shell_loadpat = "Garnet_Shell064_T072C008S007_A2_Thrd";
 StringS f021_shell_exepat = "f021_shell_exepat_pll_v3p0_Thrd";
-//StringS f021_shell_exepat_name = "f021_shell_exepat_pll_v3p0"; // pattern name, not thread name
 StringS ldo_bypass_init_thread = "ldo_bypass_init_v20";
 StringS f021_shell_rcodepat = "This is an unknown pattern thread";
 StringS f021_shell_exepat_vco_kc = "This is an unknown pattern thread";
