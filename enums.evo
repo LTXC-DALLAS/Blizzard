@@ -1,4 +1,3 @@
-enVisionObject:"b18:R14.4.8.WW0306:S3.1"; /* 5.7 */
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
 /*                                                                            */
@@ -20,9 +19,10 @@ enVisionObject:"b18:R14.4.8.WW0306:S3.1"; /* 5.7 */
 /*  Jazz Version used: /vobs/ASP/jazz/release */
 /******************************************************************************/
 
+// Remember, enums.evo for TI always starts with enums at 1...
 enum TITestTemp
 {
-   TEMP_N45_DEG,
+   TEMP_N45_DEG = 1,
    TEMP_N40_DEG,
    TEMP_0_DEG,
    TEMP_25_DEG,
@@ -40,12 +40,12 @@ enum TITestTemp
 
 enum TIDeviceType
 {
-   Bllizar_PB1
+   Bllizar_PB1 = 1
 };
 
 enum TITestType
 {
-   Probe,
+   Probe = 1,
    Final,
    Qual,
    DPSE,
