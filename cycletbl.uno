@@ -1607,6 +1607,7 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[0] = FF_InitCheck_Thrd;
     __Thread[1] = FF_CheckROM_Mg0_ENG_Thrd;
     __Thread[2] = FF_RunAutoload_ENG_Thrd;
+    __Thread[3] = FF_Read_Mg1A_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
@@ -2462,4 +2463,10 @@ __PatternSequence debug_ps {
         __Row { TDLStdPatGrp, WFT8 = { WFT8 } }
     }
     __AutoBasePeriod = __True;
+}
+__Thread FF_Read_Mg1A_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = FF_Read_Mg1A;
+    }
 }

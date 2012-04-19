@@ -8,6 +8,8 @@
 IntS SelectedTITestTemp;
 IntS SelectedTITestType;
 
+double HVFEM_FACTOR;
+
 StringS1D TestOptFieldArr(21);
 BoolS tistdscreenprint = true; // for now, we're printing what we can
 BoolS tiprintpass = true; // for now, we're printing what we can
@@ -34,14 +36,20 @@ PinM F021_VSTATPIN = "PB2_131";
 PinM nporrst = "RST_n_122";
 
 PinM FLTP1 = "FLTP1";
+PinM FLTP1_HVFEM_RLY;
 PinM FLTP2 = "FLTP2";
+PinM FLTP2_HVFEM_RLY;
 #if $TP3_TO_TP5_PRESENT
 PinM FLTP3 = "FLTP3";
+PinM FLTP3_HVFEM_RLY;
 PinM FLTP4 = "FLTP4";
+PinM FLTP4_HVFEM_RLY;
 PinM FLTP5 = "FLTP5";
+PinM FLTP5_HVFEM_RLY;
 #endif
 #if $TADC_PRESENT
 PinM P_TADC = "P_TADC";
+PinM P_TADC_HVFEM_RLY;
 #endif
 
 BoolS IsFastBinning;

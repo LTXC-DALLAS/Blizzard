@@ -191,7 +191,9 @@ __ApplicationLibrary STD_Library {
    __LibraryType = __Debug;
    __Source = "./Libraries/STD_Library/SearchMod.cpp";
    __Source = "./Libraries/STD_Library/std_vi.cpp";
+   __Source = "./Libraries/STD_Library/stdEfuse.cpp";
    __IncludePath = "./Libraries/STD_Library";
    __Include = "std_vi.h";
    __Include = "SearchMod.h";
+   __Include = "stdEfuse.h";
 }

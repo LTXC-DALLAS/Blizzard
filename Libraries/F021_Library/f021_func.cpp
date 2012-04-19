@@ -293,6 +293,36 @@
 using namespace std; 
 
 
+void SetupHVFEM(const PinM &supply, FloatS &vProg, FloatS &vRange, const PinM &tsupply_relay)
+{
+   // This might be sped up by hardcoding an HVFEM Threshold, but I'm not sure I like that. 
+   // Take a look at this after implementation to see how long it takes to get the constraints.
+   FloatM min_constraint, max_constraint;
+   
+   supply.GetConstraints(PINTYPE_VOLTAGE, min_constraint, max_constraint);
+   if (MATH.Abs(max_constraint).AnyLess(vRange))
+   {
+      if (tsupply_relay.Valid())
+      {
+         CBIT.Close(tsupply_relay);
+      }
+      else
+      {
+         StringS message;
+         IO.Print(message, "Voltage range %f out of range for pin %s. HVFEM must be used but HVFEM relay pin not supplied.", 
+                          vRange, supply.GetName());
+         ERR.ReportError(ERR_INVALID_PIN, message, UTL_VOID, NO_SITES, UTL_VOID);
+      }
+      vRange /= HVFEM_FACTOR;
+      vProg /= HVFEM_FACTOR;
+   }
+   else 
+   {
+      if (tsupply_relay.Valid())
+         CBIT.Open(tsupply_relay); 
+   }
+}
+
 void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
                                                    VIMeasureTypeS &vimeas_type)
 {
@@ -7608,6 +7638,7 @@ void F021_Set_TPADS(IntS TCRnum,
 {
    FloatS tdelay,iProg,vProg,vRange,vforce;
    PinM tsupply;  /*PSSupplyName;*/
+   PinM tsupply_relay;
    IntS tpnum,special_opt;
    StringS str1;
    BoolS suppena;
@@ -7647,6 +7678,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP1;
+                  tsupply_relay = FLTP1_HVFEM_RLY;
                   str1     = "TP1";
                   if(special_opt=3)  
                      suppena = false;
@@ -7674,6 +7706,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));                        
                   tsupply  = FLTP2;
+                  tsupply_relay = FLTP2_HVFEM_RLY;
                   str1     = "TP2";
                   suppena  = true;
                 }
@@ -7699,6 +7732,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MTH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP3;
+                  tsupply_relay = FLTP3_HVFEM_RLY;
                   str1     = "TP3";
                   suppena  = true;
                } 
@@ -7723,6 +7757,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP4;
+                  tsupply_relay = FLTP4_HVFEM_RLY;
                   str1     = "TP4";
                   suppena  = true;
                } 
@@ -7747,6 +7782,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP5;
+                  tsupply_relay = FLTP5_HVFEM_RLY;
                   str1     = "TP5";
                   suppena  = true;
                } 
@@ -7773,6 +7809,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
                   tsupply  = P_TADC;
+                  tsupply_relay = P_TADC_HVFEM_RLY;
                   str1     = "TADC";
                   suppena  = true;
                } 
@@ -7782,11 +7819,12 @@ void F021_Set_TPADS(IntS TCRnum,
 
       if(suppena)  
       {
+         GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
+         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
          if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
          { 
             STDConnect(tsupply);
          }
-         GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
@@ -7818,6 +7856,7 @@ void F021_Set_TPADS(IntS TCRnum,
          else
             iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
          tsupply  = FLTP1;
+         tsupply_relay = FLTP1_HVFEM_RLY;
          str1     = "TP1";
          suppena  = true;
       } 
@@ -7825,6 +7864,7 @@ void F021_Set_TPADS(IntS TCRnum,
       if(suppena)  
       {
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
+         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
@@ -8185,24 +8225,18 @@ void F021_TurnOff_AllTPADS()
 
    VI.Gate(FLTP1, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP2, VI_GATE_OFF_LOZ);
-   VI.Disconnect(FLTP1);
-   VI.Disconnect(FLTP2);
 //   STDSetVI(FLTP1,0V,1mA);
 //   STDSetVI(FLTP2,0V,1mA);
 #if $TP3_TO_TP5_PRESENT  
    VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP4, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP5, VI_GATE_OFF_LOZ);
-   VI.Disconnect(FLTP3);
-   VI.Disconnect(FLTP4);
-   VI.Disconnect(FLTP5);
 //   STDSetVI(FLTP3,0V,1mA);
 //   STDSetVI(FLTP4,0V,1mA);
 //   STDSetVI(FLTP5,0V,1mA);
 #endif
 #if $TADC_PRESENT  
    VI.Gate(P_TADC, VI_GATE_OFF_LOZ);
-   VI.Disconnect(P_TADC);
 //   STDSetVI(P_TADC,0V,1mA);
 #endif
       
@@ -8313,6 +8347,7 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
    TMResultM final_results;
    FloatS ulim,llim;
    BoolS validsupp,validpgm;
+   BoolS using_HVFEM;
    UnsignedS count;
    BoolS debugprint;
    FloatM Sim_Value = 0.0;
@@ -8331,6 +8366,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
       else if(TCR.TP1_MeasType[TCRnum]==MeasVoltType)  
          read_voltage = true;
       validsupp = true;
+      if (FLTP1_HVFEM_RLY.Valid())
+         using_HVFEM = (CBIT.GetBooleanStatus(FLTP1_HVFEM_RLY) != false); // will be true if at least one site is true
+      else
+         using_HVFEM = false;
    }
    else if((TPAD==FLTP2) and TCR.TP2_Ena[TCRnum] and
       ((TCR.TP2_MeasType[TCRnum]==MeasCurrType) or (TCR.TP2_MeasType[TCRnum]==MeasVoltType)))  
@@ -8340,6 +8379,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
       else if(TCR.TP2_MeasType[TCRnum]==MeasVoltType)  
          read_voltage = true;
       validsupp = true;
+      if (FLTP2_HVFEM_RLY.Valid())
+         using_HVFEM = (CBIT.GetBooleanStatus(FLTP2_HVFEM_RLY) != false);
+      else
+         using_HVFEM = false;
    } 
    
    if(not validsupp)  
@@ -8354,6 +8397,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP3_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
+         if (FLTP3_HVFEM_RLY.Valid())
+            using_HVFEM = (CBIT.GetBooleanStatus(FLTP3_HVFEM_RLY) != false);
+         else
+            using_HVFEM = false;
       }
       else if((TPAD==FLTP4) and TCR.TP4_Ena[TCRnum] and
          ((TCR.TP4_MeasType[TCRnum]==MeasCurrType) or (TCR.TP4_MeasType[TCRnum]==MeasVoltType)))  
@@ -8363,6 +8410,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP4_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
+         if (FLTP4_HVFEM_RLY.Valid())
+            using_HVFEM = (CBIT.GetBooleanStatus(FLTP4_HVFEM_RLY) != false);
+         else
+            using_HVFEM = false;
       }
       else if((TPAD==FLTP5) and TCR.TP5_Ena[TCRnum] and
          ((TCR.TP5_MeasType[TCRnum]==MeasCurrType) or (TCR.TP5_MeasType[TCRnum]==MeasVoltType)))  
@@ -8372,6 +8423,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP5_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
+         if (FLTP5_HVFEM_RLY.Valid())
+            using_HVFEM = (CBIT.GetBooleanStatus(FLTP5_HVFEM_RLY) != false);
+         else
+            using_HVFEM = false;
       } 
 #endif
    } 
@@ -8388,6 +8443,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TADC_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
+         if (P_TADC_HVFEM_RLY.Valid())
+            using_HVFEM = (CBIT.GetBooleanStatus(P_TADC_HVFEM_RLY) != false);
+         else
+            using_HVFEM = false;
       } 
 #endif
    } 
@@ -8406,18 +8465,26 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          if (debug_sample_repeatability)
          {
             STDMeasVSampled(tsupply, 1000, meas_values, Sim_Value);
+            if (using_HVFEM)
+               meas_values *= HVFEM_FACTOR;
          }
          
          STDMeasV(tsupply, count, Meas_Value, Sim_Value);
+         if (using_HVFEM)
+            Meas_Value *= HVFEM_FACTOR;
       } else {
 //         cout << "I'm-a reading current!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
             STDMeasISampled(tsupply, 1000, meas_values, Sim_Value);
+            if (using_HVFEM)
+               meas_values *= HVFEM_FACTOR;
          }
          
          STDMeasI(tsupply, count, Meas_Value, Sim_Value);
+         if (using_HVFEM)
+            Meas_Value *= HVFEM_FACTOR;
       }
 
       // since other messages go to stdout and not the datalog stream buffer, we
@@ -12092,7 +12159,7 @@ void TL_RunTestNum(IntS start_testnum,
 //}   /* RAM_Clear_MailBox_Key */
 
 
-FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
+FloatM DoVIMeasure(const PinM &testpad, const IntS &tcrnum, 
                 const TPModeType &tcrmode, const IntS &testnum, 
                 const FloatS &maxtime, const FloatS &tdelay) 
 {
@@ -12109,7 +12176,7 @@ FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum,
    F021_TurnOff_AllTPADS();
    
    return (meas_val);
-}   /* DoIMeasure */
+}   /* DoVIMeasure */
 
 TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
 {
@@ -12186,7 +12253,7 @@ TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
    {
       msw_data = MATH.LegacyRound(ct_search.xForceValueMS);
       WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
       
       // Dlog the trim code tried...but don't really care if it passes or don't send to TW
       str1 = "VHV_PG_CT_ITER_CODE_" + i;
@@ -12219,7 +12286,7 @@ TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
    WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 #endif
 
-   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
 
    str1 = "VHV_PG_CT_TRIM_SOL";
    tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -12342,7 +12409,7 @@ TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval)
       lsw_data = MATH.LegacyRound(ct_search.xForceValueMS);
 #endif
       WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
       
       // Dlog the trim code tried...but don't really care if it passes or don't send to TW
       str1 = "VHV_ER_CT_ITER_CODE_" + i;
@@ -12384,7 +12451,7 @@ TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval)
    WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 #endif
 
-   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
 
    str1 = "VHV_ER_CT_SOL";
    tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -12494,7 +12561,7 @@ TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval)
    {
       msw_data = MATH.LegacyRound(ct_search.xForceValueMS);
       WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-      meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
       
       // Dlog the trim code tried...but don't really care if it passes or don't send to TW
       str1 = "VHV_PV_CT_ITER_CODE_" + i;
@@ -12525,7 +12592,7 @@ TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval)
    WriteRamContentDec_32Bit(addr_emu,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 #endif
 
-   meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   meas_val = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
 
    str1 = "VHV_PV_CT_TRIM_SOL";
    tmp_results = TIDlog.Value(ctval, testpad, 0, 511, "", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
