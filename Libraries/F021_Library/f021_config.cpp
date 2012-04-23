@@ -61,21 +61,21 @@ void F021_FlashConfig()
    //                                                                                       //
    ///////////////////////////////////////////////////////////////////////////////////////////
    
-   FLTP1_HVFEM_RLY = UTL_VOID;
-   FLTP2_HVFEM_RLY = UTL_VOID;
-#if $TP3_TO_TP5_PRESENT
-   FLTP3_HVFEM_RLY = UTL_VOID;
-   FLTP4_HVFEM_RLY = UTL_VOID;
-   FLTP5_HVFEM_RLY = UTL_VOID;
-#endif
-#if $TADC_PRESENT
-   T_PADC_HVFEM_RLY = UTL_VOID;
-#endif
+//   FLTP1_HVFEM_RLY = UTL_VOID;
+//   FLTP2_HVFEM_RLY = UTL_VOID;
+//#if $TP3_TO_TP5_PRESENT
+//   FLTP3_HVFEM_RLY = UTL_VOID;
+//   FLTP4_HVFEM_RLY = UTL_VOID;
+//   FLTP5_HVFEM_RLY = UTL_VOID;
+//#endif
+//#if $TADC_PRESENT
+//   T_PADC_HVFEM_RLY = UTL_VOID;
+//#endif
    
    // HVFEM has a gain of 3. on force voltage and a divider of 3. on measure voltage
    // Do not change this unless you are using custom hardware similar to the HVFEM with 
    // a different factor.
-   HVFEM_FACTOR = 3.0;
+//   HVFEM_FACTOR = 3.0;
 
     /*+++ Bank/Sector info +++*/
    F021_Flash.MAXBANK     =  1;  /*base 0 so total 3 banks} {blizzard has 2 banks 0 & 1 JRR*/

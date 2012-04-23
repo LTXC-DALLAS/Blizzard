@@ -292,36 +292,36 @@
 #include <iomanip>
 using namespace std; 
 
-
-void SetupHVFEM(const PinM &supply, FloatS &vProg, FloatS &vRange, const PinM &tsupply_relay)
-{
-   // This might be sped up by hardcoding an HVFEM Threshold, but I'm not sure I like that. 
-   // Take a look at this after implementation to see how long it takes to get the constraints.
-   FloatM min_constraint, max_constraint;
-   
-   supply.GetConstraints(PINTYPE_VOLTAGE, min_constraint, max_constraint);
-   if (MATH.Abs(max_constraint).AnyLess(vRange))
-   {
-      if (tsupply_relay.Valid())
-      {
-         CBIT.Close(tsupply_relay);
-      }
-      else
-      {
-         StringS message;
-         IO.Print(message, "Voltage range %f out of range for pin %s. HVFEM must be used but HVFEM relay pin not supplied.", 
-                          vRange, supply.GetName());
-         ERR.ReportError(ERR_INVALID_PIN, message, UTL_VOID, NO_SITES, UTL_VOID);
-      }
-      vRange /= HVFEM_FACTOR;
-      vProg /= HVFEM_FACTOR;
-   }
-   else 
-   {
-      if (tsupply_relay.Valid())
-         CBIT.Open(tsupply_relay); 
-   }
-}
+// :TODO: Don't know what we'll need to do for this now
+//void SetupHVFEM(const PinM &supply, FloatS &vProg, FloatS &vRange, const PinM &tsupply_relay)
+//{
+//   // This might be sped up by hardcoding an HVFEM Threshold, but I'm not sure I like that. 
+//   // Take a look at this after implementation to see how long it takes to get the constraints.
+//   FloatM min_constraint, max_constraint;
+//   
+//   supply.GetConstraints(PINTYPE_VOLTAGE, min_constraint, max_constraint);
+//   if (MATH.Abs(max_constraint).AnyLess(vRange))
+//   {
+//      if (tsupply_relay.Valid())
+//      {
+//         CBIT.Close(tsupply_relay);
+//      }
+//      else
+//      {
+//         StringS message;
+//         IO.Print(message, "Voltage range %f out of range for pin %s. HVFEM must be used but HVFEM relay pin not supplied.", 
+//                          vRange, supply.GetName());
+//         ERR.ReportError(ERR_INVALID_PIN, message, UTL_VOID, NO_SITES, UTL_VOID);
+//      }
+//      vRange /= HVFEM_FACTOR;
+//      vProg /= HVFEM_FACTOR;
+//   }
+//   else 
+//   {
+//      if (tsupply_relay.Valid())
+//         CBIT.Open(tsupply_relay); 
+//   }
+//}
 
 void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
                                                    VIMeasureTypeS &vimeas_type)
@@ -7632,7 +7632,7 @@ void F021_Set_TPADS(IntS TCRnum,
 {
    FloatS tdelay,iProg,vProg,vRange,vforce;
    PinM tsupply;  /*PSSupplyName;*/
-   PinM tsupply_relay;
+//   PinM tsupply_relay;
    IntS tpnum,special_opt;
    StringS str1;
    BoolS suppena;
@@ -7672,7 +7672,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP1;
-                  tsupply_relay = FLTP1_HVFEM_RLY;
+//                  tsupply_relay = FLTP1_HVFEM_RLY;
                   str1     = "TP1";
                   if(special_opt=3)  
                      suppena = false;
@@ -7700,7 +7700,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));                        
                   tsupply  = FLTP2;
-                  tsupply_relay = FLTP2_HVFEM_RLY;
+//                  tsupply_relay = FLTP2_HVFEM_RLY;
                   str1     = "TP2";
                   suppena  = true;
                 }
@@ -7726,7 +7726,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MTH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP3;
-                  tsupply_relay = FLTP3_HVFEM_RLY;
+//                  tsupply_relay = FLTP3_HVFEM_RLY;
                   str1     = "TP3";
                   suppena  = true;
                } 
@@ -7751,7 +7751,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP4;
-                  tsupply_relay = FLTP4_HVFEM_RLY;
+//                  tsupply_relay = FLTP4_HVFEM_RLY;
                   str1     = "TP4";
                   suppena  = true;
                } 
@@ -7776,7 +7776,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
                   tsupply  = FLTP5;
-                  tsupply_relay = FLTP5_HVFEM_RLY;
+//                  tsupply_relay = FLTP5_HVFEM_RLY;
                   str1     = "TP5";
                   suppena  = true;
                } 
@@ -7803,7 +7803,7 @@ void F021_Set_TPADS(IntS TCRnum,
                   else
                      iProg = MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
                   tsupply  = P_TADC;
-                  tsupply_relay = P_TADC_HVFEM_RLY;
+//                  tsupply_relay = P_TADC_HVFEM_RLY;
                   str1     = "TADC";
                   suppena  = true;
                } 
@@ -7814,7 +7814,7 @@ void F021_Set_TPADS(IntS TCRnum,
       if(suppena)  
       {
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
-         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
+//         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
          if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
          { 
             STDConnect(tsupply);
@@ -7850,7 +7850,7 @@ void F021_Set_TPADS(IntS TCRnum,
          else
             iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
          tsupply  = FLTP1;
-         tsupply_relay = FLTP1_HVFEM_RLY;
+//         tsupply_relay = FLTP1_HVFEM_RLY;
          str1     = "TP1";
          suppena  = true;
       } 
@@ -7858,7 +7858,7 @@ void F021_Set_TPADS(IntS TCRnum,
       if(suppena)  
       {
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
-         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
+//         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
@@ -8341,7 +8341,7 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
    TMResultM final_results;
    FloatS ulim,llim;
    BoolS validsupp,validpgm;
-   BoolS using_HVFEM;
+//   BoolS using_HVFEM;
    UnsignedS count;
    BoolS debugprint;
    FloatM Sim_Value = 0.0;
@@ -8360,10 +8360,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
       else if(TCR.TP1_MeasType[TCRnum]==MeasVoltType)  
          read_voltage = true;
       validsupp = true;
-      if (FLTP1_HVFEM_RLY.Valid())
-         using_HVFEM = (CBIT.GetBooleanStatus(FLTP1_HVFEM_RLY) != false); // will be true if at least one site is true
-      else
-         using_HVFEM = false;
+//      if (FLTP1_HVFEM_RLY.Valid())
+//         using_HVFEM = (CBIT.GetBooleanStatus(FLTP1_HVFEM_RLY) != false); // will be true if at least one site is true
+//      else
+//         using_HVFEM = false;
    }
    else if((TPAD==FLTP2) and TCR.TP2_Ena[TCRnum] and
       ((TCR.TP2_MeasType[TCRnum]==MeasCurrType) or (TCR.TP2_MeasType[TCRnum]==MeasVoltType)))  
@@ -8373,10 +8373,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
       else if(TCR.TP2_MeasType[TCRnum]==MeasVoltType)  
          read_voltage = true;
       validsupp = true;
-      if (FLTP2_HVFEM_RLY.Valid())
-         using_HVFEM = (CBIT.GetBooleanStatus(FLTP2_HVFEM_RLY) != false);
-      else
-         using_HVFEM = false;
+//      if (FLTP2_HVFEM_RLY.Valid())
+//         using_HVFEM = (CBIT.GetBooleanStatus(FLTP2_HVFEM_RLY) != false);
+//      else
+//         using_HVFEM = false;
    } 
    
    if(not validsupp)  
@@ -8391,10 +8391,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP3_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
-         if (FLTP3_HVFEM_RLY.Valid())
-            using_HVFEM = (CBIT.GetBooleanStatus(FLTP3_HVFEM_RLY) != false);
-         else
-            using_HVFEM = false;
+//         if (FLTP3_HVFEM_RLY.Valid())
+//            using_HVFEM = (CBIT.GetBooleanStatus(FLTP3_HVFEM_RLY) != false);
+//         else
+//            using_HVFEM = false;
       }
       else if((TPAD==FLTP4) and TCR.TP4_Ena[TCRnum] and
          ((TCR.TP4_MeasType[TCRnum]==MeasCurrType) or (TCR.TP4_MeasType[TCRnum]==MeasVoltType)))  
@@ -8404,10 +8404,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP4_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
-         if (FLTP4_HVFEM_RLY.Valid())
-            using_HVFEM = (CBIT.GetBooleanStatus(FLTP4_HVFEM_RLY) != false);
-         else
-            using_HVFEM = false;
+//         if (FLTP4_HVFEM_RLY.Valid())
+//            using_HVFEM = (CBIT.GetBooleanStatus(FLTP4_HVFEM_RLY) != false);
+//         else
+//            using_HVFEM = false;
       }
       else if((TPAD==FLTP5) and TCR.TP5_Ena[TCRnum] and
          ((TCR.TP5_MeasType[TCRnum]==MeasCurrType) or (TCR.TP5_MeasType[TCRnum]==MeasVoltType)))  
@@ -8417,10 +8417,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TP5_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
-         if (FLTP5_HVFEM_RLY.Valid())
-            using_HVFEM = (CBIT.GetBooleanStatus(FLTP5_HVFEM_RLY) != false);
-         else
-            using_HVFEM = false;
+//         if (FLTP5_HVFEM_RLY.Valid())
+//            using_HVFEM = (CBIT.GetBooleanStatus(FLTP5_HVFEM_RLY) != false);
+//         else
+//            using_HVFEM = false;
       } 
 #endif
    } 
@@ -8437,10 +8437,10 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          else if(TCR.TADC_MeasType[TCRnum]==MeasVoltType)  
             read_voltage = true;
          validsupp = true;
-         if (P_TADC_HVFEM_RLY.Valid())
-            using_HVFEM = (CBIT.GetBooleanStatus(P_TADC_HVFEM_RLY) != false);
-         else
-            using_HVFEM = false;
+//         if (P_TADC_HVFEM_RLY.Valid())
+//            using_HVFEM = (CBIT.GetBooleanStatus(P_TADC_HVFEM_RLY) != false);
+//         else
+//            using_HVFEM = false;
       } 
 #endif
    } 
@@ -8459,26 +8459,26 @@ FloatM F021_Meas_TPAD_PMEX(   PinM TPAD,
          if (debug_sample_repeatability)
          {
             STDMeasVSampled(tsupply, 1000, meas_values, Sim_Value);
-            if (using_HVFEM)
-               meas_values *= HVFEM_FACTOR;
+//            if (using_HVFEM)
+//               meas_values *= HVFEM_FACTOR;
          }
          
          STDMeasV(tsupply, count, Meas_Value, Sim_Value);
-         if (using_HVFEM)
-            Meas_Value *= HVFEM_FACTOR;
+//         if (using_HVFEM)
+//            Meas_Value *= HVFEM_FACTOR;
       } else {
 //         cout << "I'm-a reading current!" << endl;
          // remove after debug!!
          if (debug_sample_repeatability)
          {
             STDMeasISampled(tsupply, 1000, meas_values, Sim_Value);
-            if (using_HVFEM)
-               meas_values *= HVFEM_FACTOR;
+//            if (using_HVFEM)
+//               meas_values *= HVFEM_FACTOR;
          }
          
          STDMeasI(tsupply, count, Meas_Value, Sim_Value);
-         if (using_HVFEM)
-            Meas_Value *= HVFEM_FACTOR;
+//         if (using_HVFEM)
+//            Meas_Value *= HVFEM_FACTOR;
       }
 
       // since other messages go to stdout and not the datalog stream buffer, we
