@@ -6681,186 +6681,230 @@ TMResultM Pump_VHV_Vmin_func()
 // /*KChau 03/10/11 - will need to update test name & jazz config later*/
 // /*CGEG 1s stress/lkg include pump cg lkg. this is different than CGS_Leak_Vmax_func*/
 // /*sequence: cg lkg @11.3v tcr7, stress 100ms, lkg, stress 400ms, lkg, stress 500ms, lkg*/
-//BoolS EGCG_Leak_Vmax_func()
-//{
-//   const IntS TESTID = 77; 
-//
-//   BoolM final_results,tmp_results,savesites;
-//   BoolM dlta_results;
-//   StringS current_shell,str1,str2,str3;
-//   IntS tcrnum,site,bank,testnum,stnum,count;
-//   TPModeType tcrmode,tcrmode_stress;
+//Changed the return type from BoolS to BoolM.  Maybe needs to be TMResultM?  --BJP
+BoolM EGCG_Leak_Vmax_func()
+{
+   const IntS TESTID = 77; 
+
+   BoolM final_results,tmp_results,savesites;
+   BoolM dlta_results;
+   StringS current_shell,str1,str2,str3;
+   IntS tcrnum,site,bank,testnum,stnum,count;
+   TPModeType tcrmode,tcrmode_stress;
 //   VcornerType vcorner;
-//   FloatS tdelay,maxtime,llim,ulim,dltlim;
-//   FloatS strtime0,strtime,ttimer1;
-//   FloatS rampstart,rampstop,iProg;
-//   FloatS rampstart_lkg,rampstop_lkg,iprog_lkg;
-//   FloatS rampstart_str,rampstop_str,iprog_str;
+   FloatS tdelay,maxtime,llim,ulim,dltlim;
+   FloatM ttimer1;
+   FloatS strtime0,strtime;
+   FloatS rampstart,rampstop,iProg;
+   FloatS rampstart_lkg,rampstop_lkg,iprog_lkg;
+   FloatS rampstart_str,rampstop_str,iprog_str;
+//required for ramp_tpad call, which is currently commented out
 //   option pgmMode;
-//   PinM testpad;
-//   FloatM FloatSval;
+   PinM testpad;
+   FloatM FloatSval;
+// Code is defined, need to implement testware locally
 //   TWunit unitval;
-//   FloatM tt_timer,meas_val,dlta,meas_pre;
-//   BoolS dlogonly;
-//   FloatS1D stresstime(5);
-//   TPMeasType savetpmeastype;
-//
+   FloatM tt_timer,meas_val,dlta,meas_pre;
+   BoolS dlogonly;
+   FloatS1D stresstime(5);
+   TPMeasType savetpmeastype;
+   Levels PS_Vmax = "PowerUpAtVmax";
+   TMResultM TestRslt;
+   
+//Unison is sited
 //   if(v_any_dev_active)  
 //   {
+      PS_Vmax.Execute();
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+//Unison is sited      
 //      savesites = v_dev_active;
 //      final_results = v_dev_active;
-//   
-//      GL_FLTESTID = TESTID;
-//      tdelay  = 10ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      stnum   = TNUM_BANK_CGS;
-//      testpad = FLTP1;
-//      tcrnum  = 7;   /*bank CG stress*/
+   
+      GL_FLTESTID = TESTID;
+      tdelay  = 10ms;
+      maxtime = GL_F021_PARAM_MAXTIME;
+      stnum   = TNUM_BANK_CGS;
+      testpad = FLTP1;
+      tcrnum  = 7;   /*bank CG stress*/
 //      vcorner = VMX;
-//
-//      savetpmeastype = TCR.TP1_MeasType[tcrnum];  /*lkg*/
-//      tcrmode = ProgMode;  /*lkg*/
-//      llim      = TCR.TP1_LLim[TCRnum][TCRmode];
-//      ulim      = TCR.TP1_ULim[TCRnum][TCRmode];
-//      dltlim    = CGEG_VCG_LEAK_Pvfy_Delta;
-//      rampstart_lkg = TCR.TP1_VCharLo[TCRnum][TCRmode];
-//      rampstop_lkg  = TCR.TP1_VCharHi[TCRnum][TCRmode];
-//      iProg_lkg     = 1.2*TCR.TP1_IRange[TCRnum][TCRmode];
+
+      savetpmeastype = TCR.TP1_MeasType[tcrnum];  /*lkg*/
+      tcrmode = ProgMode;  /*lkg*/
+      llim      = TCR.TP1_LLim[tcrnum][tcrmode];
+      ulim      = TCR.TP1_ULim[tcrnum][tcrmode];
+      dltlim    = CGEG_VCG_LEAK_Pvfy_Delta;
+      rampstart_lkg = TCR.TP1_VCharLo[tcrnum][tcrmode];
+      rampstop_lkg  = TCR.TP1_VCharHi[tcrnum][tcrmode];
+      iprog_lkg     = 1.2*TCR.TP1_IRange[tcrnum][tcrmode];
+//required for ramp_tpad call, which is currently commented out
 //      pgmMode   = S_VI_Mode;
-//
-//       /*total stress time is 1s*/
-//      stresstime[1] = 100ms;
-//      stresstime[2] = 400ms;
-//      stresstime[3] = 500ms;
-//      tcrmode_stress = PvfyMode;
-//      rampstart_str = TCR.TP1_VCharLo[TCRnum][TCRmode_stress];
-//      rampstop_str  = TCR.TP1_VCharHi[TCRnum][TCRmode_stress];
-//      iProg_str     = TCR.TP1_IRange[TCRnum][TCRmode_stress];
-//
-//      dlogonly  = not (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode_stress][1]);
-//
+
+       /*total stress time is 1s*/
+      stresstime[1] = 100ms;
+      stresstime[2] = 400ms;
+      stresstime[3] = 500ms;
+      tcrmode_stress = PvfyMode;
+      rampstart_str = TCR.TP1_VCharLo[tcrnum][tcrmode_stress];
+      rampstop_str  = TCR.TP1_VCharHi[tcrnum][tcrmode_stress];
+      iprog_str     = TCR.TP1_IRange[tcrnum][tcrmode_stress];
+
+      dlogonly  = not (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode_stress][1]);
+// Need to implement this function or implement alternate code
 //      PrintHeaderParam(GL_PLELL_FORMAT);
-//
-//      timernstart(ttimer1);      
-//
-//      TestOpen(EGCG_Leak_Test);
-//
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         testnum = stnum+(bank<<4);
+
+      TIME.StartTimer();
+//     timernstart(ttimer1);      
+//We don't need to steekin TestOpen
+ //     TestOpen(EGCG_Leak_Test);
+
+      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
+      {
+         testnum = stnum+(bank<<4);
+         str1 = CONV.IntToString(bank);
 //         writestring(str1,bank:1);
-//         str1 = "CGStrs_Leak_B" + str1;
-//         str3 = str1 + "_DLT";
-//
-//         for (count = 1;count <= 4;count++)
-//         {
+         str1 = "CGStrs_Leak_B" + str1;
+         str3 = str1 + "_DLT";
+
+         for (count = 1;count <= 4;count++)
+         {
+//Unison is sited
 //            tmp_results = v_dev_active;
-//             /*meas lkg*/
-//            F021_TurnOff_AllTpads;
-//            F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//            TCR.TP1_MeasType[tcrnum] = savetpmeastype;  /*meascurrtype*/
-//            F021_Set_TPADS(tcrnum,tcrmode);
-//            TIME.Wait(tdelay);
+             /*meas lkg*/
+            F021_TurnOff_AllTPADS();
+ //           TestRslt = F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
+//          Ignore the pass pin as a first pass
+            TestRslt = F021_RunTestNumber_PMEX(testnum,maxtime);
+            TCR.TP1_MeasType[tcrnum] = savetpmeastype;  /*meascurrtype*/
+            F021_Set_TPADS(tcrnum,tcrmode);
+            TIME.Wait(tdelay);
 //            F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,tmp_results);
+//          Our implemntation of F021_Meas_TPAD_PMEX doesn't have that many arguments
+            F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+//Code for this is in f021_func.cpp but is currently commented out
 //            F021_Ramp_TPAD(testpad,rampstop_lkg,rampstart_lkg,iProg_lkg,pgmMode);
+//            VLCT need a special procedure to and boolean arrays
 //            arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//            
-//            switch(count) {
-//              case 1 :  
-//                     str2 = str1 + "_0S";
-//                     meas_pre = meas_val;
-//                   break; 
-//              case 2 : str2 = str1 + "_100MS";
-//              case 3 : str2 = str1 + "_400MS";
-//              case 4 : str2 = str1 + "_500MS";
-//            }   /* case */
-//            
+            final_results = final_results & tmp_results;
+            
+            switch(count) {
+              case 1 :  
+                     str2 = str1 + "_0S";
+                     meas_pre = meas_val;
+                   break; 
+              case 2 : str2 = str1 + "_100MS";
+              case 3 : str2 = str1 + "_400MS";
+              case 4 : str2 = str1 + "_500MS";
+            }   /* case */
+            
+// Code is defined, need to implement testware locally
 //            TWTRealToRealMS(meas_val,realval,unitval);
 //            TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
+//            PrintResultParam is not defined yet
 //            PrintResultParam(str2,testnum,tmp_results,LLim,ULim,meas_val,GL_PLELL_FORMAT);
-//
-//             /*stressing*/
-//            if(count<4)  
-//            {
-//               strtime = stresstime[count];
-//               TCR.TP1_MeasType[tcrnum] = ForceVoltType;
+
+             /*stressing*/
+            if(count<4)  
+            {
+               strtime = stresstime[count];
+               TCR.TP1_MeasType[tcrnum] = ForceVoltType;
+//Code for this is in f021_func.cpp but is currently commented out
 //               F021_Ramp_TPAD(testpad,rampstart_str,rampstop_str,iProg_str,pgmMode);
-//               TIME.Wait(strtime);
+               TIME.Wait(strtime);
+//Code for this is in f021_func.cpp but is currently commented out
 //               F021_Ramp_TPAD(testpad,rampstop_str,rampstart_str,iProg_str,pgmMode);
-//           if(tistdscreenprint)  
-//          cout << "Stressing @ " << rampstop_str << "  " << strtime << endl;
-//            } 
-//
+           if(tistdscreenprint)  
+          cout << "Stressing @ " << rampstop_str << "  " << strtime << endl;
+            } 
+//          VLCT artifact
 //            Disable(s_pmexit);
-//            F021_TurnOff_AllTpads;
-//
-//            if(count>1)  
-//            {
+            F021_TurnOff_AllTPADS();
+
+            if(count>1)  
+            {
+//             Unison is sited
 //               dlta_results = v_dev_active;
+//             VLCT requires special procedure to do array math
 //               arraysubtreal(dlta,meas_val,meas_pre,v_sites);
+               dlta = meas_val - meas_pre;
+//Unison is sited
 //               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                  if(v_dev_active[site])  
-//                     if(abs(dlta[site]) > dltlim)  
-//                     {
-//                        dlta_results[site] = false;
-//                        final_results[site] = false;
-//                     } 
-//               
-//               switch(count) {
-//                 case 2 : str2 = str3 + "_100MS";
-//                 case 3 : str2 = str3 + "_400MS";
-//                 case 4 : str2 = str3 + "_500MS";
-//               }   /* case */
-//
+//                        if(abs(dlta[site]) > dltlim)  
+//                        {
+//                            dlta_results[site] = false;
+//                            final_results[site] = false;
+//                        } 
+
+               dlta_results = (MATH.Abs(dlta) > dltlim);               
+               final_results = dlta_results;               
+
+               switch(count) {
+                 case 2 : str2 = str3 + "_100MS";
+                 case 3 : str2 = str3 + "_400MS";
+                 case 4 : str2 = str3 + "_500MS";
+              }   /* case */
+
+// Code is defined, need to implement testware locally
 //               TWTRealToRealMS(dlta,realval,unitval);
 //               TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
+//            PrintResultParam is not defined yet
 //               PrintResultParam(str2,testnum,dlta_results,LLim,ULim,dlta,GL_PLELL_FORMAT);
-//            }   /*if count*/
-//               
-//         }   /*for count*/
-//
+            }   /*if count*/
+               
+         }   /*for count*/
+// This is a VLCT Devsetholdstates which explicitly turns off sites based on the contents
+// of the final_results array.  Don't think this is required since Unison is sited
 //         if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
 //            Devsetholdstates(final_results);
-//         
+
+//Unison is sited         
 //         if(not v_any_dev_active)  
 //            break;
 //      }   /*for bank*/
-//
+
+// This is a VLCT Devsetholdstates which explicitly turns off sites based on the contents
+// of the final_results array.  Don't think this is required since Unison is sited
 //      Devsetholdstates(savesites);
-//      
+      
+// Allows VLCT program to record pass/fail results without keeping track of sites that aren't
+// active.  Since Unison is sited this probably isn't required.
 //      if(not dlogonly)  
 //         ResultsRecordActive(final_results, S_NULL);
 //      else
 //         ResultsRecordActive(savesites, S_NULL);         
 //      TestClose;
-//
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      str1 = "CGStrs_Leak";
-//      str2 = str1 + "_TTT";
+
+      ttimer1 = TIME.StopTimer();
+      tt_timer = ttimer1;
+
+      str1 = "CGStrs_Leak";
+      str2 = str1 + "_TTT";
+
+// Code is defined, need to implement testware locally
 //      TWTRealToRealMS(tt_timer,realval,unitval);
 //      TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//      {
+
+      if(tistdscreenprint)  
+      {
+// There is no code for this procedure
 //         PrintResultBool(str1,stnum,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      }         /*if tistdscreenprint*/
-//      
+         cout << "   TT " << ttimer1 << endl;
+         cout << endl;
+      }         /*if tistdscreenprint*/
+      
+// This is a VLCT Devsetholdstates which explicitly turns off sites based on the contents
+// of the final_results array.  Don't think this is required since Unison is sited
 //      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
 //         DevSetHoldStates(final_results);
-//   } 
-//
+   } 
+
 //   EGCG_Leak_Vmax_func = v_any_dev_active;
-//}   /* EGCG_Leak_Vmax_func */
+     return final_results;
+}   /* EGCG_Leak_Vmax_func */
 //
 //
 //BoolS Charz_EraseRefArray_Main()

@@ -90,6 +90,10 @@ __Spec ACSpecs {
         charID_tfreqAsync = "'D'";
         charEn_tfreqAsync = "FALSE";
         charStep_tfreqAsync = "1MHz";
+        stb_bit = "7ns";
+        edg1_bit = "0ns";
+        edg2_bit = "4ns";
+        edg3_bit = "0ns";
     }
     __Category AC_cat_FTN {
         __Inherit CommonACdata;
@@ -363,6 +367,10 @@ __Spec ACSpecs {
         charID_tfreqAsync = "'D'";
         charEn_tfreqAsync = "FALSE";
         charStep_tfreqAsync = "1MHz";
+        stb_bit = "0ns";
+        edg1_bit = "0ns";
+        edg2_bit = "0ns";
+        edg3_bit = "0ns";
     }
     __ParamGlobals {
             ACTableIndex { __Type = SCALAR; }

@@ -719,6 +719,14 @@ __PatternMap DefaultPatternMap {
         __File "hibana_vbapiok_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern hibernate_reg_rw {
+        __File "hibernate_reg_rw";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern hib_rtcsec_subsec {
+        __File "hib_rtcsec_subsec";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern hibernate_rtcGen_DPM {
         __File "hibernate_rtcGen_DPM";
         __Path "./Patterns/Ascii";
