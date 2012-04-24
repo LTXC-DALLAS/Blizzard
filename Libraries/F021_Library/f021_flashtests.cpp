@@ -5062,8 +5062,6 @@ TMResultM Pump_Iref_Vnom_func()
    Sites initial_sites(ActiveSites);
    Sites new_active_sites(ActiveSites);
 
-   // PowerUpDn(PWRUP_VNOM);
-
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
    TIME.Wait(tdelay);
@@ -5137,8 +5135,6 @@ TMResultM Pump_BGap_Vnom_func()
    tcrmode = ReadMode;
    vcorner = VNM;
    
-   // PowerUpDn(PWRUP_VNOM);
-
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
       F021_LoadFlashShell_func();
@@ -5251,433 +5247,421 @@ TMResultM Pump_VHV_Vmin_func()
    return (final_results);
 }   /* Pump_VHV_Vmin_func */
 
-//BoolS Pump_VHV_Vmax_func()
-//{
-//   const IntS TESTID = 18; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 115;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = PvfyMode;
-//      F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = ErsMode;
-//      F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Pump_VHV_Vmax_func = v_any_dev_active;
-//}   /* Pump_VHV_Vmax_func */
-//
-//
-//BoolS Pump_VSL_Vmin_func()
-//{
-//   const IntS TESTID = 19; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 116;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = PvfyMode;
-//      F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Pump_VSL_Vmin_func = v_any_dev_active;
-//}   /* Pump_VSL_Vmin_func */
-//
-//
-//BoolS Pump_VSL_Vmax_func()
-//{
-//   const IntS TESTID = 20; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 116;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode,final_results);
-//   
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = PvfyMode;
-//      F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//
-//   Pump_VSL_Vmax_func = v_any_dev_active;
-//}   /* Pump_VSL_Vmax_func */
-//
-//
-//BoolS Pump_Vread_Vmin_func()
-//{
-//   const IntS TESTID = 21; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//   tcrnum = 117;
-//   tcrmode = EvfyMode;  /*note: actual mode is ReadMode*/
-//   F021_Pump_Para_func(TNUM_PUMP_VREAD,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_Vread_Vmin_func = v_any_dev_active;
-//}   /* Pump_Vread_Vmin_func */
-//
-//
-//BoolS Pump_Vread_Vmax_func()
-//{
-//   const IntS TESTID = 22; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//   tcrnum = 117;
-//   tcrmode = CvfyMode;  /*note: actual mode is ReadMode*/
-//   F021_Pump_Para_func(TNUM_PUMP_VREAD,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_Vread_Vmax_func = v_any_dev_active;
-//}   /* Pump_Vread_Vmax_func */
-//
-//
-//BoolS Pump_VSA5_Vmin_func()
-//{
-//   const IntS TESTID = 23; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 118;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VSA5_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VSA5_Vmin_func = v_any_dev_active;
-//}   /* Pump_VSA5_Vmin_func */
-//
-//
-//BoolS Pump_VSA5_Vmax_func()
-//{
-//   const IntS TESTID = 24; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 118;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VSA5_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VSA5_Vmax_func = v_any_dev_active;
-//}   /* Pump_VSA5_Vmax_func */
-//
-//
-//BoolS Pump_VWL_Vmin_func()
-//{
-//   const IntS TESTID = 25; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 119;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VWL_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VWL_Vmin_func = v_any_dev_active;
-//}   /* Pump_VWL_Vmin_func */
-//
-//
-//BoolS Pump_VWL_Vmax_func()
-//{
-//   const IntS TESTID = 26; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 119;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VWL_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VWL_Vmax_func = v_any_dev_active;
-//}   /* Pump_VWL_Vmax_func */
-//
-//
-//BoolS Pump_VCG2P5_Vmin_func()
-//{
-//   const IntS TESTID = 27; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 120;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VCG2P5_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VCG2P5_Vmin_func = v_any_dev_active;
-//}   /* Pump_VCG2P5_Vmin_func */
-//
-//
-//BoolS Pump_VCG2P5_Vmax_func()
-//{
-//   const IntS TESTID = 28; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 120;
-//   tcrmode = ReadMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VCG2P5_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VCG2P5_Vmax_func = v_any_dev_active;
-//}   /* Pump_VCG2P5_Vmax_func */
-//
-//
-//BoolS Pump_VINH_Vmin_func()
-//{
-//   const IntS TESTID = 29; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 121;
-//   tcrmode = EvfyMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VINH_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VINH_Vmin_func = v_any_dev_active;
-//}   /* Pump_VINH_Vmin_func */
-//
-//
-//BoolS Pump_VINH_Vmax_func()
-//{
-//   const IntS TESTID = 30; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 121;
-//   tcrmode = CvfyMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VINH_READ,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VINH_Vmax_func = v_any_dev_active;
-//}   /* Pump_VINH_Vmax_func */
-//
-//
-//BoolS Pump_VHV2X_Vmin_func()
-//{
-//   const IntS TESTID = 31; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//
-//   tcrnum = 122;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VHV2X_PROG,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VHV2X_Vmin_func = v_any_dev_active;
-//}   /* Pump_VHV2X_Vmin_func */
-//
-//
-//BoolS Pump_VHV2X_Vmax_func()
-//{
-//   const IntS TESTID = 32; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//
-//   tcrnum = 122;
-//   tcrmode = ProgMode;
-//   F021_Pump_Para_func(TNUM_PUMP_VHV2X_PROG,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   Pump_VHV2X_Vmax_func = v_any_dev_active;
-//}   /* Pump_VHV2X_Vmax_func */
-//
-//
+TMResultM Pump_VHV_Vmax_func()
+{
+   const IntS TESTID = 18; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites initial_sites(ActiveSites);
+   Sites new_active_sites(ActiveSites);
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 115;
+   tcrmode = ProgMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPROG,post,vcorner,tcrnum,tcrmode);
+
+   // disable failing sites (disables sites w/ false).
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
+   if(!ActiveSites.Begin().End())  
+   {
+      tcrmode = PvfyMode;
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
+   if(!ActiveSites.Begin().End())  
+   {
+      tcrmode = ErsMode;
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   RunTime.SetActiveSites(initial_sites);
+   return (final_results);
+}   /* Pump_VHV_Vmax_func */
+
+
+TMResultM Pump_VSL_Vmin_func()
+{
+   const IntS TESTID = 19; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites initial_sites(ActiveSites);
+   Sites new_active_sites(ActiveSites);
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 116;
+   tcrmode = ProgMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
+   if(!ActiveSites.Begin().End())  
+   {
+      tcrmode = PvfyMode;
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   RunTime.SetActiveSites(initial_sites);
+   return (final_results);
+}   /* Pump_VSL_Vmin_func */
+
+
+TMResultM Pump_VSL_Vmax_func()
+{
+   const IntS TESTID = 20; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites initial_sites(ActiveSites);
+   Sites new_active_sites(ActiveSites);
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 116;
+   tcrmode = ProgMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+   
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites); 
+   if(!ActiveSites.Begin().End())  
+   {
+      tcrmode = PvfyMode;
+      final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+   } 
+
+   RunTime.SetActiveSites(initial_sites);
+   return (final_results);
+}   /* Pump_VSL_Vmax_func */
+
+
+TMResultM Pump_Vread_Vmin_func()
+{
+   const IntS TESTID = 21; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+   tcrnum = 117;
+   tcrmode = EvfyMode;  /*note: actual mode is ReadMode*/
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VREAD,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_Vread_Vmin_func */
+
+
+TMResultM Pump_Vread_Vmax_func()
+{
+   const IntS TESTID = 22; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+   tcrnum = 117;
+   tcrmode = CvfyMode;  /*note: actual mode is ReadMode*/
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VREAD,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_Vread_Vmax_func */
+
+
+TMResultM Pump_VSA5_Vmin_func()
+{
+   const IntS TESTID = 23; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 118;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VSA5_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VSA5_Vmin_func */
+
+
+TMResultM Pump_VSA5_Vmax_func()
+{
+   const IntS TESTID = 24; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 118;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VSA5_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VSA5_Vmax_func */
+
+
+TMResultM Pump_VWL_Vmin_func()
+{
+   const IntS TESTID = 25; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 119;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VWL_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VWL_Vmin_func */
+
+
+TMResultM Pump_VWL_Vmax_func()
+{
+   const IntS TESTID = 26; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 119;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VWL_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VWL_Vmax_func */
+
+
+TMResultM Pump_VCG2P5_Vmin_func()
+{
+   const IntS TESTID = 27; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 120;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VCG2P5_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VCG2P5_Vmin_func */
+
+
+TMResultM Pump_VCG2P5_Vmax_func()
+{
+   const IntS TESTID = 28; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 120;
+   tcrmode = ReadMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VCG2P5_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VCG2P5_Vmax_func */
+
+
+TMResultM Pump_VINH_Vmin_func()
+{
+   const IntS TESTID = 29; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 121;
+   tcrmode = EvfyMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VINH_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VINH_Vmin_func */
+
+
+TMResultM Pump_VINH_Vmax_func()
+{
+   const IntS TESTID = 30; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 121;
+   tcrmode = CvfyMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VINH_READ,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VINH_Vmax_func */
+
+
+TMResultM Pump_VHV2X_Vmin_func()
+{
+   const IntS TESTID = 31; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+
+   tcrnum = 122;
+   tcrmode = ProgMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VHV2X_PROG,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VHV2X_Vmin_func */
+
+
+TMResultM Pump_VHV2X_Vmax_func()
+{
+   const IntS TESTID = 32; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+
+   tcrnum = 122;
+   tcrmode = ProgMode;
+   final_results = F021_Pump_Para_func(TNUM_PUMP_VHV2X_PROG,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* Pump_VHV2X_Vmax_func */
+
+
 //BoolS VReadBUF_Vmin_func()
 //{
 //   const IntS TESTID = 37; 

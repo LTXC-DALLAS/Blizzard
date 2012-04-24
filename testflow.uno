@@ -2103,7 +2103,7 @@ __SubFlow F021_Pump {
         __Exec = Pump_BGAP_Vnom;
     }
     __Node Pump_VHV_Vmin_388 {
-        __XCoord = (286,19);
+        __XCoord = (288,91);
         __Port[0] {
             __PortPosition = 88;
         }
@@ -2111,11 +2111,16 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 272;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+        }
         __TestID = "65000000";
         __Exec = Pump_VHV_Vmin;
     }
     __Node Pump_VHV_Vmax_389 {
-        __XCoord = (406,22);
+        __XCoord = (401,94);
         __Port[0] {
             __PortPosition = 85;
         }
@@ -2123,6 +2128,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 277;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+        }
         __TestID = "66000000";
         __Exec = Pump_VHV_Vmax;
     }
@@ -2135,6 +2145,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 277;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+        }
         __TestID = "75000000";
         __Exec = Pump_VSL_Vmin;
     }
@@ -2147,6 +2162,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 275;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+        }
         __TestID = "76000000";
         __Exec = Pump_VSL_Vmax;
     }
@@ -2159,6 +2179,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 272;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "77000000";
         __Exec = Pump_Vread_Vmin;
     }
@@ -2171,6 +2196,11 @@ __SubFlow F021_Pump {
             __PortPosition = 87;
         }
         __InputPosition = 0;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "78000000";
         __Exec = Pump_Vread_Vmax;
     }
@@ -2183,6 +2213,11 @@ __SubFlow F021_Pump {
             __PortPosition = 178;
         }
         __InputPosition = 84;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "79000000";
         __Exec = Pump_VSA5_Vmin;
     }
@@ -2195,6 +2230,11 @@ __SubFlow F021_Pump {
             __PortPosition = 181;
         }
         __InputPosition = 84;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "80000000";
         __Exec = Pump_VSA5_Vmax;
     }
@@ -2207,6 +2247,11 @@ __SubFlow F021_Pump {
             __PortPosition = 181;
         }
         __InputPosition = 82;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "81000000";
         __Exec = Pump_VWL_Vmin;
     }
@@ -2219,6 +2264,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 84;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "82000000";
         __Exec = Pump_VWL_Vmax;
     }
@@ -2231,6 +2281,11 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 85;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "83000000";
         __Exec = Pump_VCG2P5_Vmin;
     }
@@ -2243,6 +2298,11 @@ __SubFlow F021_Pump {
             __PortPosition = 162;
         }
         __InputPosition = 88;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "84000000";
         __Exec = Pump_VCG2P5_Vmax;
     }
@@ -2255,6 +2315,11 @@ __SubFlow F021_Pump {
             __PortPosition = 272;
         }
         __InputPosition = 0;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "85000000";
         __Exec = Pump_VINH_Vmin;
     }
@@ -2267,11 +2332,16 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 275;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "86000000";
         __Exec = Pump_VINH_Vmax;
     }
     __Node Pump_VHV2X_Vmin_402 {
-        __XCoord = (312,505);
+        __XCoord = (316,601);
         __Port[0] {
             __PortPosition = 91;
         }
@@ -2279,11 +2349,16 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 274;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
         __TestID = "87000000";
         __Exec = Pump_VHV2X_Vmin;
     }
     __Node Pump_VHV2X_Vmax_403 {
-        __XCoord = (443,508);
+        __XCoord = (447,604);
         __Port[0] {
             __PortPosition = 87;
         }
@@ -2291,11 +2366,16 @@ __SubFlow F021_Pump {
             __PortPosition = 180;
         }
         __InputPosition = 275;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmax"; __Type = INTEGER; }
+        }
         __TestID = "88000000";
         __Exec = Pump_VHV2X_Vmax;
     }
     __Node FlowNode_404 {
-        __XCoord = (606,514);
+        __XCoord = (605,512);
         __Port[0] {
             __PortPosition = 160;
         }
@@ -2308,7 +2388,7 @@ __SubFlow F021_Pump {
     __StartNode = Pump_Iref_Vnom_386;
     __PortConnections {
         Pump_Iref_Vnom_386 __Port[0] = Pump_BGAP_Vnom_387;
-        Pump_BGAP_Vnom_387 __Port[0] = Pump_VHV_Vmin_388;
+        Pump_BGAP_Vnom_387 __Port[0] = Pump_VSL_Vmin_390;
         Pump_VHV_Vmin_388 __Port[0] = Pump_VHV_Vmax_389;
         Pump_VHV_Vmax_389 __Port[0] = Pump_VSL_Vmin_390;
         Pump_VSL_Vmin_390 __Port[0] = Pump_VSL_Vmax_391;
@@ -2322,9 +2402,17 @@ __SubFlow F021_Pump {
         Pump_VCG2P5_Vmin_398 __Port[0] = Pump_VCG2P5_Vmax_399;
         Pump_VCG2P5_Vmax_399 __Port[0] = Pump_VINH_Vmin_400;
         Pump_VINH_Vmin_400 __Port[0] = Pump_VINH_Vmax_401;
-        Pump_VINH_Vmax_401 __Port[0] = Pump_VHV2X_Vmin_402;
+        Pump_VINH_Vmax_401 __Port[0] = FlowNode_404;
         Pump_VHV2X_Vmin_402 __Port[0] = Pump_VHV2X_Vmax_403;
         Pump_VHV2X_Vmax_403 __Port[0] = FlowNode_404;
+    }
+    __Background {
+        __String = "skipped in f021_cfginclude options";
+        __Data = (0,0,295,582,0,0,22,0,0,6,0,0,1,0,0,0);
+    }
+    __Background {
+        __String = "Needs > 7V";
+        __Data = (0,0,333,74,0,0,22,0,0,6,0,0,1,0,0,0);
     }
 }
 __SubFlow F021_TunOxide {

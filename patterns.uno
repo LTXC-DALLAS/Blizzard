@@ -431,6 +431,10 @@ __PatternMap DefaultPatternMap {
         __File "FF_InitCheck_eng_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern FF_Read_Mg1A {
+        __File "FF_Read_Mg1A";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern FF_InitCheck_eng_DPM_NS {
         __File "FF_InitCheck_eng_DPM_NS";
         __Path "./Patterns/Ascii";
