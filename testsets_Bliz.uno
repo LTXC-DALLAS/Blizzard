@@ -4943,10 +4943,11 @@ __Test F021_FlashConfig_test {
 __Test Pump_Iref_Vnom {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Iref_Vnom_func;
         }
@@ -5089,10 +5090,11 @@ __Test FTN_LoopCPU_T {
 __Test Pump_BGAP_Vnom {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_BGap_Vnom_func;
         }
@@ -6032,10 +6034,11 @@ __Test DieID_PartialProg_func {
 }
 __Test Pump_VHV_Vmin {
     __Entry[0] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VHV_Vmin_func;
         }
@@ -6044,10 +6047,11 @@ __Test Pump_VHV_Vmin {
 __Test Pump_VHV_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VHV_Vmax_func;
         }
@@ -6056,10 +6060,11 @@ __Test Pump_VHV_Vmax {
 __Test Pump_VSL_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VSL_Vmin_func;
         }
@@ -6068,10 +6073,11 @@ __Test Pump_VSL_Vmin {
 __Test Pump_VSL_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VSL_Vmax_func;
         }
@@ -6080,10 +6086,11 @@ __Test Pump_VSL_Vmax {
 __Test Pump_Vread_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Vread_Vmin_func;
         }
@@ -6092,10 +6099,11 @@ __Test Pump_Vread_Vmin {
 __Test Pump_Vread_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Vread_Vmax_func;
         }
@@ -6104,10 +6112,11 @@ __Test Pump_Vread_Vmax {
 __Test Pump_VSA5_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VSA5_Vmin_func;
         }
@@ -6116,10 +6125,11 @@ __Test Pump_VSA5_Vmin {
 __Test Pump_VSA5_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VSA5_Vmax_func;
         }
@@ -6128,10 +6138,11 @@ __Test Pump_VSA5_Vmax {
 __Test Pump_VWL_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VWL_Vmin_func;
         }
@@ -6140,10 +6151,11 @@ __Test Pump_VWL_Vmin {
 __Test Pump_VWL_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VWL_Vmax_func;
         }
@@ -6152,10 +6164,11 @@ __Test Pump_VWL_Vmax {
 __Test Pump_VCG2P5_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VCG2P5_Vmin_func;
         }
@@ -6164,10 +6177,11 @@ __Test Pump_VCG2P5_Vmin {
 __Test Pump_VCG2P5_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VCG2P5_Vmax_func;
         }
@@ -6176,10 +6190,11 @@ __Test Pump_VCG2P5_Vmax {
 __Test Pump_VINH_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VINH_Vmin_func;
         }
@@ -6188,10 +6203,11 @@ __Test Pump_VINH_Vmin {
 __Test Pump_VINH_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VINH_Vmax_func;
         }
@@ -6200,10 +6216,11 @@ __Test Pump_VINH_Vmax {
 __Test Pump_VHV2X_Vmin {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VHV2X_Vmin_func;
         }
@@ -6212,10 +6229,11 @@ __Test Pump_VHV2X_Vmin {
 __Test Pump_VHV2X_Vmax {
     __Entry[0] = DCsetup_Loose;
     __Entry[1] = FlashTestNum_SEQ;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = Block1;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VHV2X_Vmax_func;
         }

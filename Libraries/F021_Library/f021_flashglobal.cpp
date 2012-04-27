@@ -51,5 +51,3 @@ PinM FLTP5 = "FLTP5";
 PinM P_TADC = "P_TADC";
 //PinM P_TADC_HVFEM_RLY;
 #endif
-
-BoolS IsFastBinning;

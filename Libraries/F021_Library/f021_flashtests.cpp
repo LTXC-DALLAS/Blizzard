@@ -4120,20 +4120,20 @@ using namespace std;
 //                         
 // /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-TMResultM Flash_ISleep_func()
-{
-   // use levels objects
-   //PowerUpDn(PWRUP_VMAX);
-
-   return TM_PASS;
-}   /* Flash_ISleep_func */
+//TMResultM Flash_ISleep_func()
+//{
+//   // use levels objects
+//   //PowerUpDn(PWRUP_VMAX);
+//
+//   return TM_PASS;
+//}   /* Flash_ISleep_func */
    
 
-TMResultM Flash_IStdby_func()
-{
-//   function did absolutely nothing in VLCT either
-   return TM_PASS;
-}   /* Flash_IStdby_func */
+//TMResultM Flash_IStdby_func()
+//{
+////   function did absolutely nothing in VLCT either
+//   return TM_PASS;
+//}   /* Flash_IStdby_func */
 
 //BoolS FlashEfuse_MP1_func()
 //{
@@ -4753,12 +4753,13 @@ TMResultM Flash_IStdby_func()
 //   MainBG_Trim_ENG_func = v_any_dev_active;
 //}   /* MainBG_Trim_ENG_func */
 //
-// /*dummy function for jazz binout*/
-//BoolS MainIref_Trim_func()
+ /*dummy function for jazz binout*/
+ // should we even be keeping these?
+//TMResultM MainIref_Trim_func()
 //{
-//   MainIref_Trim_func = v_any_dev_active;
+//   return (TM_PASS);
 //}   /* MainIref_Trim_func */
-//
+
 // /*old function - use for engineering debug purpose*/
 //BoolS MainIref_Trim_ENG_func()
 //{
@@ -4888,12 +4889,12 @@ TMResultM Flash_IStdby_func()
 //
 //   FOSC_Trim_func = v_any_dev_active;
 //} 
-//
-// /*Combined BGap, IREF, VHV_SLPCT, VS5ACT Trim*/
-//BoolS FlashEfuse_Trim_func()
-//{
-//   BoolM tmp_results,final_results;
-//   BoolM savesites,alldisable;
+#if 0
+ /*Combined BGap, IREF, VHV_SLPCT, VS5ACT Trim*/
+TMResultM FlashEfuse_Trim_func()
+{
+   TMResultM tmp_results, final_results;
+   Sites savesites, new_active_sites;
 //   IntM slpct,vsa5ct;
 //   BoolS bg_adapttrim_ena;
 //   BoolS bg_chartrim_ena;
@@ -4907,149 +4908,133 @@ TMResultM Flash_IStdby_func()
 //   StringS tmpstr1,tmpstr4;
 //   StringS current_shell;
 //   StringS dummstr1,dummstr2;
-//
-//   if(v_any_dev_active)  
-//   {
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      alldisable = false;
-//       /*init site to flash trim to false. it gets update in *SoftTrim_func*/
-//      SITE_TO_FTRIM = false;
-//
-//      timernstart(ttimer1);
-//
-//      PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                  v[vih_loose_osc_vnom],v[vil_loose]);
-//      clockpinset(s_clk_1a,s_clock);
-//      TIME.Wait(2ms);
-//      F021_LoadFlashShell_func;
-//      RAM_Clear_SoftTrim_All;
-//      RAM_Clear_MailBox_Key;
-//
-//       /*dis-able retest (already trimmed) site*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and GL_FLASH_RETEST[site])  
-//         {
-//            Devsetholdstate(site,false);
-//            if(tistdscreenprint)  
-//               cout << "Site : " << site:2 << "  Already Trimmed so Disable." << endl;
-//         } 
-//      
-//      if(v_any_dev_active)  
-//      {
-//         bg_adapttrim_ena   = GL_DO_BG_ADAPT_TRIM;
-//         bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
-//         if(GL_DO_BG_DIRECT_TRIM)  
-//  {
-//            F021_MainBG_SoftTrim_Direct_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
-//    }
-//         else
-//            F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//      } 
-//
-//      if(v_any_dev_active)  
-//      {
-//         iref_adapttrim_ena = GL_DO_IREF_ADAPT_TRIM;
-//         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
-//         F021_MainIREF_SoftTrim_func(iref_adapttrim_ena,iref_chartrim_ena,tmp_results);
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//      } 
-//
-//      if(v_any_dev_active and GL_DO_FOSC_TRIM)  
-//      {
-//#if $FL_USE_DCC_TRIM_FOSC  
-//         F021_FOSC_SoftTrim_func(tmp_results);;
-//#else
-//         F021_FOSC_SoftTrim_External_func(tmp_results);
-//#endif
-//      } 
-//      
-//      if(v_any_dev_active)  
-//      {
-//         F021_VHV_SLOPECT_SoftTrim_func(tmp_results,slpct);
-//      } 
-//      
-//      if(v_any_dev_active)  
-//      {
-//         F021_VSA5CT_SoftTrim_func(tmp_results,vsa5ct);
-//      } 
-//   
-//      if(v_any_dev_active and (not(ArrayCompareBoolean(SITE_TO_FTRIM,alldisable,v_sites))))  
-//      {
-//         devsetholdstates(SITE_TO_FTRIM);
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               FlashProgString[site] = "";
-//               FlashProgString[site] = FlashProgString[site] + MAINBG_EFSTR[site];
-//               FlashProgString[site] = FlashProgString[site] + BANK_EFSTR[site];
-//
-//                /*update SaveFlashProgString for later use*/
-//               SaveFlashProgString[site] = FlashProgString[site];   /*MSB-LSB*/
-//               MargFlashChainStr[site] = FlashProgString[site];
-//
-//               if(tistdscreenprint)  
-//               {
-//                  dummstr1 = flashprogstring[site];
-//                  dummstr2 = stringreverse(dummstr1);
-//                  dummstr1 = stringbintohex(dummstr1,s_pad_msb);
-//                  cout << "Site " << site:3 << "  MSB-LSB : " << dummstr1 << endl;
-//                  if(true)   /*ti_flashdebug*/
-//                  {
-//                     cout << "Site " << site:3 << "  To Be Trimmed (MSB-LSB) : " << 
-//                             FlashProgString[site] << endl;
-//                     cout << "Site " << site:3 << "  LSB-MSB : " << dummstr2 << endl;
-//                  } 
-//               }   /*ti_stdscreenprint*/
-//            }   /*v_dev_active*/
-//             /*KChau 01/12/11 - moved to one pass efuse pgm*/
-//          /*ProgramFlashTrim(FTrimProg_st,FTrimPstRd_st,FTrimPstRdMg_st,
-//                           FlashProgString,MargFlashChainStr);
-// 
-//          for site := 1 to v_sites do
-//             if(SITE_TO_FTRIM[site] and (not v_dev_active[site])) then
-//                final_results[site] := false;*/
-//      }   /*if not(arraycompare)*/
-//
-//       /*re-activate retest sites*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if((not v_dev_active[site]) and GL_FLASH_RETEST[site] and savesites[site])  
-//            final_results[site] = true;
-//      devsetholdstates(final_results);
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr1 = "FlashEfuseTrim_Test";
-//      tmpstr4 = tmpstr1 + "_TT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//         cout << endl;
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr1,0,final_results,GL_PLELL_FORMAT);
-//         cout << "    TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//   } 
-//   
-//    /*null out gl_previous_shell*/
-//   GL_PREVIOUS_SHELL = "";
-//   
-//   FlashEfuse_Trim_func = v_any_dev_active;
-//}   /* FlashEfuse_Trim_func */
-//   
-// /*dummy function for jazz binout*/
-//BoolS MainBG_Trim_func()
-//{
-//   FlashEfuse_Trim_func;
-//   MainBG_Trim_func = v_any_dev_active;
-//}   /* MainBG_Trim_func */
-//
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+    /*init site to flash trim to false. it gets update in *SoftTrim_func*/
+   SITE_TO_FTRIM = false;
+
+   TIME.StartTimer();
+
+   TIME.Wait(2ms);
+   F021_LoadFlashShell_func();
+   RAM_Clear_SoftTrim_All();
+   RAM_Clear_MailBox_Key();
+
+   /*dis-able retest (already trimmed) site*/
+   if (tistdscreenprint)
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(GL_FLASH_RETEST[*si])  
+            cout << "Site : " << *si << "  Already Trimmed so Disable." << endl;
+   new_active_sites.DisableFailingSites(!GL_FLASH_RETEST);
+   RunTime.SetActiveSites(new_active_sites);
+   
+   if(!ActiveSites.Begin().End())  
+   {
+      bg_adapttrim_ena   = GL_DO_BG_ADAPT_TRIM;
+      bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
+      if(GL_DO_BG_DIRECT_TRIM)  
+      {
+         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_adapttrim_ena,bg_chartrim_ena);
+         final_results = tmp_results;
+      }
+// else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
+//      else
+//         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
+   } 
+
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
+   if(!ActiveSites.Begin().End())  
+   {
+      iref_adapttrim_ena = GL_DO_IREF_ADAPT_TRIM;
+      iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+      tmp_results = F021_MainIREF_SoftTrim_func(iref_adapttrim_ena,iref_chartrim_ena);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+   } 
+
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
+   if(!ActiveSites.Begin().End() && GL_DO_FOSC_TRIM)  
+   {
+#if $FL_USE_DCC_TRIM_FOSC  
+//  :TODO: Unneeded for Blizzard, fix later.
+//      F021_FOSC_SoftTrim_func(tmp_results);
+#else
+      tmp_results = F021_FOSC_SoftTrim_External_func();
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+#endif
+   } 
+   
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
+   if(!ActiveSites.Begin().End())  
+   {
+      tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+   } 
+   
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
+   if(!ActiveSites.Begin().End()) 
+   {
+      tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+   } 
+
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   RunTime.SetActiveSites(new_active_sites);
+   if(ActiveSites.Begin().End() && SITE_TO_FTRIM.AnyEqual(true))  
+   {
+      new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
+      RunTime.SetActiveSites(new_active_sites);
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         FlashProgString[site] = "";
+         FlashProgString[site] = FlashProgString[site] + MAINBG_EFSTR[site];
+         FlashProgString[site] = FlashProgString[site] + BANK_EFSTR[site];
+
+          /*update SaveFlashProgString for later use*/
+         SaveFlashProgString[site] = FlashProgString[site];   /*MSB-LSB*/
+         MargFlashChainStr[site] = FlashProgString[site];
+
+         if(tistdscreenprint)  
+         {
+            dummstr1 = FlashProgString[site];
+            dummstr2 = StringReverse(dummstr1);
+            dummstr1 = StringBinToHex(dummstr1,s_pad_msb);
+            cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
+            if(true)   /*ti_flashdebug*/
+            {
+               cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
+                       FlashProgString[site] << endl;
+               cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
+            } 
+         }   /*ti_stdscreenprint*/
+      }
+   }   // if SITE_TO_FTRIM
+
+   /*re-activate sites*/
+   RunTime.SetActiveSites(savesites);
+   
+   tt_timer = TIME.StopTimer();
+
+   tmpstr1 = "FlashEfuseTrim_Test_TT";
+   TWTRealToRealMS(tt_timer,realval,unitval);
+   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+   TIDlog.Value(tt_timer, UTL_VOID, 0.0, UTL_VOID,
+   
+    /*null out gl_previous_shell*/
+   GL_PREVIOUS_SHELL = "";
+   
+   FlashEfuse_Trim_func = v_any_dev_active;
+}   /* FlashEfuse_Trim_func */
+   
+TMResultM MainBG_Trim_func()
+{
+   return (FlashEfuse_Trim_func());
+}   /* MainBG_Trim_func */
+#endif
 TMResultM Pump_Iref_Vnom_func()
 {
    const IntS TESTID = 15; 

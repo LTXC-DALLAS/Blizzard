@@ -92,8 +92,6 @@ extern PinM P_TADC;
 //extern PinM P_TADC_HVFEM_RLY;
 #endif
 
-extern BoolS IsFastBinning;
-
    /*up to 8 banks, 8 blks/bank, 16 sectors per blk?*/
 struct F021_FlashRec {
      IntS MAXBANK;

@@ -57,14 +57,60 @@ BoolS ENABLE_READ_DW_SC_TTR;
 BoolS ENABLE_READ_UD_SC_TTR;
 BoolS ENABLE_PROG_WAIT_OVERRIDE;
 
-BoolS FF_GetRepairBit(StringS techName,
-                      StringS FROMRowStr) 
+FloatS timer1;
+FloatS timer2;
+
+/******************************************************************************/ 
+/******************************************************************************/ 
+/****                            FuseFarm                                  ****/ 
+/******************************************************************************/ 
+/******************************************************************************/ 
+  
+void FF_ECCHamming(StringS techName, StringS &rowStr) 
+{
+} /* FF_ECCHamming */
+                             
+StringS FF_ConvertDigCapArrToStr(UnsignedS1D digCapArr, IntS dataLen, IntS dataLoc) 
+ /*****************************************************************************
+  This function converts from an Unsigned1D to a StringS.
+ *****************************************************************************/ 
+ {            
+   StringS dataStr;
+   
+   dataStr = "";
+   for (IntS bit = dataLoc; bit < dataLoc+dataLen; bit++)
+   {
+     if (digCapArr[bit] == 1)  
+       dataStr = "1" + dataStr;
+     else
+       dataStr = "0" + dataStr;
+   } 
+   
+   return dataStr;
+}  /* FF_ConvertDigCapArrToStr */ 
+
+IntS FF_ConvertStringToInt(StringS dataStr)
+{
+   IntS dec = 0;
+   IntS strLen;
+   
+   strLen = dataStr.Length();
+   for (IntS bit = 0; bit < strLen; bit++)
+   { 
+     if (dataStr.Substring(strLen-bit-1,1) == "1")
+       dec += (1 << bit);
+   } 
+
+   return dec;  
+} /* FF_ConvertStringToInt */
+
+BoolS FF_GetRepairBit(StringS techName, StringS FROMRowStr) 
 /*****************************************************************************
   This function will return TRUE if the repair bit(s) are set.
  *****************************************************************************/ 
 {
   BoolS returnStatus = false;
-  
+           
   if (FROMRowStr.Length() == TechRowLen)  
   {
     if (CNTLen == 2) /* Control bits RP/WP, WP */ 
@@ -73,7 +119,7 @@ BoolS FF_GetRepairBit(StringS techName,
         returnStatus = true;
     }
     else
-    {
+    {      
       if (FROMRowStr.Substring(RepairBit - 1, 1) == "1")  
         returnStatus = true;
     } 
@@ -280,41 +326,33 @@ StringS FF_DectoBinStr(IntS decimal, IntS strLen)
    return binary;
 }  /* FF_DectoBinStr */ 
 
-StringS FF_DectoVecStr(IntS decimal, IntS strLen)    
+StringML FF_DectoVecStr(IntM decimal, IntS strLen)    
 /*****************************************************************************
-  This function converts an integer to a vector data string.
+  This function converts an integer into a StringML for vector data.
  *****************************************************************************/ 
  {
    IntS bit;
-   StringS vector = "";
+   StringML vectorData;
    IntS mask = 1;
    
    for (bit = 0; bit < strLen; bit++)
    {
-     if ((mask & decimal) >= 1)
-       vector = "H" + vector;
+     if ((decimal & mask) >= 1)
+       vectorData += "H";
      else
-       vector = "L" + vector;
+       vectorData += "L";
      mask <<= 1;
    }
    
-   return vector;
+   return vectorData;
 }  /* FF_DectoVecStr */ 
 
 void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
-                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
-                           WordOrientationS wordOrientation = WORD_MSB_FIRST)
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue)
 {
    BoolM timed_out;
-   
-   // if no wordSize is given, then we do parallel even if that means a 1-bit parallel
-   // if more than 1 capture pin, it has to be parallel
-//   if (wordSize == UTL_VOID) 
-//   {
-      DIGITAL.DefineParallelCapture(capturePins, capName, maxCapCount);
-//   } else {
-//      DIGITAL.DefineSerialCapture(capturePins, capName, maxCapCount, wordSize, wordOrientation);
-//   }
+  
+   DIGITAL.DefineParallelCapture(capturePins, capName, maxCapCount);
    DIGITAL.StartCapture(capName);
    DIGITAL.ExecutePattern(patternBurst);
    timed_out = DIGITAL.WaitForCapture(capName);
@@ -330,13 +368,13 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
          }
       }
    }
-}
+} /* PatternDigitalCapture */
 
 BoolM STDReadFuseRow(StringS &techName,
 //                   FuseROMCtlr STDFuseFarmRec,
                      IntS &ctlrNum,
                      IntS &blkNum,
-                     StringS &blkStr,
+                     StringML &blkStr,
                      IntM rowAddr,
                      StringS &readPattern,
                      StringM &readRowStr,
@@ -345,86 +383,42 @@ BoolM STDReadFuseRow(StringS &techName,
   This function is used to read a FROM row.
  *****************************************************************************/ 
 {
-  IntS si;
-  StringS dwBlkStr;
-  StringML digVecData;
+  StringML digReadRowAddr;
   StringS rowAddrStr;
-  StringS labelReadRowData;
-  PinML data_input;
+  StringS labelReadRowAddr;
+  StringS digPatName;
+  PinML digSrcPin;
+  StringS digCapPin;
+  UnsignedM1D digCapArr;
+  IntS digCapLen;
+  StringS digCapRef;
+  UnsignedM1D simValue(41,0);
+  BoolM readRowStatus = true;
   
-  BoolM readRowStatus(true);
-                
   readError = 0;
   readRowStr = nullRowStr;
   
-  /**************************************************/ 
-  /* Add block number for DumpWord0 to source array */ 
-  /**************************************************/ 
-  if (FFCtlrName == "old")  
-    dwBlkStr = blkStr;
-  else
-    dwBlkStr = "";
-  
   /*********************************************/ 
   /* Add block and row address to source array */ 
-  /*********************************************/   
-//  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
-//  {  
-//    digVecData[*si] = dwBlkStr + blkStr + FF_DectoVecStr(rowAddr[*si], 11);
-//  } 
- 
-  // :TODO: hardcoded. Fix this.
-  digVecData += "H";
-  digVecData += "L";
-  digVecData += "H";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
-  digVecData += "L";
+  /*********************************************/  
+  digReadRowAddr += FF_DectoVecStr(rowAddr, 11);
+  digReadRowAddr += blkStr;
+  
+  digSrcPin = "PA2_48";
+  labelReadRowAddr = PatternBurst(readPattern).GetPattern(0).GetName();
+  labelReadRowAddr += ".Read_RowAddr";
+  
+  DIGITAL.ModifyVectors(digSrcPin, readPattern, labelReadRowAddr, digReadRowAddr);
+  
+  digCapPin = "o_cpu_fail_47";
+  digCapRef = "CapFF";
+  digCapLen = TechRowLen;
 
-  
-  data_input = "PA2_48";
-
-  labelReadRowData = "FF_Read_Mg1A.Read_RowAddr";
-  //PatternBurst(readPattern).GetPattern(0).GetName() + ".Read_RowData";
-  
-  DIGITAL.ModifyVectors(data_input, readPattern, labelReadRowData, digVecData);
-  
-  UnsignedM1D ff_cap_array, simValue(41,0);
-  
-  StringS mycap = "CapFF";
-  
-  PatternDigitalCapture(readPattern, "o_cpu_fail_47", mycap, 41, 
-                           ff_cap_array, simValue);
-  
-  StringM bitstream = "";
-  
-  for (int i = 0; i < ff_cap_array.GetSize(); ++i)
-  {
-     bitstream += CONV.UnsignedToString(ff_cap_array[i]);
-  }
-  
   /*****************/ 
   /* Read row data */ 
-  /*****************/ 
-  /*
-  PatternDigitalSourceCapture(readPattern, 
-                              FuseROMCtlr.JTAGTDI,
-                              FuseROMCtlr.JTAGTDO, 
-                              16 + dwBits, TechRowLen,
-                              uniqueSrcData, 
-                              MSDigSrcArr, MSDigCapArr);
-  */
-        
+  /*****************/   
+  PatternDigitalCapture(readPattern, digCapPin, digCapRef, digCapLen, digCapArr, simValue);
+  
   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
   {
     if (false) // not V_PF_Status[site]  
@@ -438,11 +432,7 @@ BoolM STDReadFuseRow(StringS &techName,
       /******************************************************/ 
       /* Convert read row data from capture array to string */ 
       /******************************************************/ 
-//      FF_ConvertCapArrToFROMRowStr(MSDigCapArr[site], 1, readRowStr[site]);
-
-//                                11111111112222222222333333333344
-//                       12345678901234567890123456789012345678901
-//      readRowStr[*si] = "00000100100000100000000000000000000000001";
+      readRowStr[*si] = FF_ConvertDigCapArrToStr(digCapArr[*si], TechRowLen, 0);
     } 
     
     if (true) // TIStdScreenPrint or TIStdSumScrPrint  
@@ -451,7 +441,7 @@ BoolM STDReadFuseRow(StringS &techName,
            << " FROM " << ctlrNum << " Block " << blkNum
            << " Row " << rowAddr[*si]
            << " Read Error: " << readError[*si]
-           << " Status: " << readRowStatus[*si] 
+           << " Status: " << readRowStatus[*si]
            << endl;
       cout << "  Read:    ";
       
@@ -491,11 +481,11 @@ BoolM STDReadFuseROM(StringS codeOption,
   IntM currRowAddr;
   IntM rowAddr;
   IntM LSBPadding;
-  BoolM readTested;
+  Sites readTested;
   BoolM allSitesInactive;
   BoolM readRowStatus;
   StringS techName;
-  StringS blkStr;
+  StringML blkStr;
   StringS ctlrTWStr;
   StringS blkTWStr;
   StringS rowTWStr;
@@ -507,7 +497,7 @@ BoolM STDReadFuseROM(StringS codeOption,
   IntS firstRowStop;
   BoolS uniqueSrcData;
   IntS siteSrcData;
-  BoolM devActive;
+  Sites devActive = ActiveSites;
   
   techName = FF_GetTechName(codeOption);
   FF_SetCodeFlags(codeOption, techName);
@@ -515,17 +505,15 @@ BoolM STDReadFuseROM(StringS codeOption,
   
   firstReadRow = true;
   lastReadRow = false;
- // uniqueSrcData = true;
 
   LSBPadding = 0;
   errorCode = 0;
 
-  //ArrayCopyBoolean(readTested, V_Dev_Active, V_Sites);
-  //ArrayCopyBoolean(readDataStatus, V_Dev_Active, V_Sites);
-
-  readTested = true;
+  readTested = ActiveSites;
   readDataStatus = true;
 
+  //ArrayCopyBoolean(readDataStatus, V_Dev_Active, V_Sites);
+  
   saveInitDataStr = initDataStr;
       
   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
@@ -560,9 +548,15 @@ BoolM STDReadFuseROM(StringS codeOption,
     }
   } 
   
-  devActive = ActiveSites.GetPassingSites();
-      
-  if (true) // V_Any_Dev_Active
+//  devActive -= SITE_1;
+//  cout << devActive << endl;
+//  RunTime.SetActiveSites(devActive);
+//  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//  {
+//    cout << "SITE_LOOP=" << *si << endl;
+//  }    
+  
+  if (devActive != NO_SITES) // (!ActiveSites.Begin().End()) // V_Any_Dev_Active
   {
     blkStr = FF_DectoVecStr(blkNum, 5);
     
@@ -572,20 +566,22 @@ BoolM STDReadFuseROM(StringS codeOption,
     /*******************/ 
     /* Start read flow */ 
     /*******************/
-    while (devActive.AnyEqual(true)) // V_Any_Dev_Active
+    while (devActive != NO_SITES) // V_Any_Dev_Active
     {
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
       {
         if (currRowAddr[*si] > rowStop[*si])
         {
-          devActive[*si] = false;
+          devActive -= *si;
         }
       }
+      
+//      RunTime.SetActiveSites(devActive);
       
       /*****************/ 
       /* Read row data */ 
       /*****************/ 
-      if (devActive.AnyEqual(true)) // V_Any_Dev_Active
+      if (devActive != NO_SITES) // V_Any_Dev_Active
       {
         readRowStatus = 
           STDReadFuseRow(techName, // FuseROMCtlr,
@@ -593,7 +589,7 @@ BoolM STDReadFuseROM(StringS codeOption,
                          readPattern, actReadRowStr, errorCode);
       }        
 
-      if (devActive.AnyEqual(true)) // V_Any_Dev_Active)
+      if (devActive != NO_SITES) // V_Any_Dev_Active)
       {
         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
         {
@@ -606,20 +602,22 @@ BoolM STDReadFuseROM(StringS codeOption,
         
           if ((errorCode[*si] > 1) || (actReadRowStr[*si].Length() != TechRowLen))  
           {
-//          DevSetHoldState(site, FALSE);
-            devActive[*si] = false;
+            devActive -= *si;
             readDataStatus[*si] = false;
-            readTested[*si] = false;
+            readTested -= *si;
           }
           else
           {
-          /*******************************************/ 
-          /* Check for the RepairBit on the read row */ 
-          /*******************************************/ 
-            if (false) // FF_GetRepairBit()
+            /*******************************************/ 
+            /* Check for the RepairBit on the read row */ 
+            /*******************************************/ 
+            if (FF_GetRepairBit(techName, actReadRowStr[*si]))
             {
-              if (false) // (currRowAddr[site] < FuseROMCtlr.MaxFROMRepairs[blkNum])
+              if (currRowAddr[*si] < 5) // (currRowAddr[site] < FuseROMCtlr.MaxFROMRepairs[blkNum])
               {
+                devActive -= *si;
+                readDataStatus[*si] = false;
+                readTested -= *si;
               }
               else
               {
@@ -630,10 +628,9 @@ BoolM STDReadFuseROM(StringS codeOption,
                 switch(5) // FuseROMCtlr.MaxFROMRepairs[blkNum]
                 {
                   case 1:
-//                  DevSetHoldState(site, FALSE);
-                    devActive[*si] = false;
+                    devActive -= *si;
                     readDataStatus[*si] = false;
-                    readTested[*si] = true;
+                    readTested -= *si;
                     break; 
                   case 2:
                   case 3:
@@ -644,10 +641,9 @@ BoolM STDReadFuseROM(StringS codeOption,
                     currRowAddr[*si] = (currRowAddr[*si] % (5 - IntS(useRow0))) + ctlrRepairRowStart;
                     break; 
                   default:
-//                  DevSetHoldState(site, FALSE);
-                    devActive[*si] = false;
+                    devActive -= *si;
                     readDataStatus[*si] = false;
-                    readTested[*si] = true;
+                    readTested -= *si;
                     break; 
                 }             
               }
@@ -665,12 +661,16 @@ BoolM STDReadFuseROM(StringS codeOption,
               rowAddr[*si] = rowAddr[*si] + 1;
               currRowAddr[*si] = rowAddr[*si];
             }
-          } 
+          }
         }
       }
+      
+//      RunTime.SetActiveSites(devActive);      
     }  
   }
   
+//  RunTime.SetActiveSites(readTested);
+
   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
   {
     if (true)
@@ -705,6 +705,629 @@ BoolM STDReadFuseROM(StringS codeOption,
   return readDataStatus;
 } /* STDReadFuseROM */      
 
+
+BoolM STDProgramFuseRow(IntS version, 
+                        StringS techName,
+//                      FuseROMCtlr STDFuseFarmRec,
+                        IntS ctlrNum, IntS blkNum,
+                        BoolM repairStep,
+                        IntM rowAddr,
+                        StringM progRowStr,
+                        StringM expReadRowStr,
+                        StringS progPattern,
+                        StringM &readRowStr,
+//                      FuseROMData STDFROMDataArr,
+                        IntM &progError,
+                        IntM &progAccumulator,
+                        IntM &numRepairBits)  
+/*****************************************************************************
+  This function is used to program a FROM row using Modify/Capture.
+ *****************************************************************************/
+{
+   BoolM progRowStatus = true;
+
+   IntS dwBits;
+   IntS strLen;
+   StringS strData;
+   StringS labelWriteRowAddr;
+   StringS labelWriteRowData;
+   StringS labelWriteCRA;
+   StringS labelProgramCode;
+   IntS sourceBits;
+   IntS FROM_CLK_chan;
+   StringML digVecData;
+   StringML digWriteRowAddr;
+   StringML digWriteRowData;
+   StringML digWriteCRA;
+   StringML digProgramCode;
+   BoolM restoreActiveSites;
+   BoolM checkCRA;
+   BoolM checkWPbit;
+   BoolM allSitesInactive;
+//   option  :  boardOption ;
+   StringML blkStr;
+   StringM progErrorStr;
+   StringM progAccumulatorStr;
+//   WPcheckError            : MSString40Array;
+   StringM rowAddrStr;
+   IntM actProgError;
+  
+//   ArrayCopyBoolean(progRowStatus, V_Dev_Active, V_Sites);
+//   ArrayCopyBoolean(restoreActiveSites, V_Dev_Active, V_Sites);   
+  progError = 0;
+  progAccumulator = 0;
+  checkCRA = false;
+//   ArraySetBoolean(checkWPbit, FALSE);
+//   ArraySetBoolean(allSitesInactive, FALSE);
+
+  StringS digPatName;
+  StringS digSrcPin;
+  PinML digCapPin;
+  UnsignedM1D digCapArr;
+  UnsignedS digCapLen;
+  StringS digCapRef;
+  UnsignedM1D simValue(121,0);
+
+  /*******************************/ 
+  /* Build row and block address */ 
+  /*******************************/   
+  digWriteRowAddr += FF_DectoVecStr(rowAddr, 11);
+  digWriteRowAddr += FF_DectoVecStr(blkNum, 5);
+   
+  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+  {      
+    /******************/ 
+    /* Build row data */ 
+    /******************/ 
+    strData = progRowStr[*si].Substring(TechDataStart-1, TechDataLen);
+        
+    strLen = strData.Length();
+    for (IntS bit = 0; bit < strLen; bit++)
+    {
+      if (strData.Substring(strLen-bit, 1) == "1")
+        digWriteRowData[*si] += "H";
+      else
+        digWriteRowData[*si] += "L";  
+    }
+  
+    /******************************/ 
+    /* Build CRA and program code */ 
+    /******************************/ 
+    if (CRALen > 0)
+    {    
+      strData = progRowStr[*si].Substring(CRAStart-1, CRALen);
+      strLen = strData.Length();
+             
+      if (strData != nullCRAStr) 
+      {
+        digProgramCode[*si] += "L";
+        digProgramCode[*si] += "H";
+        digProgramCode[*si] += "L";
+        digProgramCode[*si] += "L";
+        digProgramCode[*si] += "L";   
+     
+        checkCRA[*si] = true;
+        for (IntS bit = 0; bit < strLen; bit++)
+        {
+          if (strData.Substring(strLen-bit, 1) == "1")
+            digWriteCRA[*si] += "H";
+          else
+            digWriteCRA[*si] += "L";  
+        }       
+        
+        numRepairBits[*si]++;
+      }
+      else
+      {
+        digProgramCode[*si] += "H";
+        digProgramCode[*si] += "H";
+        digProgramCode[*si] += "H";
+        digProgramCode[*si] += "L";
+        digProgramCode[*si] += "L";  
+        
+        digWriteCRA[*si] += "L";
+        digWriteCRA[*si] += "L";
+        digWriteCRA[*si] += "L";
+        digWriteCRA[*si] += "L";
+        digWriteCRA[*si] += "L";
+        digWriteCRA[*si] += "L";        
+      }
+    }  
+  } 
+
+  digSrcPin = "PA2_48";
+  digPatName = PatternBurst(progPattern).GetPattern(0).GetName();
+  labelWriteRowAddr += digPatName;
+  labelWriteRowAddr += ".Write_RowAddr";
+  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteRowAddr, digWriteRowAddr);
+  
+  labelWriteRowData += digPatName;
+  labelWriteRowData += ".Write_RowData";
+  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteRowData, digWriteRowData);
+  
+  if (CRALen > 0)
+  {
+    labelWriteCRA += digPatName;
+    labelWriteCRA += ".Write_CRA";
+    DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteCRA, digWriteCRA);
+  }
+  
+  labelProgramCode += digPatName;
+  labelProgramCode += ".Program_Code";
+  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelProgramCode, digProgramCode);
+ 
+  digCapPin = "o_cpu_fail_47";
+  digCapRef = "CapFF";
+  digCapLen = 16 + TechRowDataLen + 5 + 24 + TechRowLen; //+ CRALen;
+
+  PatternDigitalCapture(progPattern, digCapPin, digCapRef, digCapLen, digCapArr, simValue); 
+  
+  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+  {
+    /**************/
+    /* Simulation */
+    /**************/
+    if (false)
+    {
+      readRowStr[*si] = progRowStr[*si];
+
+      for (IntS i = 0; i < 51; i++)
+        digCapArr[*si][i] = 0; 
+ 
+      IntS i = 51;
+      digCapArr[*si][i] = 0; i++; // Program Error
+      digCapArr[*si][i] = 0; i++;
+      digCapArr[*si][i] = 0; i++;    
+      digCapArr[*si][i] = 0; i++;   
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++; // Accumulator
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;     
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;      
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;  
+      digCapArr[*si][i] = 0; i++;     
+    
+      strLen = readRowStr[*si].Length();
+      for (IntS bit = 0; bit < strLen; bit++)
+      { 
+        if (readRowStr.Substring(strLen-bit-1, 1) == "1")
+          digCapArr[*si][80+bit] = 1;
+        else
+          digCapArr[*si][80+bit] = 0;  
+      }
+    }      
+
+    if (false) // not V_PF_Status[site]  
+    {
+      progError[*si] = 50;
+      progRowStatus[*si] = false;
+//    DevSetHoldState(site, FALSE);
+    }
+    else
+    {
+      /***************************************************************/ 
+      /* Convert error, accumulator and read data from capture array */ 
+      /***************************************************************/ 
+      progErrorStr[*si] = FF_ConvertDigCapArrToStr(digCapArr[*si], 5, 16+35); 
+      progAccumulatorStr[*si] = FF_ConvertDigCapArrToStr(digCapArr[*si], 24, 16+35+5); 
+      readRowStr[*si] = FF_ConvertDigCapArrToStr(digCapArr[*si], TechRowLen, 16+35+5+24);
+      
+      actProgError[*si] = FF_ConvertStringToInt(progErrorStr[*si]);
+      progAccumulator[*si] = FF_ConvertStringToInt(progAccumulatorStr[*si]);
+    }   
+    
+    /*******************************************/ 
+    /* Copy read row data to global FROM array */ 
+    /*******************************************/ 
+//    FuseROMData[site,rowAddr[site]] = readRowStr[site];
+
+//    FF_CheckProgErrorCodes();    
+  }
+
+  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+  {      
+    if (true) // TIStdScreenPrint 
+    {
+      cout << "Site " << *si
+           << " FROM " << ctlrNum << " Block " << blkNum
+           << " Row " << rowAddr[*si]
+           << " Program Error: " << progError[*si]
+           << "[" << actProgError[*si] << "]"
+           << " Accumulator: " << progAccumulator[*si]
+           << " Status: " << progRowStatus[*si] 
+           << endl;
+           
+      cout << "  Program: ";
+      if (progRowStr[*si].Length() == TechRowLen)  
+      {
+        if (CRALen > 0)  
+          cout << progRowStr[*si].Substring(CRAStart-1, CRALen) << " ";
+        cout << progRowStr[*si].Substring(CNTStart-1, CNTLen) << " ";
+        if (ECCLen > 0)  
+          cout << progRowStr[*si].Substring(ECCStart-1, ECCLen) << " ";
+        cout << progRowStr[*si].Substring(TechDataStart-1, TechDataLen) << endl;
+      }
+      else
+        cout << progRowStr[*si] << endl; 
+        
+      cout << "  Read:    ";
+      if (readRowStr[*si].Length() == TechRowLen)  
+      {
+        if (CRALen > 0)  
+          cout << readRowStr[*si].Substring(CRAStart-1, CRALen) << " ";
+        cout << readRowStr[*si].Substring(CNTStart-1, CNTLen) << " ";
+        if (ECCLen > 0)  
+          cout << readRowStr[*si].Substring(ECCStart-1, ECCLen) << " ";
+        cout << readRowStr[*si].Substring(TechDataStart-1, TechDataLen) << endl;
+      }
+      else
+        cout << readRowStr[*si] << endl;   
+    }
+  }
+  
+  return progRowStatus;
+} /* STDProramFuseROW */
+
+
+BoolM STDProgramFuseROM(StringS codeOption,
+//                      FuseROMCtlr STDFuseFarmRec,
+                        IntS ctlrNum, IntS blkNum,
+                        IntM rowAddrStart,
+                        StringM initDataStr,
+//                      fusePatterns STDFuseFarmPatArr,
+                        StringS progPattern,
+                        BoolS writeProtect,
+                        BoolS readProtect,
+                        BoolS enableRedundancy,
+//                      TWDataLevel TWDataType,
+                        IntM numRepairRows,
+                        StringM &returnDataStr,
+//                      FuseROMData STDFROMDataArr,
+                        IntM &errorCode,
+                        IntM MSBPadding,
+                        BoolM preReadRow,
+//                      FROM_CLK_Pin PinList,
+                        IntM &numRepairBits)
+                        
+{
+  BoolM progDataStatus;
+
+  IntS index;
+  IntS unProgrammedBits;
+  IntS unMatchedBits;
+  IntS vector;
+  IntS FROM_CLK_chan;
+  IntM stepNum;
+  IntM stepCnt;
+  IntM repairRowAddr;
+  IntM rowAddr;
+  IntM nextRowAddr;
+  IntM RDRowAddr;
+  IntM accumulatorNum;
+  IntM lastRowAddr;
+  IntM LSBPadding;
+  IntM1D stepRepairRowAddr;
+  IntM1D stepRowAddr(128, 0);
+  StringM1D stepRowDataStr(128, "");
+  BoolS clearCheckRowData;
+  BoolS clearReadAccumulator;
+  BoolM repairStep;
+  BoolM sitesToProg;
+  BoolM sitesToRead;
+  BoolM sitesToRestore;
+  BoolM returnRowStatus;
+  BoolM preReadRowDone;
+  StringS repairRowDataStr;
+  StringS tmpRowStr;
+  StringM origRowDataStr;
+  StringM currRowDataStr;
+  StringM rowDataStr;
+  StringM actRowDataStr;
+  StringM expRowDataStr; 
+  StringM mergeRowDataStr;
+  StringS vecPinData;
+  StringS CRAString;
+  StringML blkStr;
+  StringS techName;
+// option  :  FROM_CLK_option ;
+// option  :  boardOption ;
+  BoolS onlyColRepair;
+  BoolS rowChange;
+  IntS rowNum;
+  IntM readRowAddr;
+  IntS firstRowAddr;
+  BoolS uniqueSrcData;
+  IntS siteSrcData;
+  BoolS firstActiveSiteFound;  
+  
+  techName = FF_GetTechName(codeOption);
+  FF_SetCodeFlags(codeOption, techName);
+  FF_InitFROMVars(techName); 
+
+  onlyColRepair = false;
+  if (techName == "F021")
+  {
+    onlyColRepair = readProtect;
+
+    /********************************************/ 
+    /* Use write protect for the protection bit */ 
+    /********************************************/ 
+    readProtect = false;  
+  }
+  
+  if (CNTLen == 2) /* Control bits RP+WP, WP */ 
+  {
+    /****************************************/ 
+    /* Read protect will also write protect */ 
+    /****************************************/ 
+    if (readProtect)  
+      writeProtect = false;
+  } 
+
+  stepNum = 1;  
+  repairRowAddr = -1;
+  RDRowAddr = -1;
+  LSBPadding = 0;
+  errorCode = 0;
+  stepCnt = 0;
+  repairStep = false;
+//  ArrayCopyBoolean(sitesToRestore, V_Dev_Active, V_Sites);
+//  ArrayCopyBoolean(progDataStatus, V_Dev_Active, V_Sites);
+//  ArrayCopyBoolean(sitesToProg, V_Dev_Active, V_Sites);
+  
+  if (true) // V_Any_Dev_Active
+  {
+    StringM progDataStr = initDataStr;
+    IntS currRowAddr;
+    
+    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+    {
+      currRowAddr = rowAddrStart[*si];
+
+      /*****************************/ 
+      /* Parse program data string */ 
+      /*****************************/  
+      while (progDataStr[*si] != "")
+      {
+        /*************************/ 
+        /* Increment step number */ 
+        /*************************/ 
+        stepCnt[*si] = stepCnt[*si] + 1;
+
+        /************************/ 
+        /* Set step row address */ 
+        /************************/ 
+        stepRowAddr[*si][stepCnt[*si]-1] = currRowAddr;
+
+        /*********************/ 
+        /* Set step row data */ 
+        /*********************/ 
+        if (progDataStr[*si].Length() < TechDataLen)  
+        {
+//          /************************************/ 
+//          /* Partial row data, pad with zeros */ 
+//          /************************************/ 
+//          stepRowDataStr[stepCnt[site],site] = progDataStr[site];
+//     
+//          while (len(stepRowDataStr[stepCnt[site],site]) < TechDataLen) do
+//          {
+//            stepRowDataStr[stepCnt[site],site] =
+//              concat('0', stepRowDataStr[stepCnt[site],site]);
+//          } 
+//
+          progDataStr[*si] = "";   
+        }
+        else
+        {
+          /*******************************/ 
+          /* Get one row of program data */ 
+          /*******************************/ 
+          stepRowDataStr[*si][stepCnt[*si]-1] =
+            progDataStr[*si].Substring(progDataStr[*si].Length() - TechDataLen, TechDataLen);
+
+          /***************************************/ 
+          /* Remove row from program data string */ 
+          /***************************************/ 
+          progDataStr[*si] = progDataStr[*si].Substring(0, progDataStr[*si].Length() - TechDataLen);
+        } 
+
+        /**************************/ 
+        /* Add zeros for full row */ 
+        /**************************/ 
+        stepRowDataStr[*si][stepCnt[*si]-1] = nonDataStr + stepRowDataStr[*si][stepCnt[*si]-1];
+
+        if (useECC)  
+        {
+          /***********************/ 
+          /* Add ECC bits to row */ 
+          /***********************/ 
+          if (!preReadRow[*si])  
+            FF_ECCHamming(techName, stepRowDataStr[*si][stepCnt[*si]-1]);
+        } 
+//
+//        /********************************************************/ 
+//        /* No new data to program, set RPBit or WPBit if needed */ 
+//        /********************************************************/ 
+//        if (stepRowDataStr[stepCnt[site],site] = nullRowStr)  
+//        {
+//          if not (writeProtect or readProtect or useECC)  
+//            stepCnt[site] = stepCnt[site] - 1;
+//          else
+//          {
+//            if readProtect  
+//              stepRowDataStr[stepCnt[site],site,RPBit] = '1';
+//
+//            if writeProtect  
+//              stepRowDataStr[stepCnt[site],site,WPBit] = '1'; 
+//          } 
+//        }
+//        else
+//        {
+//          if (not readProtect) and (not ENABLE_PROG_WP_TWO_STEPS)  
+//          {
+//            if writeProtect  
+//              stepRowDataStr[stepCnt[site],site,WPBit] = '1';
+//          }
+//          else
+//          {
+//            /**************************************/ 
+//            /* Program WP, RP or RP/WP in 2 steps */ 
+//            /**************************************/ 
+//            if readProtect or 
+//               (writeProtect and ENABLE_PROG_WP_TWO_STEPS)  
+//            {
+//              stepCnt[site] = stepCnt[site] + 1;
+//
+//              stepRowAddr[stepCnt[site],site] = currRowAddr;
+//
+//              stepRowDataStr[stepCnt[site],site] =
+//                stepRowDataStr[stepCnt[site] - 1,site];
+//            } 
+//
+//            if readProtect   
+//              stepRowDataStr[stepCnt[site],site,RPBit] = '1';
+//
+//            if writeProtect  
+//              stepRowDataStr[stepCnt[site],site,WPBit] = '1';
+//          } 
+//        } 
+
+        /*************************/ 
+        /* Increment row address */ 
+        /*************************/ 
+        currRowAddr = currRowAddr + 1;
+      } 
+
+      /*************************************/ 
+      /* To avoid bug when Row0 programmed */ 
+      /*************************************/ 
+      stepRowAddr[*si][stepCnt[*si]-1+1] = -1;
+    } 
+   
+    /*******************/
+    /* First step data */
+    /*******************/
+    rowAddr = stepRowAddr[0];
+    rowDataStr = stepRowDataStr[0];
+    origRowDataStr = rowDataStr; 
+    expRowDataStr = rowDataStr ; 
+    if (false) // CTLR_BUG_FIX
+      mergeRowDataStr = rowDataStr;
+    returnDataStr = ""; 
+    
+    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+    {
+//      while (returnDataStr[*si].Length() < ((rowAddr[*si] - rowAddrStart[*si]) * TechDataLen))
+//        returnDataStr[*si] = nullDataStr + returnDataStr[*si];
+
+      if ((initDataStr[*si].Length() % TechDataLen) > 0)  
+        lastRowAddr[*si] = (initDataStr[*si].Length() / TechDataLen) + rowAddrStart[*si];
+      else
+        lastRowAddr[*si] = ((initDataStr[*si].Length() / TechDataLen) - 1) + rowAddrStart[*si];
+
+      if (!preReadRow[*si])  
+      {
+        if (((rowAddr[*si] == rowAddrStart[*si]) & (MSBPadding[*si] > 0)) ||
+            ((rowAddr[*si] == lastRowAddr[*si]) & (LSBPadding[*si] > 0)))  
+        {
+          sitesToRead[*si] = false;
+        } 
+      } 
+
+      if (stepCnt[*si] = 0)  
+      {
+        sitesToRead[*si] = false;
+//      DevSetHoldState(site, FALSE);
+      }     
+    }
+      
+    blkStr += FF_DectoVecStr(blkNum, 5);  
+    
+    /**********************/ 
+    /* Start program flow */ 
+    /**********************/ 
+    if (true) // while (V_Any_Dev_Active)
+    {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+      {
+      }
+      
+//  ArrayCopyBoolean(sitesToProg, V_Dev_Active, V_Sites);  
+    
+      if (false) // ENABLE_READ_REPAIR_ROWS
+      {
+      }
+      
+//    DevSetHoldStates(sitesToRead)
+  
+      if (false) // while (V_Any_Dev_Active)
+      {
+      }
+      
+//    DevSetHoldStates(sitesToProg)
+      
+      if (true) // if (V_Any_Dev_Active)
+      {
+
+        
+        /********************/ 
+        /* Program row data */ 
+        /********************/ 
+        returnRowStatus = 
+          STDProgramFuseRow(0, techName, ctlrNum, blkNum,
+//                          FuseROMCtlr STDFuseFarmRec,
+                            repairStep,
+                            rowAddr,
+                            rowDataStr,
+                            expRowDataStr,
+                            progPattern,
+                            actRowDataStr,
+//                          FuseROMData STDFROMDataArr,
+                            errorCode,
+                            accumulatorNum,
+                            numRepairBits);
+      }
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+      {
+      }
+    }      
+  }
+  
+//DevSetHoldStates(sitesToRestore);
+  
+  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+  {
+    if (initDataStr[*si].Length() > 0)  
+    {
+      while (returnDataStr[*si].Length() < initDataStr[*si].Length())
+        returnDataStr[*si] = "0" + returnDataStr[*si];
+      
+      returnDataStr[*si] = returnDataStr[*si].Substring(LSBPadding[*si], returnDataStr[*si].Length() - (MSBPadding[*si] + LSBPadding[*si]));                   
+    } 
+  }
+  
+  return progDataStatus;
+} /* STDProgramFuseROM */
+                                
 void FF_Debug()
 {
   IntS si;
@@ -721,20 +1344,30 @@ void FF_Debug()
   IntM MSBPadding;
   StringS TWVarName;  
   BoolM results;
-  
+    
   codeOption = "F021";
   ctlrNum = 1;
   blkNum = 0;
-  rowStart = 5;
-  rowStop = 5;
+  rowStart = 12;
+  rowStop = 15;
   readPattern = "FF_Read_Mg1A_Thrd";
   //                      11111111112222222222333
   //             12345678901234567890123456789012
   initDataStr = "00000000000000000000000000000000";
-//  initDataStr = "00000000000000000000000000000000" + initDataStr;
+  initDataStr = "00000000000000000000000000000000" + initDataStr;
+  initDataStr = "00000000000000000000000000000000" + initDataStr;
+  initDataStr = "00000000000000000000000000000000" + initDataStr;
   MSBPadding = 0;
   TWVarName = "";
 
+  cout << "Reading TIDieID..." << endl;
+  
+  FloatS timer1;
+  FloatS timer2;
+  
+  TIME.StartTimer();
+  timer1 = TIME.GetTimer();
+  
   results = STDReadFuseROM(codeOption,
 //                         FuseROMCtlr STDFuseFarmRec,
                            ctlrNum, blkNum,
@@ -746,12 +1379,74 @@ void FF_Debug()
                            errorCode,
                            MSBPadding,
                            TWVarName);  
-                  
-  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
-  {
-    cout << "Results[" << *si << "] = " << results[*si] << endl;
-    cout << "Error Code[" << *si << "] = " << errorCode[*si] << endl;
-    cout << "Return String[" << *si << "] = " << returnDataStr[*si] << endl;
-  } 
- 
+  
+  timer2 = TIME.GetTimer();
+  cout << "TT = " << timer2-timer1 << endl;
+  TIME.StopTimer();
+  
+//  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+//  {
+//    cout << "Results[" << *si << "] = " << results[*si] << endl;
+//    cout << "Error Code[" << *si << "] = " << errorCode[*si] << endl;
+//    cout << "Return String[" << *si << "] = " << returnDataStr[*si] << endl;
+//  } 
+
+  IntM rowAddrStart;
+  StringS progPattern;
+  BoolS writeProtect;
+  BoolS readProtect;
+  BoolS enableRedundancy;
+  IntM numRepairRows;
+  BoolM preReadRow = false;
+  IntM numRepairBits = 0;
+  
+// VDDPGM = 1.8V
+// VPP = 1.9V
+// PER = 100nS
+
+  ctlrNum = 1;
+  blkNum = 0;
+  rowAddrStart = 13;
+  //             33322222222221111111111
+  //             21098765432109876543210987654321
+  initDataStr = "00000000000000010000000000000000";
+  MSBPadding = 0;
+  progPattern = "FF_Program_Mg1A_Thrd";
+  
+  TIME.StartTimer();
+  timer1 = TIME.GetTimer();
+
+  results =
+      STDProgramFuseROM("F021",
+//                      FuseROMCtlr STDFuseFarmRec,
+                        ctlrNum, blkNum,
+                        rowAddrStart,
+                        initDataStr,
+//                      fusePatterns STDFuseFarmPatArr,
+                        progPattern,
+                        writeProtect,
+                        readProtect,
+                        enableRedundancy,
+//                      TWDataLevel TWDataType,
+                        numRepairRows,
+                        returnDataStr,
+//                      FuseROMData STDFROMDataArr,
+                        errorCode,
+                        MSBPadding,
+                        preReadRow,
+//                      FROM_CLK_Pin PinList,
+                        numRepairBits);
+
+  timer2 = TIME.GetTimer();
+  cout << "TT = " << timer2-timer1 << endl;
+  TIME.StopTimer();
+  
+//  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
+//  {
+//    cout << "Results[" << *si << "] = " << results[*si] << endl;
+//    cout << "Error Code[" << *si << "] = " << errorCode[*si] << endl; 
+//    cout << "Return String[" << *si << "] = " << returnDataStr[*si] << endl;
+//  }                                
+                        
+                        
 } /* FF_Debug */    
