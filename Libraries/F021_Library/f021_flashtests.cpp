@@ -196,6 +196,7 @@
  /****************************************************************************/
 
 #include <f021_func.h>
+#include <string_utils.h>
 using namespace std; 
 
 //#include "$TYPES"
@@ -4935,6 +4936,7 @@ TMResultM FlashEfuse_Trim_func()
       bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
       if(GL_DO_BG_DIRECT_TRIM)  
       {
+      //:HERE:
          tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_adapttrim_ena,bg_chartrim_ena);
          final_results = tmp_results;
       }
@@ -4984,34 +4986,36 @@ TMResultM FlashEfuse_Trim_func()
 
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
    RunTime.SetActiveSites(new_active_sites);
-   if(ActiveSites.Begin().End() && SITE_TO_FTRIM.AnyEqual(true))  
+   if(!ActiveSites.Begin().End() && SITE_TO_FTRIM.AnyEqual(true))  
    {
       new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
       RunTime.SetActiveSites(new_active_sites);
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-      {
-         FlashProgString[site] = "";
-         FlashProgString[site] = FlashProgString[site] + MAINBG_EFSTR[site];
-         FlashProgString[site] = FlashProgString[site] + BANK_EFSTR[site];
 
-          /*update SaveFlashProgString for later use*/
-         SaveFlashProgString[site] = FlashProgString[site];   /*MSB-LSB*/
-         MargFlashChainStr[site] = FlashProgString[site];
+      if (!ActiveSites.Begin().End()) 
+      {
+         FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
+
+           /*update SaveFlashProgString for later use*/
+         SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
+         MargFlashChainStr = FlashProgString;
 
          if(tistdscreenprint)  
          {
-            dummstr1 = FlashProgString[site];
-            dummstr2 = StringReverse(dummstr1);
-            dummstr1 = StringBinToHex(dummstr1,s_pad_msb);
-            cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
-            if(true)   /*ti_flashdebug*/
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
             {
-               cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
-                       FlashProgString[site] << endl;
-               cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
-            } 
-         }   /*ti_stdscreenprint*/
-      }
+               dummstr1 = FlashProgString[site];
+               dummstr2 = StringReverse(dummstr1);
+               dummstr1 = StringBinToHex(dummstr1,s_pad_msb);
+               cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
+               if(true)   /*ti_flashdebug*/
+               {
+                  cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
+                          FlashProgString[site] << endl;
+                  cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
+               } 
+            }  
+         }  /*ti_stdscreenprint*/
+      } // if active sites
    }   // if SITE_TO_FTRIM
 
    /*re-activate sites*/
@@ -5020,14 +5024,13 @@ TMResultM FlashEfuse_Trim_func()
    tt_timer = TIME.StopTimer();
 
    tmpstr1 = "FlashEfuseTrim_Test_TT";
-   TWTRealToRealMS(tt_timer,realval,unitval);
-   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-   TIDlog.Value(tt_timer, UTL_VOID, 0.0, UTL_VOID,
+   TIDlog.Value(tt_timer, UTL_VOID, 0.0, UTL_VOID, "ms", tmpstr1, 
+                UTL_VOID, UTL_VOID, true, TWMinimumData);
    
     /*null out gl_previous_shell*/
    GL_PREVIOUS_SHELL = "";
    
-   FlashEfuse_Trim_func = v_any_dev_active;
+   return (final_results);
 }   /* FlashEfuse_Trim_func */
    
 TMResultM MainBG_Trim_func()
@@ -5039,7 +5042,7 @@ TMResultM Pump_Iref_Vnom_func()
 {
    const IntS TESTID = 15; 
 
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
    FloatS tdelay;
    IntS tcrnum;
    TPModeType tcrmode;
@@ -5066,7 +5069,8 @@ TMResultM Pump_Iref_Vnom_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrnum = 125;
-      final_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    }    
    
    // re-enable any sites we've messed around with 
@@ -5212,7 +5216,9 @@ TMResultM Pump_VHV_Vmin_func()
    {
       tcrmode = PvfyMode;
       // can reuse the final_results b/c sites disabled won't get new values
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
    } 
    
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
@@ -5224,7 +5230,8 @@ TMResultM Pump_VHV_Vmin_func()
         {added because of LDO bypass issue JRR}
           discard(patternexecute(num_clks,f021_shell_loadpat));
           wait(5mS); */
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
       RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
    } 
    
@@ -5236,7 +5243,7 @@ TMResultM Pump_VHV_Vmax_func()
 {
    const IntS TESTID = 18; 
 
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
    VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
@@ -5261,7 +5268,9 @@ TMResultM Pump_VHV_Vmax_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = PvfyMode;
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
    } 
    
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
@@ -5269,7 +5278,9 @@ TMResultM Pump_VHV_Vmax_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = ErsMode;
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
    } 
    
    RunTime.SetActiveSites(initial_sites);
@@ -5281,7 +5292,7 @@ TMResultM Pump_VSL_Vmin_func()
 {
    const IntS TESTID = 19; 
 
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
    VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
@@ -5305,7 +5316,8 @@ TMResultM Pump_VSL_Vmin_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = PvfyMode;
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
    
    RunTime.SetActiveSites(initial_sites);
@@ -5317,7 +5329,7 @@ TMResultM Pump_VSL_Vmax_func()
 {
    const IntS TESTID = 20; 
 
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
    VCornerType vcorner;
    StringS current_shell;
    IntS tcrnum;
@@ -5341,7 +5353,8 @@ TMResultM Pump_VSL_Vmax_func()
    if(!ActiveSites.Begin().End())  
    {
       tcrmode = PvfyMode;
-      final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
 
    RunTime.SetActiveSites(initial_sites);

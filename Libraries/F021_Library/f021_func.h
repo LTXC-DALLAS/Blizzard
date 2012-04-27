@@ -430,8 +430,8 @@ void F021_CollectESDA(IntS imagenum);
 //                                      BoolM test_results,
 //                                      BoolS dlogonly);
 //void GoRestoreOTP_OnFail();
-//
-//void RAM_Clear_MailBox_Key();
+
+void RAM_Clear_MailBox_Key();
 
 TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval);
 TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval);
@@ -606,10 +606,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 //                              IntM VSA5CTVal);
 void RAM_Clear_SoftTrim_All();
 
-//BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
-//                                       BoolS chartrim_ena,
-//                                  BoolM test_results);
-//
+TMResultM F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
+                                       BoolS chartrim_ena);
+
 //BoolS F021_MainBG_SoftTrim_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results);
