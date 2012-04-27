@@ -292,6 +292,7 @@
 #include <iomanip>
 using namespace std; 
 
+
 // :TODO: Don't know what we'll need to do for this now
 //void SetupHVFEM(const PinM &supply, FloatS &vProg, FloatS &vRange, const PinM &tsupply_relay)
 //{
@@ -438,7 +439,7 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
    
    // if no wordSize is given, then we do parallel even if that means a 1-bit parallel
    // if more than 1 capture pin, it has to be parallel
-   if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 0)) 
+   if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 1)) 
    {
       DIGITAL.DefineParallelCapture(capturePins, capName, maxCapCount);
    } else {
@@ -713,7 +714,7 @@ TMResultM F021_InitFLGlobalvars_func()
       
       GL_CHARZ_ESTAIRSTEP_SAVECOUNT = GL_CHARZ_ESTAIRSTEP_COUNT;
       
-      IsFastBinning = "TestProgData.evFastBinning";
+      RunAllTests = "RunAllTests";
    
    }   /*if v_any_dev*/
 
@@ -7317,7 +7318,7 @@ void F021_SetTestNum(IntS testnum)
       DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
    } 
 #endif
-   
+
 }  /*F021_SetTestNum*/
 
 //void Check_RAM_TNUM(    IntS expTnum,
@@ -13416,7 +13417,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
    BoolS done,once,ovride_lim,parmena;
    FloatS llim,ulim;
    VCornerType vcorner;
-   Sites savesites;
+   Sites savesites, new_active_sites;
    int int_site;
 
    final_results = TM_NOTEST;
@@ -13468,18 +13469,11 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
          if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
          {
             ttimer2_start = TIME.GetTimer();
-//            logsites = v_dev_active;
             
             fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRMode][tpnum][prepost][vcorner];
             length = fl_testname.Length();
             // strip off _Test
             test_name = fl_testname.Substring(0,length-5); // don't know why VLCT started at 2 must be something w/ their naming
-
-//            TestOpen(fl_testname);
-  
-   // :TODO: come back and fix the print headers
-//            if(tistdscreenprint)  
-//               PrintHeaderParam(GL_PLELL_FORMAT);
          
    // :TODO: come back and do this, it's an OpVar...for now we'll say it's false and move on
 //            if(TI_FlashCOFEna)  
@@ -13535,8 +13529,6 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
             TIME.Wait(tdelay);
 
             meas_value = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
-
-//            tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
          
              /*store/copy to global var vhv params*/
             if(TCRnum==0)  
@@ -13592,26 +13584,36 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                  } 
                } 
                
-               if(IsFastBinning && (!TI_FlashCOFEna))  
-//                  RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results == TM_PASS));
-                  ActiveSites.DisableFailingSites(final_results == TM_PASS);
+               if(!RunAllTests && (!TI_FlashCOFEna))  
+               {
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(final_results == TM_PASS);
+                  RunTime.SetActiveSites(new_active_sites);
+               }
             }
             
             if(tistdscreenprint)  
                cout << test_name << " TT : " << ttimerS << endl;
          }   /*if pump_para_enable*/
 
-         if(ActiveSites.GetNumSites() == 0)  
+         if(ActiveSites.Begin().End()) 
             break;
+
       }   /*for tpnum*/
 
-//      Disable(s_pmexit);
+      // want to turn on any sites that we turned off during the loop 
+      // so that results get reported & tpads are turned off
+      RunTime.SetActiveSites(savesites);
+            
       F021_TurnOff_AllTPADS();
 
        /*devsetholdstates(savesites);*/
 
 // :TODO: come back and fix this, skipped for now b/c debug 
-//      if((ActiveSites.GetNumSites() > 0) && TI_FlashDebug)  
+// issue b/c we have to activate sites to turn off tpads...
+// but here we don't want to do it if sites are off....hmmm...
+// well, it is debug so I guess we could do for all.
+//      if((!ActiveSites.Begin().End()) && TI_FlashDebug)  
 //      {
 //          /*check for valid tnum and re-binning any fail*/
 //         Check_RAM_TNUM(testnum,tmp_results);
@@ -13622,11 +13624,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
       {
          IO.Print(IO.Stdout,"F021_Pump_Para_func TT : %e\n\n",tt_timer);
       } 
-      
-      // want to turn on any sites that we turned off during the loop 
-      // so that results get reported
-      RunTime.SetActiveSites(savesites);
-      
+            
    }   /*if parmena*/
 
    return (final_results);

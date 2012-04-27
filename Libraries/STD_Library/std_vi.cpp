@@ -21,14 +21,25 @@ void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI,
               const VIForceTypeS &forceType, const VIMeasureTypeS &measType, 
               const FloatM &vRange)
 {   
+   // let driver handle issues with vMax on the constraints, however, 
+   // because of asymmetric clamps on some instruments, we check for
+   // that on the negative side
+   FloatS1D vmin_clamp, vmax_clamp;
+   FloatM vmin_setting;
+   
+   SITE a_site = ActiveSites.Begin().GetValue();
+   
    switch (forceType)
    {
       case VI_FORCE_I: // force current
+         VI.GetConstraints(viPin, VI_CONSTR_VCLAMP_MIN, vmax_clamp, vmin_clamp);
          if (vRange != UTL_VOID)
          {
-            VI.SetClampsV(viPin, vRange, -vRange);
+            vmin_setting = (-vRange > vmin_clamp[0]) ? -vRange : vmin_clamp[0];
+            VI.SetClampsV(viPin, vRange, vmin_setting);
          } else {
-            VI.SetClampsV(viPin, setV, -setV);
+            vmin_setting = (-setV > vmin_clamp[0]) ? -setV : vmin_clamp[0];
+            VI.SetClampsV(viPin, setV, vmin_setting);
          }
          switch (measType) 
          {
