@@ -119,9 +119,9 @@ void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr,
    } // end site loop
 }
 
-StringS IntToVLSIDriveStr(const IntS &srcInt, const IntS &numBits, const bool &isMSBFirst)
 // numBits is the number of bits to convert. It is number of bits, NOT 
 // bit number. This means it is 1-based, not 0 based.
+StringS IntToVLSIDriveStr(const IntS &srcInt, const IntS &numBits, const bool &isMSBFirst)
 {
    int bit_of_interest = 1;
    int my_int = int(srcInt); // strip the class wrapper to hopefully speed things up
