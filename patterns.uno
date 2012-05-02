@@ -373,6 +373,11 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
+    __Pattern ramread_mbox_scram_v3p0 {
+        __File "ramread_mbox_scram_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
     __Pattern ramwrite_burst_addr_v3p0 {
         __File "ramwrite_burst_addr_v3p0";
         __Path "./Patterns/Ascii";

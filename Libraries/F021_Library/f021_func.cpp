@@ -2907,7 +2907,7 @@ void GetRamContent_SCRAM(IntS start_addr,
    for (int i = 1;i <= 2;++i)
    {
       addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      StringML SourceArr(16);
+      StringML SourceArr;
       for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
       {
          str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
@@ -2921,9 +2921,9 @@ void GetRamContent_SCRAM(IntS start_addr,
       DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
       
       if(i==1)  
-         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,EvenCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,EvenCaptureArr,sim_value);
       else
-         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,OddCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,OddCaptureArr,sim_value);
    }   /*for i*/
    
     /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
