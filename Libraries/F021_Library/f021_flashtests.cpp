@@ -4932,12 +4932,10 @@ TMResultM FlashEfuse_Trim_func()
    
    if(!ActiveSites.Begin().End())  
    {
-      bg_adapttrim_ena   = GL_DO_BG_ADAPT_TRIM;
       bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
       if(GL_DO_BG_DIRECT_TRIM)  
       {
-      //:HERE:
-         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_adapttrim_ena,bg_chartrim_ena);
+         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_chartrim_ena);
          final_results = tmp_results;
       }
 // else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
@@ -4949,9 +4947,8 @@ TMResultM FlashEfuse_Trim_func()
    RunTime.SetActiveSites(new_active_sites);
    if(!ActiveSites.Begin().End())  
    {
-      iref_adapttrim_ena = GL_DO_IREF_ADAPT_TRIM;
       iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
-      tmp_results = F021_MainIREF_SoftTrim_func(iref_adapttrim_ena,iref_chartrim_ena);
+      tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
 
@@ -4963,6 +4960,7 @@ TMResultM FlashEfuse_Trim_func()
 //  :TODO: Unneeded for Blizzard, fix later.
 //      F021_FOSC_SoftTrim_func(tmp_results);
 #else
+      // :HERE:
       tmp_results = F021_FOSC_SoftTrim_External_func();
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
 #endif
