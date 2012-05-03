@@ -598,24 +598,21 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 //                                  IntS FOSCVal,
 //                                  IntS VHVSLPVal,
 //                                  IntS VSA5CTVal);
-//void RAM_Upload_SoftTrim(IntS trimenakey,
-//                              IntM BGapVal,
-//                              IntM IRefVal,
-//                              IntM FOSCVal,
-//                              IntM VHVSLPVal,
-//                              IntM VSA5CTVal);
+void RAM_Upload_SoftTrim(const IntS &trimenakey,
+                         const IntM &BGapVal,
+                         const IntM &IRefVal,
+                         const IntM &FOSCVal,
+                         const IntM &VHVSLPVal,
+                         const IntM &VSA5CTVal);
 void RAM_Clear_SoftTrim_All();
 
-TMResultM F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
-                                       BoolS chartrim_ena);
+TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna);
 
 //BoolS F021_MainBG_SoftTrim_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results);
 //
-//BoolS F021_MainIREF_SoftTrim_func(  BoolS adapttrim_ena,
-//                                       BoolS chartrim_ena,
-//                                  BoolM test_results);
+TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna);
 //
 //BoolS F021_FOSC_SoftTrim_func(    BoolM test_results);
 //BoolS F021_VSA5CT_SoftTrim_func(    BoolM test_results,

@@ -31,9 +31,6 @@
 class SearchMod {
 public:
 
-    bool    searchNotDone; 
-    FloatM  xForceValueMS;
-
     //---------------------------------------------------------------------------------
              SearchMod();
     virtual ~SearchMod();
@@ -71,8 +68,6 @@ public:
 
 // variables
 public:
-    
-
 
     enum searchTypeEnum {
         SEARCH_BIN                      , 
@@ -99,6 +94,10 @@ public:
         MIN_FAILED                      ,
         MAX_FAILED                      ,
     };
+
+   bool    searchNotDone; 
+   FloatM  xForceValueMS;
+   IntM    m_searchAlarmMS;
 
    FloatM1D    dbgErrMSa  ;  // common to all SearchMod classes
    FloatM1D    dbgXMSa    ;
@@ -154,8 +153,6 @@ private:
 //    BoolM   searchNotDoneMS;
 
     IntM    m_searchIndexMS;
-    IntM    m_searchAlarmMS;
-
 
 //    bool    searchDebugEnable;				        //set true to collect search data in display arrays at the end of the search process
     bool    searchInteractiveDebugEnable;	    //set true to collect search data in display arrays at each step of search process
