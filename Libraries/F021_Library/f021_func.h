@@ -53,7 +53,7 @@
 //                                 IntS UnitLen,
 //                                 StringS UnitStr);
 //
-//void PrintHeaderParam(BoolS paral_format);
+void PrintHeaderParam(BoolS paral_format);
 //
 //void PrintResultParam(StringS tmpstr1,
 //                           IntS tnum,
@@ -251,11 +251,11 @@ void F021_Set_TPADS(IntS TCRnum,
 
 void F021_TurnOff_AllTPADS();
 
-//void F021_Ramp_TPAD(PinM TPAD,
-//                         FloatS rampstart,
-//                         FloatS rampstop,
-//                         FloatS iProg,
-//                         Option pgmMode);
+void F021_Ramp_TPAD(PinM TPAD,
+                         FloatS rampstart,
+                         FloatS rampstop,
+                         FloatS iProg);
+// pgmMode isn't used in the code                        Option pgmMode);
 //
 FloatM F021_Meas_TPAD_PMEX(    PinM TPAD,
                                  IntS TCRnum,

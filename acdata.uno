@@ -206,6 +206,7 @@ __Spec ACSpecs {
         tperAsync.Max = "119.217930376729ns";
         charEn_tper = "TRUE";
         charEn_tperAsync = "TRUE";
+        stb_bit = "85ns";
     }
     __Category AC_cat_16 {
         __Inherit CommonACdata;
@@ -269,7 +270,7 @@ __Spec ACSpecs {
         tperAsync.Max = "62.5ns";
         charEn_tper = "TRUE";
         charEn_tperAsync = "TRUE";
-        stb_bit = "7ns";
+        stb_bit = "27ns";
         edg1_bit = "0ns";
         edg2_bit = "4ns";
         edg3_bit = "0ns";

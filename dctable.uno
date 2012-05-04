@@ -2042,3 +2042,102 @@ __Levels PowerDownWORead_PowerUpAtVmin {
     	StepSize = __Expression { __String = "300mV"; }
     }
 }
+__Levels DCsetup_LooseVmask {
+    __Column[0] {
+    	__LevelsColumnType = __DigitalType;
+    	__Group = __Expression { __String = "ALLPINS"; }
+    	Vil = __Expression { __String = "VIL_Loose"; }
+    	Vih = __Expression { __String = "VIH_Loose"; }
+    	Vol = __Expression { __String = "VOL_Loose"; }
+    	Voh = __Expression { __String = "VOH_Loose"; }
+    	Voc = __Expression { __String = "VLoad"; }
+    	Iol = __Expression { __String = "0pA"; }
+    	Ioh = __Expression { __String = "0pA"; }
+    	Vref = __Expression { __String = "VLoad"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __DigitalType;
+    	__Group = __Expression { __String = "ALLINS"; }
+    	Vil = __Expression { __String = "VIL_Loose"; }
+    	Vih = __Expression { __String = "0.5*(VIL_Loose+VIH_Loose)-0.05*(VIH_Loose-VIL_Loose)"; }
+    	Vol = __Expression { __String = "0.5*(VIL_Loose+VIH_Loose)+0.05*(VIH_Loose-VIL_Loose)"; }
+    }
+}
+__Levels PowerUpAtVmask {
+    __Column[0] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDS"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	PowerSupply = __Expression { __String = "VDDS_PS"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "1mS"; }
+    }
+    __Column[1] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDD"; }
+    	ExecSeq = __Expression { __String = "1"; }
+    	PowerSupply = __Expression { __String = "VDD_PS"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[2] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDA"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	PowerSupply = __Expression { __String = "VDDA_PS"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[3] {
+    	__LevelsColumnType = __SeqPowerType;
+    	__Group = __Expression { __String = "VDDAR"; }
+    	ExecSeq = __Expression { __String = "2"; }
+    	PowerSupply = __Expression { __String = "VDDAR_PS"; }
+    	StepSize = __Expression { __String = "300mV"; }
+    	StepDelay = __Expression { __String = "10us"; }
+    	Delay = __Expression { __String = "0mS"; }
+    }
+    __Column[4] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VDDPGM"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	__ForceValue = __Expression { __String = "VDDPGM_PS"; }
+    	__ForceRange = __Expression { __String = "VDDPGM_PS"; }
+    }
+    __Column[5] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VDDEEPROM"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	__ForceValue = __Expression { __String = "VDDEEPROM_PS"; }
+    	__ForceRange = __Expression { __String = "VDDEEPROM_PS"; }
+    }
+    __Column[6] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VNWA"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	__ForceValue = __Expression { __String = "VNWA_PS"; }
+    	__ForceRange = __Expression { __String = "VNWA_PS"; }
+    }
+    __Column[7] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VPP"; }
+    	ExecSeq = __Expression { __String = "3"; }
+    	__ForceValue = __Expression { __String = "VPP_PS"; }
+    	__ForceRange = __Expression { __String = "VPP_PS"; }
+    }
+    __Column[8] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VREFAP"; }
+    	__ForceValue = __Expression { __String = "3.0V"; }
+    	__ForceRange = __Expression { __String = "3.0V"; }
+    }
+    __Column[9] {
+    	__LevelsColumnType = __VIType;
+    	__Group = __Expression { __String = "VBAT"; }
+    	ExecSeq = __Expression { __String = "4"; }
+    	__ForceValue = __Expression { __String = "VBAT_PS"; }
+    }
+}

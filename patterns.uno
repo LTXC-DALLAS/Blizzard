@@ -567,6 +567,10 @@ __PatternMap DefaultPatternMap {
         __File "FF_InitCheck_DPM";
         __Path "./Patterns/Ascii";
     }
+    __Pattern FF_InitCheck_NoEd {
+        __File "FF_InitCheck_NoEd";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern FF_LoadFuseData_0001_DPM {
         __File "FF_LoadFuseData_0001_DPM";
         __Path "./Patterns/Ascii";
@@ -585,6 +589,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern FF_RunAutoload_DPM {
         __File "FF_RunAutoload_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern FF_RunAutoload_NoEd {
+        __File "FF_RunAutoload_NoEd";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_RunAutoload_ENG {

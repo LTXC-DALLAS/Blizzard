@@ -537,7 +537,7 @@ __SubFlow ATPG_CPU_Vmin_S {
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "22000000";
-        __Exec = ATPG_CPU_Vmin;
+        __Exec = ATPG_CPU_T;
     }
     __Node FlowNode_1777 {
         __XCoord = (182,108);

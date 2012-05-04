@@ -383,8 +383,8 @@ __Test ATPG_CPU_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = PowerUpAtVmin;
-    __Entry[1] = DCsetup_LooseVmin;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
     __Entry[2] = SCAN_SA_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
@@ -411,6 +411,7 @@ __Test ATPG_CPU_T {
     __Block[1] = {
         __Title = a_st_tk_2_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -431,6 +432,7 @@ __Test ATPG_CPU_T {
     __Block[2] = {
         __Title = a_st_tk_3_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -451,6 +453,7 @@ __Test ATPG_CPU_T {
     __Block[3] = {
         __Title = a_st_tk_4_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -471,6 +474,7 @@ __Test ATPG_CPU_T {
     __Block[4] = {
         __Title = a_st_tk_5_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -491,6 +495,7 @@ __Test ATPG_CPU_T {
     __Block[5] = {
         __Title = a_st_tk_6_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -511,6 +516,7 @@ __Test ATPG_CPU_T {
     __Block[6] = {
         __Title = a_st_tk_7_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -531,6 +537,7 @@ __Test ATPG_CPU_T {
     __Block[7] = {
         __Title = a_st_tk_8_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -551,6 +558,7 @@ __Test ATPG_CPU_T {
     __Block[8] = {
         __Title = a_st_tk_9_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -571,6 +579,7 @@ __Test ATPG_CPU_T {
     __Block[9] = {
         __Title = a_st_tk_10_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -591,7 +600,7 @@ __Test ATPG_CPU_T {
     __Block[10] = {
         __Title = a_st_tk_11_v22;
         __WrapCells = __True;
-        __EnableExpression = __Expression { __String = "FALSE"; }
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -612,6 +621,7 @@ __Test ATPG_CPU_T {
     __Block[11] = {
         __Title = a_st_tk_12_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -632,6 +642,7 @@ __Test ATPG_CPU_T {
     __Block[12] = {
         __Title = a_st_tk_13_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -652,6 +663,7 @@ __Test ATPG_CPU_T {
     __Block[13] = {
         __Title = a_st_tk_14_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -672,6 +684,7 @@ __Test ATPG_CPU_T {
     __Block[14] = {
         __Title = a_st_tk_15_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -692,6 +705,7 @@ __Test ATPG_CPU_T {
     __Block[15] = {
         __Title = a_st_tk_16_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -712,6 +726,7 @@ __Test ATPG_CPU_T {
     __Block[16] = {
         __Title = a_st_tk_17_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -732,6 +747,7 @@ __Test ATPG_CPU_T {
     __Block[17] = {
         __Title = a_st_tk_18_v22_2_4;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -752,6 +768,7 @@ __Test ATPG_CPU_T {
     __Block[18] = {
         __Title = a_st_tk_19_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -772,6 +789,7 @@ __Test ATPG_CPU_T {
     __Block[19] = {
         __Title = a_st_tk_20_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -813,6 +831,7 @@ __Test ATPG_CPU_T {
     __Block[21] = {
         __Title = a_st_tk_fles_2_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -835,8 +854,8 @@ __Test ATPG_CPU_Vmin {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = PowerUpAtVmin;
-    __Entry[1] = DCsetup_LooseVmin;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
     __Entry[2] = SCAN_SA_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
@@ -863,6 +882,7 @@ __Test ATPG_CPU_Vmin {
     __Block[1] = {
         __Title = a_st_tk_2_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -883,6 +903,7 @@ __Test ATPG_CPU_Vmin {
     __Block[2] = {
         __Title = a_st_tk_3_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -903,6 +924,7 @@ __Test ATPG_CPU_Vmin {
     __Block[3] = {
         __Title = a_st_tk_4_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -923,6 +945,7 @@ __Test ATPG_CPU_Vmin {
     __Block[4] = {
         __Title = a_st_tk_5_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -943,6 +966,7 @@ __Test ATPG_CPU_Vmin {
     __Block[5] = {
         __Title = a_st_tk_6_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -963,6 +987,7 @@ __Test ATPG_CPU_Vmin {
     __Block[6] = {
         __Title = a_st_tk_7_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -983,6 +1008,7 @@ __Test ATPG_CPU_Vmin {
     __Block[7] = {
         __Title = a_st_tk_8_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1003,6 +1029,7 @@ __Test ATPG_CPU_Vmin {
     __Block[8] = {
         __Title = a_st_tk_9_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1023,6 +1050,7 @@ __Test ATPG_CPU_Vmin {
     __Block[9] = {
         __Title = a_st_tk_10_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1064,6 +1092,7 @@ __Test ATPG_CPU_Vmin {
     __Block[11] = {
         __Title = a_st_tk_12_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1084,6 +1113,7 @@ __Test ATPG_CPU_Vmin {
     __Block[12] = {
         __Title = a_st_tk_13_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1104,6 +1134,7 @@ __Test ATPG_CPU_Vmin {
     __Block[13] = {
         __Title = a_st_tk_14_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1124,6 +1155,7 @@ __Test ATPG_CPU_Vmin {
     __Block[14] = {
         __Title = a_st_tk_15_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1144,6 +1176,7 @@ __Test ATPG_CPU_Vmin {
     __Block[15] = {
         __Title = a_st_tk_16_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1164,6 +1197,7 @@ __Test ATPG_CPU_Vmin {
     __Block[16] = {
         __Title = a_st_tk_17_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1184,6 +1218,7 @@ __Test ATPG_CPU_Vmin {
     __Block[17] = {
         __Title = a_st_tk_18_v22_2_4;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1204,6 +1239,7 @@ __Test ATPG_CPU_Vmin {
     __Block[18] = {
         __Title = a_st_tk_19_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1224,6 +1260,7 @@ __Test ATPG_CPU_Vmin {
     __Block[19] = {
         __Title = a_st_tk_20_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
@@ -1265,6 +1302,7 @@ __Test ATPG_CPU_Vmin {
     __Block[21] = {
         __Title = a_st_tk_fles_2_v22;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = TWFuncTest;
