@@ -22,9 +22,15 @@
 
 #include <Unison.h>
 
-
+// ReverseStringInPlace reverses inString inside the variable
+// It is faster than ReverseString, which returns a new reversed
+// string without altering the original string.
+void ReverseStringInPlace(StringS &inString);
 StringS ReverseString(const StringS &inString);
 
+// StringBinToHex takes a binary string and returns a hex string
+// representation of the binary string with only hex characters (ie, 
+// no leading 0x)
 StringS StringBinToHex(const StringS &inString);
 
 
@@ -42,10 +48,19 @@ void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr,
 // VLSI drive character standard at TI.
 //
 // numBits is the number of bits to convert. It is number of bits, NOT 
-// bit number. This means it is 1-based, not 0 based.                           
+// bit number. This means it is 1-based, not 0 based.  
+//    
+// NOTE: If srcInt cannot be contained in numBits, the MSBs will be truncated!
+// This implementation is faster. If it is desired, look at the IntToBinStr 
+// implementation for how to have it over-size.                     
 StringS IntToVLSIDriveStr(const IntS &srcInt, const IntS &numBits, const bool &isMSBFirst);
 
 
+// IntToBinStr will return a binary string representation of srcInt. 
+// The string will be 0-padded (side is based upon isMSBFirst) to a minimum length
+// of padToLength, if padToLength is not UTL_VOID. If the binary number takes more
+// bits than padToLength, then the string will be longer than padToLength.
+StringS IntToBinStr(const IntS &srcInt, const IntS &padToLength, const bool &isMSBFirst);
 
 #endif
 
