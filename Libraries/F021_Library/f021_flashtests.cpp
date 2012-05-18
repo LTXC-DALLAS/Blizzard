@@ -4897,17 +4897,10 @@ TMResultM FlashEfuse_Trim_func()
    TMResultM tmp_results, final_results;
    Sites savesites, new_active_sites;
    IntM slpct,vsa5ct;
-//   BoolS bg_adapttrim_ena;
    BoolS bg_chartrim_ena;
-//   BoolS iref_adapttrim_ena;
    BoolS iref_chartrim_ena;
-//   IntS site;
-//   FloatS ttimer1;
    FloatS tt_timer;
-//   FloatM FloatSval;
-//   TWunit unitval;
-   StringS tmpstr1; //,tmpstr4;
-//   StringS current_shell;
+   StringS tmpstr1;
    StringS dummstr1,dummstr2;
 
    savesites = ActiveSites;
@@ -4928,9 +4921,8 @@ TMResultM FlashEfuse_Trim_func()
          if(GL_FLASH_RETEST[*si])  
             cout << "Site : " << *si << "  Already Trimmed so Disable." << endl;
    new_active_sites.DisableFailingSites(!GL_FLASH_RETEST);
-   RunTime.SetActiveSites(new_active_sites);
    
-   if(!ActiveSites.Begin().End())  
+   if(SetActiveSites(new_active_sites))  
    {
       bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
       if(GL_DO_BG_DIRECT_TRIM)  
@@ -4941,81 +4933,74 @@ TMResultM FlashEfuse_Trim_func()
 // else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
 //      else
 //         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
-   } 
 
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End())  
-   {
-      iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
-      tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-   } 
-
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End() && GL_DO_FOSC_TRIM)  
-   {
-#if $FL_USE_DCC_TRIM_FOSC  
-//  :TODO: Unneeded for Blizzard, fix later.
-//      F021_FOSC_SoftTrim_func(tmp_results);
-#else
-      tmp_results = F021_FOSC_SoftTrim_External_func();
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-#endif
-   } 
-   
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End())  
-   {
-      tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-   } 
-   
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End()) 
-   {
-      tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-   } 
-
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End() && SITE_TO_FTRIM.AnyEqual(true))  
-   {
-      new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
-      RunTime.SetActiveSites(new_active_sites);
-
-      if (!ActiveSites.Begin().End()) 
+      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      if(SetActiveSites(new_active_sites))  
       {
-         FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
+         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+         tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
+         final_results = DLOG.AccumulateResults(final_results, tmp_results);
 
-           /*update SaveFlashProgString for later use*/
-         SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
-         margFlashChainStr = FlashProgString;
-
-         if(tistdscreenprint)  
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites) && GL_DO_FOSC_TRIM)  
          {
-            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      #if $FL_USE_DCC_TRIM_FOSC  
+      //  :TODO: Unneeded for Blizzard, fix later.
+      //      F021_FOSC_SoftTrim_func(tmp_results);
+      #else
+            tmp_results = F021_FOSC_SoftTrim_External_func();
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+      #endif
+         
+            new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+            if(SetActiveSites(new_active_sites))  
             {
-               dummstr2 = FlashProgString[*si];
-               ReverseStringInPlace(dummstr2);
-               dummstr1 = StringBinToHex(FlashProgString[*si]);
-               cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
-               if(true)   /*ti_flashdebug*/
+               tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
+               final_results = DLOG.AccumulateResults(final_results, tmp_results);
+            
+               new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+               if(SetActiveSites(new_active_sites)) 
                {
-                  cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
-                          FlashProgString[*si] << endl;
-                  cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
-               } 
-            }  
-         }  /*ti_stdscreenprint*/
-      } // if active sites
-      // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
-   }   // if SITE_TO_FTRIM
+                  tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
+                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
 
+                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+                  if(SetActiveSites(new_active_sites) && SITE_TO_FTRIM.AnyEqual(true))  
+                  {
+                     new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
+                     if (SetActiveSites(new_active_sites)) 
+                     {
+                        FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
+
+                          /*update SaveFlashProgString for later use*/
+                        SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
+                        margFlashChainStr = FlashProgString;
+
+                        if(tistdscreenprint)  
+                        {
+                           for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                           {
+                              dummstr2 = FlashProgString[*si];
+                              ReverseStringInPlace(dummstr2);
+                              dummstr1 = StringBinToHex(FlashProgString[*si]);
+                              cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
+                              if(true)   /*ti_flashdebug*/
+                              {
+                                 cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
+                                         FlashProgString[*si] << endl;
+                                 cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
+                              } 
+                           }  
+                        }  /*ti_stdscreenprint*/
+                     } // if active sites to ftrim
+                     // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
+                  }   // if SITE_TO_FTRIM
+               } // if any_site_active VSA5CT trim
+            } // if any_site_active VHV SLOPECT trim
+         } // if any_site_active OSC trim
+      } // if any_site_active Iref trim
+   } // if any_site_active BG Trim
+   
    /*re-activate sites*/
    RunTime.SetActiveSites(savesites);
    
@@ -5065,8 +5050,7 @@ TMResultM Pump_Iref_Vnom_func()
 
    // disable failing sites (disables sites w/ false).
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites); 
-   if(!ActiveSites.Begin().End())  
+   if(SetActiveSites(new_active_sites))  
    {
       tcrnum = 125;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
@@ -5164,9 +5148,8 @@ TMResultM Pump_VHV_Vmin_func()
          new_active_sites = ActiveSites;
          // Disable sites that have retest of false
          new_active_sites.DisableFailingSites(GL_FLASH_RETEST); 
-         RunTime.SetActiveSites(new_active_sites);
                
-         if(!ActiveSites.Begin().End())   //if there is an active site
+         if(SetActiveSites(new_active_sites))   //if there is an active site
          {
             TL_RunTestNum(TNUM_BANK_PRECON,"");
             TL_RunTestNum(TNUM_OTP_PRECON ,""); /*PROG*/
@@ -5213,29 +5196,26 @@ TMResultM Pump_VHV_Vmin_func()
 
    new_active_sites = ActiveSites;
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS)); 
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End())   //we have an active site
+   if(SetActiveSites(new_active_sites))   //we have an active site
    {
       tcrmode = PvfyMode;
       // can reuse the final_results b/c sites disabled won't get new values
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
-   } 
    
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites);
-   if(!ActiveSites.Begin().End())  
-   {
-      tcrmode = ErsMode;
-      /* PatternLoad(f021_shell_loadpat, 'VVS/PAT_F771727_PBx16/Garnet_Shell064_T072C009S007_A3_v1p4'); 
-        {added because of LDO bypass issue JRR}
-          discard(patternexecute(num_clks,f021_shell_loadpat));
-          wait(5mS); */
-      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-      RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
-   } 
+      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      if(SetActiveSites(new_active_sites))  
+      {
+         tcrmode = ErsMode;
+         /* PatternLoad(f021_shell_loadpat, 'VVS/PAT_F771727_PBx16/Garnet_Shell064_T072C009S007_A3_v1p4'); 
+           {added because of LDO bypass issue JRR}
+             discard(patternexecute(num_clks,f021_shell_loadpat));
+             wait(5mS); */
+         tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+         final_results = DLOG.AccumulateResults(final_results, tmp_results);
+         RAM_Upload_VHV_CT_TrimVal(); /*added to reload the softtrims for VHV JRR*/
+      } 
+   }
    
    RunTime.SetActiveSites(initial_sites);
    return (final_results);
@@ -5266,24 +5246,20 @@ TMResultM Pump_VHV_Vmax_func()
 
    // disable failing sites (disables sites w/ false).
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites); 
-   if(!ActiveSites.Begin().End())  
+   if(SetActiveSites(new_active_sites))  
    {
       tcrmode = PvfyMode;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVPVFY,post,vcorner,tcrnum,tcrmode);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
-   } 
    
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites); 
-   if(!ActiveSites.Begin().End())  
-   {
-      tcrmode = ErsMode;
-      tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
-      final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
-   } 
+      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      if(SetActiveSites(new_active_sites))  
+      {
+         tcrmode = ErsMode;
+         tmp_results = F021_Pump_Para_func(TNUM_PUMP_VHVERS,post,vcorner,tcrnum,tcrmode);
+         final_results = DLOG.AccumulateResults(final_results, tmp_results);
+      } 
+   }
    
    RunTime.SetActiveSites(initial_sites);
    return (final_results);
@@ -5314,8 +5290,7 @@ TMResultM Pump_VSL_Vmin_func()
    final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
 
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites); 
-   if(!ActiveSites.Begin().End())  
+   if(SetActiveSites(new_active_sites))  
    {
       tcrmode = PvfyMode;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
@@ -5351,8 +5326,7 @@ TMResultM Pump_VSL_Vmax_func()
    final_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);
    
    new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   RunTime.SetActiveSites(new_active_sites); 
-   if(!ActiveSites.Begin().End())  
+   if(SetActiveSites(new_active_sites))  
    {
       tcrmode = PvfyMode;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_VSL,post,vcorner,tcrnum,tcrmode);

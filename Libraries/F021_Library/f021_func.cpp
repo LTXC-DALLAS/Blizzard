@@ -13234,6 +13234,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
    VCornerType vcorner;
    Sites savesites, new_active_sites;
    int int_site;
+   bool any_site_active = true;
 
    final_results = TM_NOTEST;
 
@@ -13403,7 +13404,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
                {
                   new_active_sites = ActiveSites;
                   new_active_sites.DisableFailingSites(final_results == TM_PASS);
-                  RunTime.SetActiveSites(new_active_sites);
+                  any_site_active = SetActiveSites(new_active_sites);
                }
             }
             
@@ -13411,7 +13412,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
                cout << test_name << " TT : " << ttimerS << endl;
          }   /*if pump_para_enable*/
 
-         if(ActiveSites.Begin().End()) 
+         if(!any_site_active) 
             break;
 
       }   /*for tpnum*/
@@ -25256,6 +25257,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    FloatS llim,ulim;
    IntS TRIMENAKEY;
    IntM TrimValue,BGValue,IRValue,FOSCValue;
+   bool any_site_active = true;
    
 
    if(tistdscreenprint)  
@@ -25312,11 +25314,11 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    {
       pretrim_pass_sites = ActiveSites;
       pretrim_pass_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-      RunTime.SetActiveSites(pretrim_pass_sites);
+      any_site_active = SetActiveSites(pretrim_pass_sites);
    }
    
     /*+++++ STEP #2 +++++*/
-   if(!ActiveSites.Begin().End())  
+   if(any_site_active)  
    {
       trim_sites = ActiveSites;
       BoolM softtrim_ena;
@@ -25359,11 +25361,9 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
       }  
       /*+++ end Calc delta +++*/
 
-      // disable sites that don't need to trim
-      RunTime.SetActiveSites(trim_sites);
-
        /*+++++ STEP #3 +++++*/
-      if(!ActiveSites.Begin().End())  
+      // disable sites that don't need to trim
+      if(SetActiveSites(trim_sites))  
       {
          TRIMENAKEY = 0xAA55;
          IRValue = 0;
@@ -26117,6 +26117,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    IntS TRIMENAKEY;
    IntM TrimValue,BGValue,IRValue,FOSCValue;
    IntM trim_alarms;
+   bool any_site_active = true;
 
 
    if(tistdscreenprint)  
@@ -26175,11 +26176,11 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    {
       pass_pretrim_sites = ActiveSites;
       pass_pretrim_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-      RunTime.SetActiveSites(pass_pretrim_sites);
+      any_site_active = SetActiveSites(pass_pretrim_sites);
    }
    
     /*+++++ STEP #2 +++++*/
-   if(!ActiveSites.Begin().End())  
+   if(any_site_active)  
    {
        /*compare override value vs target*/
       fl_testname = "MainIREF_Trim_Test";
@@ -26218,10 +26219,8 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
       }   /*for site*/
        /*+++ end Calc delta +++*/
 
-      RunTime.SetActiveSites(trim_sites);
-      
        /*+++++ STEP #3 +++++*/
-      if(!ActiveSites.Begin().End())  
+      if(SetActiveSites(trim_sites))  
       {
          if (charTrimEna) // run every code so we can see what the curve looks like
          {
