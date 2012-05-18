@@ -829,28 +829,31 @@ __FunctionCall SetSpec_To_VMin_MF {
 
 
 __Axis CharAxis_SrchVdd_Vmin_ATPG_STUCK {
-    __NumberSteps = __Expression { __String = "(1.18V-810mV)/12.5mV"; }
+    __NumberSteps = __Expression { __String = "(1.18V-700mV)/12.5mV"; }
     __ParameterVariance {
         __Param VDD_PS, VDDPGM_PS, VDDAR_PS, VNWA_PS;
-        __Start = __Expression { __String = "810mV"; __Type = V; }
-        __Stop = __Expression { __String = "1.18V"; __Type = V; }
+        __Start = __Expression { __String = "1.2mV"; __Type = V; }
+        __Stop = __Expression { __String = "700mV"; __Type = V; }
+        __PinGroup = __Expression { __String = "VDD+VDDPGM+VDDAR+VNWA"; }
     }
 }
 
 __Axis CharAxis_SrchVdd_Vmin_PBIST_VBOXL {
-    __NumberSteps = __Expression { __String = "(1.18V-810mV)/12.5mV"; }
+    __NumberSteps = __Expression { __String = "30"; }
     __ParameterVariance {
         __Param VDD_PS, VDDPGM_PS, VDDAR_PS, VNWA_PS;
-        __Start = __Expression { __String = "810mV"; __Type = V; }
+        __Start = __Expression { __String = "600mV {810mV}"; __Type = V; }
         __Stop = __Expression { __String = "1.18V"; __Type = V; }
+        __PinGroup = __Expression { __String = "VDD+VDDPGM+VDDAR+VNWA"; }
     }
 }
 __Axis CharAxis_SrchVdd_Vmin_PBIST_1P {
-    __NumberSteps = __Expression { __String = "(1.18V-810mV)/12.5mV"; }
+    __NumberSteps = __Expression { __String = "(1.18V-600mV)/12.5mV"; }
     __ParameterVariance {
         __Param VDD_PS, VDDPGM_PS, VDDAR_PS, VNWA_PS;
-        __Start = __Expression { __String = "810mV"; __Type = V; }
+        __Start = __Expression { __String = "600mV"; __Type = V; }
         __Stop = __Expression { __String = "1.18V"; __Type = V; }
+        __PinGroup = __Expression { __String = "VDD+VDDPGM+VDDAR+VNWA"; }
     }
 }
 __Axis CharAxis_SrchVdd_Vmin_PBIST_2P {
@@ -880,7 +883,7 @@ __Axis CharAxis_SrchVdd_Vmin_TRANSFLT_80 {
 __FunctionCall ATPG_STUCK_Srch_Fnctn {
     __WrapCells = __True;
     __Function = LTXC::SearchStepPatterns;
-    TestPatterns = __Expression { __String = "'SCAN_SA_PG_Thrd'"; }
+    TestPatterns = __Expression { __String = "'a_st_tk_1_v22_Thrd'"; }
 }
 __FunctionCall PBIST_1P_Srch_Fnctn {
     __Function = LTXC::SearchStepPatterns;
@@ -897,8 +900,9 @@ __FunctionCall PBIST_RET_Srch_Fnctn {
     TestPatterns = __Expression { __String = "'Iddq_PM02_pb_iddq_ret_invchkr_Thrd'"; }
 }
 __FunctionCall PBIST_VBOXL_Srch_Fnctn {
+    __WrapCells = __True;
     __Function = LTXC::SearchStepPatterns;
-    TestPatterns = __Expression { __String = "'VBOXLO_MEMORY_PG_Thrd'"; }
+    TestPatterns = __Expression { __String = "'BIST_PROD_PGDB_Thrd'"; }
 }
 __FunctionCall TRANSFLT_80_Srch_Fnctn {
     __WrapCells = __True;

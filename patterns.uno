@@ -186,6 +186,46 @@ __SignalHeader ScanHeader1 {
     }
 }
 
+__SignalHeader ScanHeaderZ {
+    __Signals {
+        PA2_48 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        C1_n_45 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PA3_49 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        C1_p_44 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PA4_50 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        C0_p_43 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PA5_51 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        C0_n_42 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PA6_54 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        TRD2_88 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PA7_55 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        TRD1_89 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PB0_129 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        TRD0_90 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+        PB1_130 { __Scan, __ScanLength = 500, __Fill = L, __PreFill; }
+        PF3_91 { __Scan, __ScanLength = 500, __Fill = M, __PostFill; }
+    }
+}
+__SignalHeader ScanHeaderZ_1k {
+    __Signals {
+        PA2_48 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        C1_n_45 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PA3_49 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        C1_p_44 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PA4_50 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        C0_p_43 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PA5_51 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        C0_n_42 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PA6_54 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        TRD2_88 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PA7_55 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        TRD1_89 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PB0_129 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        TRD0_90 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+        PB1_130 { __Scan, __ScanLength = 1025, __Fill = L, __PreFill; }
+        PF3_91 { __Scan, __ScanLength = 1025, __Fill = M, __PostFill; }
+    }
+}
 __SignalHeader ScanHeader3 {
     __Signals {
         PA2_48 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
@@ -373,6 +413,11 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
+    __Pattern ramread_mbox_scram_v3p0 {
+        __File "ramread_mbox_scram_v3p0";
+        __Path "./Patterns/Ascii";
+    }
+
     __Pattern ramwrite_burst_addr_v3p0 {
         __File "ramwrite_burst_addr_v3p0";
         __Path "./Patterns/Ascii";
@@ -429,6 +474,10 @@ __PatternMap DefaultPatternMap {
     }*/
     __Pattern FF_InitCheck_eng_DPM {
         __File "FF_InitCheck_eng_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern FF_Program_Mg1A {
+        __File "FF_Program_Mg1A";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_Read_Mg1A {
@@ -551,8 +600,28 @@ __PatternMap DefaultPatternMap {
         __File "a_iddq";
         __Path "./Patterns/Ascii";
     }
+    __Pattern a_iddq_500 {
+        __File "a_iddq_500";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_iddq_260 {
+        __File "a_iddq_260";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_iddq_flat261 {
+        __File "a_iddq_flat261";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_iddq_1025 {
+        __File "a_iddq_1025";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern FF_CheckROM_Mg0_DPM {
         __File "FF_CheckROM_Mg0_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern FF_CheckROM_Mg0_NoEd {
+        __File "FF_CheckROM_Mg0_NoEd";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_CheckROM_Mg0_ENG {
@@ -953,6 +1022,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_march13n_1p_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_march13n_1p_DC {
+        __File "pb_pb_march13n_1p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_march13n_2p_DPM {
         __File "pb_pb_march13n_2p_DPM";
         __Path "./Patterns/Ascii";
@@ -1283,6 +1356,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern a_tft_ntk_80_80_1 {
         __File "a_tft_ntk_80_80_1";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_tft_tk_80_80_1_trev {
+        __File "a_tft_tk_80_80_1_trev";
         __Path "./Patterns/Ascii";
     }
     __Pattern SPD_Debug_80_80_1 {

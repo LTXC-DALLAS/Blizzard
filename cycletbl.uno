@@ -46,11 +46,19 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
             __Waveform { __DriveOn; __DriveData; }
         }
     }
-    __Cell "TDLStdPatGrp.Pins" 2 DoubleClk {
+    __Cell "OSC0_124" l/2 DoubleClk {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __EntryState __DriveOn;
+            __Waveform { __DriveHigh; __DriveLow; __DriveHigh; __DriveLow; }
+        }
+    }
+    __Cell "OSC0_124" k DrvOn {
         __Data 7;
         __Color 4;
         __Drive {
-            __Waveform { __DriveHigh; __DriveLow; __DriveHigh; __DriveLow; }
+            __Waveform { __DriveOn; __DriveLow; }
         }
     }
     __Cell "TDLStdPatGrp.Pins" D RZClk2 {
@@ -267,6 +275,7 @@ __PatternSequence SCAN_PATHDELAY_1_PG_PS {
     __Thread[44] = a_tft_tk_80_80_41_Thrd;
     __Thread[45] = a_tft_tk_80_80_11_Thrd;
     __Thread[46] = SPD_Debug_80_80_1_Thrd;
+    __Thread[47] = a_tft_tk_80_80_1_trev_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
@@ -1152,6 +1161,12 @@ __Thread pb_pb_march13n_1p__ENG_Thrd {
         __PatternLabel = __Expression { __String = "pb_pb_march13n_1p_ENG.pb_pb_march13n_1p_ENG_st"; }
     }
 }
+__Thread pb_pb_march13n_1p_DC_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_pb_march13n_1p_DC.pb_pb_march13n_1p_DC_st"; }
+    }
+}
 //Might need to add jtag patterns to this thread.  
 __PatternSequence pb_pb_mapcol_1p_SH2_PS {
     __Thread[0] = pb_pb_mapcol_1p_SH2_Thrd;
@@ -1180,13 +1195,14 @@ __PatternSequence BIST_PROD_PG_PS {
     __Thread[9] = Precharge_Debug;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT17_eng = { WFT17_eng } }
+        __Row { TDLStdPatGrp, WFT17_DC = { WFT17_DC } }
     }
     __AutoBasePeriod = __True;
 }
 __Thread BIST_PROD_PG_Srch_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "pb_pb_march13n_1p_ENG.pb_pb_march13n_1p_ENG_st"; }
+        __PatternLabel = __Expression { __String = "pb_pb_march13n_1p_DC.pb_pb_march13n_1p_DC_st"; }
     }
 }
 __Thread BIST_PROD_PG_Thrd {
@@ -1231,6 +1247,7 @@ __Thread BIST_PROD_PG_Thrd {
 __PatternSequence PBIST_2P_PROD_PG_PS {
     __Thread[0] = PBIST_2P_PROD_PG_Thrd;
     __Thread[1] = PBIST_2P_PROD_PG_Srch_Thrd;
+    __Thread[2] = pb_pb_down2_2p_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT18_eng = { WFT18_eng } }
     }
@@ -1546,9 +1563,25 @@ __Thread Iddq_PM02_pb_iddq_ret_zeroes_Thrd {
 __Thread Iddq_PM02_pb_iddq_ret_zeroes_v23_Thrd {
 }
 __PatternSequence Iddq_SEQ {
+    __Thread[0] = a_iddq_Thrd;
+    __Thread[1] = a_iddq_500_Thrd;
+    __Thread[2] = a_iddq_260_Thrd;
+    __Thread[3] = a_iddq_1025_Thrd;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
+    }
     __AutoBasePeriod = __True;
 }
 
+__PatternSequence Iddq_dbg_SEQ {
+    __Thread[0] = a_iddq_500_Thrd;
+    __Thread[1] = a_iddq_260_Thrd;
+    __Thread[2] = a_iddq_flat261_Thrd;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
+    }
+    __AutoBasePeriod = __True;
+}
 __PatternSequence LeakIO_SEQ {
     __AutoBasePeriod = __True;
 }
@@ -1618,8 +1651,10 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[1] = FF_CheckROM_Mg0_ENG_Thrd;
     __Thread[2] = FF_RunAutoload_ENG_Thrd;
     __Thread[3] = FF_Read_Mg1A_Thrd;
-    __Thread[4] = FF_InitCheck_NoEd_Thrd;
-    __Thread[5] = FF_RunAutoload_NoEd_Thrd;
+    __Thread[4] = FF_Program_Mg1A_Thrd;
+    __Thread[5] = FF_InitCheck_NoEd_Thrd;
+    __Thread[6] = FF_RunAutoload_NoEd_Thrd;
+    __Thread[7] = FF_CheckROM_Mg0_NoEd_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
@@ -1643,6 +1678,12 @@ __Thread FF_CheckROM_Mg0_ENG_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = FF_CheckROM_Mg0_ENG;
+    }
+}
+__Thread FF_Program_Mg1A_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = FF_Program_Mg1A; 
     }
 }
 __Thread FF_Read_Mg1A_Thrd {
@@ -1681,7 +1722,8 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[13] = ramread_nburst_lsw_Thrd;
     __Thread[14] = ramread_nburst_msw_Thrd;
     __Thread[15] = ramread_nburst_addr_Thrd;
-    __Thread[16] = ramwrite_burst_addr_Thrd;
+    __Thread[16] = ramread_mbox_Thrd;
+    __Thread[17] = ramwrite_burst_addr_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1798,6 +1840,12 @@ __Thread ramread_nburst_addr_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "ramread_nburst_addr_v3p0.ramread_nburst_addr_v3p0_start"; }
+    }
+}
+__Thread ramread_mbox_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_mbox_scram_v3p0.ramread_mbox_scram_v3p0_start"; }
     }
 }
 __Thread ramwrite_burst_addr_Thrd {
@@ -2624,5 +2672,53 @@ __Thread FF_RunAutoload_NoEd_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = FF_RunAutoload_NoEd;
+    }
+}
+__Thread a_tft_tk_80_80_1_trev_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_tft_tk_80_80_1_trev;
+    }
+}
+__Thread pb_pb_down2_2p_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_down2_2p;
+    }
+}
+__Thread a_iddq_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_iddq;
+    }
+}
+__Thread a_iddq_500_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_iddq_500;
+    }
+}
+__Thread a_iddq_260_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_iddq_260;
+    }
+}
+__Thread a_iddq_flat261_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_iddq_flat261;
+    }
+}
+__Thread a_iddq_1025_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = a_iddq_1025;
+    }
+}
+__Thread FF_CheckROM_Mg0_NoEd_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = FF_CheckROM_Mg0_NoEd;
     }
 }

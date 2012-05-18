@@ -289,7 +289,7 @@
 
 
 #include <f021_func.h>
-#include <std_vi.h>
+#include <string_utils.h>
 #include <iomanip>
 using namespace std; 
 
@@ -355,51 +355,6 @@ void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type,
 //  }
 //}   /*proc IntToBinStr*/
 
-StringS IntToVLSIDriveStr(const IntS &tmpint1, const IntS &numBits, const bool &isMSBFirst)
-// numBits is the number of bits to convert. It is number of bits, NOT 
-// bit number. This means it is 1-based, not 0 based.
-{
-   int bit_of_interest = 1;
-   int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
-   int l_num_bits;
-   
-   if (numBits > 32) 
-   {
-      l_num_bits = 32; // we only deal with 32 bits max
-   } else {
-      l_num_bits = numBits;
-   }
-
-   // reserve enough space in memory for the bits we have
-   StringS drive_string(NULL, l_num_bits);
-
-   for (int i = 0; i < l_num_bits; ++i) 
-   {
-      if (i > 0)
-      {
-         bit_of_interest = bit_of_interest << 1;
-      }
-
-      if ((my_int & bit_of_interest) == 0) 
-      {
-         if (isMSBFirst) // LSBs come first in loop, so prepend for MSB first
-         {
-            drive_string = "L" + drive_string;
-         } else { // LSBs come first in loop and we want LSB first, so append
-            drive_string += "L";
-         }
-      } else {
-         if (isMSBFirst) // LSBs come first in loop, so prepend for MSB first
-         {
-            drive_string = "H" + drive_string;
-         } else { // LSBs come first in loop and we want LSB first, so append
-            drive_string += "H";
-         }      
-      }
-   }
-   
-   return (drive_string);
-}   /* end IntToVLSIDriveStr */
 
 void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
                            UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
@@ -409,7 +364,7 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
    
    // if no wordSize is given, then we do parallel even if that means a 1-bit parallel
    // if more than 1 capture pin, it has to be parallel
-   if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 0)) 
+   if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 1)) 
    {
       DIGITAL.DefineParallelCapture(capturePins, capName, maxCapCount);
    } else {
@@ -430,67 +385,6 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
          }
       }
    }
-}
-
- /*hexvalue: write decimal value 4660 (or 0x1234) into RAM as 1234*/
- /*nothexvalue: write decimal value 751 (or 0x2EF) into RAM as 751*/
- /*the nothexvalue is used for cases like VT, lot#,..., i.e. what*/
- /*you see is what you get*/
-void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr, 
-                           StringM &binVlsiStr, const BoolS &hexValue)
-{
-   IntS str_len;
-   IntS src_val;
-   bool all_sites_same = false;
-   
-   // check if all sites have same data as first active site
-   if (srcData == srcData[ActiveSites.Begin().GetValue()]) 
-   {
-      all_sites_same = true;
-   } 
- 
-   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-   {
-      // VLCT cut off possible MSBs after converting to string, 
-      // but working in Int should be faster
-      src_val = srcData[*si] & 0xFFFF; 
-      if (hexValue)
-      {
-         binVlsiStr[*si] = IntToVLSIDriveStr(src_val, 16, true);
-         // make string in hex
-         IO.Print(bcdStr[*si], "%04x", src_val);
-      }
-      else
-      {
-         IO.Print(bcdStr[*si], "%04d", src_val);
-         for (int i = 0; i < 4; ++i)
-         {
-            switch (bcdStr[*si][i]) {
-               case '0' : binVlsiStr[*si] += "LLLL"; break;
-               case '1' : binVlsiStr[*si] += "LLLH"; break;
-               case '2' : binVlsiStr[*si] += "LLHL"; break;
-               case '3' : binVlsiStr[*si] += "LLHH"; break;
-               case '4' : binVlsiStr[*si] += "LHLL"; break;
-               case '5' : binVlsiStr[*si] += "LHLH"; break;
-               case '6' : binVlsiStr[*si] += "LHHL"; break;
-               case '7' : binVlsiStr[*si] += "LHHH"; break;
-               case '8' : binVlsiStr[*si] += "HLLL"; break;
-               case '9' : binVlsiStr[*si] += "HLLH"; break;
-            } // end switch        
-         } // end for (walk through bcdStr by character)
-      } // end else for if hexValue
-         
-      // if all sites have the same source data, 
-      // set strings appropriately and break out 
-      // of the loop
-      if (all_sites_same)
-      {
-         binVlsiStr = binVlsiStr[*si];
-         bcdStr = bcdStr[*si];
-         break;
-      }
-            
-   } // end site loop
 }
 
 // /*ElimSpace remove space from string until encounter alpha-numeric*/
@@ -684,7 +578,7 @@ TMResultM F021_InitFLGlobalvars_func()
       
       GL_CHARZ_ESTAIRSTEP_SAVECOUNT = GL_CHARZ_ESTAIRSTEP_COUNT;
       
-      IsFastBinning = "TestProgData.evFastBinning";
+      RunAllTests = "RunAllTests";
    
    }   /*if v_any_dev*/
 
@@ -3007,7 +2901,7 @@ void GetRamContent_SCRAM(IntS start_addr,
    for (int i = 1;i <= 2;++i)
    {
       addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      StringML SourceArr(16);
+      StringML SourceArr;
       for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
       {
          str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
@@ -3021,9 +2915,9 @@ void GetRamContent_SCRAM(IntS start_addr,
       DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
       
       if(i==1)  
-         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,EvenCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,EvenCaptureArr,sim_value);
       else
-         PatternDigitalCapture(tpatt,data_pins,"cap_name_from_pattern",halfcapcount,OddCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,OddCaptureArr,sim_value);
    }   /*for i*/
    
     /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
@@ -7312,7 +7206,7 @@ void F021_SetTestNum(IntS testnum)
       DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
    } 
 #endif
-   
+
 }  /*F021_SetTestNum*/
 
 //void Check_RAM_TNUM(    IntS expTnum,
@@ -12096,29 +11990,25 @@ void F021_CollectESDA(IntS imagenum) {
 //}   /* TL_Boost_RefArray */
 //
 //
-// /*++++++++++ Flash Tools ++++++++++*/
-//   
-//void RAM_Clear_MailBox_Key()
-//{
-//   IntS site,addr_loc,trimenakey,i,j;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Clear_MailBox_Key +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//      
-//      msw_data = 0;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* RAM_Clear_MailBox_Key */
+ /*++++++++++ Flash Tools ++++++++++*/
+   
+void RAM_Clear_MailBox_Key()
+{
+   IntS addr_loc;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Clear_MailBox_Key +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_MAILBOX;
+   
+   msw_data = 0;  /*msword*/
+   lsw_data = 0;  /*lsword*/
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+}   /* RAM_Clear_MailBox_Key */
 
 
 FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
@@ -12134,7 +12024,6 @@ FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum,
    F021_RunTestNumber_PMEX(testnum,maxtime);
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
-//   Disable(s_pmexit);
    F021_TurnOff_AllTPADS();
    
    return (meas_val);
@@ -13281,49 +13170,46 @@ void RAM_Upload_PMOS_TrimCode() {
 //   } 
 //}   /* RAM_Upload_SoftTrim_All */
 //
-//
-//void RAM_Upload_SoftTrim(IntS trimenakey,
-//                              IntM BGapVal,
-//                              IntM IRefVal,
-//                              IntM FOSCVal,
-//                              IntM VHVSLPVal,
-//                              IntM VSA5CTVal)
-//{
-//   IntS site,addr_loc,i;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Upload_SoftTrim +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_EFSOFTTRIM;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = BGapVal;
-//      ArrayMultIntegerValue(lsw_data,lsw_data,0x100,v_sites);  /*lshift 8bit*/
-//      ArrayAddInteger(lsw_data,lsw_data,IRefVal,v_sites);  /*lsword*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      ArrayMultIntegerValue(msw_data,VSA5CTVal,0x100,v_sites);  /*lshift 8bit*/
-//      ArrayAddInteger(msw_data,msw_data,VHVSLPVal,v_sites);
-//      ArrayMultIntegerValue(lsw_data,FOSCVal,0x100,v_sites);  /*lshift 8bit*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_EFSOFTTRIM;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(3*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Upload_SoftTrim */
+
+void RAM_Upload_SoftTrim(const IntS &trimenakey,
+                         const IntM &BGapVal,
+                         const IntM &IRefVal,
+                         const IntM &FOSCVal,
+                         const IntM &VHVSLPVal,
+                         const IntM &VSA5CTVal)
+{
+   IntS addr_loc;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Upload_SoftTrim +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_EFSOFTTRIM;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = BGapVal << 8; /*lshift 8bit*/
+   lsw_data += IRefVal;  /*lsword*/
+   
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   
+   msw_data = VSA5CTVal << 8; /*lshift 8bit*/
+   msw_data += VHVSLPVal;
+
+   lsw_data = FOSCVal << 8; /*lshift 8bit */
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_EFSOFTTRIM;
+      ReadRamAddress(addr_loc,addr_loc+(3*ADDR_RAM_INC));
+   } 
+}   /* RAM_Upload_SoftTrim */
 
 
 void RAM_Clear_SoftTrim_All()
@@ -13340,7 +13226,7 @@ void RAM_Clear_SoftTrim_All()
    lsw_data = 0;  /*lsword*/
 
    //for giggles and debug, read ram before we clear it
-   // Remove after initial RAM function debug!
+   // :TODO: Remove after initial RAM function debug!
    ReadRamAddress(addr_loc, addr_loc+(3*ADDR_RAM_INC));
 
    if(tistdscreenprint)  
@@ -13383,7 +13269,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
    BoolS done,once,ovride_lim,parmena;
    FloatS llim,ulim;
    VCornerType vcorner;
-   Sites savesites;
+   Sites savesites, new_active_sites;
    int int_site;
 
    final_results = TM_NOTEST;
@@ -13435,18 +13321,11 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
          if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
          {
             ttimer2_start = TIME.GetTimer();
-//            logsites = v_dev_active;
             
             fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRMode][tpnum][prepost][vcorner];
             length = fl_testname.Length();
             // strip off _Test
             test_name = fl_testname.Substring(0,length-5); // don't know why VLCT started at 2 must be something w/ their naming
-
-//            TestOpen(fl_testname);
-  
-   // :TODO: come back and fix the print headers
-//            if(tistdscreenprint)  
-//               PrintHeaderParam(GL_PLELL_FORMAT);
          
    // :TODO: come back and do this, it's an OpVar...for now we'll say it's false and move on
 //            if(TI_FlashCOFEna)  
@@ -13502,8 +13381,6 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
             TIME.Wait(tdelay);
 
             meas_value = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
-
-//            tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
          
              /*store/copy to global var vhv params*/
             if(TCRnum==0)  
@@ -13559,26 +13436,36 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                  } 
                } 
                
-               if(IsFastBinning && (!TI_FlashCOFEna))  
-//                  RunTime.SetActiveSites(Sites(ActiveSites).DisableFailingSites(final_results == TM_PASS));
-                  ActiveSites.DisableFailingSites(final_results == TM_PASS);
+               if(!RunAllTests && (!TI_FlashCOFEna))  
+               {
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(final_results == TM_PASS);
+                  RunTime.SetActiveSites(new_active_sites);
+               }
             }
             
             if(tistdscreenprint)  
                cout << test_name << " TT : " << ttimerS << endl;
          }   /*if pump_para_enable*/
 
-         if(ActiveSites.GetNumSites() == 0)  
+         if(ActiveSites.Begin().End()) 
             break;
+
       }   /*for tpnum*/
 
-//      Disable(s_pmexit);
+      // want to turn on any sites that we turned off during the loop 
+      // so that results get reported & tpads are turned off
+      RunTime.SetActiveSites(savesites);
+            
       F021_TurnOff_AllTPADS();
 
        /*devsetholdstates(savesites);*/
 
 // :TODO: come back and fix this, skipped for now b/c debug 
-//      if((ActiveSites.GetNumSites() > 0) && TI_FlashDebug)  
+// issue b/c we have to activate sites to turn off tpads...
+// but here we don't want to do it if sites are off....hmmm...
+// well, it is debug so I guess we could do for all.
+//      if((!ActiveSites.Begin().End()) && TI_FlashDebug)  
 //      {
 //          /*check for valid tnum and re-binning any fail*/
 //         Check_RAM_TNUM(testnum,tmp_results);
@@ -13589,11 +13476,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
       {
          IO.Print(IO.Stdout,"F021_Pump_Para_func TT : %e\n\n",tt_timer);
       } 
-      
-      // want to turn on any sites that we turned off during the loop 
-      // so that results get reported
-      RunTime.SetActiveSites(savesites);
-      
+            
    }   /*if parmena*/
 
    return (final_results);
@@ -14199,7 +14082,8 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //}   /* F021_Bank_Para_MBox_func */
 //   
 //
-TMResultM F021_Flash_Leak_func(    IntS start_testnum,
+//TMResultM F021_Flash_Leak_func(    IntS start_testnum,
+void F021_Flash_Leak_func(    IntS start_testnum,
                                   StringS tname,
                                   prepostcorner prepost_type,
                                   StringS vcorner,
@@ -14419,7 +14303,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
             for (count = blkstart;count <= blkstop;count++)
             {
                logsites = ActiveSites.GetPassingSites();
-               rtest_results = logsites;
+//               rtest_results = logsites;
 //               timernstart(ttimer2);
                TIME.StartTimer();
                
@@ -14446,11 +14330,11 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   else if(special_opt==2)    /*eg lkg*/
                      tmptcrmode = EvfyMode;
 
-                  switch(vcorner) {
+/*                  switch(vcorner) {
                     case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN;
                     case  VNM: case VNMO: case VNME :  tmpvcorner = VNM;
                     case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX;
-                  }   /* case */
+                  } */  /* case */
 
                   debugprint = false;
 //Unison is sited.  Don't need an iterator for this.
@@ -14469,7 +14353,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //                        if(debugprint and tistdscreenprint)  
 //                           cout << "Site " << site:-5 << " Total Meas==" << total_value[site]:-5:3 << endl;
 //                     } 
-                   if(specail_opt==1)
+/*                   if(specail_opt==1)
                       meas_valu = meas_value-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site];
                    else
                       meas_value[site] = PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site]-meas_value[site];
@@ -14484,7 +14368,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                       {
                          cout<<"Site "<<setw(-5)<<si<<" Total Meas="<<setw(-5)<<setprecision(3)<<total_value[si]<<endl;
                       }
-               }
+              */ }
                else if((special_opt==3) and (TCRnum!=13) and retest_ena)  
                {
 //Unison is sited.  Don't need a site iterator for this
@@ -14501,7 +14385,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                }   /*if special_opt*/
 
 //               ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-               tmp_results = tmp_results & rtest_results;
+//               tmp_results = tmp_results & rtest_results;
 //               if(pattype==BANKTYPE)  
 //               {
 //  Unison is sited.  Don't need a site iterator here.
@@ -14565,13 +14449,13 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   binout_ena = true;
                   
                    /*log failed test to tw*/
-                  if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
+/*                  if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
                   {
                      F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
                      
                      if(TI_FlashCOFEna)  
                         F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-                  } 
+                  } */
                } 
 
                if(rampena)  
@@ -14582,49 +14466,49 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                TIME.Wait(tdelay);
 //               Disable(s_pmexit);
 
-               Check_RAM_TNUM(testnum,tmp_results);
+//               Check_RAM_TNUM(testnum,tmp_results);
                if(binout_ena)  
 //                  ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
                   final_results = final_results & tmp_results;
-               F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,spare_mstreal1,spare_msbool1);
+//               F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,spare_mstreal1,spare_msbool1);
                
                testnum = testnum+1;  /*increment blk#*/
                
-               if((not TIIgnoreFail) and (not TI_FlashCOFEna) and
-                  ((prepost==post) and (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][tpnum])))  
-                  Devsetholdstates(final_results);
+//               if((not TIIgnoreFail) and (not TI_FlashCOFEna) and
+//                  ((prepost==post) and (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][tpnum])))  
+//                  Devsetholdstates(final_results);
                
-               if(not v_any_dev_active)  
-                  break;
+//               if(not v_any_dev_active)  
+//                  break;
             }   /*for count*/
-            if(not v_any_dev_active)  
-               break;
+//            if(not v_any_dev_active)  
+//               break;
          }   /*for bankcount*/
       }    /*+++ End of Bank operation +++*/
 
        /*restore all active sites*/
-      Devsetholdstates(savesites);
+//      Devsetholdstates(savesites);
 
-      ResultsRecordActive(final_results, S_NULL);
-      TestClose;
+//      ResultsRecordActive(final_results, S_NULL);
+//      TestClose;
 
       test_results = final_results;
       
-      if(TI_FlashCOFEna)  
-         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
+//      if(TI_FlashCOFEna)  
+//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
       
-      ttimer1 = timernread(ttimer1);
-      tt_timer = ttimer1;
+//      ttimer1 = timernread(ttimer1);
+//      tt_timer = ttimer1;
 
       tmpstr4 = tmpstr1 + "_TTT";
-      TWTRealToRealMS(tt_timer,realval,unitval);
-      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+//      TWTRealToRealMS(tt_timer,realval,unitval);
+//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
 
       if(tistdscreenprint)  
       {
          cout << endl;
          cout << endl;
-         if(pattype==MODTYPE)  
+/*         if(pattype==MODTYPE)  
             cout << "MODULE LEAKAGE START TEST NUMBER " << 
                   start_testnum:s_hex:10 << "  : ")
          else
@@ -14632,17 +14516,17 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   start_testnum:s_hex:10 << "  : ";
          cout << "   TT " << ttimer1 << endl;
          cout << endl;
-      }         /*if tistdscreenprint*/
+      */}         /*if tistdscreenprint*/
 
-      F021_TurnOff_AllTpads;
+      F021_TurnOff_AllTPADS();
 
-      if(prepost == post)  
+ /*     if(prepost == post)  
          if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
             DevSetHoldStates(final_results);
             
-   }   /*if v_any_dev_active*/
+   } */  /*if v_any_dev_active*/
 
-   F021_Flash_Leak_func = V_any_dev_active;
+//   F021_Flash_Leak_func = V_any_dev_active;
 }   /* F021_Flash_Leak_func */
 
    
@@ -25346,1416 +25230,312 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //      }   /*for site*/
 //   }   /*if v_any_dev*/
 //}   /* F021_InitFLEfuseStr */
-//   
-// /*meas and trim bgap w/o using vrd override*/
-//
-// /* OLD one...pasa 3/5/12
-// function F021_MainBG_SoftTrim_Direct_func(    adapttrim_ena : boolean;
-//                                        chartrim_ena  : boolean;
-//                                           var test_results : MSBoolArray ) : boolean;export;
-// const
-//    REG1_START    = 0;
-//    REG1_STOP     = 15;
-//    REG2_START    = 16;
-//    REG2_STOP     = 31;
-//    REG3_START    = 32;
-//    REG3_STOP     = 47;
-//    REG4_START    = 48;
-//    REG4_STOP     = 63;
-//    LOOP_MIN      = 0;
-//    LOOP_MAX      = 63;
-//    LOOP_MAX_HALF = 31;
-//    OPPSTEP       = 3;
-//    MAXSTEP       = 10;
-//    MAXITER       = 64;
-// var
-//    tdelay,tdelay2                       : treal;
-//    site,testnum,count                   : integer;
-//    savesites,activesites,logsites       : MSBoolArray;
-//    tmp_results,final_results,alldisable : MSBoolArray;
-//    ttimer1,ttimer2,maxtime              : treal;
-//    tt_timer                             : MStrealarray;
-//    tmpstr1,tmpstr2,tmpstr3,tmpstr4,s    : TIstring80;
-//    realval                              : MSRealArray;
-//    unitval                              : TWunit;
-//    fl_testname                          : testnames;
-//    target_meas_value,target_meas_delta  : MSTrealArray;
-//    target_abs_delta                     : MSTrealArray;
-//    novride_meas_value                   : MSTrealArray;
-//    tmp_meas_value                       : MSTrealArray;
-//    testpad,cntrlpad                     : STDVIPinType;
-//    delta_value,tmp_delta                : MSTrealArray;
-//    bg_efmax,soft_index,bg_index         : integer;
-//    soft_found,softtrim_ena              : MSBoolArray;
-//    index,iteration                      : integer;
-//    trimup,trimdown,found_range          : msboolarray;
-//    delta_tolerance                      : treal;
-//    soft_str                             : TIString80;
-//    site_cof_inst_str                    : MSStringArray;
-//    tcrnum                               : integer;
-//    tcrmode                              : TPModeType;
-//    llim,ulim                            : treal;
-//    minloop,maxloop,loop,tmpint          : integer;
-//    MAXITERATION,TRIMENAKEY              : integer;
-//    TrimValue,BGValue,IRValue,FOSCValue  : MSIntArray;
-//    srng1,srng2,srng3,srng4,SValue       : MSIntArray;
-//    prevmax_delta                        : MSTrealArray;
-//    prevcount                            : MSIntArray;
-//    currsol,calcsol,curriter             : msintarray;
-//    dolinear,done                        : boolean;
-//    prevsol                              : array[0..MAXITER] of msintarray;
-//    {++++++++++++++++++++*/
-//   procedure DoVMeasure; /* didn"t match any chunk types, FIX */
+
+void SaveMbgEfuseTrimString(IntS trimValue, SITE whichSite)
+{
+   StringS soft_str(NULL, GL_MAINBG_MAXEFUSE);
+   IntS t_str_length;
+   StringS error_message;
+   
+   IO.Print(soft_str,"%b", trimValue);
+   t_str_length = soft_str.Length();
+   
+   if(t_str_length > GL_MAINBG_MAXEFUSE)  
+   {
+      IO.Print(error_message, "ERROR: BG Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!", 
+               GL_MAINBG_MAXEFUSE);      
+      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, UTL_VOID, whichSite, UTL_VOID);
+   } 
+   
+   while (soft_str.Length() < GL_MAINBG_MAXEFUSE)
+      soft_str = "0" + soft_str;   /*bg5=msb,bg0=lsb*/
+
+   int bg_index = 1;   /*bgap5*/  //this was 2...but thinking Pascal does 1-based string positions
+   
+   for (int count = 0;count < GL_MAINBG_MAXEFUSE;count++)
+   {
+      MAINBG_EFSTR[whichSite][bg_index] = soft_str[count];  /*bg0 1st,bg5 last*/
+      ++bg_index;
+   } 
+}   /* SaveMbgEfuseTrimString */
+
+// PickBestIndex will find the array index with the value 
+// closest to the target. It does this by offsetting the 
+// trimCurve by the target. This should set the target area
+// to 0. Then, doing an absolute value will produce a V-shape
+// with the minimum value being the closest to the target.
+IntM PickBestCode (FloatM1D trimCurve, FloatS target)
+{
+   trimCurve -= double(target); 
+   trimCurve = MATH.Abs(trimCurve);
+   FloatM1D extremes = MATH.Xtrm(trimCurve);
+   return (IntM(extremes[3]));
+}
+
+ /*meas and trim bgap w/o using vrd override*/
+TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
+{
+   const IntS MIN_CODE = 0;
+   const IntS MAX_CODE = 63;
+   const IntS MAXITER = 64; 
+   
+   IntM trim_alarms = 0; // used to test if the trim worked
+   Sites pretrim_pass_sites, trim_sites;
+   FloatS tdelay;
+   IntS testnum; 
+   Sites savesites = ActiveSites;
+   TMResultM tmp_results,final_results;
+   FloatS ttimer1, maxtime;
+   StringS fl_testname, twstr;
+   FloatS target_meas_value,target_meas_delta;
+   FloatM novride_meas_value;
+   PinM testpad;
+   FloatM delta_value;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   FloatS llim,ulim;
+   IntS TRIMENAKEY;
+   IntM TrimValue,BGValue,IRValue,FOSCValue;
+   
+
+   if(tistdscreenprint)  
+      cout << "+++++ F021_MainBG_SoftTrim_Direct +++++" << endl;
+
+   maxtime = GL_F021_PARAM_MAXTIME;
+
+   TIME.StartTimer();     
+
+// :TODO: Come back and add this later, for now, leave off
+//   if(TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+   tmp_results = TM_NOTEST;
+   final_results = TM_NOTEST;
+   TrimValue = 0;
+
+   /*+++++ STEP #1 +++++*/
+   /*get non-override measurement and store in meas_value*/
+
+   RAM_Clear_SoftTrim_All();
+
+   fl_testname = "MainBG_PreTrim_Test";
+   
+   tcrnum  = 124;
+   tcrmode = ProgMode;  /*to select relax limit, actual is readmode*/
+   testnum = TNUM_PUMP_MAINBG;
+   testpad = FLTP2; 
+   ulim    = TCR.TP2_ULim[tcrnum][tcrmode];
+   llim    = TCR.TP2_LLim[tcrnum][tcrmode];
+   tdelay = 10ms;
+
+   F021_TurnOff_AllTPADS();
+//   novride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   
+   /*Test and TW log for non-override meas_value*/
+   final_results = TIDlog.Value(novride_meas_value, testpad, llim, ulim, novride_meas_value.GetUnits(),
+                                "MBG_PRETRIM", UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+// :TODO: come back and fix this fail logging
+//   logsites = v_dev_active;      
+//   if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
 //   {
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay2);
-//      discard(F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,
-//              llim,ulim,tmp_meas_value,tmp_results));
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   }   /* DoVMeasure */
-//
-//   procedure BuildEfuseTrimString; /* didn"t match any chunk types, FIX */
-//   {
-//      writestring(soft_str,TrimValue[site]:s_binary:1);
-//      tmpint = len(soft_str);
-//      soft_str = mid(soft_str,3,tmpint-2);
-//      tmpint = len(soft_str);
+//      F021_Log_FailPat_To_TW(tmpstr4,final_results,fl_testname);
 //      
-//      if(tmpint>GL_MAINBG_MAXEFUSE)  
-//      {
-//         if(tistdscreenprint)  
-//         {
-//            cout << "*** ERROR: BG Trim Solution Efuse Bits exceed " << GL_MAINBG_MAXEFUSE << endl;
-//            cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//            cout << "PROGRAM WILL ABORT NOW" << endl;
-//         }
-//         else
-//         {
-//            cout << "*** ERROR: BG Trim Solution Efuse Bits exceed " << GL_MAINBG_MAXEFUSE << endl;
-//            cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//            cout << "PROGRAM WILL ABORT NOW" << endl;
-//         } 
-//         pause;
-//         stop;
-//      } 
-//      
-//      while((len(soft_str))<GL_MAINBG_MAXEFUSE) do
-//         soft_str = "0" + soft_str;   /*bg5=msb,bg0=lsb*/
-//
-//      bg_index = 2;   /*bgap5*/
-//      tmpint = len(soft_str);
-//      
-//      for (count = 1;count <= tmpint;count++)
-//      {
-//         MAINBG_EFSTR[site][bg_index] = soft_str[count];  /*bg0 1st,bg5 last*/
-//         bg_index = bg_index+1;
-//      } 
-//      
-//      iteration = TrimValue[site];
-//      tmpstr4 = "MBG_SOL";
-//      TWPDLDatalogVariableSite(tmpstr4,iteration,site,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//         cout << "Site " << site:5 << "  Soft Iteration " << loop:-3 << 
-//                 " Target == " << target_meas_value[site]:-5:3 << 
-//                 " Measured == " << tmp_meas_value[site]:-5:3 << 
-//                 " Delta == " << delta_value[site]:-5:3 << 
-//                 " Soft Sol == " << TrimValue[site]:-5 << endl;
-//         cout << "  Final Soft Efuse VBG String : " << MAINBG_EFSTR[site] << endl;
-//      }   /*if tistdscreenprint*/
-//   }   /* BuildEfuseTrimString */
-//
-//   BoolS function IsPrevSearch;
-//   var
-//      IntS int1;
-//      BoolS bool1;
-//   {
-//      bool1 = false;
-//      for (int1 = 1;int1 <= curriter[site];int1++)
-//         if(prevsol[int1][site]==currsol[site])  
-//         {
-//            bool1 = true;
-//            break;
-//         } 
-//      IsPrevSearch = bool1;
-//   } 
-//    /*++++++++++++++++++++*/
-//{
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ F021_MainBG_SoftTrim_Direct +++++" << endl;
-//
-//      tdelay = 5ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      bg_efmax = GL_MAINBG_MAXEFUSE;
-//
-//      timernstart(ttimer1);      
-//
 //      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//      trimup = false;
-//      trimdown = false;
-//      soft_found = false;
-//      TrimValue = 0;
-//
-//   
-//       /*+++++ STEP #1 +++++*/
-//       /*get non-override measurement and store in meas_value*/
-//      if(v_any_dev_active)  
 //      {
-//     RAM_Clear_SoftTrim_All;
-//
-//         fl_testname = MainBG_PreTrim_Test;
-//         TestOpen(fl_testname);
-//         
-//         tcrnum  = 124;
-//         tcrmode = ProgMode;  /*to select relax limit, actual is readmode*/
-//         testnum = TNUM_PUMP_MAINBG;
-//         testpad = FLTP2; 
-//         ulim    = TCR.TP2_ULim[tcrnum][tcrmode];
-//         llim    = TCR.TP2_LLim[tcrnum][tcrmode];
-//         tdelay2 = 10ms;
-//
-//         F021_TurnOff_AllTPads;
-//         DoVMeasure;
-//          /*bin out site not passing relaxed limits*/
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//         novride_meas_value = tmp_meas_value;
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//
-//          /*TW log for non-override meas_value*/
-//         tmpstr4 = "MBG_PRETRIM";
-//         TWTRealToRealMS(novride_meas_value,realval,unitval);
-//         TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//         
-//         if(tistdscreenprint)  
-//         {
-//            PrintHeaderParam(GL_PLELL_FORMAT);
-//            PrintResultParam(tmpstr4,testnum,tmp_results,llim,ulim,novride_meas_value,GL_PLELL_FORMAT);
-//         } 
-//         
-//         logsites = v_dev_active;      
-//         if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//         {
-//            F021_Log_FailPat_To_TW(tmpstr4,final_results,fl_testname);
-//            
-//            if(TI_FlashCOFEna)  
-//            {
-//               tmpstr4 = "_" + tmpstr4;
-//               F021_Update_COF_Inst_Str(tmpstr4,site_cof_inst_str,final_results);
-//            } 
-//         } 
-//         
-//         if((not tiignorefail) and (not TI_FlashCOFEna))  
-//            Devsetholdstates(final_results);
-//      }   /*if v_any_dev_active step#1*/
-//
-//
-//      
-//       /*+++++ STEP #2 +++++*/
-//      if(v_any_dev_active)  
-//      {
-//          /*calculate target delta*/
-//         target_meas_value = MainBG_Target;
-//         delta_tolerance = BG_tolerance;
-//         ArrayMultTrealValue(target_abs_delta,target_meas_value,delta_tolerance,v_sites);
-//         
-//          /*set trim delta limit. Use this limit to determine site to trimmed.*/
-//          /*this limit is tighter than BG_tolerance limit.*/
-//         target_meas_delta = BG_Adapt_Delta_AbsLim;
-//
-//         fl_testname = MainBG_Trim_Test;
-//         TestOpen(fl_testname);
-//         
-//          /*compare non-override value vs target*/
-//         savesites = V_dev_active;
-//         softtrim_ena = V_dev_active;
-//         delta_value = 99V;
-//
-//         
-//          /*+++ Calc delta +++*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(v_dev_active[site])  
-//            {
-//               delta_value[site] = target_meas_value[site]-novride_meas_value[site];
-//
-//               if(abs(delta_value[site]) <== target_meas_delta[site])  
-//               {
-//                  soft_found[site] = true;
-//                  softtrim_ena[site] = false;
-//                  MAINBG_TRIMSAVED[site] = TrimValue[site];
-//               } 
-//               
-//               if(softtrim_ena[site])  
-//               {
-//                  if(delta_value[site] < 0V)  
-//          {
-//             trimdown[site] = true;
-//             srng1[site] = REG2_START;
-//             srng2[site] = REG1_START;
-//             srng3[site] = REG4_START;
-//             srng4[site] = REG3_START;
-//          }            
-//          else
-//          {
-//                     trimup[site] = true;
-//             srng1[site] = REG1_START;
-//             srng2[site] = REG4_START;
-//             srng3[site] = REG3_START;
-//             srng4[site] = REG2_START;
-//          } 
-//               }   /*if softtrim_ena*/
-//               
-//               if(tistdscreenprint)  
-//               {
-//                  cout << "Site" << site:-5 << 
-//                     "  Target :" << target_meas_value[site]:4:3 << 
-//                     "  Measured (NonOVRD) : " << novride_meas_value[site]:4:3 << 
-//                     "  Target Delta : " << target_meas_delta[site]:4:3 << 
-//                     "  Delta : " << delta_value[site]:4:3;
-//                  if(softtrim_ena[site] and trimup[site])  
-//                     cout << "   ENABLE SOFTTRIM UP  ");
-//                  else if(softtrim_ena[site] and trimdown[site])  
-//                     cout << "   ENABLE SOFTTRIM DOWN  ");
-//                  else
-//                     cout << "   NO NEED SOFTTRIM " << endl;
-//               } 
-//            }   /*if v_dev_active*/
-//         }   /*for site*/
-//          /*+++ end Calc delta +++*/
-//
-//         Devsetholdstates(softtrim_ena);
-//
-//          /*+++++ STEP #3 +++++*/
-//         if(v_any_dev_active)  
-//         {
-//            TRIMENAKEY = 0xAA55;
-//            IRValue = 0;
-//            FOSCValue = 0;
-//            activesites = V_dev_active;
-//
-//            dolinear = not adapttrim_ena;
-//
-//            if(not dolinear)  
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     calcsol[site] = round(abs(delta_value[site])/MainBG_Const_VStep);
-//                     
-//                     if((novride_meas_value[site]<==MainBG_Const_VMin) and trimup[site])  
-//                     {
-//                        if(calcsol[site]<32)  
-//                           calcsol[site] = calcsol[site]+32;
-//                        if(calcsol[site]<48)  
-//                           calcsol[site] = 48;   /*make sure in region4*/
-//                     }
-//                     else if((novride_meas_value[site]>MainBG_Const_VMin) and trimup[site])  
-//                     {
-//                        if(calcsol[site]>15)  
-//                           calcsol[site] = 15;   /*make sure in region1*/
-//                     }
-//                     else if(trimdown[site])  
-//                     {
-//                        if((calcsol[site]<16) or (calcsol[site]>31))  
-//                           calcsol[site] = 16;   /*make sure in region2*/
-//                     } 
-//
-//                     if(calcsol[site]>63)  
-//                        calcsol[site] = 63;
-//                     else if(calcsol[site]<0)  
-//                        calcsol[site] = 0;
-//
-//                     currsol[site] = calcsol[site];
-//
-//                     if(tistdscreenprint)  
-//                        cout << "Site" << site:-5 << " CalcSol == " << calcsol[site]:-5 << endl;
-//                  }   /*v_dev_active*/
-//
-//               done = false;
-//               loop = 0;
-//               curriter = 1;
-//
-//               while(not done) do
-//               {
-//                  if(TI_FlashDebug)  
-//                     if(Inkey(s))   break;
-//                  BGValue = currsol;
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  loop = loop+1;
-//                  writestring(tmpstr2,loop:1);
-//                  tmpstr4 = "MBG_SOFT_" + tmpstr2;
-//                  TWTRealToRealMS(tmp_meas_value,realval,unitval);
-//                  TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site])  
-//                     {
-//                        tmp_delta[site] = target_meas_value[site]-tmp_meas_value[site];
-//
-//                        if(abs(tmp_delta[site]) <== target_meas_delta[site])  
-//                        {
-//                           soft_found[site] = true;
-//                           activesites[site] = false;
-//                           MAINBG_TRIMSAVED[site] = currsol[site];
-//                           TrimValue[site] = currsol[site];
-//                           BuildEfuseTrimString;
-//                        }  /*w/in tolerance*/
-//                        else
-//                        {
-//                           if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                           {
-//                              delta_value[site] = tmp_delta[site];
-//                              TrimValue[site] = currsol[site];  /*save value w/ smallest delta*/
-//                           } 
-//
-//                           prevsol[loop][site] = currsol[site];
-//
-//                           if(curriter[site]<==MAXSTEP)  
-//                           {
-//                              currsol[site] = round(tmp_delta[site]/MainBG_Const_VStep)+currsol[site];
-//                              if(currsol[site]==prevsol[loop][site])  
-//                                 currsol[site] = currsol[site]+1;
-//                              
-//                              if(trimup[site])  
-//                              {
-//                                 if((currsol[site]>==16) and (currsol[site]<==31))  
-//                                 {
-//                                    if(prevsol[loop][site]<==15)  
-//                                       currsol[site] = currsol[site]+32;   /*was in region1 so make region4*/
-//                                 }
-//                                 else if((currsol[site]>==32) and (currsol[site]<==47))  
-//                                 {
-//                                    if(prevsol[loop][site]>==48)  
-//                                       currsol[site] = currsol[site]-32;   /*was in region4 so make region1*/
-//                                 } 
-//                              }
-//                              else  /*trimdown*/
-//                              {
-//                                  /*need to expand further???*/
-//                              } 
-//                           }  /*curriter<MAXSTEP*/
-//                           else
-//                           {
-//                              if(curriter[site]==(MAXSTEP+1))  
-//                                 currsol[site] = TrimValue[site];
-//                              if(tmp_meas_value[site]<target_meas_value[site])  
-//                                 currsol[site] = currsol[site]+1;
-//                              else
-//                                 currsol[site] = currsol[site]-1;
-//                           } 
-//
-//                           if(currsol[site]>63)  
-//                              currsol[site] = 63;
-//                           else if(currsol[site]<0)  
-//                              currsol[site] = 0;
-//
-//                            /*ping pong*/
-//                           if(loop>1)  
-//                              if(IsPrevSearch or (curriter[site]>==MAXITER))  
-//                              {
-//                                 soft_found[site] = true;
-//                                 activesites[site] = false;
-//                                 MAINBG_TRIMSAVED[site] = TrimValue[site];
-//                                 BuildEfuseTrimString;
-//                              } 
-//
-//                        }   /*not w/in tolerance*/
-//
-//                        curriter[site] = curriter[site]+1;
-//                     }   /*site v_dev_active*/
-//
-//                  devsetholdstates(activesites);
-//                  if((not v_any_dev_active) or (loop>==MAXITER))  
-//                     done = true;
-//               }   /*while*/
-//            }
-//            else
-//            {  /*+++ dolinear +++*/
-//                /*find search range*/
-//               found_range = false;
-//               for (loop = 1;loop <= 4;loop++)
-//               {
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site] and (not found_range[site]))  
-//                     {
-//                        if(trimup[site])  
-//                        {
-//                           switch(loop) {
-//                             case 1 : BGValue[site] = REG1_STOP;
-//                             case 2 : BGValue[site] = REG4_STOP;
-//                             case 3 : BGValue[site] = REG3_STOP;
-//                             case 4 : BGValue[site] = REG2_STOP;
-//                           }   /* case */
-//                        }
-//                        else
-//                        {
-//                           switch(loop) {
-//                             case 1 : BGValue[site] = REG2_STOP;
-//                             case 2 : BGValue[site] = REG1_STOP;
-//                             case 3 : BGValue[site] = REG4_STOP;
-//                             case 4 : BGValue[site] = REG3_STOP;
-//                           }   /* case */
-//                        } 
-//                     }   /*if v_dev_active & not found_range*/
-//                  
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site] and (not found_range[site]))  
-//                        if(tmp_meas_value[site] >== target_meas_value[site])  
-//                        {
-//                           if(trimup[site])  
-//                           {
-//                              switch(loop) {
-//                                case 1 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 2 :  
-//                                       srng1[site] = REG4_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 3 :  
-//                                       srng1[site] = REG3_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG1_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 4 :  
-//                                       srng1[site] = REG2_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                              }   /* case */
-//                           }
-//                           else
-//                           {
-//                              switch(loop) {
-//                                case 1 :  
-//                                       srng1[site] = REG2_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 2 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 3 :  
-//                                       srng1[site] = REG4_START;
-//                                       srng2[site] = REG3_START;
-//                                       srng3[site] = REG2_START;
-//                                       srng4[site] = REG1_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 4 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG2_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                              }   /* case */
-//                           } 
-//                           if(tistdscreenprint)  
-//                              if(found_range[site])  
-//                                 cout << "Site" << site:-5 << " Start search ranges: " << srng1[site] << "  " << srng2[site] << "  " << srng3[site] << "  " << srng4[site] << endl;
-//                        }   /*if tmp_meas_value*/
-//                  
-//                  if(ArrayCompareBoolean(activesites,found_range,v_sites))  
-//                     break;  /*out loop*/
-//               }   /*for loop*/
-//               
-//               
-//                               /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//               if(tistdscreenprint)  
-//                  cout << "STARTING ADAPTIVE DISCRETE TRIM ... " << endl;
-//               
-//               minloop = LOOP_MIN;
-//               if(chartrim_ena)  
-//                  maxloop = LOOP_MAX;
-//               else
-//                  maxloop = LOOP_MAX_HALF;
-//               
-//               for (loop = minloop;loop <= maxloop;loop++)
-//               {
-//                  switch(loop) {
-//                    case 0  : SValue = srng1;
-//                    case 16 : SValue = srng2;
-//                    case 32 : SValue = srng3;
-//                    case 48 : SValue = srng4;
-//                  }   /* case */
-//               
-//                  BGValue = SValue;
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  {
-//                     if(v_dev_active[site])  
-//                     {
-//                        tmp_delta[site] = tmp_meas_value[site]-target_meas_value[site];
-//                        if(loop==minloop)  
-//                        {
-//                           TrimValue[site]   = SValue[site];
-//                           delta_value[site] = tmp_delta[site];
-//                           prevmax_delta[site] = delta_value[site];
-//                           prevcount[site] = 0;
-//                        }
-//                        else
-//                        {
-//                           if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                           {
-//                               /*update and store iteration with smallest delta found*/
-//                              TrimValue[site]   = SValue[site];
-//                              delta_value[site] = tmp_delta[site];
-//                              prevmax_delta[site] = delta_value[site];
-//                           }
-//                           else
-//                           {
-//                               /*check to see if gone opposite direction*/
-//                              if(tmp_delta[site] > prevmax_delta[site])  
-//                                 prevcount[site] = prevcount[site]+1;
-//                              if(prevcount[site] >== OPPSTEP)  
-//                                 if(not chartrim_ena)  
-//                                    activesites[site] = false;
-//                           } 
-//                        } 
-//                        
-//                        if(tistdscreenprint and TI_FlashDebug)  
-//                           cout << "Site " << site:-5 << " Loop==" << loop:-4 << " VRD soft==" << tmp_meas_value[site]:-5:3 << 
-//                                   "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
-//                                   "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
-//                        
-//                        if((abs(delta_value[site]) <== target_meas_delta[site]) or (loop==maxloop) or (not activesites[site]))  
-//                        {
-//                           soft_found[site] = true;
-//                           if(not chartrim_ena)  
-//                              activesites[site] = false;
-//                           MAINBG_TRIMSAVED[site] = TrimValue[site];
-//                           BuildEfuseTrimString;
-//                        }  /*if delta_value*/
-//                        else
-//                        {
-//                           SValue[site] = SValue[site]+1;
-//                        } 
-//                        
-//                     }   /*if v_dev_active*/
-//                  }   /*for site*/
-//                  
-//                  writestring(tmpstr2,loop:1);
-//                  tmpstr4 = "MBG_SOFT_" + tmpstr2;
-//                  TWTRealToRealMS(tmp_meas_value,realval,unitval);
-//                  TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//                  
-//                   /*disable site found trim*/
-//                  devsetholdstates(activesites);
-//                  
-//                  if(not v_any_dev_active)  
-//                     break;
-//                  
-//               }   /*for loop*/
-//                /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//            }   /*+++ dolinear +++*/
-//         }   /*if v_any_dev_active STEP #3*/
-//         
-//           /*re-activate savesites*/
-//         Devsetholdstates(savesites);
-//
-//         Arrayandboolean(final_results,final_results,soft_found,v_sites);
-//         Arrayandboolean(final_results,final_results,savesites,v_sites);
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//         
-//         
-//          /*update site that is trimable, non-trimable, virgin*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//                /*good trimable site*/
-//               if(softtrim_ena[site] and soft_found[site] and final_results[site])  
-//                  SITE_TO_FTRIM[site] = true;
-//                /*else
-//                   SITE_TO_FTRIM[site] := false;*/
-//            } 
-//
-//     RAM_Clear_SoftTrim_All;
-//     f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//
-//      }   /*+++++ STEP #2 +++++*/
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr1 = "MainBG_Trim";
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//      
-//      logsites = v_dev_active;      
-//      if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//      {
-//         F021_Log_FailPat_To_TW(tmpstr1,final_results,fl_testname);
-//         if(TI_FlashCOFEna)  
-//            F021_Save_COF_Info("",site_cof_inst_str,final_results);
+//         tmpstr4 = "_" + tmpstr4;
+//         F021_Update_COF_Inst_Str(tmpstr4,site_cof_inst_str,final_results);
 //      } 
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr1,0,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         Devsetholdstates(final_results);         
-//
-//      test_results = final_results;
-//      
-//   }   /*v_any_dev_active*/
-//   
-//   F021_MainBG_SoftTrim_Direct_func = v_any_dev_active;
-//} 
-//} /* didn"t match any chunk types, FIX */
-//
-//  /* Added by Pasa to use new library from Kim Chau with more efficient trimming method...3/5/12*/
-// 
-// /*meas and trim bgap w/o using vrd override*/
-//BoolS F021_MainBG_SoftTrim_Direct_func(    BoolS adapttrim_ena,
-//                                       BoolS chartrim_ena,
-//                                              BoolM test_results)
-//{
-//   const IntS REG1_START = 0; 
-//   const IntS REG1_STOP = 15; 
-//   const IntS REG2_START = 16; 
-//   const IntS REG2_STOP = 31; 
-//   const IntS REG3_START = 32; 
-//   const IntS REG3_STOP = 47; 
-//   const IntS REG4_START = 48; 
-//   const IntS REG4_STOP = 63; 
-//   const IntS LOOP_MIN = 0; 
-//   const IntS LOOP_MAX = 63; 
-//   const IntS LOOP_MAX_HALF = 31; 
-//   const IntS OPPSTEP = 3; 
-//   const IntS MAXSTEP = 10; 
-//   const IntS MAXITER = 64; 
-//
-//   FloatS tdelay,tdelay2;
-//   IntS site,testnum,count;
-//   BoolM savesites,activesites,logsites;
-//   BoolM tmp_results,final_results,alldisable;
-//   FloatS ttimer1,ttimer2,maxtime;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4,s;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   FloatM target_meas_value,target_meas_delta;
-//   FloatM target_abs_delta;
-//   FloatM novride_meas_value;
-//   FloatM tmp_meas_value;
-//   PinM testpad,cntrlpad;
-//   FloatM delta_value,tmp_delta;
-//   IntS bg_efmax,soft_index,bg_index;
-//   BoolM soft_found,softtrim_ena;
-//   IntS index,iteration;
-//   BoolM trimup,trimdown,found_range;
-//   FloatS delta_tolerance;
-//   StringS soft_str;
-//   StringM site_cof_inst_str;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   FloatS llim,ulim;
-//   IntS minloop,maxloop,loop,tmpint;
-//   IntS MAXITERATION,TRIMENAKEY;
-//   IntM TrimValue,BGValue,IRValue,FOSCValue;
-//   IntM srng1,srng2,srng3,srng4,SValue;
-//   FloatM prevmax_delta;
-//   IntM prevcount;
-//   IntM currsol,calcsol,curriter;
-//   BoolS dolinear,done;
-//   IntM1D prevsol; /* :MANUAL FIX REQUIRED: array dimensions are : 0..MAXITER */
-//    /*++++++++++++++++++++*/
-//   procedure DoVMeasure; /* didn"t match any chunk types, FIX */
-//   
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay2);
-//      discard(F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,
-//              llim,ulim,tmp_meas_value,tmp_results));
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   }   /* DoVMeasure */
-//
-//   procedure BuildEfuseTrimString; /* didn"t match any chunk types, FIX */
-//   {
-//      writestring(soft_str,TrimValue[site]:s_binary:1);
-//      tmpint = len(soft_str);
-//      soft_str = mid(soft_str,3,tmpint-2);
-//      tmpint = len(soft_str);
-//      
-//      if(tmpint>GL_MAINBG_MAXEFUSE)  
-//      {
-//         if(tistdscreenprint)  
-//         {
-//            cout << "*** ERROR: BG Trim Solution Efuse Bits exceed " << GL_MAINBG_MAXEFUSE << endl;
-//            cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//            cout << "PROGRAM WILL ABORT NOW" << endl;
-//         }
-//         else
-//         {
-//            cout << "*** ERROR: BG Trim Solution Efuse Bits exceed " << GL_MAINBG_MAXEFUSE << endl;
-//            cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//            cout << "PROGRAM WILL ABORT NOW" << endl;
-//         } 
-//         pause;
-//         stop;
-//      } 
-//      
-//      while((len(soft_str))<GL_MAINBG_MAXEFUSE) do
-//         soft_str = "0" + soft_str;   /*bg5=msb,bg0=lsb*/
-//
-//      bg_index = 2;   /*bgap5*/
-//      tmpint = len(soft_str);
-//      
-//      for (count = 1;count <= tmpint;count++)
-//      {
-//         MAINBG_EFSTR[site][bg_index] = soft_str[count];  /*bg0 1st,bg5 last*/
-//         bg_index = bg_index+1;
-//      } 
-//      
-//      iteration = TrimValue[site];
-//      tmpstr4 = "MBG_SOL";
-//      TWPDLDatalogVariableSite(tmpstr4,iteration,site,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//         cout << "Site " << site:5 << "  Soft Iteration " << loop:-3 << 
-//                 " Target == " << target_meas_value[site]:-5:3 << 
-//                 " Measured == " << tmp_meas_value[site]:-5:3 << 
-//                 " Delta == " << delta_value[site]:-5:3 << 
-//                 " Soft Sol == " << TrimValue[site]:-5 << endl;
-//         cout << "  Final Soft Efuse VBG String : " << MAINBG_EFSTR[site] << endl;
-//      }   /*if tistdscreenprint*/
-//   }   /* BuildEfuseTrimString */
-//
-//   BoolS function IsPrevSearch;
-//   var
-//      IntS int1;
-//      BoolS bool1;
-//   {
-//      bool1 = false;
-//      for (int1 = 1;int1 <= curriter[site];int1++)
-//         if(prevsol[int1][site]==currsol[site])  
-//         {
-//            bool1 = true;
-//            break;
-//         } 
-//      IsPrevSearch = bool1;
 //   } 
-//    /*++++++++++++++++++++*/
-//{
-//   if(V_any_dev_active)  
+   
+   if((not RunAllTests) and (not TI_FlashCOFEna))   // RunAllTests was tiignorefail...is this the way we want to handle it?
+   {
+      pretrim_pass_sites = ActiveSites;
+      pretrim_pass_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      RunTime.SetActiveSites(pretrim_pass_sites);
+   }
+   
+    /*+++++ STEP #2 +++++*/
+   if(!ActiveSites.Begin().End())  
+   {
+      trim_sites = ActiveSites;
+      BoolM softtrim_ena;
+      softtrim_ena = true;
+      
+       /*calculate target delta*/
+      target_meas_value = MainBG_Target;
+      
+       /*set trim delta limit. Use this limit to determine site to trimmed.*/
+       /*this limit is tighter than BG_tolerance limit.*/
+      target_meas_delta = BG_Adapt_Delta_AbsLim;
+
+      fl_testname = "MainBG_Trim_Test";
+      
+       /*compare non-override value vs target*/
+      delta_value = target_meas_value - novride_meas_value;
+      
+       /*+++ Calc delta +++*/
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if(MATH.Abs(delta_value[*si]) <= target_meas_delta)  
+         {
+            MAINBG_TRIMSAVED[*si] = TrimValue[*si];
+            trim_sites -= *si; // this site found its trim, so remove it
+            softtrim_ena[*si] = false;
+         } 
+         
+         if(tistdscreenprint)  
+         {
+            cout << "Site" << *si << 
+               "  Target :" << target_meas_value << 
+               "  Measured (NOVRD) : " << novride_meas_value[*si] << 
+               "  Target Delta : " << target_meas_delta << 
+               "  Delta : " << delta_value[*si] << endl;
+            if(softtrim_ena[*si])  
+               cout << "   ENABLE SOFTTRIM  " << endl;
+            else
+               cout << "   NO NEED SOFTTRIM " << endl;
+         } 
+      }  
+      /*+++ end Calc delta +++*/
+
+      // disable sites that don't need to trim
+      RunTime.SetActiveSites(trim_sites);
+
+       /*+++++ STEP #3 +++++*/
+      if(!ActiveSites.Begin().End())  
+      {
+         TRIMENAKEY = 0xAA55;
+         IRValue = 0;
+         FOSCValue = 0;
+         
+         if (charTrimEna) // run every code so we can see what the curve looks like
+         {
+            FloatM1D trim_curve(MAX_CODE+1, 0.);
+            for (int code=MIN_CODE; code <= MAX_CODE; ++code)
+            {
+               BGValue = code;
+               RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
+//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay));
+               TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
+                            "MainBG_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
+            }
+            IntM best_code;
+            best_code = PickBestCode(trim_curve, target_meas_value);
+            MAINBG_TRIMSAVED = best_code;
+            TrimValue = best_code;
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               SaveMbgEfuseTrimString(TrimValue[*si], *si); 
+         } else // not charTrimEna
+         {
+            // The BG trim looks to use a 2s-complement number coding. This means a 
+            // linear ramp in terms of output is not a linear ramp numerically. So, we'll
+            // use a linear look-up table to make the search code much less complicated.
+            int num_codes = MAX_CODE - MIN_CODE +1;
+            IntS1D lookup_table(num_codes, 0);
+            
+            int i;
+            int j = 0;
+            // first section is the 'negative' numbers from half scale and up
+            for (i = num_codes/2; i <= MAX_CODE; ++i, ++j)
+               lookup_table[j] = i;
+            // now go back and get 0 to half scale
+            for (i = 0; i < num_codes/2; ++i, ++j);
+               lookup_table[j] = i;
+
+            SearchMod my_search;
+            my_search.SASearchBegin(double(MIN_CODE), double(MAX_CODE), target_meas_delta, target_meas_value, MAXITER);
+            my_search.SkipMinMax(true);            
+            
+            IntS loop = 0;
+            FloatM meas_value;
+            FloatM table_index;
+            while (my_search.searchNotDone)
+            {
+               table_index = my_search.xForceValueMS;
+               // The xForceValueMS is based upon a line from 0-63, so it is basically
+               // just an index in our lookup_table. We have 
+               // to look that up in the lookup table since the actual code isn't
+               // linear since it is 2s complement
+               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                  BGValue[*si] = lookup_table[MATH.LegacyRound(table_index[*si])];
+                  
+               RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
+//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+      
+               loop = loop+1;
+               twstr = "MBG_SOFT_" + loop;
+               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MBG_SOFT_CODE_" + loop,
+                            UTL_VOID, UTL_VOID, false, TWMinimumData); // debug only, really, so no TW
+               TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
+                            twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
+               
+               my_search.SearchNext(meas_value);
+            }
+            
+            trim_alarms = my_search.m_searchAlarmMS;
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               if (trim_alarms[*si] == SearchMod::TARGET_FOUND)
+               {
+                  // we trimmed properly, save the value 
+                  // remember that the actual trim code lives in the lookup_table and the 
+                  // xForceValueMS is just the index
+                  MAINBG_TRIMSAVED[*si] = lookup_table[MATH.LegacyRound(my_search.xForceValueMS[*si])];
+                  TrimValue[*si] = MAINBG_TRIMSAVED[*si];
+                  SaveMbgEfuseTrimString(TrimValue[*si], *si); 
+                  
+                  // The VLCT conditions for SITE_TO_FTRIM of true were:
+                  // soft_found - this is covered by the trim alarms above
+                  // softtrim_ena - this was covered by deactivating sites above 
+                  //             (if you get here, softtrim_ena would have been true in the VLCT program)
+                  // final_results - It had to have passed the pre-trim...which we deactivated failing sites above
+                  SITE_TO_FTRIM[*si] = true;
+               }
+            }        
+            // test if we found a real trim or we had search errors
+            tmp_results = TIDlog.Value(trim_alarms, testpad, 0, 0, "",
+                         "MAINBG_TRIMCODE_FOUND", UTL_VOID, UTL_VOID, true, TWMinimumData);
+         
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+         } // end else charTrimEna
+         // I moved this test here. It was in the BuildEfuseString routine, but it made
+         // more sense to do it at the end for all trimmed sites
+         TIDlog.Value(TrimValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MBG_SOL", 
+                     UTL_VOID, UTL_VOID, true, TWMinimumData);
+                     
+         if(tistdscreenprint)
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               cout << "Site " << *si << "Final Soft Efuse Pump String : " << MAINBG_EFSTR[*si] << endl;
+         }
+         
+         // Trim clean up
+         RAM_Clear_SoftTrim_All();
+         FloatM ret_timer;
+         F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,ret_timer);
+      } // end trim for those sites that needed it      
+   }  // if we have active sites that passed pre-trim
+     
+   // Need to reactivate sites that we started test with for final logging   
+   RunTime.SetActiveSites(savesites);
+   ttimer1 = TIME.StopTimer();
+   
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "ms", "MainBG_Trim_TTT", 
+                 UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+// :TODO: Come back and add this.
+//   logsites = v_dev_active;      
+//   if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
 //   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ F021_MainBG_SoftTrim_Direct +++++" << endl;
-//
-//      tdelay = 5ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      bg_efmax = GL_MAINBG_MAXEFUSE;
-//
-//      timernstart(ttimer1);      
-//
+//      F021_Log_FailPat_To_TW(tmpstr1,final_results,fl_testname);
 //      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//      trimup = false;
-//      trimdown = false;
-//      soft_found = false;
-//      TrimValue = 0;
-//
-//   
-//       /*+++++ STEP #1 +++++*/
-//       /*get non-override measurement and store in meas_value*/
-//      if(v_any_dev_active)  
-//      {
-//        RAM_Clear_SoftTrim_All;
-//
-//         fl_testname = MainBG_PreTrim_Test;
-//         TestOpen(fl_testname);
-//         
-//         tcrnum  = 124;
-//         tcrmode = ProgMode;  /*to select relax limit, actual is readmode*/
-//         testnum = TNUM_PUMP_MAINBG;
-//         testpad = FLTP2; 
-//         ulim    = TCR.TP2_ULim[tcrnum][tcrmode];
-//         llim    = TCR.TP2_LLim[tcrnum][tcrmode];
-//         tdelay2 = 10ms;
-//
-//         F021_TurnOff_AllTPads;
-//         DoVMeasure;
-//          /*bin out site not passing relaxed limits*/
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//         novride_meas_value = tmp_meas_value;
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//
-//          /*TW log for non-override meas_value*/
-//         tmpstr4 = "MBG_PRETRIM";
-//         TWTRealToRealMS(novride_meas_value,realval,unitval);
-//         TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//         
-//         if(tistdscreenprint)  
-//         {
-//            PrintHeaderParam(GL_PLELL_FORMAT);
-//            PrintResultParam(tmpstr4,testnum,tmp_results,llim,ulim,novride_meas_value,GL_PLELL_FORMAT);
-//         } 
-//         
-//         logsites = v_dev_active;      
-//         if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//         {
-//            F021_Log_FailPat_To_TW(tmpstr4,final_results,fl_testname);
-//            
-//            if(TI_FlashCOFEna)  
-//            {
-//               tmpstr4 = "_" + tmpstr4;
-//               F021_Update_COF_Inst_Str(tmpstr4,site_cof_inst_str,final_results);
-//            } 
-//         } 
-//         
-//         if((not tiignorefail) and (not TI_FlashCOFEna))  
-//            Devsetholdstates(final_results);
-//      }   /*if v_any_dev_active step#1*/
-//
-//
-//      
-//       /*+++++ STEP #2 +++++*/
-//      if(v_any_dev_active)  
-//      {
-//          /*calculate target delta*/
-//         target_meas_value = MainBG_Target;
-//         delta_tolerance = BG_tolerance;
-//         ArrayMultTrealValue(target_abs_delta,target_meas_value,delta_tolerance,v_sites);
-//         
-//          /*set trim delta limit. Use this limit to determine site to trimmed.*/
-//          /*this limit is tighter than BG_tolerance limit.*/
-//         target_meas_delta = BG_Adapt_Delta_AbsLim;
-//
-//         fl_testname = MainBG_Trim_Test;
-//         TestOpen(fl_testname);
-//         
-//          /*compare non-override value vs target*/
-//         savesites = V_dev_active;
-//         softtrim_ena = V_dev_active;
-//         delta_value = 99V;
-//
-//         
-//          /*+++ Calc delta +++*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(v_dev_active[site])  
-//            {
-//               delta_value[site] = target_meas_value[site]-novride_meas_value[site];
-//
-//               if(abs(delta_value[site]) <== target_meas_delta[site])  
-//               {
-//                  soft_found[site] = true;
-//                  softtrim_ena[site] = false;
-//                  MAINBG_TRIMSAVED[site] = TrimValue[site];
-//               } 
-//               
-//               if(softtrim_ena[site])  
-//               {
-//                  if(delta_value[site] < 0V)  
-//                  {
-//                 trimdown[site] = true;
-//              srng1[site] = REG2_START;
-//              srng2[site] = REG1_START;
-//              srng3[site] = REG4_START;
-//              srng4[site] = REG3_START;
-//             }		     
-//           else
-//                  {
-//                     trimup[site] = true;
-//              srng1[site] = REG1_START;
-//              srng2[site] = REG4_START;
-//              srng3[site] = REG3_START;
-//              srng4[site] = REG2_START;
-//           } 
-//               }   /*if softtrim_ena*/
-//               
-//               if(tistdscreenprint)  
-//               {
-//                  cout << "Site" << site:-5 << 
-//                     "  Target :" << target_meas_value[site]:4:3 << 
-//                     "  Measured (NonOVRD) : " << novride_meas_value[site]:4:3 << 
-//                     "  Target Delta : " << target_meas_delta[site]:4:3 << 
-//                     "  Delta : " << delta_value[site]:4:3;
-//                  if(softtrim_ena[site] and trimup[site])  
-//                     cout << "   ENABLE SOFTTRIM UP  ");
-//                  else if(softtrim_ena[site] and trimdown[site])  
-//                     cout << "   ENABLE SOFTTRIM DOWN  ");
-//                  else
-//                     cout << "   NO NEED SOFTTRIM " << endl;
-//               } 
-//            }   /*if v_dev_active*/
-//         }   /*for site*/
-//          /*+++ end Calc delta +++*/
-//
-//         Devsetholdstates(softtrim_ena);
-//
-//          /*+++++ STEP #3 +++++*/
-//         if(v_any_dev_active)  
-//         {
-//            TRIMENAKEY = 0xAA55;
-//            IRValue = 0;
-//            FOSCValue = 0;
-//            activesites = V_dev_active;
-//
-//            dolinear = not adapttrim_ena;
-//
-//            if(not dolinear)  
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     calcsol[site] = round(abs(delta_value[site])/MainBG_Const_VStep);
-//                     
-//                     if((novride_meas_value[site]<==MainBG_Const_VMin) and trimup[site])  
-//                     {
-//                        if((calcsol[site]>==16) and (calcsol[site]<==31))  
-//                           calcsol[site] = calcsol[site]+16;
-//                        else if(calcsol[site]>==64)  
-//                           calcsol[site] = calcsol[site]-16;
-//                        else if(calcsol[site]<==0)  
-//                           calcsol[site] = 48;
-//                     }
-//                     else if((novride_meas_value[site]>MainBG_Const_VMin) and trimup[site])  
-//                     {
-//                        if((calcsol[site]>==16) and (calcsol[site]<==31))  
-//                           calcsol[site] = calcsol[site]-16;   /*make sure in region1*/
-//                     }
-//                     else if(trimdown[site])  
-//                     {
-//                        if((calcsol[site]<16) or (calcsol[site]>31))  
-//                           calcsol[site] = 16;   /*make sure in region2*/
-//                     } 
-//
-//                     if(calcsol[site]>63)  
-//                        calcsol[site] = 63;
-//                     else if(calcsol[site]<0)  
-//                        calcsol[site] = 0;
-//
-//                     currsol[site] = calcsol[site];
-//
-//                     if(tistdscreenprint and TI_FlashDebug)  
-//                        cout << "Site" << site:-5 << " CalcSol == " << calcsol[site]:-5 << endl;
-//                  }   /*v_dev_active*/
-//
-//               done = false;
-//               loop = 0;
-//               curriter = 1;
-//
-//               while(not done) do
-//               {
-//                  if(TI_FlashDebug)  
-//                     if(Inkey(s))   break;
-//                  BGValue = currsol;
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  loop = loop+1;
-//                  writestring(tmpstr2,loop:1);
-//                  tmpstr4 = "MBG_SOFT_" + tmpstr2;
-//                  TWTRealToRealMS(tmp_meas_value,realval,unitval);
-//                  TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//                  PrintResultInt(tmpstr4,testnum,BGValue,0,63,GL_PLELL_FORMAT);
-//                  PrintResultParam(tmpstr4,testnum,tmp_results,llim,ulim,tmp_meas_value,GL_PLELL_FORMAT);
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site])  
-//                     {
-//                        tmp_delta[site] = target_meas_value[site]-tmp_meas_value[site];
-//
-//                        if(abs(tmp_delta[site]) <== target_meas_delta[site])  
-//                        {
-//                           soft_found[site] = true;
-//                           activesites[site] = false;
-//                           MAINBG_TRIMSAVED[site] = currsol[site];
-//                           TrimValue[site] = currsol[site];
-//                           BuildEfuseTrimString;
-//                        }  /*w/in tolerance*/
-//                        else
-//                        {
-//                           if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                           {
-//                              delta_value[site] = tmp_delta[site];
-//                              TrimValue[site] = currsol[site];  /*save value w/ smallest delta*/
-//                           } 
-//
-//                           prevsol[loop][site] = currsol[site];
-//
-//                           if(curriter[site]<==MAXSTEP)  
-//                           {
-//                              tmpint = round(tmp_delta[site]/MainBG_Const_VStep);
-//                              if(tmpint <== 0)  
-//                              {
-//                                 if((prevsol[loop][site]>==32) and (prevsol[loop][site]<==47))  
-//                                    currsol[site] = currsol[site]+16;
-//                                 else if((prevsol[loop][site]>==48) and (prevsol[loop][site]<==63))  
-//                                    currsol[site] = 63-currsol[site];
-//                                 else if((prevsol[loop][site]>==0) and (prevsol[loop][site]<==15))  
-//                                    currsol[site] = tmpint+currsol[site];
-//                              }
-//                              else
-//                              {
-//                                 currsol[site] = tmpint+currsol[site];
-//                                 if(trimup[site] and ((currsol[site]>==16) and (currsol[site]<==31)))  
-//                                 {
-//                                    if(prevsol[loop][site]<==15)  
-//                                       currsol[site] = currsol[site]+32;
-//                                    else
-//                                       currsol[site] = currsol[site]+16;
-//                                 } 
-//                              } 
-//
-//                              if(currsol[site]==prevsol[loop][site])  
-//                                 currsol[site] = currsol[site]+1;
-//                           }  /*curriter<MAXSTEP*/
-//                           else
-//                           {
-//                              if(curriter[site]==(MAXSTEP+1))  
-//                                 currsol[site] = TrimValue[site];
-//                              if(tmp_meas_value[site]<target_meas_value[site])  
-//                                 currsol[site] = currsol[site]+1;
-//                              else
-//                                 currsol[site] = currsol[site]-1;
-//                           } 
-//
-//                           if(currsol[site]>63)  
-//                              currsol[site] = 63;
-//                           else if(currsol[site]<0)  
-//                              currsol[site] = 0;
-//
-//                            /*ping pong*/
-//                           if(loop>1)  
-//                              if(IsPrevSearch or (curriter[site]>==MAXITER))  
-//                              {
-//                                 soft_found[site] = true;
-//                                 activesites[site] = false;
-//                                 MAINBG_TRIMSAVED[site] = TrimValue[site];
-//                                 BuildEfuseTrimString;
-//                              } 
-//
-//                        }   /*not w/in tolerance*/
-//
-//                        curriter[site] = curriter[site]+1;
-//                     }   /*site v_dev_active*/
-//
-//                  devsetholdstates(activesites);
-//                  if((not v_any_dev_active) or (loop>==MAXITER))  
-//                     done = true;
-//               }   /*while*/
-//            }
-//            else
-//            {  /*+++ dolinear +++*/
-//                /*find search range*/
-//               found_range = false;
-//               for (loop = 1;loop <= 4;loop++)
-//               {
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site] and (not found_range[site]))  
-//                     {
-//                        if(trimup[site])  
-//                        {
-//                           switch(loop) {
-//                             case 1 : BGValue[site] = REG1_STOP;
-//                             case 2 : BGValue[site] = REG4_STOP;
-//                             case 3 : BGValue[site] = REG3_STOP;
-//                             case 4 : BGValue[site] = REG2_STOP;
-//                           }   /* case */
-//                        }
-//                        else
-//                        {
-//                           switch(loop) {
-//                             case 1 : BGValue[site] = REG2_STOP;
-//                             case 2 : BGValue[site] = REG1_STOP;
-//                             case 3 : BGValue[site] = REG4_STOP;
-//                             case 4 : BGValue[site] = REG3_STOP;
-//                           }   /* case */
-//                        } 
-//                     }   /*if v_dev_active & not found_range*/
-//                  
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site] and (not found_range[site]))  
-//                        if(tmp_meas_value[site] >== target_meas_value[site])  
-//                        {
-//                           if(trimup[site])  
-//                           {
-//                              switch(loop) {
-//                                case 1 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 2 :  
-//                                       srng1[site] = REG4_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 3 :  
-//                                       srng1[site] = REG3_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG1_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 4 :  
-//                                       srng1[site] = REG2_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                              }   /* case */
-//                           }
-//                           else
-//                           {
-//                              switch(loop) {
-//                                case 1 :  
-//                                       srng1[site] = REG2_START;
-//                                       srng2[site] = REG1_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 2 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG4_START;
-//                                       srng3[site] = REG3_START;
-//                                       srng4[site] = REG2_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 3 :  
-//                                       srng1[site] = REG4_START;
-//                                       srng2[site] = REG3_START;
-//                                       srng3[site] = REG2_START;
-//                                       srng4[site] = REG1_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                                case 4 :  
-//                                       srng1[site] = REG1_START;
-//                                       srng2[site] = REG2_START;
-//                                       srng3[site] = REG4_START;
-//                                       srng4[site] = REG3_START;
-//                                       found_range[site] = true;
-//                                     break; 
-//                              }   /* case */
-//                           } 
-//                           if(tistdscreenprint)  
-//                              if(found_range[site])  
-//                                 cout << "Site" << site:-5 << " Start search ranges: " << srng1[site] << "  " << srng2[site] << "  " << srng3[site] << "  " << srng4[site] << endl;
-//                        }   /*if tmp_meas_value*/
-//                  
-//                  if(ArrayCompareBoolean(activesites,found_range,v_sites))  
-//                     break;  /*out loop*/
-//               }   /*for loop*/
-//               
-//               
-//                               /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//               if(tistdscreenprint)  
-//                  cout << "STARTING ADAPTIVE DISCRETE TRIM ... " << endl;
-//               
-//               minloop = LOOP_MIN;
-//               if(chartrim_ena)  
-//                  maxloop = LOOP_MAX;
-//               else
-//                  maxloop = LOOP_MAX_HALF;
-//               
-//               for (loop = minloop;loop <= maxloop;loop++)
-//               {
-//                  switch(loop) {
-//                    case 0  : SValue = srng1;
-//                    case 16 : SValue = srng2;
-//                    case 32 : SValue = srng3;
-//                    case 48 : SValue = srng4;
-//                  }   /* case */
-//               
-//                  BGValue = SValue;
-//                  RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//                  DoVMeasure;
-//                  
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  {
-//                     if(v_dev_active[site])  
-//                     {
-//                        tmp_delta[site] = tmp_meas_value[site]-target_meas_value[site];
-//                        if(loop==minloop)  
-//                        {
-//                           TrimValue[site]   = SValue[site];
-//                           delta_value[site] = tmp_delta[site];
-//                           prevmax_delta[site] = delta_value[site];
-//                           prevcount[site] = 0;
-//                        }
-//                        else
-//                        {
-//                           if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                           {
-//                               /*update and store iteration with smallest delta found*/
-//                              TrimValue[site]   = SValue[site];
-//                              delta_value[site] = tmp_delta[site];
-//                              prevmax_delta[site] = delta_value[site];
-//                           }
-//                           else
-//                           {
-//                               /*check to see if gone opposite direction*/
-//                              if(tmp_delta[site] > prevmax_delta[site])  
-//                                 prevcount[site] = prevcount[site]+1;
-//                              if(prevcount[site] >== OPPSTEP)  
-//                                 if(not chartrim_ena)  
-//                                    activesites[site] = false;
-//                           } 
-//                        } 
-//                        
-//                        if(tistdscreenprint and TI_FlashDebug)  
-//                           cout << "Site " << site:-5 << " Loop==" << loop:-4 << " VRD soft==" << tmp_meas_value[site]:-5:3 << 
-//                                   "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
-//                                   "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
-//                        
-//                        if((abs(delta_value[site]) <== target_meas_delta[site]) or (loop==maxloop) or (not activesites[site]))  
-//                        {
-//                           soft_found[site] = true;
-//                           if(not chartrim_ena)  
-//                              activesites[site] = false;
-//                           MAINBG_TRIMSAVED[site] = TrimValue[site];
-//                           BuildEfuseTrimString;
-//                        }  /*if delta_value*/
-//                        else
-//                        {
-//                           SValue[site] = SValue[site]+1;
-//                        } 
-//                        
-//                     }   /*if v_dev_active*/
-//                  }   /*for site*/
-//                  
-//                  writestring(tmpstr2,loop:1);
-//                  tmpstr4 = "MBG_SOFT_" + tmpstr2;
-//                  TWTRealToRealMS(tmp_meas_value,realval,unitval);
-//                  TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//                  
-//                   /*disable site found trim*/
-//                  devsetholdstates(activesites);
-//                  
-//                  if(not v_any_dev_active)  
-//                     break;
-//                  
-//               }   /*for loop*/
-//                /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//            }   /*+++ dolinear +++*/
-//         }   /*if v_any_dev_active STEP #3*/
-//         
-//           /*re-activate savesites*/
-//         Devsetholdstates(savesites);
-//
-//         Arrayandboolean(final_results,final_results,soft_found,v_sites);
-//         Arrayandboolean(final_results,final_results,savesites,v_sites);
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//         
-//         
-//          /*update site that is trimable, non-trimable, virgin*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//                /*good trimable site*/
-//               if(softtrim_ena[site] and soft_found[site] and final_results[site])  
-//                  SITE_TO_FTRIM[site] = true;
-//                /*else
-//                   SITE_TO_FTRIM[site] := false;*/
-//            } 
-//
-//        RAM_Clear_SoftTrim_All;
-//  f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//
-//      }   /*+++++ STEP #2 +++++*/
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr1 = "MainBG_Trim";
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//      
-//      logsites = v_dev_active;      
-//      if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//      {
-//         F021_Log_FailPat_To_TW(tmpstr1,final_results,fl_testname);
-//         if(TI_FlashCOFEna)  
-//            F021_Save_COF_Info("",site_cof_inst_str,final_results);
-//      } 
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr1,0,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         Devsetholdstates(final_results);         
-//
-//      test_results = final_results;
-//      
-//   }   /*v_any_dev_active*/
-//   
-//   F021_MainBG_SoftTrim_Direct_func = v_any_dev_active;
-//} 
-//
-//
-//
-//
-//
-//
-//
+//         F021_Save_COF_Info("",site_cof_inst_str,final_results);
+//   }      
+
+   return (final_results);
+} 
+
 //BoolS F021_MainBG_SoftTrim_func(    BoolS adapttrim_ena,
 //                                       BoolS chartrim_ena,
 //                                  BoolM test_results)
@@ -27325,549 +26105,275 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //
 //   F021_MainBG_SoftTrim_func = v_any_dev_active;
 //} 
-//
-//BoolS F021_MainIREF_SoftTrim_func(  BoolS adapttrim_ena,
-//                                       BoolS chartrim_ena,
-//                                  BoolM test_results)
-//{
-//   const IntS REG1_START = 0; 
-//   const IntS REG1_STOP = 15; 
-//   const IntS REG2_START = 16; 
-//   const IntS REG2_STOP = 31; 
-//   const IntS REG3_START = 32; 
-//   const IntS REG3_STOP = 47; 
-//   const IntS REG4_START = 48; 
-//   const IntS REG4_STOP = 63; 
-//   const IntS LOOP_MIN = 0; 
-//   const IntS LOOP_MAX = 63; 
-//   const IntS OPPSTEP = 3; 
-//
-//   FloatS tdelay,tdelay2;
-//   IntS site,testnum,count;
-//   BoolM savesites,activesites,logsites;
-//   BoolM tmp_results,final_results,alldisable;
-//   FloatS ttimer1,ttimer2,maxtime;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   FloatM target_meas_value,target_meas_delta;
-//   FloatM target_abs_delta;
-//   FloatM novride_meas_value,ovride_meas_value;
-//   FloatM ovride_meas_delta,tmp_meas_value;
-//   PinM testpad,cntrlpad;
-//   FloatM delta_value,tmp_delta;
-//   FloatM1D iref_meas_value(65);
-//   FloatM1D iref_meas_delta(65);
-//   IntS iref_index,iref_efmax,offsetcyc;
-//   IntS bg_efmax,soft_index,bg_index;
-//   StringS1D interim_soft_str(65);
-//   BoolM soft_found,softtrim_ena;
-//   IntM soft_iteration;
-//   IntS index,iteration;
-//   BoolS savebool;
-//   BoolM trimup,trimdown,found_range;
-//   BoolS trimup_only,chartrim,chardebug;
-//   FloatS delta_tolerance;
-//   StringS soft_str;
-//   IntM1D adapt_iteration(65);
-//   StringM1D adapt_soft_str(65);
-//   BoolM adapt_trimup,adapt_trimdown;
-//   FloatM derived_vbg;
-//   StringM site_cof_inst_str;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   FloatS llim,ulim;
-//   FloatM derived_istep;
-//   IntS minloop,maxloop,loop,tmpint;
-//   IntS MAXITERATION,TRIMENAKEY;
-//   IntM TrimValue,BGValue,IRValue,FOSCValue;
-//   IntM srng1,srng2,srng3,srng4,SValue;
-//   FloatM prevmax_delta;
-//   IntM prevcount;
-//    /*++++++++++++++++++++*/
-//   procedure DoIMeasure; /* didn"t match any chunk types, FIX */
-//   
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay2);
-//      discard(F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,
-//              llim,ulim,tmp_meas_value,tmp_results));
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//   }       
-//    /*++++++++++++++++++++*/
-//{   
-//   if(V_any_dev_active)  
+
+void SaveMirefEfuseTrimString(IntS trimValue, SITE whichSite)
+{
+   StringS soft_str(NULL, GL_MAINIREF_MAXEFUSE);
+   IntS t_str_length;
+   StringS error_message;
+   
+   IO.Print(soft_str,"%b", trimValue);
+   t_str_length = soft_str.Length();
+   
+   if(t_str_length > GL_MAINIREF_MAXEFUSE)  
+   {
+      IO.Print(error_message, "ERROR: Main Iref Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!", 
+               GL_MAINIREF_MAXEFUSE);      
+      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, UTL_VOID, whichSite, UTL_VOID);
+   } 
+   
+   while (soft_str.Length() < GL_MAINIREF_MAXEFUSE)
+      soft_str = "0" + soft_str;   /*iref5=msb*/
+
+   int iref_index = 15;   /*iref4*/  // was 16, but think pascal is 1-based strings, not 0
+   
+   for (int count = 1;count < GL_MAINIREF_MAXEFUSE;count++)
+   {
+      MAINBG_EFSTR[whichSite][iref_index] = soft_str[count];  /*iref4 1st*/
+      ++iref_index;
+   } 
+   MAINBG_EFSTR[whichSite][21] = soft_str[0]; /*iref5*/
+}   /* SaveMirefEfuseTrimString */
+
+TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
+{
+   const IntS MIN_CODE = 0;
+   const IntS MAX_CODE = 63;
+   const IntS MAXITER = 64; 
+
+
+   FloatS tdelay2;
+   IntS testnum;
+   Sites savesites = ActiveSites;
+   Sites pass_pretrim_sites, trim_sites;
+   TMResultM tmp_results,final_results;
+   FloatS ttimer1,maxtime;
+   StringS twstr;
+   StringS fl_testname;
+   FloatS target_meas_value,target_meas_delta;
+   FloatM ovride_meas_value;
+   FloatM ovride_meas_delta;
+   PinM testpad;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   FloatS llim,ulim;
+   IntS TRIMENAKEY;
+   IntM TrimValue,BGValue,IRValue,FOSCValue;
+   IntM trim_alarms;
+
+
+   if(tistdscreenprint)  
+      cout << "+++++ F021_MainIREF_SoftTrim +++++" << endl;
+
+   maxtime = GL_F021_PARAM_MAXTIME;
+
+   TIME.StartTimer();      
+
+//   if(TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+   tmp_results = TM_NOTEST;
+   final_results = TM_NOTEST;
+   TrimValue = 0;
+
+
+    /*+++++ STEP #1 +++++*/
+   fl_testname = "MainIREF_Ovride_Test";
+
+    /*get virgin measurement*/
+   tcrnum  = 125;
+   tcrmode = ProgMode;  /*to select relax limit, actual is readmode*/
+   testnum = TNUM_MAINICMP10U_MEAS;
+   testpad = FLTP1;
+   ulim    = TCR.TP1_ULim[tcrnum][tcrmode];
+   llim    = TCR.TP1_LLim[tcrnum][tcrmode];
+   tdelay2 = 10ms;
+   
+   TRIMENAKEY = 0xAA55;
+   BGValue = MAINBG_TRIMSAVED;
+   FOSCValue = 0;
+   IRValue = 0;
+   
+   RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
+   F021_TurnOff_AllTPADS();
+//   ovride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+    /*bin out site not passing relaxed limits*/
+   final_results = TIDlog.Value(ovride_meas_value, testpad, llim, ulim, ovride_meas_value.GetUnits(),
+                                "MAINIREF_OVERRIDE", UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+// :TODO: Figure out something with this fail logging   
+//   logsites = v_dev_active;      
+//   if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
 //   {
-//
-//      if(tistdscreenprint)  
-//         cout << "+++++ F021_MainIREF_SoftTrim +++++" << endl;
-//
-//      tdelay = 5ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      iref_efmax = GL_MAINIREF_MAXEFUSE;
-//      bg_efmax   = GL_MAINBG_MAXEFUSE;
-//
-//      timernstart(ttimer1);      
-//
+//      F021_Log_FailPat_To_TW(tmpstr4,final_results,fl_testname);
+//      
 //      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//      trimup = false;
-//      trimdown = false;
-//      soft_found = false;
-//      softtrim_ena = false;
-//      TrimValue = 0;
-//
-//
-//       /*+++++ STEP #1 +++++*/
-//      if(v_any_dev_active)  
 //      {
-//         fl_testname = MainIREF_Ovride_Test;
-//         TestOpen(fl_testname);
-//
-//          /*get virgin measurement*/
-//         tcrnum  = 125;
-//         tcrmode = ProgMode;  /*to select relax limit, actual is readmode*/
-//         testnum = TNUM_MAINICMP10U_MEAS;
-//         testpad = FLTP1;
-//         ulim    = TCR.TP1_ULim[tcrnum][tcrmode];
-//         llim    = TCR.TP1_LLim[tcrnum][tcrmode];
-//         tdelay2 = 10ms;
-//         
-//         TRIMENAKEY = 0xAA55;
-//         BGValue = MAINBG_TRIMSAVED;
-//         FOSCValue = 0;
-//         IRValue = 0;
-//         
-//         RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//         F021_TurnOff_AllTPads;
-//         DoIMeasure;
-//          /*bin out site not passing relaxed limits*/
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//         ovride_meas_value = tmp_meas_value;
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//         
-//          /*TW log for ovride_meas_value*/
-//         tmpstr4 = "MAINIREF_OVERRIDE";
-//         TWTRealToRealMS(ovride_meas_value,realval,unitval);
-//         TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//         
-//         if(tistdscreenprint)  
-//         {
-//            PrintHeaderParam(GL_PLELL_FORMAT);
-//            PrintResultParam(tmpstr4,testnum,tmp_results,llim,ulim,ovride_meas_value,GL_PLELL_FORMAT);
-//         } 
-//         
-//         logsites = v_dev_active;      
-//         if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//         {
-//            F021_Log_FailPat_To_TW(tmpstr4,final_results,fl_testname);
-//            
-//            if(TI_FlashCOFEna)  
-//            {
-//               tmpstr4 = "_" + tmpstr4;
-//               F021_Update_COF_Inst_Str(tmpstr4,site_cof_inst_str,final_results);
-//            } 
-//         } 
-//         
-//         if((not tiignorefail) and (not TI_FlashCOFEna))  
-//            Devsetholdstates(final_results);
-//      }   /*if v_any_dev_active step#1*/
-//
-//      
-//       /*+++++ STEP #2 +++++*/
-//      if(v_any_dev_active)  
-//      {
-//          /*compare override value vs target*/
-//         fl_testname = MainIREF_Trim_Test;
-//         TestOpen(fl_testname);
-//         
-//         target_meas_value = Main_Icmp10_Target;
-//         target_meas_delta = Iref_Adapt_Delta_AbsLim;
-//          /*calculate target delta*/
-//         delta_tolerance = IREF_tolerance;
-//         ArrayMultTrealValue(target_abs_delta,target_meas_value,delta_tolerance,v_sites);
-//
-//         savesites = V_dev_active;
-//         softtrim_ena = V_dev_active;
-//         ovride_meas_delta = 99uA;
-//         
-//          /*+++ Calc delta +++*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(v_dev_active[site])  
-//            {
-//               ovride_meas_delta[site] = target_meas_value[site]-ovride_meas_value[site];
-//               
-//               if(abs(ovride_meas_delta[site])<==abs(target_meas_delta[site]))  
-//               {
-//                  soft_found[site] = true;
-//                  softtrim_ena[site] = false;
-//                  MAINIREF_TRIMSAVED[site] = TrimValue[site];
-//               } 
-//               
-//               if(softtrim_ena[site])  
-//               {
-//                  if(ovride_meas_delta[site] < 0ua)  
-//          {
-//             trimdown[site] = true;
-//             srng1[site] = REG2_START;
-//             srng2[site] = REG1_START;
-//             srng3[site] = REG4_START;
-//             srng4[site] = REG3_START;
-//          }
-//          else
-//          {
-//                     trimup[site] = true;
-//             srng1[site] = REG4_START;
-//             srng2[site] = REG3_START;
-//             srng3[site] = REG1_START;
-//             srng4[site] = REG2_START;
-//          }            
-//               }   /*if softtrim_ena*/
-//               
-//               if(tistdscreenprint)  
-//               {
-//                  cout << "Site" << site:-5 << 
-//                     "  Target :" << target_meas_value[site]:4:3 << 
-//                     "  Measured (OVRD) : " << ovride_meas_value[site]:4:3 << 
-//                     "  Target Delta : " << target_meas_delta[site]:4:3 << 
-//                     "  Delta : " << ovride_meas_delta[site]:4:3;
-//                  if(softtrim_ena[site] and trimup[site])  
-//                     cout << "   ENABLE SOFTTRIM UP  ");
-//                  else if(softtrim_ena[site] and trimdown[site])  
-//                     cout << "   ENABLE SOFTTRIM DOWN  ");
-//                  else
-//                     cout << "   NO NEED SOFTTRIM " << endl;
-//               } 
-//            }   /*if v_dev_active*/
-//         }   /*for site*/
-//          /*+++ end Calc delta +++*/
-//
-//         Devsetholdstates(softtrim_ena);
-//         
-//          /*+++++ STEP #3 +++++*/
-//         if(v_any_dev_active)  
-//         {
-//            activesites = V_dev_active;
-//            found_range = false;
-//         
-//            for (loop = 1;loop <= 4;loop++)
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site] and (not found_range[site]))  
-//                  {
-//                     if(trimup[site])  
-//                     {
-//                        switch(loop) {
-//                          case 1 : IRValue[site] = REG4_STOP;
-//                          case 2 : IRValue[site] = REG3_STOP;
-//                          case 3 : IRValue[site] = REG1_STOP;
-//                          case 4 : IRValue[site] = REG2_STOP;
-//                        }   /* case */
-//                     }
-//                     else
-//                     {
-//                        switch(loop) {
-//                          case 1 : IRValue[site] = REG2_STOP;
-//                          case 2 : IRValue[site] = REG1_STOP;
-//                          case 3 : IRValue[site] = REG4_STOP;
-//                          case 4 : IRValue[site] = REG3_STOP;
-//                        }   /* case */
-//                     } 
-//                  }   /*if v_dev_active & not found_range*/
-//
-//               RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               DoIMeasure;
-//
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site] and (not found_range[site]))  
-//                     if(tmp_meas_value[site] >== target_meas_value[site])  
-//                     {
-//                        if(trimup[site])  
-//                        {
-//                           switch(loop) {
-//                             case 1 :  
-//                                    srng1[site] = REG4_START;
-//                                    srng2[site] = REG3_START;
-//                                    srng3[site] = REG1_START;
-//                                    srng4[site] = REG2_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 2 :  
-//                                    srng1[site] = REG3_START;
-//                                    srng2[site] = REG1_START;
-//                                    srng3[site] = REG2_START;
-//                                    srng4[site] = REG4_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 3 :  
-//                                    srng1[site] = REG1_START;
-//                                    srng2[site] = REG2_START;
-//                                    srng3[site] = REG4_START;
-//                                    srng4[site] = REG3_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 4 :  
-//                                    srng1[site] = REG2_START;
-//                                    srng2[site] = REG4_START;
-//                                    srng3[site] = REG3_START;
-//                                    srng4[site] = REG1_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                           }   /* case */
-//                        }
-//                        else
-//                        {
-//                           switch(loop) {
-//                             case 1 :  
-//                                    srng1[site] = REG2_START;
-//                                    srng2[site] = REG1_START;
-//                                    srng3[site] = REG4_START;
-//                                    srng4[site] = REG3_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 2 :  
-//                                    srng1[site] = REG1_START;
-//                                    srng2[site] = REG4_START;
-//                                    srng3[site] = REG3_START;
-//                                    srng4[site] = REG2_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 3 :  
-//                                    srng1[site] = REG4_START;
-//                                    srng2[site] = REG3_START;
-//                                    srng3[site] = REG2_START;
-//                                    srng4[site] = REG1_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                             case 4 :  
-//                                    srng1[site] = REG3_START;
-//                                    srng2[site] = REG2_START;
-//                                    srng3[site] = REG1_START;
-//                                    srng4[site] = REG4_START;
-//                                    found_range[site] = true;
-//                                  break; 
-//                           }   /* case */
-//                        } 
-//                        if(tistdscreenprint and TI_FlashDebug)  
-//                           if(found_range[site])  
-//                              cout << "Site" << site:-5 << " Start search ranges: " << srng1[site] << "  " << srng2[site] << "  " << srng3[site] << "  " << srng4[site] << endl;
-//                     }   /*if tmp_meas_value*/
-//               
-//               if(ArrayCompareBoolean(activesites,found_range,v_sites))  
-//                  break;  /*out loop*/
-//            }   /*for loop*/
-//            
-//                            /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//            if(tistdscreenprint)  
-//               cout << "STARTING ADAPTIVE DISCRETE TRIM ... " << endl;
-//            
-//            minloop = LOOP_MIN;
-//            maxloop = LOOP_MAX;
-//            
-//            for (loop = minloop;loop <= maxloop;loop++)
-//            {
-//               switch(loop) {
-//                 case 0  : SValue = srng1;
-//                 case 16 : SValue = srng2;
-//                 case 32 : SValue = srng3;
-//                 case 48 : SValue = srng4;
-//               }   /* case */
-//               
-//               IRValue = SValue;
-//               RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               DoIMeasure;
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               {
-//                  if(v_dev_active[site])  
-//                  {
-//                     tmp_delta[site] = tmp_meas_value[site]-target_meas_value[site];
-//                     if(loop==minloop)  
-//                     {
-//                        TrimValue[site]   = SValue[site];
-//                        delta_value[site] = tmp_delta[site];
-//                        prevmax_delta[site] = delta_value[site];
-//                        prevcount[site] = 0;
-//                     }
-//                     else
-//                     {
-//                        if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                        {
-//                            /*update and store iteration with smallest delta found*/
-//                           TrimValue[site]   = SValue[site];
-//                           delta_value[site] = tmp_delta[site];
-//                           prevmax_delta[site] = delta_value[site];
-//                        }
-//                        else
-//                        {
-//                            /*check to see if gone opposite direction*/
-//                           if(tmp_delta[site] > prevmax_delta[site])  
-//                              prevcount[site] = prevcount[site]+1;
-//                           if(prevcount[site] >== OPPSTEP)  
-//                              if(not chartrim_ena)  
-//                                 activesites[site] = false;
-//                        } 
-//                     } 
-//
-//                     if(tistdscreenprint and TI_FlashDebug)  
-//                        cout << "Site " << site:-5 << " Loop==" << loop:-4 << " IREF soft==" << tmp_meas_value[site]:-5:3 << 
-//                                "  SoftTrim==" << SValue[site]:-5 << "  tmp_delta==" << tmp_delta[site]:-5:3 << 
-//                                "  delta_value==" << delta_value[site]:-5:3 << "  TrimValue==" << TrimValue[site]:-5 << endl;
-//                     
-//                     if((abs(delta_value[site]) <== target_meas_delta[site]) or (loop==maxloop) or (not activesites[site]))  
-//                     {
-//                        soft_found[site] = true;
-//                        if(not chartrim_ena)  
-//                           activesites[site] = false;
-//                        MAINIREF_TRIMSAVED[site] = TrimValue[site];
-//                        writestring(soft_str,TrimValue[site]:s_binary:1);
-//                        tmpint = len(soft_str);
-//                        soft_str = mid(soft_str,3,tmpint-2);
-//                        tmpint = len(soft_str);
-//                        
-//                        if(tmpint>GL_MAINIREF_MAXEFUSE)  
-//                        {
-//                           if(tistdscreenprint)  
-//                           {
-//                              cout << "*** ERROR: Iref Trim Solution Efuse Bits exceed " << GL_MAINIREF_MAXEFUSE << endl;
-//                              cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                              cout << "PROGRAM WILL ABORT NOW" << endl;
-//                           }
-//                           else
-//                           {
-//                              cout << "*** ERROR: BG Trim Solution Efuse Bits exceed " << GL_MAINBG_MAXEFUSE << endl;
-//                              cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                              cout << "PROGRAM WILL ABORT NOW" << endl;
-//                           } 
-//                           pause;
-//                           stop;
-//                        } 
-//                        
-//                        while((len(soft_str))<GL_MAINIREF_MAXEFUSE) do
-//                           soft_str = "0" + soft_str;   /*iref5=msb*/
-//                        
-//                        iref_index = 16;   /*iref4*/
-//                        
-//                        tmpint = len(soft_str);
-//                        
-//                        for (count = 2;count <= tmpint;count++)
-//                        {
-//                           MAINBG_EFSTR[site][iref_index] = soft_str[count];  /*iref4 1st*/
-//                           iref_index = iref_index+1;
-//                        } 
-//                        
-//                        MAINBG_EFSTR[site][22] = soft_str[1];  /*iref5*/
-//                        
-//                        iteration = TrimValue[site];
-//                        tmpstr4 = "MIREF_SOL";
-//                        TWPDLDatalogVariableSite(tmpstr4,iteration,site,TWMinimumData);
-//                        
-//                        if(tistdscreenprint)  
-//                        {
-//                           cout << "Site " << site:5 << "  Soft Iteration " << loop:-3 << 
-//                                   " Target == " << target_meas_value[site]:-5:3 << 
-//                                   " Measured == " << tmp_meas_value[site]:-5:3 << 
-//                                   " Delta == " << delta_value[site]:-5:3 << 
-//                                   " Soft Sol == " << TrimValue[site]:-5 << endl;
-//                           cout << "  Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
-//                        }   /*if tistdscreenprint*/
-//                     }  /*if delta_value*/
-//                     else
-//                     {
-//                        SValue[site] = SValue[site]+1;
-//                     } 
-//                     
-//                  }   /*if v_dev_active*/
-//               }   /*for site*/
-//               
-//               writestring(tmpstr2,loop:1);
-//               tmpstr4 = "MIREF_SOFT_" + tmpstr2;
-//               TWTRealToRealMS(tmp_meas_value,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//               
-//                /*disable site found trim*/
-//               devsetholdstates(activesites);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//               
-//            }   /*for loop*/
-//              /*+++++++ DISCRETE ADAPTIVE TRIM +++++++*/
-//
-//         }   /*if v_any_dev_active STEP #5*/
-//         
-//           /*re-activate savesites*/
-//         Devsetholdstates(savesites);
-//
-//         Arrayandboolean(final_results,final_results,soft_found,v_sites);
-//         Arrayandboolean(final_results,final_results,savesites,v_sites);
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//         
-//         
-//          /*update site that is trimable, non-trimable, virgin*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//                /*good trimable site*/
-//               if(softtrim_ena[site] and soft_found[site] and final_results[site])  
-//                  SITE_TO_FTRIM[site] = true;
-//                /*else
-//                   SITE_TO_FTRIM[site] := false;*/
-//        } 
-//
-//         RAM_Clear_SoftTrim_All;
-//     f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//        
-//      }   /*+++++ STEP #2 +++++*/
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr1 = "MainIREF_Trim";
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//      
-//      logsites = v_dev_active;      
-//      if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//      {
-//         F021_Log_FailPat_To_TW(tmpstr1,final_results,fl_testname);
-//         if(TI_FlashCOFEna)  
-//         {
-//            tmpstr1 = "_" + tmpstr1;
-//            F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//         } 
+//         tmpstr4 = "_" + tmpstr4;
+//         F021_Update_COF_Inst_Str(tmpstr4,site_cof_inst_str,final_results);
 //      } 
-//
-//      if(tistdscreenprint)  
+//   } 
+   
+   if((not RunAllTests) and (not TI_FlashCOFEna)) 
+   {
+      pass_pretrim_sites = ActiveSites;
+      pass_pretrim_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      RunTime.SetActiveSites(pass_pretrim_sites);
+   }
+   
+    /*+++++ STEP #2 +++++*/
+   if(!ActiveSites.Begin().End())  
+   {
+       /*compare override value vs target*/
+      fl_testname = "MainIREF_Trim_Test";
+      trim_sites = ActiveSites;
+      
+      target_meas_value = Main_Icmp10_Target;
+      target_meas_delta = Iref_Adapt_Delta_AbsLim;
+       /*calculate target delta*/
+      BoolM softtrim_ena;
+      softtrim_ena = true;
+      
+       /*+++ Calc delta +++*/
+      ovride_meas_delta = target_meas_value - ovride_meas_value;
+      
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if(MATH.Abs(ovride_meas_delta[*si])<=MATH.Abs(target_meas_delta))  
+         {
+            softtrim_ena[*si] = false;
+            trim_sites -= *si;
+            MAINIREF_TRIMSAVED[*si] = TrimValue[*si];
+         } 
+         
+         if(tistdscreenprint)  
+         {
+            cout << "Site" << *si << 
+               "  Target :" << target_meas_value << 
+               "  Measured (OVRD) : " << ovride_meas_value[*si] << 
+               "  Target Delta : " << target_meas_delta << 
+               "  Delta : " << ovride_meas_delta[*si] << endl;
+            if(softtrim_ena[*si])  
+               cout << "   ENABLE SOFTTRIM  " << endl;
+            else
+               cout << "   NO NEED SOFTTRIM " << endl;
+         } 
+      }   /*for site*/
+       /*+++ end Calc delta +++*/
+
+      RunTime.SetActiveSites(trim_sites);
+      
+       /*+++++ STEP #3 +++++*/
+      if(!ActiveSites.Begin().End())  
+      {
+         if (charTrimEna) // run every code so we can see what the curve looks like
+         {
+            FloatM1D trim_curve(MAX_CODE+1, 0.);
+            for (int code=MIN_CODE; code <= MAX_CODE; ++code)
+            {
+               IRValue = code;
+               RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
+//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2));
+               TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
+                            "MainIref_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
+            }
+            IntM best_code;
+            best_code = PickBestCode(trim_curve, target_meas_value);
+            MAINIREF_TRIMSAVED = best_code;
+            TrimValue = best_code;
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               SaveMirefEfuseTrimString(TrimValue[*si], *si);
+               
+         } else // not charTrimEna
+         {
+            SearchMod my_search;
+            my_search.SASearchBegin(double(MIN_CODE), double(MAX_CODE), target_meas_delta, target_meas_value, MAXITER);
+            my_search.SkipMinMax(true);            
+            
+            IntS loop = 0;
+            FloatM meas_value;
+            FloatM float_code;
+            
+            while (my_search.searchNotDone)
+            {
+               float_code = my_search.xForceValueMS;
+               IRValue = MATH.LegacyRound(float_code);
+                  
+               RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
+//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+      
+               loop = loop+1;
+               twstr = "MIREF_SOFT_" + loop;
+               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MBG_SOFT_CODE_" + loop,
+                            UTL_VOID, UTL_VOID, false, TWMinimumData); // debug only, really, so no TW
+               TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
+                            twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
+               
+               my_search.SearchNext(meas_value);
+            }
+
+            trim_alarms = my_search.m_searchAlarmMS;
+            IntS temp_int;
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               if (trim_alarms[*si] == SearchMod::TARGET_FOUND)
+               {
+                  // we trimmed properly, save the value 
+                  MAINIREF_TRIMSAVED[*si] = int(MATH.LegacyRound(my_search.xForceValueMS[*si]));
+                  TrimValue[*si] = MAINIREF_TRIMSAVED[*si];
+                  SaveMirefEfuseTrimString(TrimValue[*si], *si); 
+                  
+                  // The VLCT conditions for SITE_TO_FTRIM of true were:
+                  // soft_found - this is covered by the trim alarms above
+                  // softtrim_ena - this was covered by deactivating sites above 
+                  //             (if you get here, softtrim_ena would have been true in the VLCT program)
+                  // final_results - It had to have passed the pre-trim...which we deactivated failing sites above
+                  SITE_TO_FTRIM[*si] = true;
+               }
+            }        
+            // test if we found a real trim or we had search errors
+            tmp_results = TIDlog.Value(trim_alarms, testpad, 0, 0, "",
+                         "MAINIREF_TRIMCODE_FOUND", UTL_VOID, UTL_VOID, true, TWMinimumData);
+         
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+         } // end else charTrimEna
+         TIDlog.Value(TrimValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MIREF_SOL", 
+                     UTL_VOID, UTL_VOID, true, TWMinimumData);
+         if (tistdscreenprint)
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               cout << "Site " << *si << "Final Soft Efuse Pump String : " << MAINBG_EFSTR[*si] << endl;
+         }
+         
+         // Trim clean up
+         RAM_Clear_SoftTrim_All();
+         FloatM ret_timer;
+         F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,ret_timer);
+      } // end trim for those sites that needed it
+   }   /*+++++ STEP #2 +++++*/
+   
+   RunTime.SetActiveSites(savesites);
+   ttimer1 = TIME.StopTimer();
+
+   twstr = "MainIREF_Trim_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, UTL_VOID, twstr,
+                UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+// :TODO: This
+//   logsites = v_dev_active;      
+//   if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
+//   {
+//      F021_Log_FailPat_To_TW(tmpstr1,final_results,fl_testname);
+//      if(TI_FlashCOFEna)  
 //      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr1,0,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
+//         tmpstr1 = "_" + tmpstr1;
+//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
 //      } 
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         Devsetholdstates(final_results);         
-//
-//      test_results = final_results;
-//      
-//   }   /*v_any_dev_active*/
-//
-//   F021_MainIREF_SoftTrim_func = v_any_dev_active;
-//} 
-//
+//   } 
+
+   return (final_results);
+} 
+
 //BoolS F021_FOSC_SoftTrim_func(    BoolM test_results)
 //{
 //   const IntS IND_FOSC = 9; 
@@ -34464,18 +32970,18 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //   
 //   MeasPinTMU_func = v_any_dev_active;
 //}   /* MeasPinTMU_func */
-//
-//#if $FL_USE_DCC_TRIM_FOSC=false then
-//BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results)
-//{
-//   const IntS IND_FOSC = 9; 
-//   const IntS FOSC_MAXEFUSE = 6; 
-//   const IntS CLKWIDTH = 0; 
-//   const IntS SLOOP1 = 32; 
-//   const IntS ELOOP1 = 63; 
-//   const IntS SLOOP2 = 0; 
-//   const IntS ELOOP2 = 31; 
-//
+#if 0
+#if !$FL_USE_DCC_TRIM_FOSC
+TMResultM F021_FOSC_SoftTrim_External_func()
+{
+   const IntS IND_FOSC = 9; 
+   const IntS FOSC_MAXEFUSE = 6; 
+   const IntS CLKWIDTH = 0; 
+   const IntS SLOOP1 = 32; 
+   const IntS ELOOP1 = 63; 
+   const IntS SLOOP2 = 0; 
+   const IntS ELOOP2 = 31; 
+
 //   BoolM final_results,tmp_results;
 //   BoolM savesites,activesites,soft_found;
 //   IntS testnum,site,addr,i;
@@ -34495,190 +33001,187 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //   BoolS done,first_range;
 //   StringS testStringS;
 //   IntM msw_tnum,lsw_tnum;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_FOSC_SoftTrim_External_func +++++" << endl;
-//      
-//      timernstart(ttimer1);
-//
-//      freq_llimit = FOSC_LLimit;
-//      freq_ulimit = FOSC_ULimit;
-//      freq_target = FOSC_Target;
-//       /*convert freq to time base*/
-//      time_ulimit = (rcp(single(freq_llimit)))*1s;
-//      time_llimit = (rcp(single(freq_ulimit)))*1s;
-//      time_target = (rcp(single(freq_target)))*1s;
-//      toler = FOSC_Trim_Toler;
-//      target_meas_delta = time_target*toler;
-//
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      activesites = v_dev_active;
-//      soft_found = false;
-//      time_value = 0s;
-//      freq_value = 0Hz;
-//      tmp_freq = 0Hz;
-//      
-//      bgval = MAINBG_TRIMSAVED;
-//      irval = MAINIREF_TRIMSAVED;
-//      slpct = VHV_SLPCT_TRIMSAVED;
-//      vsa5ct = VSA5CT_TRIMSAVED;
-//      TrimSol = 0;
-//
-//      tpin = FL_FOSC_EXTERNAL_PIN;
-//      testpattern = FL_FOSC_EXTERNAL_PATTERN;
-//      done = false;
-//      first_range = true;
-//
-//      PrintHeaderBool(GL_PLELL_FORMAT);
-//
-//      while(not done) do
-//      {
-//         if(first_range)  
-//         {
-//            minloop = SLOOP1;
-//            maxloop = ELOOP1;
-//             /*dummy run*/
-//            foscval = 0;
-//            RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-//            MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-//             /*virgin run*/
-//            MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-//            Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  if(first_range)  
-//                  {
-//                     testnum = (msw_tnum[site]<<16)+lsw_tnum[site];
-//                     first_range = false;
-//                  } 
-//                  tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
-//               } 
-//            first_range = false;
-//            str2 = "FOSC_PRETRIM";
-//            TWTRealToRealMS(tmp_freq,realval,unitval);
-//            TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-//            PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
-//         }
-//         else
-//         {
-//            minloop = SLOOP2;
-//            maxloop = ELOOP2;
-//         } 
-//            
-//         for (loop = minloop;loop <= maxloop;loop++)
-//         {
-//            foscval = loop;
-//            RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-//            MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-//            
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
-//                  tmp_delta[site] = meas_value[site]-time_target;
-//                  if(loop==SLOOP1)  
-//                  {
-//                     TrimSol[site] = foscval[site];
-//                     delta_value[site] = tmp_delta[site];
-//                     time_value[site] = meas_value[site];
-//                  }
-//                  else
-//                  {
-//                     if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-//                     {
-//                        TrimSol[site] = foscval[site];
-//                        delta_value[site] = tmp_delta[site];
-//                        time_value[site] = meas_value[site];
-//                     } 
-//                  } 
-//                  
-//                  if((abs(delta_value[site]) <== target_meas_delta) or (loop==ELOOP2))  
-//                  {
-//                     freq_value[site] = (rcp(single(time_value[site])))*1Hz;
-//                     soft_found[site] = true;
-//                     activesites[site] = false;
-//                     FOSC_TRIMSAVED[site] = TrimSol[site];
-//                     writestring(str5,trimsol[site]:s_binary:1);
-//                     str5 = mid(str5,3,(len(str5))-2);
-//                     if((len(str5)) > FOSC_MAXEFUSE)  
-//                     {
-//                        if(tistdscreenprint)  
-//                        {
-//                           cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
-//                           cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                           cout << "PROGRAM WILL ABORT NOW" << endl;
-//                        }
-//                        else
-//                        {
-//                           cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
-//                           cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                           cout << "PROGRAM WILL ABORT NOW" << endl;
-//                        } 
-//                        pause;
-//                        stop;
-//                     } 
-//                     while((len(str5)) < FOSC_MAXEFUSE) do
-//                        str5 = "0" + str5;
-//                     for (i = 1;i <= FOSC_MAXEFUSE;i++)
-//                        MAINBG_EFSTR[site][IND_FOSC+(i-1)] = str5[i];  /*ef_vosctrm[5] 1st*/
-//                     if(tistdscreenprint)  
-//                        cout << "Site" << site:-5 << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
-//                  }   /*if abs() or maxloop*/
-//               }   /*if v_dev_active*/
-//            
-//            writestring(str2,loop:1);
-//            str2 = "FOSC_SOFT_" + str2;
-//            TWTRealToRealMS(tmp_freq,realval,unitval);
-//            TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-//            PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
-//            devsetholdstates(activesites);
-//            
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for loop*/
-//
-//         if(not v_any_dev_active)  
-//            done = true;
-//      }   /*while not done*/
-//
-//      devsetholdstates(savesites);
-//   
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      str1 = "FOSC_TRIM_TT";
-//      str2 = "FOSC_TRIM_SOL";
-//      str3 = "FOSC_TRIM_FREQ";
-//
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-//      TWPDLDataLogVariable(str2,trimsol, TWMinimumData);
-//      TWTRealToRealMS(freq_value,realval,unitval);
-//      TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//      
-//      Arrayandboolean(final_results,final_results,soft_found,v_sites);
-//      Arrayandboolean(final_results,final_results,savesites,v_sites);
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintResultInt(str2,testnum,trimsol,0,0,GL_PLELL_FORMAT);
-//         PrintResultParam(str3,testnum,final_results,freq_llimit,freq_ulimit,freq_value,GL_PLELL_FORMAT);
-//         PrintResultBool(str3,0,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//
-//      RAM_Clear_SoftTrim_All;
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      test_results = final_results;
-//   } 
-//
-//   F021_FOSC_SoftTrim_External_func = v_any_dev_active;
-//}   /* F021_FOSC_SoftTrim_External_func */
-//#endif
 
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_FOSC_SoftTrim_External_func +++++" << endl;
+   
+   timernstart(ttimer1);
+
+   freq_llimit = FOSC_LLimit;
+   freq_ulimit = FOSC_ULimit;
+   freq_target = FOSC_Target;
+    /*convert freq to time base*/
+   time_ulimit = (rcp(single(freq_llimit)))*1s;
+   time_llimit = (rcp(single(freq_ulimit)))*1s;
+   time_target = (rcp(single(freq_target)))*1s;
+   toler = FOSC_Trim_Toler;
+   target_meas_delta = time_target*toler;
+
+   savesites = v_dev_active;
+   final_results = v_dev_active;
+   activesites = v_dev_active;
+   soft_found = false;
+   time_value = 0s;
+   freq_value = 0Hz;
+   tmp_freq = 0Hz;
+   
+   bgval = MAINBG_TRIMSAVED;
+   irval = MAINIREF_TRIMSAVED;
+   slpct = VHV_SLPCT_TRIMSAVED;
+   vsa5ct = VSA5CT_TRIMSAVED;
+   TrimSol = 0;
+
+   tpin = FL_FOSC_EXTERNAL_PIN;
+   testpattern = FL_FOSC_EXTERNAL_PATTERN;
+   done = false;
+   first_range = true;
+
+   PrintHeaderBool(GL_PLELL_FORMAT);
+
+   while(not done) do
+   {
+      if(first_range)  
+      {
+         minloop = SLOOP1;
+         maxloop = ELOOP1;
+          /*dummy run*/
+         foscval = 0;
+         RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
+         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
+          /*virgin run*/
+         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
+         Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            if(v_dev_active[site])  
+            {
+               if(first_range)  
+               {
+                  testnum = (msw_tnum[site]<<16)+lsw_tnum[site];
+                  first_range = false;
+               } 
+               tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
+            } 
+         first_range = false;
+         str2 = "FOSC_PRETRIM";
+         TWTRealToRealMS(tmp_freq,realval,unitval);
+         TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
+         PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
+      }
+      else
+      {
+         minloop = SLOOP2;
+         maxloop = ELOOP2;
+      } 
+         
+      for (loop = minloop;loop <= maxloop;loop++)
+      {
+         foscval = loop;
+         RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
+         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
+         
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            if(v_dev_active[site])  
+            {
+               tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
+               tmp_delta[site] = meas_value[site]-time_target;
+               if(loop==SLOOP1)  
+               {
+                  TrimSol[site] = foscval[site];
+                  delta_value[site] = tmp_delta[site];
+                  time_value[site] = meas_value[site];
+               }
+               else
+               {
+                  if(abs(tmp_delta[site]) < abs(delta_value[site]))  
+                  {
+                     TrimSol[site] = foscval[site];
+                     delta_value[site] = tmp_delta[site];
+                     time_value[site] = meas_value[site];
+                  } 
+               } 
+               
+               if((abs(delta_value[site]) <== target_meas_delta) or (loop==ELOOP2))  
+               {
+                  freq_value[site] = (rcp(single(time_value[site])))*1Hz;
+                  soft_found[site] = true;
+                  activesites[site] = false;
+                  FOSC_TRIMSAVED[site] = TrimSol[site];
+                  writestring(str5,trimsol[site]:s_binary:1);
+                  str5 = mid(str5,3,(len(str5))-2);
+                  if((len(str5)) > FOSC_MAXEFUSE)  
+                  {
+                     if(tistdscreenprint)  
+                     {
+                        cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
+                        cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
+                        cout << "PROGRAM WILL ABORT NOW" << endl;
+                     }
+                     else
+                     {
+                        cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
+                        cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
+                        cout << "PROGRAM WILL ABORT NOW" << endl;
+                     } 
+                     pause;
+                     stop;
+                  } 
+                  while((len(str5)) < FOSC_MAXEFUSE) do
+                     str5 = "0" + str5;
+                  for (i = 1;i <= FOSC_MAXEFUSE;i++)
+                     MAINBG_EFSTR[site][IND_FOSC+(i-1)] = str5[i];  /*ef_vosctrm[5] 1st*/
+                  if(tistdscreenprint)  
+                     cout << "Site" << site:-5 << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
+               }   /*if abs() or maxloop*/
+            }   /*if v_dev_active*/
+         
+         writestring(str2,loop:1);
+         str2 = "FOSC_SOFT_" + str2;
+         TWTRealToRealMS(tmp_freq,realval,unitval);
+         TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
+         PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
+         devsetholdstates(activesites);
+         
+         if(not v_any_dev_active)  
+            break;
+      }   /*for loop*/
+
+      if(not v_any_dev_active)  
+         done = true;
+   }   /*while not done*/
+
+   devsetholdstates(savesites);
+
+   ttimer1 = timernread(ttimer1);
+   tt_timer = ttimer1;
+
+   str1 = "FOSC_TRIM_TT";
+   str2 = "FOSC_TRIM_SOL";
+   str3 = "FOSC_TRIM_FREQ";
+
+   TWTRealToRealMS(tt_timer,realval,unitval);
+   TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
+   TWPDLDataLogVariable(str2,trimsol, TWMinimumData);
+   TWTRealToRealMS(freq_value,realval,unitval);
+   TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
+   
+   Arrayandboolean(final_results,final_results,soft_found,v_sites);
+   Arrayandboolean(final_results,final_results,savesites,v_sites);
+
+   if(tistdscreenprint)  
+   {
+      PrintResultInt(str2,testnum,trimsol,0,0,GL_PLELL_FORMAT);
+      PrintResultParam(str3,testnum,final_results,freq_llimit,freq_ulimit,freq_value,GL_PLELL_FORMAT);
+      PrintResultBool(str3,0,final_results,GL_PLELL_FORMAT);
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   } 
+
+   RAM_Clear_SoftTrim_All;
+   f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+   test_results = final_results;
+
+   F021_FOSC_SoftTrim_External_func = v_any_dev_active;
+}   /* F021_FOSC_SoftTrim_External_func */
+#endif
+#endif
 

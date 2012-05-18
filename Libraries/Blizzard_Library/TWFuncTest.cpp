@@ -10,7 +10,7 @@ static PINTYPE_TYPE DigitalTypes[]  = { PINTYPE_DIGITAL_PIN,  PINTYPE_NULL_PIN }
 
     PintypeTypeS1D DIGITAL_PINS  = DigitalTypes;
     TMFAMILY_CLASS(TWFuncTest)
-
+//nothing
     TM_RETURN TWFuncTest::Execute()
     {
         TMResultM local_result = TM_NOTEST;

@@ -702,7 +702,7 @@ __WaveformTable WFT12_eng {
         __Data 6/7;
         __Color 3/4;
         __Drive {
-            __Waveform { __DriveOn @ "tref +10ns*(.Period/100ns)-1.5ns + edg1_bit"; __DriveData @ "tref +10ns*(.Period/100ns) + edg1_bit"; __DriveLow @ "tref +50ns*(.Period/100ns) + edg1_bit"; }
+            __Waveform { __DriveOn @ "tref +60ns*(.Period/100ns)-1.5ns + edg1_bit"; __DriveData @ "tref +60ns*(.Period/100ns) + edg1_bit"; __DriveLow @ "tref +90ns*(.Period/100ns) + edg1_bit"; }
         }
     }
     __Cell "AIN10_183" L/C WFT12_RZ1_AIN10_183 {
@@ -716,7 +716,7 @@ __WaveformTable WFT12_eng {
         __Data 6/7;
         __Color 3/4;
         __Drive {
-            __Waveform { __DriveOn @ "tref +10ns*(.Period/100ns)-3.5ns + edg3_bit"; __DriveData @ "tref +10ns*(.Period/100ns)-3.5ns + edg3_bit"; __DriveLow @ "tref +50ns*(.Period/100ns) + edg3_bit"; }
+            __Waveform { __DriveOn @ "tref +10ns*(.Period/100ns)-3.5ns + edg3_bit -1.6ns"; __DriveData @ "tref +10ns*(.Period/100ns)-3.5ns + edg3_bit"; __DriveLow @ "tref +50ns*(.Period/100ns) + edg3_bit"; }
         }
     }
     __Cell "AC7_NR_STB+AC8_NR_STB+AIN10_183+TCK_152+AC1_STB" 0/1/M WFT12_STB1 {
@@ -726,7 +726,7 @@ __WaveformTable WFT12_eng {
             __Waveform { __DriveOff @ "tref +0ps"; }
         }
         __Compare {
-            __Waveform { __CompareData @ "tref +50ns*(.Period/100ns) + stb_bit"; }
+            __Waveform { __CompareData @ "tref +88ns*(.Period/100ns) + stb_bit"; }
         }
     }
     __Cell "AC7_NR_STB+AC8_NR_STB+AIN10_183+TCK_152+AC1_STB" Z WFT12_STB1_Z {
@@ -1436,6 +1436,80 @@ __WaveformTable WFT17_eng {
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +16ns*(.Period/33ns) - 1.5ns"; __DriveData @ "tref +16ns*(.Period/33ns)"; __DriveLow @ "tref +33ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "AIN10_183+OSC0_124+TCK_152+o_cpu_done_46" H NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT17_STB1 {
+        __Data 0/1/2;
+        __Color 8/10/3;
+        __Drive {
+            __Waveform { __DriveOff @ "tref +0ps"; }
+        }
+        __Compare {
+            __Waveform { __CompareData @ "tref +14ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT17_STB1_Z {
+        __Data 2;
+        __Color 3;
+        __Drive {
+            __Waveform { __DriveOff @ "tref +0ps"; }
+        }
+        __Compare {
+            __Waveform { __CompareFloat @ "tref +14ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "ALLPINS" - HoldStateWF {
+        __Data 6;
+        __Color 7;
+        __Drive {
+            __Waveform { }
+        }
+    }
+}
+
+__WaveformTable WFT17_DC {
+    __Period "tper";
+    __Cell "AC1_NR+AC1_NR_STB" L/H WFT17_NR1 {
+        __Data 6/7;
+        __Color 3/6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "OSC0_124" l/2 WFT17_RZ1_OSC0_124 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __EntryState __DriveOn;
+            __Waveform { __DriveHigh @ "(tref +16ns*(.Period/33ns))/2"; __DriveLow @ "(tref +33ns*(.Period/33ns))/2"; __DriveHigh @ "tref+(33ns+16ns)/2*(.Period/33ns)"; __DriveLow @ "tref +33ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "OSC0_124" k WFT17_DrvOn_OSC0_124 {
+	__Data 6;
+	__Color 3;
+	__Drive {
+	    __Waveform { __DriveOn @ "0ns"; __DriveLow @ "1.5ns";}
+	}
+    }
+    __Cell "AIN10_183" L/C WFT17_RZ3_AIN10_183 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +(16ns)*(.Period/33ns) - 1.5ns"; __DriveData @ "tref +(16ns)*(.Period/33ns)"; __DriveLow @ "tref +(33ns)*(.Period/33ns)"; }
+        }
+    }
+    __Cell "TCK_152" L/C WFT17_RZ3_TCK_152 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +(16ns-5ns)*(.Period/33ns) - 1.5ns"; __DriveData @ "tref +(16ns-5ns)*(.Period/33ns)"; __DriveLow @ "tref +(33ns-5ns)*(.Period/33ns)"; }
         }
     }
     __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT17_STB1 {
@@ -3814,21 +3888,21 @@ __WaveformTable WFT7 {
             __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_RZ_STB_TCK_152+o_cpu_done_46" L/C WFT7_RZ1_OSC {
+    __Cell "TCK_152+o_cpu_done_46" L/C WFT7_RZ1_OSC {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)-1.5ns-4ns"; __DriveData @ "tref +9ns*(.Period/50ns)-4ns"; __DriveLow @ "tref +23ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_RZ_STB_AIN10_183" L/C WFT7_RZ1_AIN10 {
+    __Cell "AIN10_183" L/C WFT7_RZ1_AIN10 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
             __Waveform { __DriveOn @ "tref +9ns*(.Period/50ns)-1.5ns+14ns"; __DriveData @ "tref +9ns*(.Period/50ns)+14ns"; __DriveLow @ "tref +23ns*(.Period/50ns)+14ns"; }
         }
     }
-    __Cell "AC1_RZ_OSC0_124" L/C WFT7_RZ1_OSC0 {
+    __Cell "OSC0_124" L/C WFT7_RZ1_OSC0 {
         __Data 6/7;
         __Color 3/4;
         __Drive {
@@ -3842,7 +3916,7 @@ __WaveformTable WFT7 {
             __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
         }
     }
-    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" 0/1/M WFT7_STB {
+    __Cell "AC1_NR_STB+AIN10_183+TCK_152+AC1_STB" 0/1/M WFT7_STB {
         __Data 0/1/2;
         __Color 8/10/3;
         __Drive {
@@ -3852,7 +3926,7 @@ __WaveformTable WFT7 {
             __Waveform { __CompareData @ "tref +9ns*(.Period/50ns)"; }
         }
     }
-    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT7_STB_Z {
+    __Cell "AC1_NR_STB+AIN10_183+TCK_152+AC1_STB" Z WFT7_STB_Z {
         __Data 2;
         __Color 3;
         __Drive {

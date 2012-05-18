@@ -1151,6 +1151,18 @@ __SubFlow Iddq0_VboxLO_S {
         __TestID = "";
         __Exec = F_FUNC_IDDQ;
     }
+    __Node a_iddq_T_382 {
+        __XCoord = (185,40);
+        __Port[0] {
+            __PortPosition = 160;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 0;
+        __TestID = "98000000";
+        __Exec = a_iddq_T;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = FlowNode_1767;
 }
@@ -1777,7 +1789,7 @@ __SubFlow FuseCtlr_S {
         }
         __InputPosition = 0;
         __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.CommonACdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_15"; __Type = INTEGER; }
             CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }

@@ -784,11 +784,11 @@ __PinGroup ScanHeader2_PL {
 }
 __PinGroup ScanHeader1_PL {
 	__Group = __Expression { __String = "PA2_48+C1_n_45+PA3_49+C1_p_44+PA4_50+C0_p_43+PA5_51+C0_n_42+PA6_54+
-                                         TRD2_88+PA7_55+TRD1_89+PB0_129+TRD0_90+PB1_130+PF3_91"; }
+                                             TRD2_88+PA7_55+TRD1_89+PB0_129+TRD0_90+PB1_130+PF3_91"; }
 }
 __PinGroup ScanHeader3_PL {
 	__Group = __Expression { __String = "PA2_48+PA3_49+C1_p_44+PA4_50+C0_p_43+PA5_51+C0_n_42+PA6_54+TRD2_88+PA7_55+
-                                         TRD1_89+PB0_129+TRD0_90+PB1_130+PF3_91"; }
+                                             TRD1_89+PB0_129+TRD0_90+PB1_130+PF3_91"; }
 }
 __PinGroup ScanHeader3_PL_ins {
 	__Group = __Expression { __String = "PA2_48+PA3_49+PA4_50+PA5_51+PA6_54+PA7_55+PB0_129+PB1_130"; }
