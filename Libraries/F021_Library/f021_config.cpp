@@ -336,7 +336,7 @@ void F021_FlashConfig()
    /*example of blizzard device*/
 #if !$FL_USE_DCC_TRIM_FOSC
    FL_FOSC_EXTERNAL_PIN = "AIN11_182";
-   FL_FOSC_EXTERNAL_PATTERN = f021_shell_exepat_vco_kc;
+   FL_FOSC_EXTERNAL_PATTERN = "f021_shell_exepat_vco_kc";
 #endif
 
    

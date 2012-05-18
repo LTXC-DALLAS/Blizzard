@@ -22,7 +22,7 @@
  /*            ISA_NLD config variables.                                       */
  /*                                                                            */
  /*  A1.3 : Released with new OTP format with 8us ppw.          KChau 11/30/09 */
- /*                                                                            */
+ /*                                          MeasPinTMU_func                                  */
  /* 12/09/09  KChau                                                            */
  /*           -Removed tpad ramping in F021_Flash_Leak_func, F021_Stress_func  */
  /*            as o"scope show not needed. Also set tpad prior entering tcrnum */
@@ -322,40 +322,6 @@ void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type,
    }
 }
 
-// If needed, uncomment. However, I think the only use for this is when 
-// working with pattern modifications and we use 'L' & 'H', not '0' & '1'
-// so leaving this commented to see if we can just trash - JT
-// /*KChau 12/21/07 - make IntToBinStr module level procedure.*/
-// /******************************************************************/
-// /* IntToBinStr : converts decimal number to 16-bit binary string. */
-// /* the string array is pass-by-reference.                         */
-// /******************************************************************/ 
-//void IntToBinStr(IntS tmpint1, StringS &tmpstr1)
-//{
-//   int strlength;
-//   int bit_of_interest = 1;
-//   int my_int = int(tmpint1); // strip the class wrapper to hopefully speed things up
-//   tmpstr1 = "";
-//   
-//   strlength = 16;  /*16-bit length*/
-//   
-//   for (int i = 0; i < strlength; ++i) 
-//   {
-//      if (i > 0)
-//      {
-//         bit_of_interest = bit_of_interest << 1;
-//      }
-//         
-//      if ((my_int & bit_of_interest) == 0) 
-//      {
-//         tmpstr1 = "0" + tmpstr1;
-//      } else {
-//         tmpstr1 = "1" + tmpstr1;
-//      }
-//  }
-//}   /*proc IntToBinStr*/
-
-
 void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
                            UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
                            WordOrientationS wordOrientation = WORD_MSB_FIRST)
@@ -469,7 +435,7 @@ TMResultM F021_InitFLGlobalvars_func()
    StringS scribeid;
    IntS maxstrnum;
    TPModeType tcrmode;
-   IntS vt_mode;
+   IntS vt_mode; 
    
    // Expression processor evaluates OpVar RunAllTests
    // and places the value in the BoolS RunAllTests
@@ -5384,36 +5350,33 @@ void Get_TLogSpace_MaxPPulse(IntM ret_val) {
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //   } 
 //}   /* TL_EngOvride_MAXEP */
-//   
-//void TL_EngOvride_VHV_PG_CT(IntS ovr_data)
-//{
-//   const  DEFAULT_VAL = 0xDB;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS OVRNUMWORD = 0x0100; 
-//   const IntS MB_WRFLAG = 0x1234; 
-//
-//   IntM msw_data,lsw_data;
-//   BoolS hexvalue,bcd_format;
-//   IntS addr_loc;
-//
-//   if(v_any_dev_active)  
-//   {
-//      bcd_format = true;
-//      hexvalue = true;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//      msw_data = MB_WRFLAG;
-//      lsw_data = OVRNUMWORD;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      msw_data = OVRIND_VHV_PG_CT;
-//      if((ovr_data>==0) and (ovr_data<==0x1ff))  
-//         lsw_data = ovr_data;
-//      else
-//         lsw_data = DEFAULT_VAL;
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* TL_EngOvride_VHV_PG_CT */
-//   
+   
+void TL_EngOvride_VHV_PG_CT(IntS ovr_data)
+{
+   const IntS DEFAULT_VAL = 0xDB;
+   const IntS OVRNUMWORD = 0x0100; 
+   const IntS MB_WRFLAG = 0x1234; 
+
+   IntM msw_data,lsw_data;
+   BoolS hexvalue,bcd_format;
+   IntS addr_loc;
+
+   bcd_format = true;
+   hexvalue = true;
+   addr_loc = ADDR_RAM_MAILBOX;
+   msw_data = MB_WRFLAG;
+   lsw_data = OVRNUMWORD;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   msw_data = OVRIND_VHV_PG_CT;
+   if((ovr_data>=0) and (ovr_data<=0x1ff))  
+      lsw_data = ovr_data;
+   else
+      lsw_data = DEFAULT_VAL;
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+}   /* TL_EngOvride_VHV_PG_CT */
+   
 //void TL_EngOvride_VHV_ER_CT(IntS ovr_data)
 //{
 //   const IntS DEFAULT_VAL = 0x194; 
@@ -9663,142 +9626,142 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //      
 //   }   /*if v_any_dev_active*/
 //}   /* TL_IV_Curve */
-//
-//
-//void CloneTCR_To_TCR128(TPModeType tcrmode_tget,
-//                             TPModeType tcrmode_src,
-//                             IntS tcrnum_src)
-//{
-//   const IntS TCR128 = 128; 
-//
-//   TCR.TP1_Ena[TCR128] = TCR.TP1_Ena[tcrnum_src];
-//   TCR.TP1_MeasType[TCR128] = TCR.TP1_MeasType[tcrnum_src];
-//   TCR.TP1_VRange[TCR128][tcrmode_tget]  = TCR.TP1_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TP1_IRange[TCR128][tcrmode_tget]  = TCR.TP1_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TP1_ULim[TCR128][tcrmode_tget]    = TCR.TP1_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TP1_LLim[TCR128][tcrmode_tget]    = TCR.TP1_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TP1_FTime[TCR128][tcrmode_tget]   = TCR.TP1_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TP1_VCharLo[TCR128][tcrmode_tget] = TCR.TP1_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TP1_VCharHi[TCR128][tcrmode_tget] = TCR.TP1_VCharHi[tcrnum_src][tcrmode_src];
-//   
-//   TCR.TP2_Ena[TCR128] = TCR.TP2_Ena[tcrnum_src];
-//   TCR.TP2_MeasType[TCR128] = TCR.TP2_MeasType[tcrnum_src];
-//   TCR.TP2_VRange[TCR128][tcrmode_tget]  = TCR.TP2_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TP2_IRange[TCR128][tcrmode_tget]  = TCR.TP2_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TP2_ULim[TCR128][tcrmode_tget]    = TCR.TP2_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TP2_LLim[TCR128][tcrmode_tget]    = TCR.TP2_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TP2_FTime[TCR128][tcrmode_tget]   = TCR.TP2_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TP2_VCharLo[TCR128][tcrmode_tget] = TCR.TP2_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TP2_VCharHi[TCR128][tcrmode_tget] = TCR.TP2_VCharHi[tcrnum_src][tcrmode_src];
-//   
-//   TCR.TP3_Ena[TCR128] = TCR.TP3_Ena[tcrnum_src];
-//   TCR.TP3_MeasType[TCR128] = TCR.TP3_MeasType[tcrnum_src];
-//   TCR.TP3_VRange[TCR128][tcrmode_tget]  = TCR.TP3_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TP3_IRange[TCR128][tcrmode_tget]  = TCR.TP3_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TP3_ULim[TCR128][tcrmode_tget]    = TCR.TP3_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TP3_LLim[TCR128][tcrmode_tget]    = TCR.TP3_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TP3_FTime[TCR128][tcrmode_tget]   = TCR.TP3_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TP3_VCharLo[TCR128][tcrmode_tget] = TCR.TP3_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TP3_VCharHi[TCR128][tcrmode_tget] = TCR.TP3_VCharHi[tcrnum_src][tcrmode_src];
-//   
-//   TCR.TP4_Ena[TCR128] = TCR.TP4_Ena[tcrnum_src];
-//   TCR.TP4_MeasType[TCR128] = TCR.TP4_MeasType[tcrnum_src];
-//   TCR.TP4_VRange[TCR128][tcrmode_tget]  = TCR.TP4_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TP4_IRange[TCR128][tcrmode_tget]  = TCR.TP4_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TP4_ULim[TCR128][tcrmode_tget]    = TCR.TP4_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TP4_LLim[TCR128][tcrmode_tget]    = TCR.TP4_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TP4_FTime[TCR128][tcrmode_tget]   = TCR.TP4_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TP4_VCharLo[TCR128][tcrmode_tget] = TCR.TP4_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TP4_VCharHi[TCR128][tcrmode_tget] = TCR.TP4_VCharHi[tcrnum_src][tcrmode_src];
-//   
-//   TCR.TP5_Ena[TCR128] = TCR.TP5_Ena[tcrnum_src];
-//   TCR.TP5_MeasType[TCR128] = TCR.TP5_MeasType[tcrnum_src];
-//   TCR.TP5_VRange[TCR128][tcrmode_tget]  = TCR.TP5_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TP5_IRange[TCR128][tcrmode_tget]  = TCR.TP5_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TP5_ULim[TCR128][tcrmode_tget]    = TCR.TP5_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TP5_LLim[TCR128][tcrmode_tget]    = TCR.TP5_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TP5_FTime[TCR128][tcrmode_tget]   = TCR.TP5_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TP5_VCharLo[TCR128][tcrmode_tget] = TCR.TP5_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TP5_VCharHi[TCR128][tcrmode_tget] = TCR.TP5_VCharHi[tcrnum_src][tcrmode_src];
-//   
-//   TCR.TADC_Ena[TCR128] = TCR.TADC_Ena[tcrnum_src];
-//   TCR.TADC_MeasType[TCR128] = TCR.TADC_MeasType[tcrnum_src];
-//   TCR.TADC_VRange[TCR128][tcrmode_tget]  = TCR.TADC_VRange[tcrnum_src][tcrmode_src];
-//   TCR.TADC_IRange[TCR128][tcrmode_tget]  = TCR.TADC_IRange[tcrnum_src][tcrmode_src];
-//   TCR.TADC_ULim[TCR128][tcrmode_tget]    = TCR.TADC_ULim[tcrnum_src][tcrmode_src];
-//   TCR.TADC_LLim[TCR128][tcrmode_tget]    = TCR.TADC_LLim[tcrnum_src][tcrmode_src];
-//   TCR.TADC_FTime[TCR128][tcrmode_tget]   = TCR.TADC_FTime[tcrnum_src][tcrmode_src];
-//   TCR.TADC_VCharLo[TCR128][tcrmode_tget] = TCR.TADC_VCharLo[tcrnum_src][tcrmode_src];
-//   TCR.TADC_VCharHi[TCR128][tcrmode_tget] = TCR.TADC_VCharHi[tcrnum_src][tcrmode_src];
-//}   /* CloneTCR_To_TCR128 */
-//   
-//void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
-//                               TPModeType tcrmode_src,
-//                               IntS tcrnum_src)
-//{
-//   const IntS TCR128 = 128; 
-//
-//   TCR.TP1_Ena[tcrnum_src] = TCR.TP1_Ena[TCR128];
-//   TCR.TP1_MeasType[tcrnum_src] = TCR.TP1_MeasType[TCR128];
-//   TCR.TP1_VRange[tcrnum_src][tcrmode_src]  = TCR.TP1_VRange[TCR128][tcrmode_tget];
-//   TCR.TP1_IRange[tcrnum_src][tcrmode_src]  = TCR.TP1_IRange[TCR128][tcrmode_tget];
-//   TCR.TP1_ULim[tcrnum_src][tcrmode_src]    = TCR.TP1_ULim[TCR128][tcrmode_tget];
-//   TCR.TP1_LLim[tcrnum_src][tcrmode_src]    = TCR.TP1_LLim[TCR128][tcrmode_tget];
-//   TCR.TP1_FTime[tcrnum_src][tcrmode_src]   = TCR.TP1_FTime[TCR128][tcrmode_tget];
-//   TCR.TP1_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP1_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TP1_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP1_VCharHi[TCR128][tcrmode_tget];
-//   
-//   TCR.TP2_Ena[tcrnum_src] = TCR.TP2_Ena[TCR128];
-//   TCR.TP2_MeasType[tcrnum_src] = TCR.TP2_MeasType[TCR128];
-//   TCR.TP2_VRange[tcrnum_src][tcrmode_src]  = TCR.TP2_VRange[TCR128][tcrmode_tget];
-//   TCR.TP2_IRange[tcrnum_src][tcrmode_src]  = TCR.TP2_IRange[TCR128][tcrmode_tget];
-//   TCR.TP2_ULim[tcrnum_src][tcrmode_src]    = TCR.TP2_ULim[TCR128][tcrmode_tget];
-//   TCR.TP2_LLim[tcrnum_src][tcrmode_src]    = TCR.TP2_LLim[TCR128][tcrmode_tget];
-//   TCR.TP2_FTime[tcrnum_src][tcrmode_src]   = TCR.TP2_FTime[TCR128][tcrmode_tget];
-//   TCR.TP2_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP2_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TP2_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP2_VCharHi[TCR128][tcrmode_tget];
-//   
-//   TCR.TP3_Ena[tcrnum_src] = TCR.TP3_Ena[TCR128];
-//   TCR.TP3_MeasType[tcrnum_src] = TCR.TP3_MeasType[TCR128];
-//   TCR.TP3_VRange[tcrnum_src][tcrmode_src]  = TCR.TP3_VRange[TCR128][tcrmode_tget];
-//   TCR.TP3_IRange[tcrnum_src][tcrmode_src]  = TCR.TP3_IRange[TCR128][tcrmode_tget];
-//   TCR.TP3_ULim[tcrnum_src][tcrmode_src]    = TCR.TP3_ULim[TCR128][tcrmode_tget];
-//   TCR.TP3_LLim[tcrnum_src][tcrmode_src]    = TCR.TP3_LLim[TCR128][tcrmode_tget];
-//   TCR.TP3_FTime[tcrnum_src][tcrmode_src]   = TCR.TP3_FTime[TCR128][tcrmode_tget];
-//   TCR.TP3_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP3_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TP3_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP3_VCharHi[TCR128][tcrmode_tget];
-//   
-//   TCR.TP4_Ena[tcrnum_src] = TCR.TP4_Ena[TCR128];
-//   TCR.TP4_MeasType[tcrnum_src] = TCR.TP4_MeasType[TCR128];
-//   TCR.TP4_VRange[tcrnum_src][tcrmode_src]  = TCR.TP4_VRange[TCR128][tcrmode_tget];
-//   TCR.TP4_IRange[tcrnum_src][tcrmode_src]  = TCR.TP4_IRange[TCR128][tcrmode_tget];
-//   TCR.TP4_ULim[tcrnum_src][tcrmode_src]    = TCR.TP4_ULim[TCR128][tcrmode_tget];
-//   TCR.TP4_LLim[tcrnum_src][tcrmode_src]    = TCR.TP4_LLim[TCR128][tcrmode_tget];
-//   TCR.TP4_FTime[tcrnum_src][tcrmode_src]   = TCR.TP4_FTime[TCR128][tcrmode_tget];
-//   TCR.TP4_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP4_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TP4_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP4_VCharHi[TCR128][tcrmode_tget];
-//   
-//   TCR.TP5_Ena[tcrnum_src] = TCR.TP5_Ena[TCR128];
-//   TCR.TP5_MeasType[tcrnum_src] = TCR.TP5_MeasType[TCR128];
-//   TCR.TP5_VRange[tcrnum_src][tcrmode_src]  = TCR.TP5_VRange[TCR128][tcrmode_tget];
-//   TCR.TP5_IRange[tcrnum_src][tcrmode_src]  = TCR.TP5_IRange[TCR128][tcrmode_tget];
-//   TCR.TP5_ULim[tcrnum_src][tcrmode_src]    = TCR.TP5_ULim[TCR128][tcrmode_tget];
-//   TCR.TP5_LLim[tcrnum_src][tcrmode_src]    = TCR.TP5_LLim[TCR128][tcrmode_tget];
-//   TCR.TP5_FTime[tcrnum_src][tcrmode_src]   = TCR.TP5_FTime[TCR128][tcrmode_tget];
-//   TCR.TP5_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP5_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TP5_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP5_VCharHi[TCR128][tcrmode_tget];
-//   
-//   TCR.TADC_Ena[tcrnum_src] = TCR.TADC_Ena[TCR128];
-//   TCR.TADC_MeasType[tcrnum_src] = TCR.TADC_MeasType[TCR128];
-//   TCR.TADC_VRange[tcrnum_src][tcrmode_src]  = TCR.TADC_VRange[TCR128][tcrmode_tget];
-//   TCR.TADC_IRange[tcrnum_src][tcrmode_src]  = TCR.TADC_IRange[TCR128][tcrmode_tget];
-//   TCR.TADC_ULim[tcrnum_src][tcrmode_src]    = TCR.TADC_ULim[TCR128][tcrmode_tget];
-//   TCR.TADC_LLim[tcrnum_src][tcrmode_src]    = TCR.TADC_LLim[TCR128][tcrmode_tget];
-//   TCR.TADC_FTime[tcrnum_src][tcrmode_src]   = TCR.TADC_FTime[TCR128][tcrmode_tget];
-//   TCR.TADC_VCharLo[tcrnum_src][tcrmode_src] = TCR.TADC_VCharLo[TCR128][tcrmode_tget];
-//   TCR.TADC_VCharHi[tcrnum_src][tcrmode_src] = TCR.TADC_VCharHi[TCR128][tcrmode_tget];
-//}   /* RestoreTCR_Fr_TCR128 */
-//   
+
+
+void CloneTCR_To_TCR128(TPModeType tcrmode_tget,
+                             TPModeType tcrmode_src,
+                             IntS tcrnum_src)
+{
+   const IntS TCR128 = 128; 
+
+   TCR.TP1_Ena[TCR128] = TCR.TP1_Ena[tcrnum_src];
+   TCR.TP1_MeasType[TCR128] = TCR.TP1_MeasType[tcrnum_src];
+   TCR.TP1_VRange[TCR128][tcrmode_tget]  = TCR.TP1_VRange[tcrnum_src][tcrmode_src];
+   TCR.TP1_IRange[TCR128][tcrmode_tget]  = TCR.TP1_IRange[tcrnum_src][tcrmode_src];
+   TCR.TP1_ULim[TCR128][tcrmode_tget]    = TCR.TP1_ULim[tcrnum_src][tcrmode_src];
+   TCR.TP1_LLim[TCR128][tcrmode_tget]    = TCR.TP1_LLim[tcrnum_src][tcrmode_src];
+   TCR.TP1_FTime[TCR128][tcrmode_tget]   = TCR.TP1_FTime[tcrnum_src][tcrmode_src];
+   TCR.TP1_VCharLo[TCR128][tcrmode_tget] = TCR.TP1_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TP1_VCharHi[TCR128][tcrmode_tget] = TCR.TP1_VCharHi[tcrnum_src][tcrmode_src];
+   
+   TCR.TP2_Ena[TCR128] = TCR.TP2_Ena[tcrnum_src];
+   TCR.TP2_MeasType[TCR128] = TCR.TP2_MeasType[tcrnum_src];
+   TCR.TP2_VRange[TCR128][tcrmode_tget]  = TCR.TP2_VRange[tcrnum_src][tcrmode_src];
+   TCR.TP2_IRange[TCR128][tcrmode_tget]  = TCR.TP2_IRange[tcrnum_src][tcrmode_src];
+   TCR.TP2_ULim[TCR128][tcrmode_tget]    = TCR.TP2_ULim[tcrnum_src][tcrmode_src];
+   TCR.TP2_LLim[TCR128][tcrmode_tget]    = TCR.TP2_LLim[tcrnum_src][tcrmode_src];
+   TCR.TP2_FTime[TCR128][tcrmode_tget]   = TCR.TP2_FTime[tcrnum_src][tcrmode_src];
+   TCR.TP2_VCharLo[TCR128][tcrmode_tget] = TCR.TP2_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TP2_VCharHi[TCR128][tcrmode_tget] = TCR.TP2_VCharHi[tcrnum_src][tcrmode_src];
+   
+   TCR.TP3_Ena[TCR128] = TCR.TP3_Ena[tcrnum_src];
+   TCR.TP3_MeasType[TCR128] = TCR.TP3_MeasType[tcrnum_src];
+   TCR.TP3_VRange[TCR128][tcrmode_tget]  = TCR.TP3_VRange[tcrnum_src][tcrmode_src];
+   TCR.TP3_IRange[TCR128][tcrmode_tget]  = TCR.TP3_IRange[tcrnum_src][tcrmode_src];
+   TCR.TP3_ULim[TCR128][tcrmode_tget]    = TCR.TP3_ULim[tcrnum_src][tcrmode_src];
+   TCR.TP3_LLim[TCR128][tcrmode_tget]    = TCR.TP3_LLim[tcrnum_src][tcrmode_src];
+   TCR.TP3_FTime[TCR128][tcrmode_tget]   = TCR.TP3_FTime[tcrnum_src][tcrmode_src];
+   TCR.TP3_VCharLo[TCR128][tcrmode_tget] = TCR.TP3_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TP3_VCharHi[TCR128][tcrmode_tget] = TCR.TP3_VCharHi[tcrnum_src][tcrmode_src];
+   
+   TCR.TP4_Ena[TCR128] = TCR.TP4_Ena[tcrnum_src];
+   TCR.TP4_MeasType[TCR128] = TCR.TP4_MeasType[tcrnum_src];
+   TCR.TP4_VRange[TCR128][tcrmode_tget]  = TCR.TP4_VRange[tcrnum_src][tcrmode_src];
+   TCR.TP4_IRange[TCR128][tcrmode_tget]  = TCR.TP4_IRange[tcrnum_src][tcrmode_src];
+   TCR.TP4_ULim[TCR128][tcrmode_tget]    = TCR.TP4_ULim[tcrnum_src][tcrmode_src];
+   TCR.TP4_LLim[TCR128][tcrmode_tget]    = TCR.TP4_LLim[tcrnum_src][tcrmode_src];
+   TCR.TP4_FTime[TCR128][tcrmode_tget]   = TCR.TP4_FTime[tcrnum_src][tcrmode_src];
+   TCR.TP4_VCharLo[TCR128][tcrmode_tget] = TCR.TP4_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TP4_VCharHi[TCR128][tcrmode_tget] = TCR.TP4_VCharHi[tcrnum_src][tcrmode_src];
+   
+   TCR.TP5_Ena[TCR128] = TCR.TP5_Ena[tcrnum_src];
+   TCR.TP5_MeasType[TCR128] = TCR.TP5_MeasType[tcrnum_src];
+   TCR.TP5_VRange[TCR128][tcrmode_tget]  = TCR.TP5_VRange[tcrnum_src][tcrmode_src];
+   TCR.TP5_IRange[TCR128][tcrmode_tget]  = TCR.TP5_IRange[tcrnum_src][tcrmode_src];
+   TCR.TP5_ULim[TCR128][tcrmode_tget]    = TCR.TP5_ULim[tcrnum_src][tcrmode_src];
+   TCR.TP5_LLim[TCR128][tcrmode_tget]    = TCR.TP5_LLim[tcrnum_src][tcrmode_src];
+   TCR.TP5_FTime[TCR128][tcrmode_tget]   = TCR.TP5_FTime[tcrnum_src][tcrmode_src];
+   TCR.TP5_VCharLo[TCR128][tcrmode_tget] = TCR.TP5_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TP5_VCharHi[TCR128][tcrmode_tget] = TCR.TP5_VCharHi[tcrnum_src][tcrmode_src];
+   
+   TCR.TADC_Ena[TCR128] = TCR.TADC_Ena[tcrnum_src];
+   TCR.TADC_MeasType[TCR128] = TCR.TADC_MeasType[tcrnum_src];
+   TCR.TADC_VRange[TCR128][tcrmode_tget]  = TCR.TADC_VRange[tcrnum_src][tcrmode_src];
+   TCR.TADC_IRange[TCR128][tcrmode_tget]  = TCR.TADC_IRange[tcrnum_src][tcrmode_src];
+   TCR.TADC_ULim[TCR128][tcrmode_tget]    = TCR.TADC_ULim[tcrnum_src][tcrmode_src];
+   TCR.TADC_LLim[TCR128][tcrmode_tget]    = TCR.TADC_LLim[tcrnum_src][tcrmode_src];
+   TCR.TADC_FTime[TCR128][tcrmode_tget]   = TCR.TADC_FTime[tcrnum_src][tcrmode_src];
+   TCR.TADC_VCharLo[TCR128][tcrmode_tget] = TCR.TADC_VCharLo[tcrnum_src][tcrmode_src];
+   TCR.TADC_VCharHi[TCR128][tcrmode_tget] = TCR.TADC_VCharHi[tcrnum_src][tcrmode_src];
+}   /* CloneTCR_To_TCR128 */
+   
+void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
+                               TPModeType tcrmode_src,
+                               IntS tcrnum_src)
+{
+   const IntS TCR128 = 128; 
+
+   TCR.TP1_Ena[tcrnum_src] = TCR.TP1_Ena[TCR128];
+   TCR.TP1_MeasType[tcrnum_src] = TCR.TP1_MeasType[TCR128];
+   TCR.TP1_VRange[tcrnum_src][tcrmode_src]  = TCR.TP1_VRange[TCR128][tcrmode_tget];
+   TCR.TP1_IRange[tcrnum_src][tcrmode_src]  = TCR.TP1_IRange[TCR128][tcrmode_tget];
+   TCR.TP1_ULim[tcrnum_src][tcrmode_src]    = TCR.TP1_ULim[TCR128][tcrmode_tget];
+   TCR.TP1_LLim[tcrnum_src][tcrmode_src]    = TCR.TP1_LLim[TCR128][tcrmode_tget];
+   TCR.TP1_FTime[tcrnum_src][tcrmode_src]   = TCR.TP1_FTime[TCR128][tcrmode_tget];
+   TCR.TP1_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP1_VCharLo[TCR128][tcrmode_tget];
+   TCR.TP1_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP1_VCharHi[TCR128][tcrmode_tget];
+   
+   TCR.TP2_Ena[tcrnum_src] = TCR.TP2_Ena[TCR128];
+   TCR.TP2_MeasType[tcrnum_src] = TCR.TP2_MeasType[TCR128];
+   TCR.TP2_VRange[tcrnum_src][tcrmode_src]  = TCR.TP2_VRange[TCR128][tcrmode_tget];
+   TCR.TP2_IRange[tcrnum_src][tcrmode_src]  = TCR.TP2_IRange[TCR128][tcrmode_tget];
+   TCR.TP2_ULim[tcrnum_src][tcrmode_src]    = TCR.TP2_ULim[TCR128][tcrmode_tget];
+   TCR.TP2_LLim[tcrnum_src][tcrmode_src]    = TCR.TP2_LLim[TCR128][tcrmode_tget];
+   TCR.TP2_FTime[tcrnum_src][tcrmode_src]   = TCR.TP2_FTime[TCR128][tcrmode_tget];
+   TCR.TP2_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP2_VCharLo[TCR128][tcrmode_tget];
+   TCR.TP2_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP2_VCharHi[TCR128][tcrmode_tget];
+   
+   TCR.TP3_Ena[tcrnum_src] = TCR.TP3_Ena[TCR128];
+   TCR.TP3_MeasType[tcrnum_src] = TCR.TP3_MeasType[TCR128];
+   TCR.TP3_VRange[tcrnum_src][tcrmode_src]  = TCR.TP3_VRange[TCR128][tcrmode_tget];
+   TCR.TP3_IRange[tcrnum_src][tcrmode_src]  = TCR.TP3_IRange[TCR128][tcrmode_tget];
+   TCR.TP3_ULim[tcrnum_src][tcrmode_src]    = TCR.TP3_ULim[TCR128][tcrmode_tget];
+   TCR.TP3_LLim[tcrnum_src][tcrmode_src]    = TCR.TP3_LLim[TCR128][tcrmode_tget];
+   TCR.TP3_FTime[tcrnum_src][tcrmode_src]   = TCR.TP3_FTime[TCR128][tcrmode_tget];
+   TCR.TP3_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP3_VCharLo[TCR128][tcrmode_tget];
+   TCR.TP3_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP3_VCharHi[TCR128][tcrmode_tget];
+   
+   TCR.TP4_Ena[tcrnum_src] = TCR.TP4_Ena[TCR128];
+   TCR.TP4_MeasType[tcrnum_src] = TCR.TP4_MeasType[TCR128];
+   TCR.TP4_VRange[tcrnum_src][tcrmode_src]  = TCR.TP4_VRange[TCR128][tcrmode_tget];
+   TCR.TP4_IRange[tcrnum_src][tcrmode_src]  = TCR.TP4_IRange[TCR128][tcrmode_tget];
+   TCR.TP4_ULim[tcrnum_src][tcrmode_src]    = TCR.TP4_ULim[TCR128][tcrmode_tget];
+   TCR.TP4_LLim[tcrnum_src][tcrmode_src]    = TCR.TP4_LLim[TCR128][tcrmode_tget];
+   TCR.TP4_FTime[tcrnum_src][tcrmode_src]   = TCR.TP4_FTime[TCR128][tcrmode_tget];
+   TCR.TP4_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP4_VCharLo[TCR128][tcrmode_tget];
+   TCR.TP4_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP4_VCharHi[TCR128][tcrmode_tget];
+   
+   TCR.TP5_Ena[tcrnum_src] = TCR.TP5_Ena[TCR128];
+   TCR.TP5_MeasType[tcrnum_src] = TCR.TP5_MeasType[TCR128];
+   TCR.TP5_VRange[tcrnum_src][tcrmode_src]  = TCR.TP5_VRange[TCR128][tcrmode_tget];
+   TCR.TP5_IRange[tcrnum_src][tcrmode_src]  = TCR.TP5_IRange[TCR128][tcrmode_tget];
+   TCR.TP5_ULim[tcrnum_src][tcrmode_src]    = TCR.TP5_ULim[TCR128][tcrmode_tget];
+   TCR.TP5_LLim[tcrnum_src][tcrmode_src]    = TCR.TP5_LLim[TCR128][tcrmode_tget];
+   TCR.TP5_FTime[tcrnum_src][tcrmode_src]   = TCR.TP5_FTime[TCR128][tcrmode_tget];
+   TCR.TP5_VCharLo[tcrnum_src][tcrmode_src] = TCR.TP5_VCharLo[TCR128][tcrmode_tget];
+   TCR.TP5_VCharHi[tcrnum_src][tcrmode_src] = TCR.TP5_VCharHi[TCR128][tcrmode_tget];
+   
+   TCR.TADC_Ena[tcrnum_src] = TCR.TADC_Ena[TCR128];
+   TCR.TADC_MeasType[tcrnum_src] = TCR.TADC_MeasType[TCR128];
+   TCR.TADC_VRange[tcrnum_src][tcrmode_src]  = TCR.TADC_VRange[TCR128][tcrmode_tget];
+   TCR.TADC_IRange[tcrnum_src][tcrmode_src]  = TCR.TADC_IRange[TCR128][tcrmode_tget];
+   TCR.TADC_ULim[tcrnum_src][tcrmode_src]    = TCR.TADC_ULim[TCR128][tcrmode_tget];
+   TCR.TADC_LLim[tcrnum_src][tcrmode_src]    = TCR.TADC_LLim[TCR128][tcrmode_tget];
+   TCR.TADC_FTime[tcrnum_src][tcrmode_src]   = TCR.TADC_FTime[TCR128][tcrmode_tget];
+   TCR.TADC_VCharLo[tcrnum_src][tcrmode_src] = TCR.TADC_VCharLo[TCR128][tcrmode_tget];
+   TCR.TADC_VCharHi[tcrnum_src][tcrmode_src] = TCR.TADC_VCharHi[TCR128][tcrmode_tget];
+}   /* RestoreTCR_Fr_TCR128 */
+   
 //void TL_PumpOutput_VHV(VCornerType vcorner)
 //{
 //   const IntS MINCT = 0; 
@@ -25233,22 +25196,19 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
 void SaveMbgEfuseTrimString(IntS trimValue, SITE whichSite)
 {
-   StringS soft_str(NULL, GL_MAINBG_MAXEFUSE);
+   StringS soft_str;
    IntS t_str_length;
    StringS error_message;
    
-   IO.Print(soft_str,"%b", trimValue);
+   soft_str = IntToBinStr(trimValue, GL_MAINBG_MAXEFUSE, true);
    t_str_length = soft_str.Length();
    
    if(t_str_length > GL_MAINBG_MAXEFUSE)  
    {
       IO.Print(error_message, "ERROR: BG Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!", 
                GL_MAINBG_MAXEFUSE);      
-      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, UTL_VOID, whichSite, UTL_VOID);
+      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, t_str_length, whichSite, UTL_VOID);
    } 
-   
-   while (soft_str.Length() < GL_MAINBG_MAXEFUSE)
-      soft_str = "0" + soft_str;   /*bg5=msb,bg0=lsb*/
 
    int bg_index = 1;   /*bgap5*/  //this was 2...but thinking Pascal does 1-based string positions
    
@@ -25465,7 +25425,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
       
                loop = loop+1;
                twstr = "MBG_SOFT_" + loop;
-               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MBG_SOFT_CODE_" + loop,
+               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, twstr + "CODE",
                             UTL_VOID, UTL_VOID, false, TWMinimumData); // debug only, really, so no TW
                TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
                             twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -26108,22 +26068,19 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
 
 void SaveMirefEfuseTrimString(IntS trimValue, SITE whichSite)
 {
-   StringS soft_str(NULL, GL_MAINIREF_MAXEFUSE);
+   StringS soft_str;
    IntS t_str_length;
    StringS error_message;
    
-   IO.Print(soft_str,"%b", trimValue);
+   soft_str = IntToBinStr(trimValue, GL_MAINIREF_MAXEFUSE, true);
    t_str_length = soft_str.Length();
    
    if(t_str_length > GL_MAINIREF_MAXEFUSE)  
    {
       IO.Print(error_message, "ERROR: Main Iref Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!", 
                GL_MAINIREF_MAXEFUSE);      
-      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, UTL_VOID, whichSite, UTL_VOID);
+      ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, t_str_length, whichSite, UTL_VOID);
    } 
-   
-   while (soft_str.Length() < GL_MAINIREF_MAXEFUSE)
-      soft_str = "0" + soft_str;   /*iref5=msb*/
 
    int iref_index = 15;   /*iref4*/  // was 16, but think pascal is 1-based strings, not 0
    
@@ -26304,7 +26261,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
       
                loop = loop+1;
                twstr = "MIREF_SOFT_" + loop;
-               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, "MBG_SOFT_CODE_" + loop,
+               TIDlog.Value(BGValue, testpad, MIN_CODE, MAX_CODE, UTL_VOID, twstr + "CODE",
                             UTL_VOID, UTL_VOID, false, TWMinimumData); // debug only, really, so no TW
                TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
                             twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -26485,487 +26442,355 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
 //
 //   F021_FOSC_SoftTrim_func = v_any_dev_active;
 //}   /* F021_FOSC_SoftTrim_func */
-//
-//BoolS F021_VHV_SLOPECT_SoftTrim_func(    BoolM test_results,
-//                                            IntM ret_ctval)
-//{
-//   const IntS MININD = 0x0; 
-//   const  MAXIND = 0xF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS IND_SLPCT = 23; 
-//   const IntS OPPSTEP = 15; 
-//
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr;
-//   IntS minloop,maxloop,i,slpct;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,pgct;
-//   IntM bgval,irval,foscval;
-//   IntM lsw_data,msw_data;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena;
-//   FloatM prevmax_delta;
-//   IntM prevcount;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_VHV_SLOPECT_SoftTrim_func +++++" << endl;
-//
-//      bgval = MAINBG_TRIMSAVED;
-//      irval = MAINIREF_TRIMSAVED;
-//      foscval = FOSC_TRIMSAVED;
-//      msw_data = 0;
-//      RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,msw_data,msw_data);
-//
-//      logena = true;  /*log to tw*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay = 10ms;
-//      bcd_format = true;
-//      hexvalue = true;
-//      minloop = MININD;
-//      maxloop = MAXIND;
-//      addr = ADDR_RAM_SLOPECT_TRIM;
-//      
-//      tcrnum  = 115;
-//      tcrmode = ProgMode;
-//      testpad = FLTP1;
-//      testnum = TNUM_PUMP_VHVPROG;
-//      
-//      target = VHV_Prog_SlopeCT_Target;
-//      toler = VHV_Prog_SlopeCT_Toler;
-//      llim = target-(target*toler);
-//      ulim = target+(target*toler);
-//
-//      CloneTCR_To_TCR128(tcrmode,tcrmode,tcrnum);
-//
-//      TCR.TP1_LLim[tcrnum][tcrmode] = llim;
-//      TCR.TP1_ULim[tcrnum][tcrmode] = ulim;
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      final_results = false;
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      str1 = "VHV_PG_SLPCT_SFT_";
-//
-//      timernstart(ttimer1);
-//
-//      ArrayMultIntegerValue(lsw_data,foscval,0x100,v_sites);  /*format fosc, lshift 8bit*/
-//      F021_TurnOff_AllTPADS;
-//      
-//      for (i = minloop;i <= maxloop;i++)
-//      {
-//         activesites = v_dev_active;
-//         slpct = i;
-//         msw_data = slpct;
-//         WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         TL_EngOvride_VHV_PG_CT(0x1FF);
-//         
-//         F021_Set_TPADS(tcrnum,tcrmode);
-//#if $TP3_TO_TP5_PRESENT  
-//   STDDisconnect(FLTP3);
-//#endif
-//         F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//         TIME.Wait(tdelay);
-//         F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,tmp_results);
-//         Disable(s_pmexit);
-//         F021_TurnOff_AllTPADS;
-//
-//         writestring(str2,i:1);
-//         str3 = str1 + str2;
-//         PrintResultParam(str3,testnum,tmp_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//         if(logena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//         } 
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               delta = abs(target-meas_val[site]);
-//               if(i==minloop)  
-//               {
-//                  tmp_val[site] = meas_val[site];
-//                  tmp_delta[site] = delta;
-//                  pgct[site] = i;
-//                  prevmax_delta[site] = delta;
-//                  prevcount[site] = 0;
-//               }
-//               else
-//               {
-//                  if(delta<tmp_delta[site])  
-//                  {
-//                     tmp_val[site] = meas_val[site];
-//                     tmp_delta[site] = delta;
-//                     pgct[site] = i;
-//                     prevmax_delta[site] = delta;
-//                  }
-//                  else
-//                  {
-//                      /*check to see if gone opposite direction*/
-//                     if(delta > prevmax_delta[site])  
-//                        prevcount[site] = prevcount[site]+1;
-//                        if(prevcount[site] >== OPPSTEP)  
-//                              activesites[site] = false;
-//                  } 
-//               } 
-//                  
-//               if(((meas_val[site]>==llim) and (meas_val[site]<==ulim)) or (i==maxloop) or (not activesites[site]))  
-//               {
-//                  activesites[site] = false;
-//                  ctval[site] = pgct[site];
-//               } 
-//            } 
-//
-//         devsetholdstates(activesites);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for i*/
-//
-//      devsetholdstates(savesites);
-//
-//       /*final check to see if w/in tolerance limit*/
-//      msw_data = ctval;
-//      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//      TL_EngOvride_VHV_PG_CT(0x1FF);
-//
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//#if $TP3_TO_TP5_PRESENT  
-//   STDDisconnect(FLTP3);
-//#endif
-//      
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,tmp_results);
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(meas_val[site]>==llim)     /*note: check against target only*/
-//               final_results[site] = true;
-//        else if(meas_val[site] < 1v)  
-//           ctval[site] = 0;
-//
-//            if(ctval[site]!=0)  
-//               SITE_TO_FTRIM[site] = true;
-//            
-//            VHV_SLPCT_TRIMSAVED[site] = ctval[site];
-//            writestring(str5,ctval[site]:s_binary:1);
-//            str5 = mid(str5,3,(len(str5))-2);
-//            
-//            if((len(str5)) > GL_VHV_SLPCT_MAXEFUSE)  
-//            {
-//               if(tistdscreenprint)  
-//               {
-//                  cout << "*** ERROR: VHV SLOPECT Trim Solution Efuse Bits exceed " << GL_VHV_SLPCT_MAXEFUSE << endl;
-//                  cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                  cout << "PROGRAM WILL ABORT NOW" << endl;
-//               }
-//               else
-//               {
-//                  cout << "*** ERROR: VHV SLOPECT Trim Solution Efuse Bits exceed " << GL_VHV_SLPCT_MAXEFUSE << endl;
-//                  cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                  cout << "PROGRAM WILL ABORT NOW" << endl;
-//               } 
-//               pause;
-//               stop;
-//            } 
-//
-//            while((len(str5)) < GL_VHV_SLPCT_MAXEFUSE) do
-//               str5 = "0" + str5;
-//
-//            for (i = 1;i <= GL_VHV_SLPCT_MAXEFUSE;i++)
-//               MAINBG_EFSTR[site][IND_SLPCT+(i-1)] = str5[i];  /*slopect[3] 1st*/
-//
-//            if(tistdscreenprint)  
-//               cout << "  Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
-//         }   /*v_dev_active*/
-//
-//      str4 = "VHV_PG_SLPCT_TRIM_SOL";
-//      TWPDLDataLogVariable(str4,ctval,TWMinimumData);
-//      
-//      str5 = "VHV_PG_SLPCT_TRIM_NM";
-//      TWTRealToRealMS(meas_val,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//  
-//      PrintResultInt(str4,testnum,ctval,0,trunc(2**GL_VHV_SLPCT_MAXEFUSE),GL_PLELL_FORMAT);
-//      PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//      ret_ctval = ctval;
-//      test_results = final_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr,addr+ADDR_RAM_INC);
-//
-//      ttimer1 = timernread(ttimer1);
-//      str5 = "VHV_PG_SLPCT_TRIM_TTT";
-//
-//      if(logena)  
-//      {
-//         tt_timer = ttimer1;
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//         cout << str5 << "  " << ttimer1 << endl;
-//
-//      RestoreTCR_Fr_TCR128(tcrmode,tcrmode,tcrnum);
-//   } 
-//
-//   F021_VHV_SLOPECT_SoftTrim_func = v_any_dev_active;
-//   
-//}   /* F021_VHV_SLOPECT_SoftTrim_func */
-//
-//BoolS F021_VSA5CT_SoftTrim_func(    BoolM test_results,
-//                                       IntM ret_ctval)
-//{
-//   const IntS MININD = 0x0; 
-//   const  MAXIND = 0xF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS IND_VSA5CT = 27; 
-//
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites;
-//   IntS site,testnum,addr;
-//   IntS minloop,maxloop,i,j;
-//   IntS tcrnum,tcrnum_src;
-//   TPModeType tcrmode,tcrmode_src;
-//   StringS str1,str2,str3,str4,str5;
-//   FloatS ttimer1,maxtime,tdelay;
-//   FloatM tt_timer;
-//   FloatS llim,ulim,target,delta;
-//   FloatS toler;
-//   PinM testpad;
-//   FloatM meas_val,tmp_val,tmp_delta;
-//   IntM ctval,pgct;
-//   IntM bgval,irval,foscval,slpctval;
-//   IntM lsw_data,msw_data;
-//   BoolS bcd_format,hexvalue;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   BoolS logena;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_VSA5CT_SoftTrim_func +++++" << endl;
-//
-//      bgval = MAINBG_TRIMSAVED;
-//      irval = MAINIREF_TRIMSAVED;
-//      foscval = FOSC_TRIMSAVED;
-//      slpctval = VHV_SLPCT_TRIMSAVED;
-//      msw_data = 0;
-//      RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpctval,msw_data);
-//
-//      logena = true;  /*log to tw*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay = 10ms;
-//      bcd_format = true;
-//      hexvalue = true;
-//      minloop = MININD;
-//      maxloop = MAXIND;
-//      addr = ADDR_RAM_SLOPECT_TRIM;
-//      
-//      tcrnum  = 118;
-//      tcrmode = ReadMode;
-//      testpad = FLTP1;
-//      testnum = TNUM_PUMP_VSA5_READ;
-//      
-//      target = VSA5_Read_Target;
-//      toler = VSA5CT_Toler;
-//      llim = target-(target*toler);
-//      ulim = target+(target*toler);
-//
-//      CloneTCR_To_TCR128(tcrmode,tcrmode,tcrnum);
-//
-//      TCR.TP1_LLim[tcrnum][tcrmode] = llim;
-//      TCR.TP1_ULim[tcrnum][tcrmode] = ulim;
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      final_results = false;
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      str1 = "VSA5CT_SFT_";
-//
-//      timernstart(ttimer1);
-//
-//      ArrayMultIntegerValue(lsw_data,FOSCVal,0x100,v_sites);  /*lshift 8bit*/
-//      F021_TurnOff_AllTPADS;
-//      
-//      for (i = minloop;i <= maxloop;i++)
-//      {
-//         activesites = v_dev_active;
-//         j = i<<8;
-//         msw_data = j;
-//         ArrayAddInteger(msw_data,msw_data,slpctval,v_sites);
-//         WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         
-//         F021_Set_TPADS(tcrnum,tcrmode);
-//         F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//         TIME.Wait(tdelay);
-//         F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,tmp_results);
-//         Disable(s_pmexit);
-//         F021_TurnOff_AllTPADS;
-//
-//         writestring(str2,i:1);
-//         str3 = str1 + str2;
-//         PrintResultParam(str3,testnum,tmp_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//         if(logena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-//         } 
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               delta = abs(target-meas_val[site]);
-//               if(i==minloop)  
-//               {
-//                  tmp_val[site] = meas_val[site];
-//                  tmp_delta[site] = delta;
-//                  pgct[site] = i;
-//               }
-//               else
-//               {
-//                  if(delta<tmp_delta[site])  
-//                  {
-//                     tmp_val[site] = meas_val[site];
-//                     tmp_delta[site] = delta;
-//                     pgct[site] = i;
-//                  } 
-//               } 
-//                  
-//               if(((meas_val[site]>==llim) and (meas_val[site]<==ulim)) or (i==maxloop))  
-//               {
-//                  activesites[site] = false;
-//                  ctval[site] = pgct[site];
-//               } 
-//            } 
-//
-//         devsetholdstates(activesites);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for i*/
-//
-//      devsetholdstates(savesites);
-//
-//       /*final check to see if w/in tolerance limit*/
-//      ArrayMultIntegerValue(msw_data,ctval,0x100,v_sites);  /*lshift 8bit*/
-//      ArrayAddInteger(msw_data,msw_data,slpctval,v_sites);
-//      WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,tmp_results);
-//      Disable(s_pmexit);
-//      F021_TurnOff_AllTPADS;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(meas_val[site]>==llim)     /*note: check against target only*/
-//               final_results[site] = true;
-//        else if(meas_val[site] < 1v)  
-//           ctval[site] = 0;
-//
-//            if(ctval[site]!=0)  
-//               SITE_TO_FTRIM[site] = true;
-//            
-//            VSA5CT_TRIMSAVED[site] = ctval[site];
-//            writestring(str5,ctval[site]:s_binary:1);
-//            str5 = mid(str5,3,(len(str5))-2);
-//            
-//            if((len(str5)) > GL_VSA5CT_MAXEFUSE)  
-//            {
-//               if(tistdscreenprint)  
-//               {
-//                  cout << "*** ERROR: VSA5CT Trim Solution Efuse Bits exceed " << GL_VSA5CT_MAXEFUSE << endl;
-//                  cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                  cout << "PROGRAM WILL ABORT NOW" << endl;
-//               }
-//               else
-//               {
-//                  cout << "*** ERROR: VSA5CT Trim Solution Efuse Bits exceed " << GL_VSA5CT_MAXEFUSE << endl;
-//                  cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-//                  cout << "PROGRAM WILL ABORT NOW" << endl;
-//               } 
-//               pause;
-//               stop;
-//            } 
-//
-//            while((len(str5)) < GL_VSA5CT_MAXEFUSE) do
-//               str5 = "0" + str5;
-//
-//            for (i = 1;i <= GL_VSA5CT_MAXEFUSE;i++)
-//               MAINBG_EFSTR[site][IND_VSA5CT+(i-1)] = str5[i];  /*slopect[3] 1st*/
-//
-//            if(tistdscreenprint)  
-//               cout << "  Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
-//         }   /*v_dev_active*/
-//
-//      str4 = "VSA5CT_TRIM_SOL";
-//      TWPDLDataLogVariable(str4,ctval,TWMinimumData);
-//      
-//      str5 = "VSA5CT_TRIM_NM";
-//      TWTRealToRealMS(meas_val,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//  
-//      PrintResultInt(str4,testnum,ctval,0,trunc(2**GL_VSA5CT_MAXEFUSE),GL_PLELL_FORMAT);
-//      PrintResultParam(str5,testnum,final_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//
-//      ret_ctval = ctval;
-//      test_results = final_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr,addr+ADDR_RAM_INC);
-//
-//      ttimer1 = timernread(ttimer1);
-//      str5 = "VSA5CT_TRIM_TTT";
-//
-//      if(logena)  
-//      {
-//         tt_timer = ttimer1;
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//         cout << str5 << "  " << ttimer1 << endl;
-//
-//      RestoreTCR_Fr_TCR128(tcrmode,tcrmode,tcrnum);
-//   } 
-//
-//   F021_VSA5CT_SoftTrim_func = v_any_dev_active;
-//   
-//}   /* F021_VSA5CT_SoftTrim_func */
-//
-//
-//
+
+TMResultM F021_VHV_SLOPECT_SoftTrim_func(IntM &ret_ctval)
+{
+   const IntS MININD = 0x0; 
+   const IntS MAXIND = 0xF;
+   const IntS IND_SLPCT = 23; 
+   const IntS OPPSTEP = 15; 
+
+   TMResultM final_results;
+   IntS testnum,addr;
+   IntM slpct;
+   IntS tcrnum,tcrnum_src;
+   IntM trim_alarms;
+   TPModeType tcrmode,tcrmode_src;
+   StringS twstr;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatS llim,ulim,target,max_delta;
+   FloatS toler;
+   FloatM meas_val;
+   PinM testpad;
+   IntM ctval;
+   IntM bgval,irval,foscval;
+   IntM lsw_data,msw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS logena;
+
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_VHV_SLOPECT_SoftTrim_func +++++" << endl;
+
+   bgval = MAINBG_TRIMSAVED;
+   irval = MAINIREF_TRIMSAVED;
+   foscval = FOSC_TRIMSAVED;
+   msw_data = 0;
+   RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,msw_data,msw_data);
+
+   logena = true;  /*log to tw*/
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay = 10ms;
+   bcd_format = true;
+   hexvalue = true;
+   addr = ADDR_RAM_SLOPECT_TRIM;
+   ctval = 0;
+   
+   tcrnum  = 115;
+   tcrmode = ProgMode;
+   testpad = FLTP1;
+   testnum = TNUM_PUMP_VHVPROG;
+   
+   target = VHV_Prog_SlopeCT_Target;
+   toler = VHV_Prog_SlopeCT_Toler;
+   max_delta = target*toler;
+   llim = target-max_delta;
+   ulim = target+max_delta;
+
+   CloneTCR_To_TCR128(tcrmode,tcrmode,tcrnum);
+
+   TCR.TP1_LLim[tcrnum][tcrmode] = llim;
+   TCR.TP1_ULim[tcrnum][tcrmode] = ulim;
+
+   final_results = TM_NOTEST;
+   
+   TIME.StartTimer();
+   
+   lsw_data = foscval << 8; /*format fosc, lshift 8bit*/
+   F021_TurnOff_AllTPADS();
+
+   SearchMod my_search;
+   // need the FloatM below to make sure we use the proper function version
+   my_search.LinearSearchBegin(double(MININD), double(MAXIND), FloatM(1.0), target, max_delta);
+   
+   IntS i = 0;
+   while (my_search.searchNotDone)
+   {
+      slpct = IntM(my_search.xForceValueMS);
+      msw_data = slpct;
+      WriteRamContentDec_32Bit(addr, lsw_data, hexvalue, msw_data, hexvalue, bcd_format);
+      TL_EngOvride_VHV_PG_CT(0x1FF);
+      
+      F021_Set_TPADS(tcrnum,tcrmode);
+#if $TP3_TO_TP5_PRESENT  
+STDDisconnect(FLTP3);
+#endif
+      F021_RunTestNumber_PMEX(testnum,maxtime);
+      TIME.Wait(tdelay);
+      meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+      F021_TurnOff_AllTPADS();
+      
+      twstr = "VHV_PG_SLPCT_SFT_" + i;
+      TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
+                   UTL_VOID, UTL_VOID, logena, TWMinimumData);
+      
+      ++i;
+      my_search.SearchNext(meas_val);
+   }
+   
+   trim_alarms = my_search.m_searchAlarmMS;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      if (trim_alarms[*si] == SearchMod::TARGET_FOUND)
+      {
+         ctval[*si] = int(my_search.xForceValueMS[*si]);
+      }
+   }
+   
+   /* final check to see if w/i tolerance limit */
+   msw_data = ctval;
+   WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   TL_EngOvride_VHV_PG_CT(0x1FF);
+
+   F021_Set_TPADS(tcrnum,tcrmode);
+#if $TP3_TO_TP5_PRESENT  
+STDDisconnect(FLTP3);
+#endif
+   
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      // hardcoded silliness setting ctval to 0
+      if (meas_val[*si] < 1V) 
+      {
+         ctval[*si] = 0;
+      }
+      // can't make this an else because there could be a ctval of 0
+      // because it didn't find it's trim code
+      if (ctval[*si] != 0)
+      {
+         SITE_TO_FTRIM[*si] = true;
+      }
+      
+      VHV_SLPCT_TRIMSAVED[*si] = ctval[*si];
+      StringS soft_str = IntToBinStr(ctval[*si], GL_VHV_SLPCT_MAXEFUSE, true);
+      IntS t_str_length = soft_str.Length();
+      
+      if (t_str_length > GL_VHV_SLPCT_MAXEFUSE)
+      {
+         StringS error_message;
+         IO.Print(error_message, "ERROR: VHV SLOPECT Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!",
+                  GL_VHV_SLPCT_MAXEFUSE);
+         ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, t_str_length, *si, UTL_VOID);
+      }
+         
+      MAINBG_EFSTR[*si].Replace(IND_SLPCT, GL_VHV_SLPCT_MAXEFUSE, soft_str);
+
+      if(tistdscreenprint)  
+         cout << "Site" << *si << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[*si] << endl;
+   }
+   
+   twstr = "VHV_PG_SLPCT_TRIM_SOL";
+   TIDlog.Value(ctval, testpad, MININD, MAXIND, "", twstr, 
+                   UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+   twstr = "VHV_PG_SLPCT_TRIM_NM";
+   // note: check against target only -- I guess this means only check against lower limit....
+   // This check is the only thing that warranted device pass/fail that I noticed.
+   final_results = TIDlog.Value(meas_val, testpad, llim, UTL_VOID, meas_val.GetUnits(), twstr, 
+                   UTL_VOID, UTL_VOID, true, TWMinimumData);
+                   
+   if(tistdscreenprint and TI_FlashDebug)   
+      ReadRamAddress(addr,addr+ADDR_RAM_INC);
+
+   ttimer1 = TIME.StopTimer();
+   twstr = "VHV_PG_SLPCT_TRIM_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "s", twstr, 
+                   UTL_VOID, UTL_VOID, logena, TWMinimumData);
+
+   RestoreTCR_Fr_TCR128(tcrmode,tcrmode,tcrnum);
+
+   ret_ctval = ctval;
+   return (final_results);
+   
+}   /* F021_VHV_SLOPECT_SoftTrim_func */
+
+TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
+{
+   const IntS MININD = 0x0; 
+   const IntS MAXIND = 0xF;
+   const IntS IND_VSA5CT = 27; 
+
+   TMResultM final_results;
+   IntS testnum,addr;
+   IntM slpctval;
+   IntS tcrnum,tcrnum_src;
+   IntM trim_alarms;
+   TPModeType tcrmode,tcrmode_src;
+   StringS twstr;
+   FloatS ttimer1,maxtime,tdelay;
+   FloatS llim,ulim,target,max_delta;
+   FloatS toler;
+   FloatM meas_val;
+   PinM testpad;
+   IntM ctval;
+   IntM bgval,irval,foscval;
+   IntM lsw_data,msw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS logena;
+
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_VSA5CT_SoftTrim_func +++++" << endl;
+
+   bgval = MAINBG_TRIMSAVED;
+   irval = MAINIREF_TRIMSAVED;
+   foscval = FOSC_TRIMSAVED;
+   slpctval = VHV_SLPCT_TRIMSAVED;
+   msw_data = 0;
+   ctval = 0;
+   RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpctval,msw_data);
+
+   logena = true;  /*log to tw*/
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay = 10ms;
+   bcd_format = true;
+   hexvalue = true;
+   addr = ADDR_RAM_SLOPECT_TRIM;
+   
+   tcrnum  = 118;
+   tcrmode = ReadMode;
+   testpad = FLTP1;
+   testnum = TNUM_PUMP_VSA5_READ;
+   
+   target = VSA5_Read_Target;
+   toler = VSA5CT_Toler;
+   max_delta = target*toler;
+   llim = target-max_delta;
+   ulim = target+max_delta;
+
+   CloneTCR_To_TCR128(tcrmode,tcrmode,tcrnum);
+
+   TCR.TP1_LLim[tcrnum][tcrmode] = llim;
+   TCR.TP1_ULim[tcrnum][tcrmode] = ulim;
+
+   final_results = TM_NOTEST;
+
+   TIME.StartTimer();
+
+   lsw_data = foscval << 8; /*lshift 8bit*/
+   F021_TurnOff_AllTPADS();
+   
+   SearchMod my_search;
+   // need the FloatM below to make sure we use the proper function version
+   my_search.LinearSearchBegin(double(MININD), double(MAXIND), FloatM(1.0), target, max_delta);
+   
+   IntS i = 0;
+   IntM val;
+   while (my_search.searchNotDone)
+   {
+      val = IntM(my_search.xForceValueMS);
+      val <<= 8; // shift over val
+      msw_data = val + slpctval;
+      WriteRamContentDec_32Bit(addr, lsw_data, hexvalue, msw_data, hexvalue, bcd_format);
+      
+      F021_Set_TPADS(tcrnum,tcrmode);
+      F021_RunTestNumber_PMEX(testnum,maxtime);
+      TIME.Wait(tdelay);
+      meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+      F021_TurnOff_AllTPADS();
+      
+      twstr = "VSA5CT_SFT_" + i;
+      TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
+                   UTL_VOID, UTL_VOID, logena, TWMinimumData);
+      
+      ++i;
+      my_search.SearchNext(meas_val);
+   }
+   
+   trim_alarms = my_search.m_searchAlarmMS;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      if (trim_alarms[*si] == SearchMod::TARGET_FOUND)
+      {
+         ctval[*si] = int(my_search.xForceValueMS[*si]);
+      }
+   }
+   
+   /* final check to see if w/i tolerance limit */
+   msw_data = ctval << 8; /*lshift 8bit*/
+   msw_data += slpctval;
+   WriteRamContentDec_32Bit(addr,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   F021_Set_TPADS(tcrnum,tcrmode);  
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      // hardcoded silliness setting ctval to 0
+      if (meas_val[*si] < 1V) 
+      {
+         ctval[*si] = 0;
+      }
+      // can't make this an else because there could be a ctval of 0
+      // because it didn't find it's trim code
+      if (ctval[*si] != 0)
+      {
+         SITE_TO_FTRIM[*si] = true;
+      }
+      
+      VSA5CT_TRIMSAVED[*si] = ctval[*si];
+      StringS soft_str = IntToBinStr(ctval[*si], GL_VSA5CT_MAXEFUSE, true);
+      IntS t_str_length = soft_str.Length();
+      
+      if (t_str_length > GL_VSA5CT_MAXEFUSE)
+      {
+         StringS error_message;
+         IO.Print(error_message, "ERROR: VSA5CT Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!",
+                  GL_VSA5CT_MAXEFUSE);
+         ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, t_str_length, *si, UTL_VOID);
+      }
+         
+      MAINBG_EFSTR[*si].Replace(IND_VSA5CT, GL_VSA5CT_MAXEFUSE, soft_str);
+
+      if(tistdscreenprint)  
+         cout << "Site" << *si << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[*si] << endl;
+   }
+   
+   twstr = "VSA5CT_TRIM_SOL";
+   TIDlog.Value(ctval, testpad, MININD, MAXIND, "", twstr, 
+                   UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+   twstr = "VSA5CT_TRIM_NM";
+   // note: check against target only -- I guess this means only check against lower limit....
+   // This check is the only thing that warranted device pass/fail that I noticed.
+   final_results = TIDlog.Value(meas_val, testpad, llim, UTL_VOID, meas_val.GetUnits(), twstr, 
+                   UTL_VOID, UTL_VOID, true, TWMinimumData);
+                   
+   if(tistdscreenprint and TI_FlashDebug)   
+      ReadRamAddress(addr,addr+ADDR_RAM_INC);
+
+   ttimer1 = TIME.StopTimer();
+   twstr = "VSA5CT_TRIM_TTT";
+   TIDlog.Value(ttimer1, UTL_VOID, 0., UTL_VOID, "s", twstr, 
+                   UTL_VOID, UTL_VOID, logena, TWMinimumData);
+
+   RestoreTCR_Fr_TCR128(tcrmode,tcrmode,tcrnum);
+
+   ret_ctval = ctval;
+   return (final_results);
+   
+}   /* F021_VSA5CT_SoftTrim_func */
+
+
+
 //void ProgramFlashTrim(      StringS tname1, StringS  tname2,
 //                                StringS tname3,
 //                                StringM progChainStr,
@@ -32828,360 +32653,204 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
 //      }   /*bank*/
 //   } 
 //} 
-//
-// /*measure clockwidth (or period) or pulsewidth using dma tmu*/
-// /*parameter def: tpin=test pin, tpattern=test pattern, meas_option: period=0, pulsewidth=1*/
-// /*time_llimit=lower limit, time_ulimit=upper limit with unit in second*/
-// /*ret_values=measured values in second, test_results=P/F results*/
-//BoolS MeasPinTMU_func(PinML tpin,
-//                         StringS tStringS,
-//                         IntS meas_option,
-//                         FloatS time_llimit,
-//                         FloatS time_ulimit,
-//                             FloatM ret_values,
-//                             BoolM test_results)
-//{
-//   const IntS CLKWIDTH = 0; 
-//   const IntS PULSEWIDTH = 1; 
-//
-//   BoolM final_results,tmp_results,savesites;
-//   IntS testnum,site,status,pmstop;
-//   FloatS tdelay,ttimer1,sampletime;
-//   FloatM tt_timer,tmeas_val,fmeas_val;
-//   option event1_opt,event2_opt;
-//   option trig1_opt,trig2_opt;
-//   option dir1_opt,dir2_opt;
-//   FloatS time_llim,time_ulim,tmeas,vcmp;
-//   StringS tpatt;
-//   BoolS gettnum,do_serial;
-//   IntM msw_tnum,lsw_tnum;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ MeasPinTMU_func +++++" << endl;
-//
-//      tpatt = tpattern;
-//      tdelay  = 100ms;
-//      sampletime = 10ms;
-//      vcmp = 2V;
-//
-//      time_llim = time_llimit;
-//      time_ulim = time_ulimit;
-//
-//      switch(meas_option) {
-//        case CLKWIDTH   :  
-//                      event1_opt = S_TMU_START;
-//                      event2_opt = S_TMU_STOP;
-//                      trig1_opt  = S_FIRST_RISE;
-//                      trig2_opt  = S_SECOND_RISE;
-//                      dir1_opt   = S_OUTPUT;
-//                      dir2_opt   = S_OUTPUT;
-//                    break; 
-//        case PULSEWIDTH :  
-//                      event1_opt = S_TMU_START;
-//                      event2_opt = S_TMU_STOP;
-//                      trig1_opt  = S_FIRST_RISE;
-//                      trig2_opt  = S_FIRST_FALL;
-//                      dir1_opt   = S_INPUT;
-//                      dir2_opt   = S_INPUT;
-//                      break; 
-//      }   /* case */
-//
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      tmp_results = false;
-//      tmeas_val = 0s;
-//      timernstart(ttimer1);
-//
-//      pmstop = 1;
-//      do_serial = false;
-//      if(do_serial)  
-//      {
-//         devsetholdstates(tmp_results);
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(savesites[site])  
-//            {
-//               devsetholdstate(site,true);
-//               Enable(S_pmexit);
-//               PMExSetdelay(S_PFLAGS,pmstop);
-//               TMUSetTimeout(sampletime);
-//               TMUSetPin(event1_opt,tpin,trig1_opt,dir1_opt,vcmp);
-//               TMUSetPin(event2_opt,tpin,trig2_opt,dir2_opt,vcmp);
-//               Enable(S_TMU,S_TMUCONTINUE);
-//               patternexecute(status,tpatt);
-//               TIME.Wait(tdelay);
-//               TMURead(status,tmeas,time_llim,time_ulim);
-//               Disable(S_TMU,S_TMUCONTINUE);
-//               Disable(s_pmexit);
-//               clockstopfreerun(s_clock1a);
-//               tmeas_val[site] = v_tmu_value[site];
-//               tmp_results[site] = v_pf_status[site];
-//               if(tistdscreenprint and TI_FlashDebug)  
-//                  cout << "Site" << site:-5 << "Pin TMURead return status : " << status:-5 << endl;
-//               devsetholdstate(site,false);
-//            } 
-//         devsetholdstates(savesites);
-//      }
-//      else
-//      {
-//         Enable(S_pmexit);
-//         PMExSetdelay(S_PFLAGS,pmstop);
-//         TMUSetTimeout(sampletime);
-//         TMUSetPin(event1_opt,tpin,trig1_opt,dir1_opt,vcmp);
-//         TMUSetPin(event2_opt,tpin,trig2_opt,dir2_opt,vcmp);
-//         TMUSetDelay(S_PFLAGS,pmstop);
-//         Enable(S_TMU);
-//         patternexecute(status,tpatt);
-//         TIME.Wait(tdelay);
-//         TMURead(status,tmeas,time_llim,time_ulim);
-//         Disable(S_TMU);
-//         Disable(s_pmexit);
-//         if(tistdscreenprint and TI_FlashDebug)  
-//            cout << "Pin TMURead return status : " << status:-5 << endl;
-//         tmp_results = v_pf_status;
-//         tmeas_val = v_tmu_value;
-//      } 
-//
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//         Get_Flash_TestLogSpace_SCRAM;
-//      Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-//
-//      gettnum = true;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(gettnum)  
-//            {
-//                /*should be 0x10220000 for flash shell*/
-//               testnum = (msw_tnum[site]<<16) + lsw_tnum[site];
-//               gettnum = false;
-//            } 
-//            fmeas_val[site] = (rcp(single(tmeas_val[site])))*1Hz;
-//            if(tistdscreenprint and TI_FlashDebug)  
-//               cout << "Site" << site:-5 << " Meas Time == " << tmeas_val[site]:-6:3 << " Meas Freq == " << fmeas_val[site]:-6:3 << final_results[site] << endl;
-//         } 
-//
-//      ret_values = tmeas_val;
-//      test_results = final_results;
-//   }   /*if*/
-//   
-//   MeasPinTMU_func = v_any_dev_active;
-//}   /* MeasPinTMU_func */
-#if 0
+
+FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
+                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+                       TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
+                       FloatM maxExpFreq,               // Maximum expected frequency
+                       FloatM simResults)               // results to return in simulated mode
+{
+   FloatM meas_results;
+   BoolM timeout;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ MeasPinTMU_func +++++" << endl;
+
+   FloatS sampletime = 10ms;
+   FloatS tdelay = 100ms;
+   FloatM vcmp = 2V;
+   
+   DIGITAL.SetVoh(tpin, vcmp);
+   
+   // run pattern to CPU loop, then take measure since 
+   // we can't trigger DPIN96 TMU.
+   DIGITAL.ExecutePattern(tpattern);
+   DIGITAL.WaitForFlag(DIGITAL_FLAG_CPU, true);
+   TIME.Wait(tdelay);
+   TMU.SetTimeout(sampletime);
+   
+   switch (meas_option)
+   {
+      case TMU_MEASURE_PULSE_WIDTH:
+         TMU.MeasurePulseWidth(tpin, TMU_RISING_EDGE, TMU_CMP_HIGH, TMU_CMP_HIGH, meas_results, simResults);
+         break;
+      case TMU_MEASURE_FREQUENCY:
+         TMU.MeasureFrequency(tpin, maxExpFreq, TMU_RISING_EDGE, meas_results, simResults);
+         break;
+      default:
+         ERR.ReportError(ERR_GENERIC_CRITICAL, "Unsupported measure option in MeasPinTMU_func in F021_Library.", UTL_VOID, NO_SITES, tpin);
+         break;
+   }
+   timeout = TMU.Wait(tpin);
+   DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
+   DIGITAL.WaitForPattern(); // wait for pattern to stop
+   
+   // VLCT had this here...I am skipping the logging b/c that will be handled outside this routine, but 
+   // this testlog space might be forgotten 
+   // I don't understand exactly why this function is here as it looks to be a lot of 
+   // overhead since it is reading so much data.
+   Get_Flash_TestLogSpace_SCRAM();
+   
+   return (meas_results);
+}   /* MeasPinTMU_func */
+
 #if !$FL_USE_DCC_TRIM_FOSC
 TMResultM F021_FOSC_SoftTrim_External_func()
 {
    const IntS IND_FOSC = 9; 
    const IntS FOSC_MAXEFUSE = 6; 
-   const IntS CLKWIDTH = 0; 
    const IntS SLOOP1 = 32; 
    const IntS ELOOP1 = 63; 
    const IntS SLOOP2 = 0; 
    const IntS ELOOP2 = 31; 
+   const IntS MIN_CODE = 0;
+   const IntS MAX_CODE = 63;
 
-//   BoolM final_results,tmp_results;
-//   BoolM savesites,activesites,soft_found;
-//   IntS testnum,site,addr,i;
-//   StringS tname;
-//   StringS current_shell,str1,str2,str3,str5;
-//   FloatS tdelay,maxtime,ttimer1;
-//   FloatM tt_timer,freq_value,time_value,tmp_freq;
-//   FloatM meas_value,tmp_delta,delta_value;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   IntM TrimSol,bgval,irval,foscval,slpct,vsa5ct;
-//   IntS minloop,maxloop,loop;
-//   FloatS freq_llimit,freq_ulimit,freq_target;
-//   FloatS time_llimit,time_ulimit,time_target,toler;
-//   FloatS target_meas_delta;
-//   PinML tpin;
-//   BoolS done,first_range;
-//   StringS testStringS;
-//   IntM msw_tnum,lsw_tnum;
+   TMResultM final_results,tmp_results;
+   Sites savesites;
+   IntS testnum;
+   StringS str1,str2,str3, twstr;
+   StringS testpattern;
+   FloatM tt_timer,freq_value;
+   FloatM meas_value;
+   IntM trim_val,bgval,irval,foscval,slpct,vsa5ct;
+   IntM trim_alarms;
+   FloatS freq_llimit,freq_ulimit,freq_target, toler;
+   FloatS target_meas_delta;
+   PinM tpin;
+   IntM msw_tnum,lsw_tnum;
 
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ F021_FOSC_SoftTrim_External_func +++++" << endl;
    
-   timernstart(ttimer1);
+   TIME.StartTimer();
 
    freq_llimit = FOSC_LLimit;
    freq_ulimit = FOSC_ULimit;
    freq_target = FOSC_Target;
-    /*convert freq to time base*/
-   time_ulimit = (rcp(single(freq_llimit)))*1s;
-   time_llimit = (rcp(single(freq_ulimit)))*1s;
-   time_target = (rcp(single(freq_target)))*1s;
    toler = FOSC_Trim_Toler;
-   target_meas_delta = time_target*toler;
+   target_meas_delta = freq_target*toler;
 
-   savesites = v_dev_active;
-   final_results = v_dev_active;
-   activesites = v_dev_active;
-   soft_found = false;
-   time_value = 0s;
+   savesites = ActiveSites;
+   final_results = TM_NOTEST;
    freq_value = 0Hz;
-   tmp_freq = 0Hz;
    
    bgval = MAINBG_TRIMSAVED;
    irval = MAINIREF_TRIMSAVED;
    slpct = VHV_SLPCT_TRIMSAVED;
    vsa5ct = VSA5CT_TRIMSAVED;
-   TrimSol = 0;
+   trim_val = MIN_CODE - 1;  // initialize to a failing value in case trim doesn't find solution
 
    tpin = FL_FOSC_EXTERNAL_PIN;
    testpattern = FL_FOSC_EXTERNAL_PATTERN;
-   done = false;
-   first_range = true;
 
-   PrintHeaderBool(GL_PLELL_FORMAT);
-
-   while(not done) do
+   // pre-trim
+   /* dummy run */
+   foscval = 0;
+   RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
+   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+    /*virgin run...yes, VLCT ran it twice. :TODO: check in debug if we need this second run*/
+   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+   Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+   SITE asite = ActiveSites.Begin().GetValue();
+   //VLCT also assumed that all sites were at same testnum
+   testnum = (msw_tnum[asite]<<16)+lsw_tnum[asite];
+   
+   twstr = "FOSC_PRETRIM";
+   TIDlog.Value(meas_value, tpin, freq_llimit, freq_ulimit, "MHz", twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
+   
+   // We're going to do a linear search on a 
+   // non-linear code curve...so create a curve 
+   // and use the linear index to look up the code
+   IntS1D trim_lookup(MAX_CODE-MIN_CODE+1, 0);
+   int j = 0;
+   int i;
+   for (i = SLOOP1; i <= ELOOP1; ++i, ++j)
+      trim_lookup[j] = i;
+   for (i = SLOOP2; i <= ELOOP2; ++i, ++j)
+      trim_lookup[j] = i;
+      
+   SearchMod my_search;
+   my_search.LinearSearchBegin(0., double(MAX_CODE-MIN_CODE), 1., freq_target, target_meas_delta, MAX_CODE-MIN_CODE+1);
+   
+   int loop = 0;
+   while(my_search.searchNotDone)
    {
-      if(first_range)  
-      {
-         minloop = SLOOP1;
-         maxloop = ELOOP1;
-          /*dummy run*/
-         foscval = 0;
-         RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-          /*virgin run*/
-         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-         Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-            if(v_dev_active[site])  
-            {
-               if(first_range)  
-               {
-                  testnum = (msw_tnum[site]<<16)+lsw_tnum[site];
-                  first_range = false;
-               } 
-               tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
-            } 
-         first_range = false;
-         str2 = "FOSC_PRETRIM";
-         TWTRealToRealMS(tmp_freq,realval,unitval);
-         TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-         PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
-      }
-      else
-      {
-         minloop = SLOOP2;
-         maxloop = ELOOP2;
-      } 
+      // get proper trim code from the lookup table
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         foscval[*si] = trim_lookup[MATH.LegacyRound(my_search.xForceValueMS[*si])];
          
-      for (loop = minloop;loop <= maxloop;loop++)
-      {
-         foscval = loop;
-         RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-         MeasPinTMU_func(tpin,testpattern,CLKWIDTH,time_llimit,time_ulimit,meas_value,tmp_results);
-         
-         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-            if(v_dev_active[site])  
-            {
-               tmp_freq[site] = (rcp(single(meas_value[site])))*1Hz;
-               tmp_delta[site] = meas_value[site]-time_target;
-               if(loop==SLOOP1)  
-               {
-                  TrimSol[site] = foscval[site];
-                  delta_value[site] = tmp_delta[site];
-                  time_value[site] = meas_value[site];
-               }
-               else
-               {
-                  if(abs(tmp_delta[site]) < abs(delta_value[site]))  
-                  {
-                     TrimSol[site] = foscval[site];
-                     delta_value[site] = tmp_delta[site];
-                     time_value[site] = meas_value[site];
-                  } 
-               } 
+      RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
+      meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+      
+      loop = loop+1;
+      twstr = "FOSC_SOFT_" + loop;
+      TIDlog.Value(foscval, tpin, MIN_CODE, MAX_CODE, UTL_VOID, twstr + "CODE",
+                   UTL_VOID, UTL_VOID, true, TWMinimumData); 
+      TIDlog.Value(meas_value, tpin, freq_llimit, freq_ulimit, meas_value.GetUnits(),
+                   twstr, UTL_VOID, UTL_VOID, true, TWMinimumData);
                
-               if((abs(delta_value[site]) <== target_meas_delta) or (loop==ELOOP2))  
-               {
-                  freq_value[site] = (rcp(single(time_value[site])))*1Hz;
-                  soft_found[site] = true;
-                  activesites[site] = false;
-                  FOSC_TRIMSAVED[site] = TrimSol[site];
-                  writestring(str5,trimsol[site]:s_binary:1);
-                  str5 = mid(str5,3,(len(str5))-2);
-                  if((len(str5)) > FOSC_MAXEFUSE)  
-                  {
-                     if(tistdscreenprint)  
-                     {
-                        cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
-                        cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-                        cout << "PROGRAM WILL ABORT NOW" << endl;
-                     }
-                     else
-                     {
-                        cout << "*** ERROR: FOSC Trim Solution Efuse Bits exceed " << FOSC_MAXEFUSE << endl;
-                        cout << "*** PROGRAM ISSUE -- NEED CONTACT LBE !!!" << endl;
-                        cout << "PROGRAM WILL ABORT NOW" << endl;
-                     } 
-                     pause;
-                     stop;
-                  } 
-                  while((len(str5)) < FOSC_MAXEFUSE) do
-                     str5 = "0" + str5;
-                  for (i = 1;i <= FOSC_MAXEFUSE;i++)
-                     MAINBG_EFSTR[site][IND_FOSC+(i-1)] = str5[i];  /*ef_vosctrm[5] 1st*/
-                  if(tistdscreenprint)  
-                     cout << "Site" << site:-5 << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[site] << endl;
-               }   /*if abs() or maxloop*/
-            }   /*if v_dev_active*/
+      my_search.SearchNext(meas_value);
+   }
+   
+   trim_alarms = my_search.m_searchAlarmMS;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      if (trim_alarms[*si] == SearchMod::TARGET_FOUND)
+      {
+         // we trimmed properly, save the value 
+         // remember that the actual trim code lives in the lookup_table and the 
+         // xForceValueMS is just the index
+         FOSC_TRIMSAVED[*si] = trim_lookup[MATH.LegacyRound(my_search.xForceValueMS[*si])];
+         trim_val[*si] = FOSC_TRIMSAVED[*si];
+         freq_value[*si] = meas_value[*si]; // meas_value should still have value last measured on each site
+         StringS soft_str = IntToBinStr(trim_val[*si], FOSC_MAXEFUSE, true);
+         IntS t_str_length = soft_str.Length();
          
-         writestring(str2,loop:1);
-         str2 = "FOSC_SOFT_" + str2;
-         TWTRealToRealMS(tmp_freq,realval,unitval);
-         TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-         PrintResultParam(str2,testnum,tmp_results,freq_llimit,freq_ulimit,tmp_freq,GL_PLELL_FORMAT);
-         devsetholdstates(activesites);
-         
-         if(not v_any_dev_active)  
-            break;
-      }   /*for loop*/
+         if (t_str_length > FOSC_MAXEFUSE)
+         {
+            StringS error_message;
+            IO.Print(error_message, "ERROR: FOSC Trim Solution Efuse Bits exceed %d. PROGRAM ISSUE -- NEED TO CONTACT LBE !!!",
+                     FOSC_MAXEFUSE);
+            ERR.ReportError(ERR_GENERIC_CRITICAL, error_message, t_str_length, *si, UTL_VOID);
+         }
+            
+         MAINBG_EFSTR[*si].Replace(IND_FOSC, FOSC_MAXEFUSE, soft_str);
 
-      if(not v_any_dev_active)  
-         done = true;
-   }   /*while not done*/
-
-   devsetholdstates(savesites);
-
-   ttimer1 = timernread(ttimer1);
-   tt_timer = ttimer1;
+         if(tistdscreenprint)  
+            cout << "Site" << *si << " Final Soft Efuse Pump String : " << MAINBG_EFSTR[*si] << endl;
+      }
+   }        
+    
+   RunTime.SetActiveSites(savesites);
+   
+   tt_timer = TIME.StopTimer();
 
    str1 = "FOSC_TRIM_TT";
    str2 = "FOSC_TRIM_SOL";
    str3 = "FOSC_TRIM_FREQ";
 
-   TWTRealToRealMS(tt_timer,realval,unitval);
-   TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-   TWPDLDataLogVariable(str2,trimsol, TWMinimumData);
-   TWTRealToRealMS(freq_value,realval,unitval);
-   TWPDLDataLogRealVariable(str3, unitval,realval,TWMinimumData);
-   
-   Arrayandboolean(final_results,final_results,soft_found,v_sites);
-   Arrayandboolean(final_results,final_results,savesites,v_sites);
+   tmp_results = TIDlog.Value(trim_val, tpin, MIN_CODE, MAX_CODE, "", str2, UTL_VOID, 
+                              UTL_VOID, true, TWMinimumData);
+   final_results = TIDlog.Value(freq_value, tpin, freq_llimit, freq_ulimit, "MHz", 
+                                str3, UTL_VOID, UTL_VOID, true, TWMinimumData);
+   final_results = DLOG.AccumulateResults(final_results, tmp_results);
+   TIDlog.Value(tt_timer, UTL_VOID, 0., UTL_VOID, "s", str1, UTL_VOID, UTL_VOID, true, TWMinimumData);
 
-   if(tistdscreenprint)  
-   {
-      PrintResultInt(str2,testnum,trimsol,0,0,GL_PLELL_FORMAT);
-      PrintResultParam(str3,testnum,final_results,freq_llimit,freq_ulimit,freq_value,GL_PLELL_FORMAT);
-      PrintResultBool(str3,0,final_results,GL_PLELL_FORMAT);
-      cout << "   TT " << ttimer1 << endl;
-      cout << endl;
-   } 
+   RAM_Clear_SoftTrim_All();
+   FloatM ret_timer;
+   F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,ret_timer);
 
-   RAM_Clear_SoftTrim_All;
-   f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-   test_results = final_results;
-
-   F021_FOSC_SoftTrim_External_func = v_any_dev_active;
+   return (final_results);
 }   /* F021_FOSC_SoftTrim_External_func */
 #endif
-#endif
-

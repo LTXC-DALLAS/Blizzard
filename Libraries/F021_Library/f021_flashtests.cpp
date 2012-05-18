@@ -4890,25 +4890,25 @@ using namespace std;
 //
 //   FOSC_Trim_func = v_any_dev_active;
 //} 
-#if 0
+
  /*Combined BGap, IREF, VHV_SLPCT, VS5ACT Trim*/
 TMResultM FlashEfuse_Trim_func()
 {
    TMResultM tmp_results, final_results;
    Sites savesites, new_active_sites;
-//   IntM slpct,vsa5ct;
+   IntM slpct,vsa5ct;
 //   BoolS bg_adapttrim_ena;
-//   BoolS bg_chartrim_ena;
+   BoolS bg_chartrim_ena;
 //   BoolS iref_adapttrim_ena;
-//   BoolS iref_chartrim_ena;
+   BoolS iref_chartrim_ena;
 //   IntS site;
 //   FloatS ttimer1;
-//   FloatM tt_timer;
+   FloatS tt_timer;
 //   FloatM FloatSval;
 //   TWunit unitval;
-//   StringS tmpstr1,tmpstr4;
+   StringS tmpstr1; //,tmpstr4;
 //   StringS current_shell;
-//   StringS dummstr1,dummstr2;
+   StringS dummstr1,dummstr2;
 
    savesites = ActiveSites;
    new_active_sites = ActiveSites;
@@ -4960,7 +4960,6 @@ TMResultM FlashEfuse_Trim_func()
 //  :TODO: Unneeded for Blizzard, fix later.
 //      F021_FOSC_SoftTrim_func(tmp_results);
 #else
-      // :HERE:
       tmp_results = F021_FOSC_SoftTrim_External_func();
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
 #endif
@@ -4995,25 +4994,26 @@ TMResultM FlashEfuse_Trim_func()
 
            /*update SaveFlashProgString for later use*/
          SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
-         MargFlashChainStr = FlashProgString;
+         margFlashChainStr = FlashProgString;
 
          if(tistdscreenprint)  
          {
             for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
             {
-               dummstr1 = FlashProgString[site];
-               dummstr2 = StringReverse(dummstr1);
-               dummstr1 = StringBinToHex(dummstr1,s_pad_msb);
+               dummstr2 = FlashProgString[*si];
+               ReverseStringInPlace(dummstr2);
+               dummstr1 = StringBinToHex(FlashProgString[*si]);
                cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
                if(true)   /*ti_flashdebug*/
                {
                   cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
-                          FlashProgString[site] << endl;
+                          FlashProgString[*si] << endl;
                   cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
                } 
             }  
          }  /*ti_stdscreenprint*/
       } // if active sites
+      // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
    }   // if SITE_TO_FTRIM
 
    /*re-activate sites*/
@@ -5022,7 +5022,7 @@ TMResultM FlashEfuse_Trim_func()
    tt_timer = TIME.StopTimer();
 
    tmpstr1 = "FlashEfuseTrim_Test_TT";
-   TIDlog.Value(tt_timer, UTL_VOID, 0.0, UTL_VOID, "ms", tmpstr1, 
+   TIDlog.Value(tt_timer, UTL_VOID, 0.0, UTL_VOID, "s", tmpstr1, 
                 UTL_VOID, UTL_VOID, true, TWMinimumData);
    
     /*null out gl_previous_shell*/
@@ -5035,7 +5035,7 @@ TMResultM MainBG_Trim_func()
 {
    return (FlashEfuse_Trim_func());
 }   /* MainBG_Trim_func */
-#endif
+
 TMResultM Pump_Iref_Vnom_func()
 {
    const IntS TESTID = 15; 

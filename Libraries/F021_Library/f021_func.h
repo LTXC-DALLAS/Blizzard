@@ -78,14 +78,6 @@ void PrintHeaderParam(BoolS paral_format);
 //                               IntS cmptllim, IntS cmptulim,
 //                             BoolS paral_format);
 
-
-// If needed, uncomment. However, I think the only use for this is when 
-// working with pattern modifications and we use 'L' & 'H', not '0' & '1'
-// so leaving this commented to see if we can just trash - JT
-//void IntToBinStr(IntS tmpint1,     StringS &tmpstr1);
-
-StringS IntToVLSIDriveStr(const IntS &tmpint1, const IntS &numBits, const bool &isMSBFirst);
-
 //void ElimSpaceStr(    StringS inputstr);
 
 // ReadRamAddress is multi-site
@@ -311,7 +303,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //void TL_EngOvride_MAXPP(IntS ovr_data);
 //void TL_EngOvride_PPW_MAXPP(  IntS ovr_pw, IntS ovr_pp);
 //void TL_EngOvride_MAXEP(IntS ovr_data);
-//void TL_EngOvride_VHV_PG_CT(IntS ovr_data);
+void TL_EngOvride_VHV_PG_CT(IntS ovr_data);
 //void TL_EngOvride_VHV_ER_CT(IntS ovr_data);
 //void TL_EngOvride_VHV_PV_CT(IntS ovr_data);
 //void TL_EngOvride_VCG2P5_CT(IntS ovr_data);
@@ -373,14 +365,14 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                      FloatS BLBias_Vforce,
 //                      BoolS Test_All_IOS);
 //
-//void CloneTCR_To_TCR128(TPModeType tcrmode_tget,
-//                             TPModeType tcrmode_src,
-//                             IntS tcrnum_src);
-//
-//void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
-//                               TPModeType tcrmode_src,
-//                               IntS tcrnum_src);
-//
+void CloneTCR_To_TCR128(TPModeType tcrmode_tget,
+                             TPModeType tcrmode_src,
+                             IntS tcrnum_src);
+
+void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
+                               TPModeType tcrmode_src,
+                               IntS tcrnum_src);
+
 //void TL_PumpOutput_VHV(VCornerType vcorner);
 //
 //void TL_EngOvride_W89_RAM(IntS catnum,
@@ -615,11 +607,9 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna);
 TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna);
 //
 //BoolS F021_FOSC_SoftTrim_func(    BoolM test_results);
-//BoolS F021_VSA5CT_SoftTrim_func(    BoolM test_results,
-//                                       IntM ret_ctval);
-//BoolS F021_VHV_SLOPECT_SoftTrim_func(    BoolM test_results,
-//                                            IntM ret_ctval);
-//
+TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval);
+TMResultM F021_VHV_SLOPECT_SoftTrim_func(IntM &ret_ctval);
+
 //void ProgramFlashTrim(      StringS tname1, StringS  tname2,
 //                                StringS tname3,
 //                                StringM progChainStr,
@@ -737,18 +727,15 @@ void RAM_Upload_PMOS_TrimCode();
 //                     IntS ovrideEF_Val,
 //                     BoolS twlogena,
 //                     StringS logstr);
-//
-//BoolS MeasPinTMU_func(PinML tpin,
-//                         StringS tStringS,
-//                         IntS meas_option,
-//                         FloatS time_llimit,
-//                         FloatS time_ulimit,
-//                             FloatM ret_values,
-//                             BoolM test_results);
-//
-//#if $FL_USE_DCC_TRIM_FOSC=FALSE then
-//BoolS F021_FOSC_SoftTrim_External_func(    BoolM test_results);
-//#endif
+
+FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
+                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+                       TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
+                       FloatM maxExpFreq,               // Maximum expected frequency
+                       FloatM simResults);              // results to return in simulated mode
+#if !$FL_USE_DCC_TRIM_FOSC
+TMResultM F021_FOSC_SoftTrim_External_func();
+#endif
 
 #endif
 
