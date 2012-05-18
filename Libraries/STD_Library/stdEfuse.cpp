@@ -1,4 +1,6 @@
 #include <Unison.h>
+#include <string_utils.h>
+
 using namespace std;
 
 /* FuseFarm/FuseROM Global Variables */ 
@@ -81,10 +83,20 @@ StringS FF_ConvertDigCapArrToStr(UnsignedS1D digCapArr, IntS dataLen, IntS dataL
    for (IntS bit = dataLoc; bit < dataLoc+dataLen; bit++)
    {
      if (digCapArr[bit] == 1)  
-       dataStr = "1" + dataStr;
+     // JT 2012/05/18 - see comments below
+//       dataStr = "1" + dataStr;
+       dataStr += "1";
      else
-       dataStr = "0" + dataStr;
+     // JT 2012/05/18 - see comments below
+//       dataStr = "0" + dataStr;
+       dataStr += "0";
    } 
+   
+   // JT 2012/05/18
+   // it's faster to build the string from LSB to MSB and reverse 
+   // it because when you prepend to the string, it has to shift 
+   // everything down in memory to make room for prepended char
+   ReverseStringInPlace(dataStr);
    
    return dataStr;
 }  /* FF_ConvertDigCapArrToStr */ 
@@ -97,8 +109,12 @@ IntS FF_ConvertStringToInt(StringS dataStr)
    strLen = dataStr.Length();
    for (IntS bit = 0; bit < strLen; bit++)
    { 
-     if (dataStr.Substring(strLen-bit-1,1) == "1")
-       dec += (1 << bit);
+       // JT 2012/05/18
+       // StringS is a char array, so you don't need substring
+       // trick is that you have to use '' for char where "" means string
+//     if (dataStr.Substring(strLen-bit-1,1) == "1")
+      if (dataStr[strLen-bit-1] == '1')
+         dec += (1 << bit);
    } 
 
    return dec;  
@@ -120,7 +136,10 @@ BoolS FF_GetRepairBit(StringS techName, StringS FROMRowStr)
     }
     else
     {      
-      if (FROMRowStr.Substring(RepairBit - 1, 1) == "1")  
+    // JT 2012/05/18
+    // use a char comparison, not string here
+//      if (FROMRowStr.Substring(RepairBit - 1, 1) == "1")  
+      if (FROMRowStr[RepairBit - 1] == '1')  
         returnStatus = true;
     } 
   } 
@@ -305,6 +324,9 @@ StringS FF_GetTechName(StringS &codeOption)
   return(techName);
 }  /* FF_GetTechName */ 
 
+
+// JT 2012/05/18
+// Maybe use string_utils version IntToBinStr instead?
 StringS FF_DectoBinStr(IntS decimal, IntS strLen)    
 /*****************************************************************************
   This function converts an integer to a N-bit string, MSB padded with 0's.

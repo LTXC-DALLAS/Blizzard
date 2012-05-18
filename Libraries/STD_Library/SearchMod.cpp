@@ -821,6 +821,8 @@ void    SearchMod::SearchNext           (float  measuredY ){
 }
 void    SearchMod::SearchNext           (FloatM measuredY ){
 
+    bool any_site_active = true;
+    
     // DEBUG PRINT AND PLOT
     DbgPrintSrchStep    ( measuredY );
 
@@ -854,11 +856,14 @@ void    SearchMod::SearchNext           (FloatM measuredY ){
 
     DbgPrintSrchResult  ( measuredY );
 
+    // RunTime.SetActiveSites does not allow you to turn off all 
+    // sites. So, we use the created SetActiveSites which tells 
+    // us if we should have no active sites.
     if (!sitesToDisable.Begin().End()) // sitesToDisable isn't empty
-       RunTime.SetActiveSites(ActiveSites - sitesToDisable);
+       any_site_active = SetActiveSites(ActiveSites - sitesToDisable);
 
     // if no ActiveSites or done, we are done - reactivate sites, set NotDone and plot, if necessary
-    if (!ActiveSites.Begin().End() || !searchNotDone) {
+    if (!any_site_active || !searchNotDone) {
        RunTime.SetActiveSites(searchSites);
        searchNotDone = false;
        if (m_searchDebugMode>0) {
