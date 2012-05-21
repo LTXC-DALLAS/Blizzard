@@ -16,6 +16,9 @@ clean_code:
 	- /bin/rm -rf ./Libraries/TestWare_Library/i686*
 	- /bin/rm -rf ./Libraries/TestWare_Library/tmpfiles
 	- /bin/rm -f ./Libraries/TestWare_Library/Makefile
+	- /bin/rm -rf ./Libraries/STD_Library/i686*
+	- /bin/rm -rf ./Libraries/STD_Library/tmpfiles
+	- /bin/rm -f ./Libraries/STD_Library/Makefile
 
 clean_all:
 	- /bin/rm -rf ./Libraries/Blizzard_Library/i686*
@@ -27,6 +30,9 @@ clean_all:
 	- /bin/rm -rf ./Libraries/TestWare_Library/i686*
 	- /bin/rm -rf ./Libraries/TestWare_Library/tmpfiles
 	- /bin/rm -f ./Libraries/TestWare_Library/Makefile
+	- /bin/rm -rf ./Libraries/STD_Library/i686*
+	- /bin/rm -rf ./Libraries/STD_Library/tmpfiles
+	- /bin/rm -f ./Libraries/STD_Library/Makefile
 	- /bin/rm -rf ./Patterns/Binary/*
 
 

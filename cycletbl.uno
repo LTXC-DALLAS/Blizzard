@@ -1615,37 +1615,6 @@ __Thread TestPatScan_Thrd {
     }
 }
 
-__PatternSequence Flash_Shell_TestNum_SEQ {
-    __Thread[0] = Flash_Load_RevBShell_Thrd;
-    __Thread[1] = Flash_Load_RevCShell_Thrd;
-    __Thread[2] = Flash_Load_TestNum_Thrd;
-    __Zipper = __Zipper {
-        __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
-    }
-    __AutoBasePeriod = __True;
-}
-
-__Thread Flash_Load_RevCShell_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "fl_sw_dl_a1a3_4_DPM.fl_sw_dl_a1a3_4_DPM_st"; }
-    }
-}
-
-__Thread Flash_Load_RevBShell_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "fl_sw_dl_a2_2_DPM.fl_sw_dl_a2_2_DPM_st"; }
-    }
-}
-
-__Thread Flash_Load_TestNum_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_DPM.dmled_test_number_DPM_st"; }
-    }
-}
-
 __PatternSequence FuseFarm_SEQ {
     __Thread[0] = FF_InitCheck_Thrd;
     __Thread[1] = FF_CheckROM_Mg0_ENG_Thrd;
@@ -1706,100 +1675,19 @@ __Thread DC_Para_Thrd {
     }
 }
 __PatternSequence FlashTestNum_SEQ {
-    __Thread[0] = FlashShellB_Thrd;
-    __Thread[1] = FlashShellC_Thrd;
-    __Thread[2] = FlashTestNum_NoRPT1_Thrd;
-    __Thread[3] = FlashTestNum_NoRPT2_Thrd;
-    __Thread[4] = FlashTestNum_0x11200000_Trunc_Thrd;
-    __Thread[5] = FlashTestNum_0x10000000_Trunc_Thrd;
-    __Thread[6] = FlashTestNum_0x10000000_Thrd;
-    __Thread[7] = FlashTestNum_0x11200000_Thrd;
-    __Thread[8] = ShellB_Tnum0x00100000_Thrd;
-    __Thread[9] = Garnet_Shell064_T072C008S007_A2_Thrd;
-    __Thread[10] = f021_shell_exepat_pll_v3p0_Thrd;
-    __Thread[11] = f021_shell_exepat_pll_NCPU_Thrd;
-    __Thread[12] = f021_shell_exepat_pll_Both_Thrd;
-    __Thread[13] = ramread_nburst_lsw_Thrd;
-    __Thread[14] = ramread_nburst_msw_Thrd;
-    __Thread[15] = ramread_nburst_addr_Thrd;
-    __Thread[16] = ramread_mbox_Thrd;
-    __Thread[17] = ramwrite_burst_addr_Thrd;
+    __Thread[0] = Garnet_Shell064_T072C008S007_A2_Thrd;
+    __Thread[1] = f021_shell_exepat_pll_v3p0_Thrd;
+    __Thread[2] = ramread_nburst_lsw_Thrd;
+    __Thread[3] = ramread_nburst_msw_Thrd;
+    __Thread[4] = ramread_nburst_addr_Thrd;
+    __Thread[5] = ramread_mbox_Thrd;
+    __Thread[6] = ramwrite_burst_addr_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
     __AutoBasePeriod = __True;
 }
 
-__Thread FlashShellB_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = fl_sw_dl_a2_2_DPM;
-    }
-}
-__Thread FlashShellC_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = fl_sw_dl_a1a3_4_DPM;
-    }
-}
-__Thread FlashTestNum_0x00100000_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_0x00100000.dmled_test_number_DPM_st"; }
-    }
-}
-__Thread FlashTestNum_0x00200000_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_0x00200000.dmled_test_number_DPM_st"; }
-    }
-}
-__Thread FlashTestNum_NoRPT1_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_NoRPT1.dmled_test_number_NoRPT1_st"; }
-    }
-}
-__Thread FlashTestNum_NoRPT2_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_NoRPT2.dmled_test_number_NoRPT2_st"; }
-    }
-}
-__Thread FlashTestNum_0x10000000_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:Enter"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_0x10000000.dmled_test_number_NoRPT1_st"; }
-    }
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:Exit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_0x10000000.dmled_test_number_NoRPT1_end"; }
-    }
-}
-__Thread FlashTestNum_0x11200000_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_test_number_0x11200000.dmled_test_number_NoRPT1_st"; }
-    }
-}
-__Thread FlashTestNum_0x10000000_Trunc_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_TstNum_0x10000000_trunc.dmled_test_number_NoRPT1_st"; }
-    }
-}
-__Thread FlashTestNum_0x11200000_Trunc_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "dmled_TstNum_0x11200000_trunc.dmled_test_number_NoRPT1_st"; }
-    }
-}
-__Thread ShellB_Tnum0x00100000_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "ShellB_Tnum0x00100000.fl_sw_dl_a2_2_DPM_st"; }
-    }
-}
 __Thread Garnet_Shell064_T072C008S007_A2_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
@@ -1810,18 +1698,6 @@ __Thread f021_shell_exepat_pll_v3p0_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_v3p0.f021_shell_exepat_pll_v3p0_start"; }
-    }
-}
-__Thread f021_shell_exepat_pll_NCPU_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_NCPU.f021_shell_exepat_pll_v3p0_start"; }
-    }
-}
-__Thread f021_shell_exepat_pll_Both_Thrd {
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_Both.f021_shell_exepat_pll_v3p0_start"; }
     }
 }
 __Thread ramread_nburst_lsw_Thrd {

@@ -386,16 +386,6 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
-    //RPT 600k at the end
-    __Pattern f021_shell_exepat_pll_NCPU {
-        __File "f021_shell_exepat_pll_NCPU";
-        __Path "./Patterns/Ascii";
-    }
-    //RPT 500k at the end followed by RPT_CPU w/ clock turned off
-    __Pattern f021_shell_exepat_pll_Both {
-        __File "f021_shell_exepat_pll_Both";
-        __Path "./Patterns/Ascii";
-    }
 /*********************************************************/
 
     __Pattern ramread_nburst_lsw_v3p0 {
@@ -426,38 +416,6 @@ __PatternMap DefaultPatternMap {
 
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_NoRPT2 {
-        __File "dmled_test_number_NoRPT2";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_NoRPT1 {
-        __File "dmled_test_number_NoRPT1";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x00100000 {
-        __File "dmled_test_number_0x00100000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x00200000 {
-        __File "dmled_test_number_0x00200000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x10000000 {
-        __File "dmled_test_number_0x10000000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x11200000 {
-        __File "dmled_test_number_0x11200000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_TstNum_0x11200000_trunc {
-        __File "dmled_TstNum_0x11200000_trunc";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_TstNum_0x10000000_trunc {
-        __File "dmled_TstNum_0x10000000_trunc";
         __Path "./Patterns/Ascii";
     }
     __Pattern ldo_bypass_init_DSH {
@@ -740,24 +698,12 @@ __PatternMap DefaultPatternMap {
         __File "dmled_read_DPM";
         __Path "./Patterns/Ascii";
     }
-    __Pattern dmled_test_number_DPM {
-        __File "dmled_test_number_DPM";
-        __Path "./Patterns/Ascii";
-    }
     __Pattern eeprom_wdone_int_DPM {
         __File "eeprom_wdone_int_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern fl_otp_loader_v21_DPM {
         __File "fl_otp_loader_v21_DPM";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern fl_sw_dl_a1a3_4_DPM {
-        __File "fl_sw_dl_a1a3_4_DPM";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern fl_sw_dl_a2_2_DPM {
-        __File "fl_sw_dl_a2_2_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern fl_sw_dl_dpse_DPM {
