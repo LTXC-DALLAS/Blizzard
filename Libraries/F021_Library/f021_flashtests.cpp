@@ -5032,6 +5032,7 @@ TMResultM Pump_Iref_Vnom_func()
    VCornerType vcorner;
    Sites initial_sites(ActiveSites);
    Sites new_active_sites(ActiveSites);
+   FloatM temp_floatm;
 
    // PowerUpDn(PWRUP_VNOM);
 
@@ -5039,23 +5040,29 @@ TMResultM Pump_Iref_Vnom_func()
    tdelay = 2ms;
    TIME.Wait(tdelay);
 
+   /* dummy run for blizzard Pasa ...3/25/12 */
    F021_LoadFlashShell_func();
+   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
 
    RAM_Clear_SoftTrim_All();  /*KChau 09/10/10*/
 
+   /* dummy run for blizzard Pasa ...3/25/12 */
+   F021_LoadFlashShell_func();
+   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
+   
    tcrnum = 126;
    tcrmode = ReadMode;
    vcorner = VNM;
    final_results = F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode);
 
    // disable failing sites (disables sites w/ false).
-   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-   if(SetActiveSites(new_active_sites))  
-   {
+//   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//   if(SetActiveSites(new_active_sites))  
+//   {
       tcrnum = 125;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
-   }    
+//   }    
    
    // re-enable any sites we've messed around with 
    // to report the results properly
@@ -5119,7 +5126,7 @@ TMResultM Pump_BGap_Vnom_func()
    return(final_results);
 }   /* Pump_BGap_Vnom_func */
 
-TMResultM Pump_VHV_Vmin_func()
+TMResultM Pump_VHV_Vmin_func(Levels postTrimLevels1, Levels postTrimLevels2)
 {
    const IntS TESTID = 17; 
 
@@ -5178,10 +5185,11 @@ TMResultM Pump_VHV_Vmin_func()
       RAM_Upload_VHV_CT_TrimVal();  /*KChau 09/10/10*/
    } 
    
-   // This will execute the loose levels
    // Flow should set category to VMin
-   Levels loose_levels("DCSetup_Loose");
-   loose_levels.Execute();
+   if (postTrimLevels1.Valid())
+      postTrimLevels1.Execute();
+   if (postTrimLevels2.Valid())
+      postTrimLevels2.Execute();   
    
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
@@ -5189,6 +5197,8 @@ TMResultM Pump_VHV_Vmin_func()
 
    GL_FLTESTID = TESTID;
    vcorner = VMN;
+
+   reload_flashshell = true; /* added to reload the flash shell for "stability" JRR 0515012 */
 
    tcrnum = 115;
    tcrmode = ProgMode;
@@ -17183,7 +17193,7 @@ TMResultM PreTunOxideVT1OTP_func()
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);      
 //       /*dummy run for blizzard*/
-//      Patternexecute(num_clks, ldo_bypass_init);
+//      /* Patternexecute(num_clks, ldo_bypass_init); */
 //      F021_LoadFlashShell_func;
 //      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
 //      
@@ -17200,7 +17210,7 @@ TMResultM PreTunOxideVT1OTP_func()
 //      RAM_Clear_MailBox_Key;
 //      
 //       /*dummy run for blizzard*/
-//      Patternexecute(num_clks, ldo_bypass_init);
+//      /* Patternexecute(num_clks, ldo_bypass_init); */
 //      F021_LoadFlashShell_func; /* Pasa Temp added*/
 //      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
 //      GL_FLTESTID = TESTID;
@@ -17219,12 +17229,13 @@ TMResultM PreTunOxideVT1OTP_func()
 //   if(v_any_dev_active)  
 //   {
 //      savesites = v_dev_active;
-//      PowerDown;  /* Remove pasa pasa 2/23/12*/
+//      PowerDownWithoutRead;  /* Remove pasa pasa 2/23/12*/
 //      powerupatvnom(dcsetup_loosevnom,norm_fmsu);
 //      clockset(s_clock1a,false,GL_F021_PLLENA_SPEED1,
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);
+//      Patternexecute(num_clks, ldo_bypass_init);
 //      patternexecute(site,f021_shell_loadpat);
 //        /* Added for dummy run on Blizzard...pasa 2/23/12} {Need to restore RAM after corrupted */
 //      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);     
@@ -17237,8 +17248,8 @@ TMResultM PreTunOxideVT1OTP_func()
 //         rd_opt = 1;
 //
 //       /* Added for dummy run on Blizzard...pasa 2/23/12*/
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      patternexecute(site,f021_shell_loadpat);       
+//      /* patternexecute(site,f021_shell_loadpat); 
+//      f021_runtestnumber(tnum_always_pass, 1s, spare_mstreal1, spare_msbool1); */
 //       
 //      F021_ReadLog1OTP_func(tmp_results,rd_opt);
 //      arrayandboolean(final_results,final_results,tmp_results,v_sites);
@@ -20938,6 +20949,8 @@ TMResultM ErsOTP_PreTunOxide_func() {
 //     WriteRamContentDec_32Bit(mailboxaddr,msw_data,hexvalue,lsw_data,hexvalue,bcd_format);  /*temp flipped msw with lsw till Adam fixes shell JRR*/
 //    }   /* for cnt := 0x3c0 to 0x400 by 4 do */
 // 
+//   reload_flashshell = false; /* added because analog trims can't have the shell reloaded or it will overwrite
+//   the trim locations 0515012 JRR */
 //   F021_RunTestNumber(testnum,maxtime,tt_timer,final_results);
 //   Disable(s_pmexit);              
 //   ttimer2 = timernread(ttimer2);

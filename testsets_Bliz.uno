@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U1.0d:S5.3;
 __Test Digital_Continuity {
     __Entry[0] = DCsetup_allZero;
     __Exit[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
@@ -4767,12 +4767,45 @@ __Test F021_FlashConfig_test {
     }
 }
 __Test Pump_Iref_Vnom {
-    __Entry[0] = DCsetup_Loose;
+    __Entry[0] = PowerCycleVmask_FC;
     __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
+        __Title = jtag_reset;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'jtag_reset_init_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = ldo_bypass;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ldo_bypass_init_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
         __Title = Block1;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Iref_Vnom_func;
@@ -4914,8 +4947,9 @@ __Test FTN_LoopCPU_T {
     }
 }
 __Test Pump_BGAP_Vnom {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5867,12 +5901,15 @@ __Test Pump_VHV_Vmin {
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_VHV_Vmin_func;
+            postTrimLevels1 = __Expression { __String = "&DCsetup_LooseVmask"; }
+            postTrimLevels2 = __Expression { __String = "&PowerUpAtVmask"; }
         }
     }
 }
 __Test Pump_VHV_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5884,8 +5921,9 @@ __Test Pump_VHV_Vmax {
     }
 }
 __Test Pump_VSL_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5897,8 +5935,9 @@ __Test Pump_VSL_Vmin {
     }
 }
 __Test Pump_VSL_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5910,8 +5949,9 @@ __Test Pump_VSL_Vmax {
     }
 }
 __Test Pump_Vread_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5923,8 +5963,9 @@ __Test Pump_Vread_Vmin {
     }
 }
 __Test Pump_Vread_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5936,8 +5977,9 @@ __Test Pump_Vread_Vmax {
     }
 }
 __Test Pump_VSA5_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5949,8 +5991,9 @@ __Test Pump_VSA5_Vmin {
     }
 }
 __Test Pump_VSA5_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5962,8 +6005,9 @@ __Test Pump_VSA5_Vmax {
     }
 }
 __Test Pump_VWL_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5975,8 +6019,9 @@ __Test Pump_VWL_Vmin {
     }
 }
 __Test Pump_VWL_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -5988,8 +6033,9 @@ __Test Pump_VWL_Vmax {
     }
 }
 __Test Pump_VCG2P5_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -6001,8 +6047,9 @@ __Test Pump_VCG2P5_Vmin {
     }
 }
 __Test Pump_VCG2P5_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -6014,8 +6061,9 @@ __Test Pump_VCG2P5_Vmax {
     }
 }
 __Test Pump_VINH_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -6027,8 +6075,9 @@ __Test Pump_VINH_Vmin {
     }
 }
 __Test Pump_VINH_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -6040,8 +6089,9 @@ __Test Pump_VINH_Vmax {
     }
 }
 __Test Pump_VHV2X_Vmin {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -6053,8 +6103,9 @@ __Test Pump_VHV2X_Vmin {
     }
 }
 __Test Pump_VHV2X_Vmax {
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {

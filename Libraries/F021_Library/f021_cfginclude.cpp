@@ -449,7 +449,8 @@ void F021_FlashConfigInclude()
       GL_DO_REFARR_ERS_ADAPTIVE  = false ; /*true} {blizzard - temporary use deep erase shell*/
    else
       GL_DO_REFARR_ERS_ADAPTIVE  = false;
-   GL_DO_BOOST_REFARR = true;
+//   GL_DO_BOOST_REFARR = true;
+   GL_DO_BOOST_REFARR = false; /* Change to false for Blizzard ...pasa 3/26/12 */
    GL_DO_FOSC_TRIM       = true;  /*true=blow efuse, false=no blow efuse*/
 
    if(SelectedTITestType==MP1)  
@@ -6554,22 +6555,22 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[28] = true;
    TCR.TP1_MeasType[28] = MeasVoltType;
    TCR.TP1_VRange[28][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[28][ReadMode] = 10uA;
+   TCR.TP1_IRange[28][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[28][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[28][ReadMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[28][PvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[28][PvfyMode] = 10uA;
+   TCR.TP1_IRange[28][PvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[28][PvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[28][PvfyMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[28][EvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[28][EvfyMode] = 10uA;
+   TCR.TP1_IRange[28][EvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[28][EvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[28][EvfyMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[28][CvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[28][CvfyMode] = 10uA;
+   TCR.TP1_IRange[28][CvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[28][CvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[28][CvfyMode]   = VCG2P5_Read_LLim;
 
@@ -6604,7 +6605,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[29] = true;
    TCR.TP1_MeasType[29] = MeasVoltType;
    TCR.TP1_VRange[29][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[29][ReadMode] = 10uA;
+   TCR.TP1_IRange[29][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[29][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[29][ReadMode]   = VCG2P5_Read_LLim;
 
@@ -6625,7 +6626,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[30] = true;
    TCR.TP1_MeasType[30] = MeasVoltType;
    TCR.TP1_VRange[30][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[30][ReadMode] = 10uA;
+   TCR.TP1_IRange[30][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[30][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[30][ReadMode]   = VCG2P5_Read_LLim;
 
@@ -6757,22 +6758,22 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[43] = true;
    TCR.TP1_MeasType[43] = MeasVoltType;
    TCR.TP1_VRange[43][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[43][ReadMode] = 10uA;
+   TCR.TP1_IRange[43][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[43][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[43][ReadMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[43][PvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[43][PvfyMode] = 10uA;
+   TCR.TP1_IRange[43][PvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[43][PvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[43][PvfyMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[43][EvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[43][EvfyMode] = 10uA;
+   TCR.TP1_IRange[43][EvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[43][EvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[43][EvfyMode]   = VCG2P5_Read_LLim;
 
    TCR.TP1_VRange[43][CvfyMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[43][CvfyMode] = 10uA;
+   TCR.TP1_IRange[43][CvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[43][CvfyMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[43][CvfyMode]   = VCG2P5_Read_LLim;
 
@@ -6808,7 +6809,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[44] = true;
    TCR.TP1_MeasType[44] = MeasVoltType;
    TCR.TP1_VRange[44][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[44][ReadMode] = 10uA;
+   TCR.TP1_IRange[44][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[44][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[44][ReadMode]   = VCG2P5_Read_LLim;
 
@@ -6829,7 +6830,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[45] = true;
    TCR.TP1_MeasType[45] = MeasVoltType;
    TCR.TP1_VRange[45][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[45][ReadMode] = 10uA;
+   TCR.TP1_IRange[45][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[45][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[45][ReadMode]   = VCG2P5_Read_LLim;
 
@@ -7577,17 +7578,17 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[115] = true;
    TCR.TP1_MeasType[115] = MeasVoltType;
    TCR.TP1_VRange[115][ProgMode] = VHV_Prog_ULim;  /*~12v*/
-   TCR.TP1_IRange[115][ProgMode] = 10uA;
+   TCR.TP1_IRange[115][ProgMode] = -10uA; //10uA;
    TCR.TP1_ULim[115][ProgMode]   = VHV_Prog_ULim;
    TCR.TP1_LLim[115][ProgMode]   = VHV_Prog_LLim;
 
    TCR.TP1_VRange[115][PvfyMode] = VHV_Pvfy_ULim;
-   TCR.TP1_IRange[115][PvfyMode] = 10uA;
+   TCR.TP1_IRange[115][PvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[115][PvfyMode]   = VHV_Pvfy_ULim;
    TCR.TP1_LLim[115][PvfyMode]   = VHV_Pvfy_LLim;
 
    TCR.TP1_VRange[115][ErsMode]  = VHV_Ers_ULim;
-   TCR.TP1_IRange[115][ErsMode]  = 10uA;
+   TCR.TP1_IRange[115][ErsMode]  = -10uA; //10uA;
    TCR.TP1_ULim[115][ErsMode]    = VHV_Ers_ULim;
    TCR.TP1_LLim[115][ErsMode]    = VHV_Ers_LLim;
 
@@ -7595,17 +7596,17 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP2_Ena[115] = false ; /*true*/
    TCR.TP2_MeasType[115] = MeasVoltType;
    TCR.TP2_VRange[115][ProgMode] = VHVVregRef_Prog_ULim;
-   TCR.TP2_IRange[115][ProgMode] = 10uA;
+   TCR.TP2_IRange[115][ProgMode] = -10uA; //10uA;
    TCR.TP2_ULim[115][ProgMode]   = VHVVregRef_Prog_ULim;
    TCR.TP2_LLim[115][ProgMode]   = VHVVregRef_Prog_LLim;
 
    TCR.TP2_VRange[115][PvfyMode] = VHVVregRef_Pvfy_ULim;
-   TCR.TP2_IRange[115][PvfyMode] = 10uA;
+   TCR.TP2_IRange[115][PvfyMode] = -10uA; //10uA;
    TCR.TP2_ULim[115][PvfyMode]   = VHVVregRef_Pvfy_ULim;
    TCR.TP2_LLim[115][PvfyMode]   = VHVVregRef_Pvfy_LLim;
 
    TCR.TP2_VRange[115][ErsMode]  = VHVVregRef_Ers_ULim;
-   TCR.TP2_IRange[115][ErsMode]  = 10uA;
+   TCR.TP2_IRange[115][ErsMode]  = -10uA; //10uA;
    TCR.TP2_ULim[115][ErsMode]    = VHVVregRef_Ers_ULim;
    TCR.TP2_LLim[115][ErsMode]    = VHVVregRef_Ers_LLim;
 
@@ -7613,17 +7614,17 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP3_Ena[115] = false ; /*true*/
    TCR.TP3_MeasType[115] = MeasVoltType;
    TCR.TP3_VRange[115][ProgMode] = VHalfRef_Prog_ULim;
-   TCR.TP3_IRange[115][ProgMode] = 10uA;
+   TCR.TP3_IRange[115][ProgMode] = -10uA; //10uA;
    TCR.TP3_ULim[115][ProgMode]   = VHalfRef_Prog_ULim;
    TCR.TP3_LLim[115][ProgMode]   = VHalfRef_Prog_LLim;
 
    TCR.TP3_VRange[115][PvfyMode] = VHalfRef_Pvfy_ULim;
-   TCR.TP3_IRange[115][PvfyMode] = 10uA;
+   TCR.TP3_IRange[115][PvfyMode] = -10uA; //10uA;
    TCR.TP3_ULim[115][PvfyMode]   = VHalfRef_Pvfy_ULim;
    TCR.TP3_LLim[115][PvfyMode]   = VHalfRef_Pvfy_LLim;
 
    TCR.TP3_VRange[115][ErsMode]  = VHalfRef_Ers_ULim;
-   TCR.TP3_IRange[115][ErsMode]  = 10uA;
+   TCR.TP3_IRange[115][ErsMode]  = -10uA; //10uA;
    TCR.TP3_ULim[115][ErsMode]    = VHalfRef_Ers_ULim;
    TCR.TP3_LLim[115][ErsMode]    = VHalfRef_Ers_LLim;
 
@@ -7631,17 +7632,17 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TADC_Ena[115] = false ; /*true*/
    TCR.TADC_MeasType[115] = MeasVoltType;
    TCR.TADC_VRange[115][ProgMode] = VHV_TADC_Prog_ULim;
-   TCR.TADC_IRange[115][ProgMode] = 10uA;
+   TCR.TADC_IRange[115][ProgMode] = -10uA; //10uA;
    TCR.TADC_ULim[115][ProgMode]   = VHV_TADC_Prog_ULim;
    TCR.TADC_LLim[115][ProgMode]   = VHV_TADC_Prog_LLim;
 
    TCR.TADC_VRange[115][PvfyMode] = VHV_TADC_Pvfy_ULim;
-   TCR.TADC_IRange[115][PvfyMode] = 10uA;
+   TCR.TADC_IRange[115][PvfyMode] = -10uA; //10uA;
    TCR.TADC_ULim[115][PvfyMode]   = VHV_TADC_Pvfy_ULim;
    TCR.TADC_LLim[115][PvfyMode]   = VHV_TADC_Pvfy_LLim;
 
    TCR.TADC_VRange[115][ErsMode]  = VHV_TADC_Ers_ULim;
-   TCR.TADC_IRange[115][ErsMode]  = 10uA;
+   TCR.TADC_IRange[115][ErsMode]  = -10uA; //10uA;
    TCR.TADC_ULim[115][ErsMode]    = VHV_TADC_Ers_ULim;
    TCR.TADC_LLim[115][ErsMode]    = VHV_TADC_Ers_LLim;
 
@@ -7654,14 +7655,14 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP2_Ena[116] = true;
    TCR.TP2_MeasType[116] = MeasVoltType;
    TCR.TP2_VRange[116][ProgMode] = VSL_ULim;
-   TCR.TP2_IRange[116][ProgMode] = 10uA;
+   TCR.TP2_IRange[116][ProgMode] = -10uA; //10uA;
    TCR.TP2_ULim[116][ProgMode]   = VSL_ULim;
    TCR.TP2_LLim[116][ProgMode]   = VSL_LLim;
     /*VSLNREF*/
    TCR.TP3_Ena[116] = false ; /*true*/
    TCR.TP3_MeasType[116] = MeasVoltType;
    TCR.TP3_VRange[116][ProgMode] = VSLNREF_ULim;
-   TCR.TP3_IRange[116][ProgMode] = 10uA;
+   TCR.TP3_IRange[116][ProgMode] = -10uA; //10uA;
    TCR.TP3_ULim[116][ProgMode]   = VSLNREF_ULim;
    TCR.TP3_LLim[116][ProgMode]   = VSLNREF_LLim;
 
@@ -7669,21 +7670,21 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TADC_Ena[116] = false ; /*true*/
    TCR.TADC_MeasType[116] = MeasVoltType;
    TCR.TADC_VRange[116][ProgMode] = VSL_TADC_ULim;
-   TCR.TADC_IRange[116][ProgMode] = 10uA;
+   TCR.TADC_IRange[116][ProgMode] = -10uA; //10uA;
    TCR.TADC_ULim[116][ProgMode]   = VSL_TADC_ULim;
    TCR.TADC_LLim[116][ProgMode]   = VSL_TADC_LLim;
 
     /*use PvfyMode for 1mA Irange*/
    TCR.TP2_VRange[116][PvfyMode] = VSL_ULim;
-   TCR.TP2_IRange[116][PvfyMode] = 1mA;
+   TCR.TP2_IRange[116][PvfyMode] = -1mA; //1mA;
    TCR.TP2_ULim[116][PvfyMode]   = VSL_ULim;
    TCR.TP2_LLim[116][PvfyMode]   = VSL_LLim;
    TCR.TP3_VRange[116][PvfyMode] = VSLNREF_ULim;
-   TCR.TP3_IRange[116][PvfyMode] = 1mA;
+   TCR.TP3_IRange[116][PvfyMode] = -1mA; //1mA;
    TCR.TP3_ULim[116][PvfyMode]   = VSLNREF_ULim;
    TCR.TP3_LLim[116][PvfyMode]   = VSLNREF_LLim;
    TCR.TADC_VRange[116][PvfyMode] = VSL_TADC_ULim;
-   TCR.TADC_IRange[116][PvfyMode] = 1mA;
+   TCR.TADC_IRange[116][PvfyMode] = -1mA; //1mA;
    TCR.TADC_ULim[116][PvfyMode]   = VSL_TADC_ULim;
    TCR.TADC_LLim[116][PvfyMode]   = VSL_TADC_LLim;
 
@@ -7697,14 +7698,14 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[117] = true;
    TCR.TP1_MeasType[117] = MeasVoltType;
    TCR.TP1_VRange[117][ReadMode] = VRead_ULim;
-   TCR.TP1_IRange[117][ReadMode] = 10uA;
+   TCR.TP1_IRange[117][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[117][ReadMode]   = VRead_ULim;
    TCR.TP1_LLim[117][ReadMode]   = VRead_LLim;
     /*VReadNREF*/
    TCR.TP3_Ena[117] = false ; /*true*/
    TCR.TP3_MeasType[117] = MeasVoltType;
    TCR.TP3_VRange[117][ReadMode] = VReadNREF_ULim;
-   TCR.TP3_IRange[117][ReadMode] = 10uA;
+   TCR.TP3_IRange[117][ReadMode] = -10uA; //10uA;
    TCR.TP3_ULim[117][ReadMode]   = VReadNREF_ULim;
    TCR.TP3_LLim[117][ReadMode]   = VReadNREF_LLim;
 
@@ -7712,7 +7713,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TADC_Ena[117] = false ; /*true*/
    TCR.TADC_MeasType[117] = MeasVoltType;
    TCR.TADC_VRange[117][ReadMode] = VRead_TADC_ULim;
-   TCR.TADC_IRange[117][ReadMode] = 10uA;
+   TCR.TADC_IRange[117][ReadMode] = -10uA; //10uA;
    TCR.TADC_ULim[117][ReadMode]   = VRead_TADC_ULim;
    TCR.TADC_LLim[117][ReadMode]   = VRead_TADC_LLim;
 
@@ -7723,17 +7724,17 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_LLim[117][ProgMode]   = VRead_LLim-0.5V;
 
    TCR.TP3_VRange[117][ProgMode] = VReadNREF_ULim;
-   TCR.TP3_IRange[117][ProgMode] = 10uA;
+   TCR.TP3_IRange[117][ProgMode] = -10uA; //10uA;
    TCR.TP3_ULim[117][ProgMode]   = VReadNREF_ULim;
    TCR.TP3_LLim[117][ProgMode]   = VReadNREF_LLim;
     /*post trim vmin limits*/
    TCR.TP1_VRange[117][EvfyMode] = VRead_ULim_VMIN;
-   TCR.TP1_IRange[117][EvfyMode] = 10uA;
+   TCR.TP1_IRange[117][EvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[117][EvfyMode]   = VRead_ULim_VMIN;
    TCR.TP1_LLim[117][EvfyMode]   = VRead_LLim_VMIN;
     /*post trim vmax limits*/
    TCR.TP1_VRange[117][CvfyMode] = VRead_ULim_VMAX;
-   TCR.TP1_IRange[117][CvfyMode] = 10uA;
+   TCR.TP1_IRange[117][CvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[117][CvfyMode]   = VRead_ULim_VMAX;
    TCR.TP1_LLim[117][CvfyMode]   = VRead_LLim_VMAX;
 
@@ -7747,28 +7748,28 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[118] = true;
    TCR.TP1_MeasType[118] = MeasVoltType;
    TCR.TP1_VRange[118][ReadMode] = VSA5_Read_ULim;
-   TCR.TP1_IRange[118][ReadMode] = 10uA;
+   TCR.TP1_IRange[118][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[118][ReadMode]   = VSA5_Read_ULim;
    TCR.TP1_LLim[118][ReadMode]   = VSA5_Read_LLim;
     /*VSA5PUMP*/
    TCR.TP2_Ena[118] = false ; /*true*/
    TCR.TP2_MeasType[118] = MeasVoltType;
    TCR.TP2_VRange[118][ReadMode] = VSA5Pump_Read_ULim;
-   TCR.TP2_IRange[118][ReadMode] = 10uA;
+   TCR.TP2_IRange[118][ReadMode] = -10uA; //10uA;
    TCR.TP2_ULim[118][ReadMode]   = VSA5Pump_Read_ULim;
    TCR.TP2_LLim[118][ReadMode]   = VSA5Pump_Read_LLim;
     /*VSA5NREF*/
    TCR.TP3_Ena[118] = false ; /*true*/
    TCR.TP3_MeasType[118] = MeasVoltType;
    TCR.TP3_VRange[118][ReadMode] = VSA5NREF_Read_ULim;
-   TCR.TP3_IRange[118][ReadMode] = 10uA;
+   TCR.TP3_IRange[118][ReadMode] = -10uA; //10uA;
    TCR.TP3_ULim[118][ReadMode]   = VSA5NREF_Read_ULim;
    TCR.TP3_LLim[118][ReadMode]   = VSA5NREF_Read_LLim;
     /*VSA5->TESTADC output 1/2 factor*/
    TCR.TADC_Ena[118] = false ; /*true*/
    TCR.TADC_MeasType[118] = MeasVoltType;
    TCR.TADC_VRange[118][ReadMode] = VSA5_TADC_Read_ULim;
-   TCR.TADC_IRange[118][ReadMode] = 10uA;
+   TCR.TADC_IRange[118][ReadMode] = -10uA; //10uA;
    TCR.TADC_ULim[118][ReadMode]   = VSA5_TADC_Read_ULim;
    TCR.TADC_LLim[118][ReadMode]   = VSA5_TADC_Read_LLim;
 
@@ -7781,21 +7782,21 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[119] = true;
    TCR.TP1_MeasType[119] = MeasVoltType;
    TCR.TP1_VRange[119][ReadMode] = VWL_Read_ULim;
-   TCR.TP1_IRange[119][ReadMode] = 10uA;
+   TCR.TP1_IRange[119][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[119][ReadMode]   = VWL_Read_ULim;
    TCR.TP1_LLim[119][ReadMode]   = VWL_Read_LLim;
     /*VWLNREF*/
    TCR.TP3_Ena[119] = false ; /*true*/
    TCR.TP3_MeasType[119] = MeasVoltType;
    TCR.TP3_VRange[119][ReadMode] = VWLNREF_Read_ULim;
-   TCR.TP3_IRange[119][ReadMode] = 10uA;
+   TCR.TP3_IRange[119][ReadMode] = -10uA; //10uA;
    TCR.TP3_ULim[119][ReadMode]   = VWLNREF_Read_ULim;
    TCR.TP3_LLim[119][ReadMode]   = VWLNREF_Read_LLim;
     /*VWL->TESTADC output 1/1 factor*/
    TCR.TADC_Ena[119] = false ; /*true*/
    TCR.TADC_MeasType[119] = MeasVoltType;
    TCR.TADC_VRange[119][ReadMode] = VWL_TADC_Read_ULim;
-   TCR.TADC_IRange[119][ReadMode] = 10uA;
+   TCR.TADC_IRange[119][ReadMode] = -10uA; //10uA;
    TCR.TADC_ULim[119][ReadMode]   = VWL_TADC_Read_ULim;
    TCR.TADC_LLim[119][ReadMode]   = VWL_TADC_Read_LLim;
 
@@ -7809,21 +7810,21 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[120] = true;
    TCR.TP1_MeasType[120] = MeasVoltType;
    TCR.TP1_VRange[120][ReadMode] = VCG2P5_Read_ULim;
-   TCR.TP1_IRange[120][ReadMode] = 10uA;
+   TCR.TP1_IRange[120][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[120][ReadMode]   = VCG2P5_Read_ULim;
    TCR.TP1_LLim[120][ReadMode]   = VCG2P5_Read_LLim;
     /*VCG2P5NREF*/
    TCR.TP3_Ena[120] = false ; /*true*/
    TCR.TP3_MeasType[120] = MeasVoltType;
    TCR.TP3_VRange[120][ReadMode] = VCG2P5NREF_Read_ULim;
-   TCR.TP3_IRange[120][ReadMode] = 10uA;
+   TCR.TP3_IRange[120][ReadMode] = -10uA; //10uA;
    TCR.TP3_ULim[120][ReadMode]   = VCG2P5NREF_Read_ULim;
    TCR.TP3_LLim[120][ReadMode]   = VCG2P5NREF_Read_LLim;
     /*VCG2P5->TESTADC output 1/1 factor*/
    TCR.TADC_Ena[120] = false ; /*true*/
    TCR.TADC_MeasType[120] = MeasVoltType;
    TCR.TADC_VRange[120][ReadMode] = VCG2P5_TADC_Read_ULim;
-   TCR.TADC_IRange[120][ReadMode] = 10uA;
+   TCR.TADC_IRange[120][ReadMode] = -10uA; //10uA;
    TCR.TADC_ULim[120][ReadMode]   = VCG2P5_TADC_Read_ULim;
    TCR.TADC_LLim[120][ReadMode]   = VCG2P5_TADC_Read_LLim;
 
@@ -7837,31 +7838,31 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[121] = true;
    TCR.TP1_MeasType[121] = MeasVoltType;
    TCR.TP1_VRange[121][ReadMode] = VINH_Read_ULim;
-   TCR.TP1_IRange[121][ReadMode] = 10uA;
+   TCR.TP1_IRange[121][ReadMode] = -10uA; //10uA;
    TCR.TP1_ULim[121][ReadMode]   = VINH_Read_ULim;
    TCR.TP1_LLim[121][ReadMode]   = VINH_Read_LLim;
     /*VINHNREF*/
    TCR.TP3_Ena[121] = false ; /*true*/
    TCR.TP3_MeasType[121] = MeasVoltType;
    TCR.TP3_VRange[121][ReadMode] = VINHNREF_Read_ULim;
-   TCR.TP3_IRange[121][ReadMode] = 10uA;
+   TCR.TP3_IRange[121][ReadMode] = -10uA; //10uA;
    TCR.TP3_ULim[121][ReadMode]   = VINHNREF_Read_ULim;
    TCR.TP3_LLim[121][ReadMode]   = VINHNREF_Read_LLim;
     /*VINH->TESTADC output 1/1 factor*/
    TCR.TADC_Ena[121] = false ; /*true*/
    TCR.TADC_MeasType[121] = MeasVoltType;
    TCR.TADC_VRange[121][ReadMode] = VINH_TADC_Read_ULim;
-   TCR.TADC_IRange[121][ReadMode] = 10uA;
+   TCR.TADC_IRange[121][ReadMode] = -10uA; //10uA;
    TCR.TADC_ULim[121][ReadMode]   = VINH_TADC_Read_ULim;
    TCR.TADC_LLim[121][ReadMode]   = VINH_TADC_Read_LLim;
     /*vmin limits*/
    TCR.TP1_VRange[121][EvfyMode] = VINH_ULim_VMIN;
-   TCR.TP1_IRange[121][EvfyMode] = 10uA;
+   TCR.TP1_IRange[121][EvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[121][EvfyMode]   = VINH_ULim_VMIN;
    TCR.TP1_LLim[121][EvfyMode]   = VINH_LLim_VMIN;
     /*vmax limits*/
    TCR.TP1_VRange[121][CvfyMode] = VINH_ULim_VMAX;
-   TCR.TP1_IRange[121][CvfyMode] = 10uA;
+   TCR.TP1_IRange[121][CvfyMode] = -10uA; //10uA;
    TCR.TP1_ULim[121][CvfyMode]   = VINH_ULim_VMAX;
    TCR.TP1_LLim[121][CvfyMode]   = VINH_LLim_VMAX;
 
@@ -7875,14 +7876,14 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_Ena[122] = true;
    TCR.TP1_MeasType[122] = MeasVoltType;
    TCR.TP1_VRange[122][ProgMode] = VHV2XPump_Prog_ULim;
-   TCR.TP1_IRange[122][ProgMode] = 10uA;
+   TCR.TP1_IRange[122][ProgMode] = -10uA; //10uA;
    TCR.TP1_ULim[122][ProgMode]   = VHV2XPump_Prog_ULim;
    TCR.TP1_LLim[122][ProgMode]   = VHV2XPump_Prog_LLim;
     /*VHV2XPump->TESTADC output 1/8 factor*/
    TCR.TADC_Ena[122] = false ; /*true*/
    TCR.TADC_MeasType[122] = MeasVoltType;
    TCR.TADC_VRange[122][ProgMode] = VHV2XPump_TADC_Prog_ULim;
-   TCR.TADC_IRange[122][ProgMode] = 10uA;
+   TCR.TADC_IRange[122][ProgMode] = -10uA; //10uA;
    TCR.TADC_ULim[122][ProgMode]   = VHV2XPump_TADC_Prog_ULim;
    TCR.TADC_LLim[122][ProgMode]   = VHV2XPump_TADC_Prog_LLim;
 

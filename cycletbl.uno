@@ -1682,6 +1682,14 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[4] = ramread_nburst_addr_Thrd;
     __Thread[5] = ramread_mbox_Thrd;
     __Thread[6] = ramwrite_burst_addr_Thrd;
+    __Thread[7] = Garnet_Shell064_T072C009S007_A3_v2p0_Thrd;
+    __Thread[8] = f021_shell_exepat_pll_v4p0_Thrd;
+    __Thread[9] = ramread_nburst_lsw_v4p0_Thrd;
+    __Thread[10] = ramread_nburst_msw_v4p0_Thrd;
+    __Thread[11] = ramread_nburst_addr_v4p0_Thrd;
+    __Thread[12] = ramread_mbox_v4p0_Thrd;
+    __Thread[13] = ramwrite_burst_addr_v4p0_Thrd;
+    __Thread[14] = f021_shell_exepat_vco_v4p0_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
     }
@@ -1728,6 +1736,55 @@ __Thread ramwrite_burst_addr_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __PatternLabel = __Expression { __String = "ramwrite_burst_addr_v3p0.ramwrite_burst_addr_v3p0_start"; }
+    }
+}
+
+__Thread Garnet_Shell064_T072C009S007_A3_v2p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "Garnet_Shell064_T072C009S007_A3_v2p0.Garnet_Shell064_T072C009S007_A3_v2p0_start"; }
+    }
+}
+__Thread f021_shell_exepat_pll_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "f021_shell_exepat_pll_v4p0.f021_shell_exepat_pll_v4p0_start"; }
+    }
+}
+__Thread ramread_nburst_lsw_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_lsw_v4p0.ramread_nburst_lsw_v4p0_start"; }
+    }
+}
+__Thread ramread_nburst_msw_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_msw_v4p0.ramread_nburst_msw_v4p0_start"; }
+    }
+}
+__Thread ramread_nburst_addr_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_nburst_addr_v4p0.ramread_nburst_addr_v4p0_start"; }
+    }
+}
+__Thread ramread_mbox_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramread_mbox_scram_v4p0.ramread_mbox_scram_v4p0_start"; }
+    }
+}
+__Thread ramwrite_burst_addr_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ramwrite_burst_addr_v4p0.ramwrite_burst_addr_v4p0_start"; }
+    }
+}
+__Thread f021_shell_exepat_vco_v4p0_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "f021_shell_exepat_vco_v4p0.f021_shell_exepat_vco_v4p0_start"; }
     }
 }
 __Thread a_st_tk_10_v22_Thrd {

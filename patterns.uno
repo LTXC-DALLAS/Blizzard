@@ -362,10 +362,10 @@ __PatternMap DefaultPatternMap {
         __File "st_tk_init_byhand";
         __Path "./Patterns/Ascii";
     }
-//    __Pattern jtag_reset_init {
-//        __File "jtag_reset_init";
-//        __Path "./Patterns/Ascii";
-//    }
+    __Pattern jtag_reset_init {
+        __File "jtag_reset_init";
+        __Path "./Patterns/Ascii";
+    }
 
 /*********************************************************/
 /***    Trevor's debugged flash shell pattern          ***/
@@ -413,6 +413,45 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
+    __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
+        __File "Garnet_Shell064_T072C009S007_A3_v2p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern f021_shell_exepat_pll_v4p0 {
+        __File "f021_shell_exepat_pll_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_lsw_v4p0 {
+        __File "ramread_nburst_lsw_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_msw_v4p0 {
+        __File "ramread_nburst_msw_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_addr_v4p0 {
+        __File "ramread_nburst_addr_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_mbox_scram_v4p0 {
+        __File "ramread_mbox_scram_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramwrite_burst_addr_v4p0 {
+        __File "ramwrite_burst_addr_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern f021_shell_exepat_vco_v4p0 {
+        __File "f021_shell_exepat_vco_v4p0";
+        __Path "./Patterns/Ascii";
+    }
 
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";

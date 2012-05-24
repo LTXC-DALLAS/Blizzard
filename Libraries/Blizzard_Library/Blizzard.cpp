@@ -529,4 +529,16 @@ IntS ClearCPUFlag()
    TIME.Wait(0.0s);
     return 0;
 }
-
+void CyclePower(Levels powerDownLevels1, Levels powerDownLevels2, FloatS powerDownDelay,
+                Levels powerUpLevels1, Levels powerUpLevels2)
+{
+   if (powerDownLevels1.Valid())
+      powerDownLevels1.Execute();
+   if (powerDownLevels2.Valid())
+      powerDownLevels2.Execute();
+   TIME.Wait(powerDownDelay);
+   if (powerUpLevels1.Valid())
+      powerUpLevels1.Execute();
+   if (powerUpLevels2.Valid())
+      powerUpLevels2.Execute();
+}
