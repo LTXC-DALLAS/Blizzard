@@ -24,6 +24,9 @@
 
 #include <Unison.h>
 #include <f021_flashglobal.h>
+
+extern      bool reload_flashshell;
+
 extern      F021_FlashRec F021_Flash;
 extern      F021_RunCodeRec F021_RunCode;
 extern      F021_MBIRec F021_MBI;

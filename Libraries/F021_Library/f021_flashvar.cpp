@@ -21,6 +21,8 @@
 
 #include <f021_flashvar.h>
 
+bool reload_flashshell;
+
 F021_FlashRec F021_Flash;
 F021_RunCodeRec F021_RunCode;
 F021_MBIRec F021_MBI;

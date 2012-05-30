@@ -441,21 +441,25 @@ TMResultM F021_InitFLGlobalvars_func()
    // and places the value in the BoolS RunAllTests
    RunAllTests = "RunAllTests";
    
-   if(!ActiveSites.Begin().End())  // was v_any_dev_active
+   // Moved this here instead of elsewhere in the flow. It isn't used until the 
+   // Flash stuff after this function anyway.
+   reload_flashshell = false;  /*This is added to reload the flash shell after we calculate VHV soft trims.  Due to the nature
+     of the flash tests following VHV, we need to load the PMOS trims for the PMOS currents and the VHV CT's for programming/erasing
+     and BCC's/VT's.  Once the flash stability issue has been resolved, this variable will not be necessary  JRR 0501512 */
+
+   
+   if(tistdscreenprint)  
    {
-      if(tistdscreenprint)  
+      IO.Print(IO.Stdout,"+++++ F021_InitFLGlobalvars_func +++++\n");
+      if(TI_FlashDebug)  
       {
-         IO.Print(IO.Stdout,"+++++ F021_InitFLGlobalvars_func +++++\n");
-         if(TI_FlashDebug)  
-         {
-            IO.Print(IO.Stdout,"GL_F021_LOG_FAILPAT[site] = false\n");
-            IO.Print(IO.Stdout,"GL_F021_COF_PASS[site] = true\n");
-            IO.Print(IO.Stdout,"GL_F021_COF_1STFAILTEST[site] = NULL_TestName\n");
-            IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = true\n");
-            IO.Print(IO.Stdout,"GL_FLASH_RETEST[site] = false\n");
-            IO.Print(IO.Stdout,"GL_FLASH_RETEST_GEC[site] = false\n");
-            IO.Print(IO.Stdout,"PUMP_PARA_VALUE[pre/post] = 0V\n");
-         } 
+         IO.Print(IO.Stdout,"GL_F021_LOG_FAILPAT[site] = false\n");
+         IO.Print(IO.Stdout,"GL_F021_COF_PASS[site] = true\n");
+         IO.Print(IO.Stdout,"GL_F021_COF_1STFAILTEST[site] = NULL_TestName\n");
+         IO.Print(IO.Stdout,"GL_FLASH_SAVESITES[site] = true\n");
+         IO.Print(IO.Stdout,"GL_FLASH_RETEST[site] = false\n");
+         IO.Print(IO.Stdout,"GL_FLASH_RETEST_GEC[site] = false\n");
+         IO.Print(IO.Stdout,"PUMP_PARA_VALUE[pre/post] = 0V\n");
       } 
 
        /*initialize new DUTs as not yet logged fail to tw*/
@@ -1340,7 +1344,7 @@ void PrintHeaderParam(BoolS paral_format)
  // This function has been changed to be multi-site
 void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 {
-   StringS tpatt = "ramread_nburst_addr_Thrd";
+   StringS tpatt = "ramread_nburst_addr_v4p0_Thrd"; //"ramread_nburst_addr_Thrd";
    StringS datastr;
    StringS cap_name, label;
    StringS addr_str,s,str1,str2;
@@ -2449,7 +2453,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 {
    IntS offsetcyc;
    StringS addr_str;
-   StringS tpatt = "ramwrite_burst_addr_Thrd";
+   StringS tpatt = "ramwrite_burst_addr_v4p0_Thrd"; //"ramwrite_burst_addr_Thrd";
    StringM bcd_vlsi_str1,bcd_vlsi_str2;
    StringM bin_vlsi_str1,bin_vlsi_str2;
    PinML data_pins;
@@ -2768,7 +2772,7 @@ void GetRamContent_SCRAM(IntS start_addr,
     else if(store_option = (ord(MBOXOTP_ARR))) then
        tpatt := ramread_tlog_mbox_scram
     else}  {blizzard specific*/
-      tpatt = "ramread_mbox_Thrd";
+      tpatt = "ramread_mbox_v4p0_Thrd"; //"ramread_mbox_Thrd";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
@@ -3451,7 +3455,8 @@ void Get_TLogSpace_ErsPulse(IntM ret_val) {
 
  
    addr = ADDR_ERS_PULSE;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,tdata);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,tdata);
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr,tdata);
 
    ret_val = tdata;
 
@@ -3506,7 +3511,8 @@ void Get_TLogSpace_MaxPPulse(IntM ret_val) {
    tdata = 0;
 
    addr = ADDR_PROG_MAX_PULSE;
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,tdata);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,tdata);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr,tdata);
 
    ret_val = tdata;
 
@@ -7243,6 +7249,16 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
    tnumlo = testnum&0x0000ffff;
    
    ret_timer = 0;
+   
+// Commented out the below lines because we use F021_RunTestNumber_PMEX
+// instead of recreating code and the _PMEX function has the following
+// if clause.
+//   if reload_flashshell then
+//   {
+//      DIGITAL.ExecutePattern(f021_shell_loadpat); /* temp JRR */
+//      RAM_Upload_VHV_CT_Trimval(); /* temp JRR */
+//      RAM_Upload_PMOS_TrimCode(); /* temp JRR */
+//   }
 
     /* +++ Execute test +++ */
    exec_results = F021_RunTestNumber_PMEX(testnum, maxtime, true);
@@ -7521,7 +7537,9 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+                     // removed Abs because we need to be able to sink current during voltage measures
+                     iProg = TCR.TP1_IRange[TCRnum][TCRMode];
+                     
                   tsupply  = FLTP1;
                   str1     = "TP1";
                   if(special_opt=3)  
@@ -7548,7 +7566,8 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MATH.Abs(FloatS(TCR.TP2_IRange[TCRnum][TCRMode]));                        
+                     iProg = TCR.TP2_IRange[TCRnum][TCRMode];  
+                     
                   tsupply  = FLTP2;
                   str1     = "TP2";
                   suppena  = true;
@@ -7573,7 +7592,8 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MTH.Abs(FloatS(TCR.TP3_IRange[TCRnum][TCRMode]));
+                     iProg = TCR.TP3_IRange[TCRnum][TCRMode];
+                     
                   tsupply  = FLTP3;
                   str1     = "TP3";
                   suppena  = true;
@@ -7597,7 +7617,8 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MATH.Abs(FloatS(TCR.TP4_IRange[TCRnum][TCRMode]));
+                     iProg = TCR.TP4_IRange[TCRnum][TCRMode];
+                     
                   tsupply  = FLTP4;
                   str1     = "TP4";
                   suppena  = true;
@@ -7621,7 +7642,8 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MATH.Abs(FloatS(TCR.TP5_IRange[TCRnum][TCRMode]));
+                     iProg = TCR.TP5_IRange[TCRnum][TCRMode];
+                     
                   tsupply  = FLTP5;
                   str1     = "TP5";
                   suppena  = true;
@@ -7647,7 +7669,8 @@ void F021_Set_TPADS(IntS TCRnum,
                   if(meastype==MeasCurrType)  
                      iProg = 1.2*MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
                   else
-                     iProg = MATH.Abs(FloatS(TCR.TADC_IRange[TCRnum][TCRMode]));
+                     iProg = TCR.TADC_IRange[TCRnum][TCRMode];
+                     
                   tsupply  = P_TADC;
                   str1     = "TADC";
                   suppena  = true;
@@ -7692,7 +7715,8 @@ void F021_Set_TPADS(IntS TCRnum,
          if(meastype==MeasCurrType)  
             iProg = 1.2*MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
          else
-            iProg = MATH.Abs(FloatS(TCR.TP1_IRange[TCRnum][TCRMode]));
+            iProg = TCR.TP1_IRange[TCRnum][TCRMode];
+            
          tsupply  = FLTP1;
          str1     = "TP1";
          suppena  = true;
@@ -7700,6 +7724,10 @@ void F021_Set_TPADS(IntS TCRnum,
 
       if(suppena)  
       {
+         if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
+         { 
+            STDConnect(tsupply);
+         }
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
@@ -8061,24 +8089,24 @@ void F021_TurnOff_AllTPADS()
 
    VI.Gate(FLTP1, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP2, VI_GATE_OFF_LOZ);
-   VI.Disconnect(FLTP1);
-   VI.Disconnect(FLTP2);
+//   VI.Disconnect(FLTP1);
+//   VI.Disconnect(FLTP2);
 //   STDSetVI(FLTP1,0V,1mA);
 //   STDSetVI(FLTP2,0V,1mA);
 #if $TP3_TO_TP5_PRESENT  
    VI.Gate(FLTP3, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP4, VI_GATE_OFF_LOZ);
    VI.Gate(FLTP5, VI_GATE_OFF_LOZ);
-   VI.Disconnect(FLTP3);
-   VI.Disconnect(FLTP4);
-   VI.Disconnect(FLTP5);
+//   VI.Disconnect(FLTP3);
+//   VI.Disconnect(FLTP4);
+//   VI.Disconnect(FLTP5);
 //   STDSetVI(FLTP3,0V,1mA);
 //   STDSetVI(FLTP4,0V,1mA);
 //   STDSetVI(FLTP5,0V,1mA);
 #endif
 #if $TADC_PRESENT  
    VI.Gate(P_TADC, VI_GATE_OFF_LOZ);
-   VI.Disconnect(P_TADC);
+//   VI.Disconnect(P_TADC);
 //   STDSetVI(P_TADC,0V,1mA);
 #endif
       
@@ -8340,7 +8368,14 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       maxtime = GL_F021_MAXTIME;
 
    tdelay = 100us;
-
+   
+   if (reload_flashshell)
+   {
+      DIGITAL.ExecutePattern(f021_shell_loadpat); /* temp JRR */
+      RAM_Upload_VHV_CT_TrimVal(); /* temp JRR */
+      RAM_Upload_PMOS_TrimCode(); /* temp JRR */
+   }
+   
    F021_SetTestNum(testnum);
    
    if (using_pattern_match) 
@@ -12039,8 +12074,10 @@ TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
 
     /*OTP template in RAM : pgct/ersct*/
    addr = ADDR_RAM_TEMPL_VHVE_PMT;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);   
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr,pre_pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr,ersct);
    pgct = pre_pgct;
    ctval = pre_pgct;
 
@@ -12175,19 +12212,25 @@ TMResultM F021_VHV_ER_CT_Trim_func(IntM &ret_ctval)
    ulim = target+(target*toler);
 
    addr = ADDR_RAM_TEMPL_VHVE_SM;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED);
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED);   
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd", addr, VHV_ER_CT_STARTSAVED);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd", addr, VHV_ER_CT_STEPSAVED);
    
 #if $FL_USE_NEW_VHV_TEMPL_ADDR 
    addr = ADDR_RAM_TEMPL_VHVE_SM_EMU;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED_EMU);
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED_EMU);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd", addr, VHV_ER_CT_STARTSAVED_EMU);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd", addr, VHV_ER_CT_STEPSAVED_EMU);   
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd", addr, VHV_ER_CT_STARTSAVED_EMU);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd", addr, VHV_ER_CT_STEPSAVED_EMU);
 #endif
 
     /*OTP template in RAM : pgct/ersct*/
    addr = ADDR_RAM_TEMPL_VHVE_PMT;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pgct);
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,pre_ersct);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pgct);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,pre_ersct);   
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr,pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr,pre_ersct);
    ersct = pre_ersct;
    ctval = pre_ersct;
 
@@ -12345,8 +12388,10 @@ TMResultM F021_VHV_PV_CT_Trim_func(IntM &ret_ctval)
 
     /*OTP template in RAM : pvfy/other*/
    addr = ADDR_RAM_TEMPL_VHVPV_PMT;
-   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
-   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);
+//   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,pre_pgct);
+//   GetRamContentDec_16Bit("ramread_nburst_lsw_Thrd",addr,ersct);   
+   GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr,pre_pgct);
+   GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr,ersct);
    pgct = pre_pgct;
    ctval = pre_pgct;
 
@@ -13234,6 +13279,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
    VCornerType vcorner;
    Sites savesites, new_active_sites;
    int int_site;
+   bool any_site_active = true;
 
    final_results = TM_NOTEST;
 
@@ -13403,7 +13449,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
                {
                   new_active_sites = ActiveSites;
                   new_active_sites.DisableFailingSites(final_results == TM_PASS);
-                  RunTime.SetActiveSites(new_active_sites);
+                  any_site_active = SetActiveSites(new_active_sites);
                }
             }
             
@@ -13411,7 +13457,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
                cout << test_name << " TT : " << ttimerS << endl;
          }   /*if pump_para_enable*/
 
-         if(ActiveSites.Begin().End()) 
+         if(!any_site_active) 
             break;
 
       }   /*for tpnum*/
@@ -25256,6 +25302,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    FloatS llim,ulim;
    IntS TRIMENAKEY;
    IntM TrimValue,BGValue,IRValue,FOSCValue;
+   bool any_site_active = true;
    
 
    if(tistdscreenprint)  
@@ -25312,11 +25359,11 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    {
       pretrim_pass_sites = ActiveSites;
       pretrim_pass_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-      RunTime.SetActiveSites(pretrim_pass_sites);
+      any_site_active = SetActiveSites(pretrim_pass_sites);
    }
    
     /*+++++ STEP #2 +++++*/
-   if(!ActiveSites.Begin().End())  
+   if(any_site_active)  
    {
       trim_sites = ActiveSites;
       BoolM softtrim_ena;
@@ -25359,11 +25406,9 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
       }  
       /*+++ end Calc delta +++*/
 
-      // disable sites that don't need to trim
-      RunTime.SetActiveSites(trim_sites);
-
        /*+++++ STEP #3 +++++*/
-      if(!ActiveSites.Begin().End())  
+      // disable sites that don't need to trim
+      if(SetActiveSites(trim_sites))  
       {
          TRIMENAKEY = 0xAA55;
          IRValue = 0;
@@ -26117,6 +26162,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    IntS TRIMENAKEY;
    IntM TrimValue,BGValue,IRValue,FOSCValue;
    IntM trim_alarms;
+   bool any_site_active = true;
 
 
    if(tistdscreenprint)  
@@ -26175,11 +26221,11 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    {
       pass_pretrim_sites = ActiveSites;
       pass_pretrim_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-      RunTime.SetActiveSites(pass_pretrim_sites);
+      any_site_active = SetActiveSites(pass_pretrim_sites);
    }
    
     /*+++++ STEP #2 +++++*/
-   if(!ActiveSites.Begin().End())  
+   if(any_site_active)  
    {
        /*compare override value vs target*/
       fl_testname = "MainIREF_Trim_Test";
@@ -26218,10 +26264,8 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
       }   /*for site*/
        /*+++ end Calc delta +++*/
 
-      RunTime.SetActiveSites(trim_sites);
-      
        /*+++++ STEP #3 +++++*/
-      if(!ActiveSites.Begin().End())  
+      if(SetActiveSites(trim_sites))  
       {
          if (charTrimEna) // run every code so we can see what the curve looks like
          {

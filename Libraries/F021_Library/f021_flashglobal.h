@@ -51,8 +51,6 @@
 extern IntS SelectedTITestTemp;
 extern IntS SelectedTITestType;
 
-//extern double HVFEM_FACTOR;
-
 extern BoolS RunAllTests;
 
 extern BoolS tistdscreenprint;
@@ -76,20 +74,14 @@ extern PinM F021_VCTRLPIN;
 extern PinM F021_VSTATPIN;
 extern PinM nporrst;
 extern PinM FLTP1;
-//extern PinM FLTP1_HVFEM_RLY;
 extern PinM FLTP2;
-//extern PinM FLTP2_HVFEM_RLY;
 #if $TP3_TO_TP5_PRESENT
 extern PinM FLTP3;
-//extern PinM FLTP3_HVFEM_RLY;
 extern PinM FLTP4;
-//extern PinM FLTP4_HVFEM_RLY;
 extern PinM FLTP5;
-//extern PinM FLTP5_HVFEM_RLY;
 #endif
 #if $TADC_PRESENT
 extern PinM P_TADC;
-//extern PinM P_TADC_HVFEM_RLY;
 #endif
 
    /*up to 8 banks, 8 blks/bank, 16 sectors per blk?*/

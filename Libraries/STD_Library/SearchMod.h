@@ -3,6 +3,7 @@
 
 #include <Unison.h>
 #include <fstream>      // for file io
+#include <MultisiteUtils.h>   // for SetActiveSites 
 
 ////////////////////////////////////////////////////////////////////////////////
 /*

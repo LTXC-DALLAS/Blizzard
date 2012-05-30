@@ -398,10 +398,10 @@ __PatternMap DefaultPatternMap {
         __File "st_tk_init_byhand";
         __Path "./Patterns/Ascii";
     }
-//    __Pattern jtag_reset_init {
-//        __File "jtag_reset_init";
-//        __Path "./Patterns/Ascii";
-//    }
+    __Pattern jtag_reset_init {
+        __File "jtag_reset_init";
+        __Path "./Patterns/Ascii";
+    }
 
 /*********************************************************/
 /***    Trevor's debugged flash shell pattern          ***/
@@ -422,16 +422,6 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
-    //RPT 600k at the end
-    __Pattern f021_shell_exepat_pll_NCPU {
-        __File "f021_shell_exepat_pll_NCPU";
-        __Path "./Patterns/Ascii";
-    }
-    //RPT 500k at the end followed by RPT_CPU w/ clock turned off
-    __Pattern f021_shell_exepat_pll_Both {
-        __File "f021_shell_exepat_pll_Both";
-        __Path "./Patterns/Ascii";
-    }
 /*********************************************************/
 
     __Pattern ramread_nburst_lsw_v3p0 {
@@ -459,41 +449,48 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 
+    __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
+        __File "Garnet_Shell064_T072C009S007_A3_v2p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern f021_shell_exepat_pll_v4p0 {
+        __File "f021_shell_exepat_pll_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_lsw_v4p0 {
+        __File "ramread_nburst_lsw_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_msw_v4p0 {
+        __File "ramread_nburst_msw_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_nburst_addr_v4p0 {
+        __File "ramread_nburst_addr_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramread_mbox_scram_v4p0 {
+        __File "ramread_mbox_scram_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern ramwrite_burst_addr_v4p0 {
+        __File "ramwrite_burst_addr_v4p0";
+        __Path "./Patterns/Ascii";
+    }
+
+    __Pattern f021_shell_exepat_vco_v4p0 {
+        __File "f021_shell_exepat_vco_v4p0";
+        __Path "./Patterns/Ascii";
+    }
 
     __Pattern ShellB_Tnum0x00100000 {
         __File "ShellB_Tnum0x00100000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_NoRPT2 {
-        __File "dmled_test_number_NoRPT2";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_NoRPT1 {
-        __File "dmled_test_number_NoRPT1";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x00100000 {
-        __File "dmled_test_number_0x00100000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x00200000 {
-        __File "dmled_test_number_0x00200000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x10000000 {
-        __File "dmled_test_number_0x10000000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_test_number_0x11200000 {
-        __File "dmled_test_number_0x11200000";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_TstNum_0x11200000_trunc {
-        __File "dmled_TstNum_0x11200000_trunc";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern dmled_TstNum_0x10000000_trunc {
-        __File "dmled_TstNum_0x10000000_trunc";
         __Path "./Patterns/Ascii";
     }
     __Pattern ldo_bypass_init_DSH {
@@ -744,24 +741,12 @@ __PatternMap DefaultPatternMap {
         __File "dmled_read_DPM";
         __Path "./Patterns/Ascii";
     }
-    __Pattern dmled_test_number_DPM {
-        __File "dmled_test_number_DPM";
-        __Path "./Patterns/Ascii";
-    }
     __Pattern eeprom_wdone_int_DPM {
         __File "eeprom_wdone_int_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern fl_otp_loader_v21_DPM {
         __File "fl_otp_loader_v21_DPM";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern fl_sw_dl_a1a3_4_DPM {
-        __File "fl_sw_dl_a1a3_4_DPM";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern fl_sw_dl_a2_2_DPM {
-        __File "fl_sw_dl_a2_2_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern fl_sw_dl_dpse_DPM {
