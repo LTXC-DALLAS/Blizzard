@@ -1740,12 +1740,28 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[12] = ramread_mbox_v4p0_Thrd;
     __Thread[13] = ramwrite_burst_addr_v4p0_Thrd;
     __Thread[14] = f021_shell_exepat_vco_v4p0_Thrd;
+    __Thread[15] = jtag_reset_init_Thrd;
+    __Thread[16] = ldo_bypass_init_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
+        __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
+        __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
     }
     __AutoBasePeriod = __True;
 }
 
+__Thread jtag_reset_init_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "jtag_reset_init.jtag_resett_st"; }
+    }
+}
+__Thread ldo_bypass_init_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "ldo_bypass_init_DSH.ldo_bypass_init_st"; }
+    }
+}
 __Thread Garnet_Shell064_T072C008S007_A2_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }

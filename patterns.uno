@@ -306,7 +306,7 @@ __PatternMap DefaultPatternMap {
 /**   Trevor's v4p0 flash patterns emailed 18may12  **/
 /*****************************************************/
 
-    __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
+/*    __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
         __File "Garnet_Shell064_T072C009S007_A3_v2p0";
         __Path "../Rev4_FlashPatts/";
     }
@@ -334,6 +334,7 @@ __PatternMap DefaultPatternMap {
         __File "ramwrite_burst_addr_v4p0";
         __Path "../Rev4_FlashPatts/";
     }
+*/
 /*********  END v4p0 FLASH PATTERNS  *********/
 
 
@@ -450,43 +451,43 @@ __PatternMap DefaultPatternMap {
     }
 
     __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
-        __File "Garnet_Shell064_T072C009S007_A3_v2p0";
-        __Path "./Patterns/Ascii";
+	__File "Garnet_Shell064_T072C009S007_A3_v2p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern f021_shell_exepat_pll_v4p0 {
-        __File "f021_shell_exepat_pll_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "f021_shell_exepat_pll_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ramread_nburst_lsw_v4p0 {
-        __File "ramread_nburst_lsw_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "ramread_nburst_lsw_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ramread_nburst_msw_v4p0 {
-        __File "ramread_nburst_msw_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "ramread_nburst_msw_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ramread_nburst_addr_v4p0 {
-        __File "ramread_nburst_addr_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "ramread_nburst_addr_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ramread_mbox_scram_v4p0 {
-        __File "ramread_mbox_scram_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "ramread_mbox_scram_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ramwrite_burst_addr_v4p0 {
-        __File "ramwrite_burst_addr_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "ramwrite_burst_addr_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern f021_shell_exepat_vco_v4p0 {
-        __File "f021_shell_exepat_vco_v4p0";
-        __Path "./Patterns/Ascii";
+	__File "f021_shell_exepat_vco_v4p0";
+	__Path "./Patterns/Ascii";
     }
 
     __Pattern ShellB_Tnum0x00100000 {
@@ -634,11 +635,15 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
     __Pattern a_iddq {
-        __File "a_iddq_NoPM";
+        __File "a_iddq";
         __Path "./Patterns/Ascii";
     }
     __Pattern a_iddq_NoPM {
         __File "a_iddq_NoPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_iddq_ORIG {
+        __File "a_iddq_ORIG";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_CheckROM_Mg0_NoEd {
