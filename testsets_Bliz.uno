@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U1.0d:S5.3;
 __Test Digital_Continuity {
     __Entry[0] = DCsetup_allZero;
     __Exit[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
@@ -4388,10 +4388,12 @@ __Test FUNC_BIST_1_FreqSearchPre_T {
     __Block[1] = {
         __Title = FUNC_BIST_1_FreqSearchPre_st;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::SearchTest;
             TestPerPin = __Expression { __String = "FALSE"; }
             TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "10"; }
             SearchAxis = __Expression { __String = "&CharAxis_SrchFrq_Vmin_FUNC_BIST_1"; }
             SearchAlgorithm = __Expression { __String = "SEARCH_ALGORITHM:SEARCH_BINARY"; }
             StepResultFunction = __Expression { __String = "&FUNC_BIST_1_Srch_Fnctn"; }
@@ -4408,8 +4410,9 @@ __Test BIST_PROD_FreqSearchPost_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = SCAN_PATHDELAY_1_PG_PS;
+    __Entry[0] = DCsetup_LooseVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = SCAN_PATHDELAY_1_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -4430,10 +4433,13 @@ __Test BIST_PROD_FreqSearchPost_T {
     __Block[1] = {
         __Title = BIST_PROD_FreqSearchPost_st;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::SearchTest;
             TestPerPin = __Expression { __String = "FALSE"; }
             TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "10"; }
+            SearchAxis = __Expression { __String = "&CharAxis_SrchFrq_Vmin_BIST_PROD"; }
             SearchAlgorithm = __Expression { __String = "SEARCH_ALGORITHM:SEARCH_BINARY"; }
             StepResultFunction = __Expression { __String = "&BIST_PROD_Srch_Fnctn"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
@@ -4449,8 +4455,9 @@ __Test FUNC_BIST_1_FreqSearchPost_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = BIST_PROD_PG_PS;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = BIST_PROD_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -4459,7 +4466,7 @@ __Test FUNC_BIST_1_FreqSearchPost_T {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'BIST_PROD_PG_Thrd'"; }
+            TestPatterns = __Expression { __String = "'BIST_PROD_PGDB_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -4471,10 +4478,13 @@ __Test FUNC_BIST_1_FreqSearchPost_T {
     __Block[1] = {
         __Title = FUNC_BIST_1_FreqSearchPost_st;
         __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
             __Name = LTXC::SearchTest;
             TestPerPin = __Expression { __String = "FALSE"; }
             TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "10"; }
+            SearchAxis = __Expression { __String = "&CharAxis_SrchFrq_Vmin_FUNC_BIST_1"; }
             SearchAlgorithm = __Expression { __String = "SEARCH_ALGORITHM:SEARCH_BINARY"; }
             StepResultFunction = __Expression { __String = "&FUNC_BIST_1_Srch_Fnctn"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
@@ -4490,8 +4500,9 @@ __Test FUNC_BIST_FreqSearchPost_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
-    __Entry[0] = DCsetup_Loose;
-    __Entry[1] = PBIST_2P_PROD_PG_PS;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = PBIST_2P_PROD_PG_PS;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -4516,6 +4527,8 @@ __Test FUNC_BIST_FreqSearchPost_T {
             __Name = LTXC::SearchTest;
             TestPerPin = __Expression { __String = "FALSE"; }
             TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "10"; }
+            SearchAxis = __Expression { __String = "&CharAxis_SrchFrq_Vmin_BIST_PROD"; }
             SearchAlgorithm = __Expression { __String = "SEARCH_ALGORITHM:SEARCH_BINARY"; }
             StepResultFunction = __Expression { __String = "&FUNC_BIST_Srch_Fnctn"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
@@ -6845,17 +6858,546 @@ __Test a_iddq_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = Block1;
+        __Title = a_iddq_func_verify;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "DSH_PL"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'a_iddq_Thrd'"; }
+            TestPatterns = __Expression { __String = "'a_iddq_NoPM_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "FALSE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
             DisablePatternDatalog = __Expression { __String = "FALSE"; }
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = IddqVboxLOPost_a_iddq_PM1_VNWA_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VNWA"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "10"; }
+            ForcedVoltage = __Expression { __String = "VNWA_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "2mA"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VNWA_VBOXLO*2*0"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VNWA_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            PresetTestPins = __Expression { __String = "DSH_PL"; }
+            PresetPatterns = __Expression { __String = "'a_iddq_Thrd'"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VNWA_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VNWA_VBOXLO"; }
+            PresetPatternMinorID = __Expression { __String = "20"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
+        __Title = IddqVboxLOPost_a_iddq_PM1_VBAT_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VBAT"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "30"; }
+            ForcedVoltage = __Expression { __String = "VBAT_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VBAT_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VBAT_VBOXLO*2*0"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VBAT_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            PresetPatterns = __Expression { __String = "'a_iddq_Thrd'"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VBAT_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VBAT_VBOXLO"; }
+            PresetPatternMinorID = __Expression { __String = "40"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[3] = {
+        __Title = IddqVboxLOPost_a_iddq_PM1_VDDA_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDDA"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "50"; }
+            ForcedVoltage = __Expression { __String = "VDDA_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDDA_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDDA_VBOXLO*2*0"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDDA_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            PresetPatterns = __Expression { __String = "'a_iddq_Thrd'"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDDA_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDDA_VBOXLO"; }
+            PresetPatternMinorID = __Expression { __String = "60"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[4] = {
+        __Title = IddqVboxLOPost_a_iddq_PM1_VDDS_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDDS"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "70"; }
+            ForcedVoltage = __Expression { __String = "VDDS_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDDS_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDDS_VBOXLO"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDDS_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDDS_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDDS_VBOXLO"; }
+            PresetPatternMinorID = __Expression { __String = "80"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[5] = {
+        __Title = IddqVboxLOPost_a_iddq_PM1_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[6] = {
+        __Title = IddqVboxLOPost_a_iddq_PM2_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[7] = {
+        __Title = IddqVboxLOPost_a_iddq_PM3_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[8] = {
+        __Title = IddqVboxLOPost_a_iddq_PM4_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[9] = {
+        __Title = IddqVboxLOPost_a_iddq_PM5_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[10] = {
+        __Title = IddqVboxLOPost_a_iddq_PM6_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[11] = {
+        __Title = IddqVboxLOPost_a_iddq_PM7_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[12] = {
+        __Title = IddqVboxLOPost_a_iddq_PM8_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[13] = {
+        __Title = IddqVboxLOPost_a_iddq_PM9_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[14] = {
+        __Title = IddqVboxLOPost_a_iddq_PM10_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[15] = {
+        __Title = IddqVboxLOPost_a_iddq_PM11_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[16] = {
+        __Title = IddqVboxLOPost_a_iddq_PM12_VDD_st;
+        __WrapCells = __True;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = LTXC::PowerTest;
+            TestPins = __Expression { __String = "VDD"; }
+            TestLimitSource = __Expression { __String = "LIMITS_TYPE_ENUM:USE_LOCAL_LIMITS"; }
+            MinorID = __Expression { __String = "90"; }
+            ForcedVoltage = __Expression { __String = "VDD_PS"; }
+            MaxAllowedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MinAllowedCurrent = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO*2"; }
+            MaxExpectedCurrent = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO*2"; }
+            MethodOfTest = __Expression { __String = "POWER_TEST_METHOD_ENUM:STATIC"; }
+            ComparePath = __Expression { __String = "DIGITAL_CMP_PATH:DIGITAL_CMP_VOH"; }
+            EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
+            TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
+            OverridePatternFails = __Expression { __String = "FALSE"; }
+            SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
+            LowLimit = __Expression { __String = "IDDQ_MIN_VDD_VBOXLO"; }
+            HighLimit = __Expression { __String = "IDDQ_MAX_VDD_VBOXLO"; }
+            CallAtEnd = __Expression { __String = "&Clear_CPU_Flag"; }
+            PresetPatternMinorID = __Expression { __String = "100"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            DisableDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            MeasurementAverages = __Expression { __String = "5"; }
             CharacterizationEnable = __Expression { __String = "FALSE"; }
         }
     }

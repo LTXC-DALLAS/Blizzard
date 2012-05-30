@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U1.0d:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -922,7 +922,7 @@ __FunctionCall FUNC_BIST_1_Srch_Fnctn {
 __FunctionCall FUNC_BIST_Srch_Fnctn {
     __WrapCells = __True;
     __Function = LTXC::SearchStepPatterns;
-    TestPatterns = __Expression { __String = "'PBIST_2P_PROD_PG_Thrd'"; }
+    TestPatterns = __Expression { __String = "'PBIST_2P_PROD_PG_Srch_Thrd'"; }
 }
 __FunctionCall Clear_CPU_Flag {
     __WrapCells = __True;
@@ -945,11 +945,12 @@ __Axis CharAxis_SrchFrq_Vmin_FUNC_BIST {
     }
 }
 __Axis CharAxis_SrchFrq_Vmin_FUNC_BIST_1 {
-    __NumberSteps = __Expression { __String = "36"; }
+    __NumberSteps = __Expression { __String = "30"; }
     __ParameterVariance {
-        __Param tfreq;
-        __Start = __Expression { __String = "20MHz"; __Type = Hz; }
-        __Stop = __Expression { __String = "200MHz"; __Type = Hz; }
+        __Param Srch_tper;
+        __Start = __Expression { __String = "21ns"; __Type = s; }
+        __Stop = __Expression { __String = "10ns"; __Type = s; }
+        __PinGroup = __Expression { __String = "DSH_PL"; }
     }
 }
 __LimitTable Blizzard_LimitTable {
@@ -1135,4 +1136,8 @@ __Test SCAN_PATHDELAY_1_DBG_PG {
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
+}
+__FunctionCall DisconnectOpenPinList {
+    __Function = disconnect_digital_pins;
+    disconnect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
 }

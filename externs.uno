@@ -117,6 +117,7 @@ __ExternalRef {
 /***********************************************************************/
 __ExternalRef {
    __Path = "/u/TI_apps/enVision/stdprogram";
+//   __Path = "/u/bplatt/MCU/Blizzard/UNISON/BlizzProgTemp/Blizzard/ccook/gitRepo/Customers/TI/stdprogramP";
    __File = "TIexterns.uno";
 }
 
@@ -133,6 +134,7 @@ __ApplicationLibrary TestWare_Library {
    __Source = "./Libraries/TestWare_Library/TestwareSupport.cpp";
    __IncludePath = "./Libraries/TestWare_Library";
    __IncludePath = "/u/TI_apps/enVision/stdprogram";
+//   __IncludePath = "/u/bplatt/MCU/Blizzard/UNISON/BlizzProgTemp/Blizzard/ccook/gitRepo/Customers/TI/stdprogramP";
    __Include = "TestwareSupport.h";
    __DependsOnLibrary = TIDependsLib;
 }

@@ -518,15 +518,7 @@ void RestoreDrivers(PinML pins)
 }
 IntS ClearCPUFlag()
 {
-   BoolM FlagStatus;
-   DigitalPatternStatusM PatRunning;
-   FlagStatus = true;
-   DIGITAL.ReadFlag(DIGITAL_FLAG_CPU,FlagStatus,true);
-   DIGITAL.ReadPatternStatus(PatRunning,DIGITAL_PATTERN_RUNNING);
-	 DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
-   DIGITAL.ReadPatternStatus(PatRunning,DIGITAL_PATTERN_RUNNING);
-   DIGITAL.ReadFlag(DIGITAL_FLAG_CPU,FlagStatus,true);
-   TIME.Wait(0.0s);
+   DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
     return 0;
 }
 

@@ -302,6 +302,42 @@ __PatternMap DefaultPatternMap {
     __DefaultSourcePath = "./Patterns/Ascii";
     __DefaultBinaryPath = "./Patterns/Binary/$TESTER";
     __DefaultPatternGroup = "TDLStdPatGrp";
+/*****************************************************/
+/**   Trevor's v4p0 flash patterns emailed 18may12  **/
+/*****************************************************/
+
+    __Pattern Garnet_Shell064_T072C009S007_A3_v2p0 {
+        __File "Garnet_Shell064_T072C009S007_A3_v2p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern f021_shell_exepat_pll_v4p0 {
+        __File "f021_shell_exepat_pll_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern f021_shell_exepat_vco_v4p0 {
+        __File "f021_shell_exepat_vco_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern ramread_mbox_scram_v4p0 {
+        __File "ramread_mbox_scram_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern ramread_nburst_addr_v4p0 {
+        __File "ramread_nburst_addr_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern ramread_nburst_msw_v4p0 {
+        __File "ramread_nburst_msw_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+    __Pattern ramwrite_burst_addr_v4p0 {
+        __File "ramwrite_burst_addr_v4p0";
+        __Path "../Rev4_FlashPatts/";
+    }
+/*********  END v4p0 FLASH PATTERNS  *********/
+
+
+
     __Pattern TestPatScan {
         __File "TestPatScan";
         __Path "./Patterns/Ascii";
@@ -464,6 +500,10 @@ __PatternMap DefaultPatternMap {
         __File "ldo_bypass_init_DSH";
         __Path "./Patterns/Ascii";
     }
+    __Pattern ldo_bypass_JTAG_reset_DSH {
+        __File "ldo_bypass_JTAG_reset_DSH";
+        __Path "./Patterns/Ascii";
+    }
 /*    __Pattern FF_InitCheck_v21 {
         __File "FF_InitCheck_v21";
         __Path "./Patterns/Ascii";
@@ -597,43 +637,15 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
     __Pattern a_iddq {
-        __File "a_iddq";
+        __File "a_iddq_NoPM";
         __Path "./Patterns/Ascii";
     }
-    __Pattern a_iddq_500 {
-        __File "a_iddq_500";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern a_iddq_260 {
-        __File "a_iddq_260";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern a_iddq_flat261 {
-        __File "a_iddq_flat261";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern a_iddq_1025 {
-        __File "a_iddq_1025";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern FF_CheckROM_Mg0_DPM {
-        __File "FF_CheckROM_Mg0_DPM";
+    __Pattern a_iddq_NoPM {
+        __File "a_iddq_NoPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_CheckROM_Mg0_NoEd {
         __File "FF_CheckROM_Mg0_NoEd";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern FF_CheckROM_Mg0_ENG {
-        __File "FF_CheckROM_Mg0_ENG";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern FF_CheckROM_norm_DPM {
-        __File "FF_CheckROM_norm_DPM";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern FF_InitCheck_DPM {
-        __File "FF_InitCheck_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern FF_InitCheck_NoEd {
@@ -656,16 +668,8 @@ __PatternMap DefaultPatternMap {
         __File "FF_LoadFuseData_1110_DPM";
         __Path "./Patterns/Ascii";
     }
-    __Pattern FF_RunAutoload_DPM {
-        __File "FF_RunAutoload_DPM";
-        __Path "./Patterns/Ascii";
-    }
     __Pattern FF_RunAutoload_NoEd {
         __File "FF_RunAutoload_NoEd";
-        __Path "./Patterns/Ascii";
-    }
-    __Pattern FF_RunAutoload_ENG {
-        __File "FF_RunAutoload_ENG";
         __Path "./Patterns/Ascii";
     }
     __Pattern OTG_ChgdischgVbusM_DPM {
@@ -954,12 +958,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_down2_1p_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_down2_1p_DC {
+        __File "pb_pb_down2_1p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_down2_2p_DPM {
         __File "pb_pb_down2_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_down2_2p {
         __File "pb_pb_down2_2p";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_down2_2p_DC {
+        __File "pb_pb_down2_2p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_dtxn2_1p_DPM {
@@ -970,8 +982,16 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_dtxn2_1p_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_dtxn2_1p_DC {
+        __File "pb_pb_dtxn2_1p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_dtxn2_2p_DPM {
         __File "pb_pb_dtxn2_2p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_dtxn2_2p_DC {
+        __File "pb_pb_dtxn2_2p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_dtxn2_2p {
@@ -986,12 +1006,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_flip10_1p_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_flip10_1p_DC {
+        __File "pb_pb_flip10_1p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_flip10_2p_DPM {
         __File "pb_pb_flip10_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_flip10_2p {
         __File "pb_pb_flip10_2p";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_flip10_2p_DC {
+        __File "pb_pb_flip10_2p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_ftr_DPM {
@@ -1002,8 +1030,16 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_ftr_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_ftr_DC {
+        __File "pb_pb_ftr_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_mapcol_1p_DPM {
         __File "pb_pb_mapcol_1p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_mapcol_1p_DC {
+        __File "pb_pb_mapcol_1p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_mapcol_2p_DPM {
@@ -1014,12 +1050,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_mapcol_2p";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_mapcol_2p_DC {
+        __File "pb_pb_mapcol_2p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_march13n_1p_DPM {
         __File "pb_pb_march13n_1p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_march13n_1p_ENG {
         __File "pb_pb_march13n_1p_ENG";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_march13n_1p_Srch {
+        __File "pb_pb_march13n_1p_Srch";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_march13n_1p_DC {
@@ -1034,6 +1078,10 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_march13n_2p";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_march13n_2p_DC {
+        __File "pb_pb_march13n_2p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_march13n_rep_DPM {
         __File "pb_pb_march13n_rep_DPM";
         __Path "./Patterns/Ascii";
@@ -1046,12 +1094,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_pmos_open_1p_v22_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_pmos_open_1p_v22_DC {
+        __File "pb_pb_pmos_open_1p_v22_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_pmos_open_2p_DPM {
         __File "pb_pb_pmos_open_2p_DPM";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_pmos_open_2p {
         __File "pb_pb_pmos_open_2p";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_pmos_open_2p_DC {
+        __File "pb_pb_pmos_open_2p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_precharge_1p_DPM {
@@ -1062,8 +1118,20 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_precharge_1p_ENG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_pb_precharge_1p_DC {
+        __File "pb_pb_precharge_1p_DC";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_precharge_2p_DPM {
         __File "pb_pb_precharge_2p_DPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_precharge_2p {
+        __File "pb_pb_precharge_2p";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_precharge_2p_DC {
+        __File "pb_pb_precharge_2p_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_ptr_DPM {
@@ -1072,6 +1140,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern pb_pb_ptr_ENG {
         __File "pb_pb_ptr_ENG";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_ptr_DC {
+        __File "pb_pb_ptr_DC";
         __Path "./Patterns/Ascii";
     }
     __Pattern pb_pb_wrenz_DPM {
@@ -1404,6 +1476,10 @@ __PatternMap DefaultPatternMap {
     }
     __Pattern a_tft_tk_16_16_2 {
         __File "a_tft_tk_16_16_2";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern a_tft_tk_16_16_2_RevC {
+        __File "a_tft_tk_16_16_2_RevC";
         __Path "./Patterns/Ascii";
     }
     __Pattern a_tft_tk_16_16_3 {

@@ -60,6 +60,22 @@ __Spec ACSpecs {
     __Category CommonACdata {
         ACTableIndex = "0";
         twMCC_F = "'0'";
+
+/**********************************/
+/**** Search frequency added   ****/
+/**** to run BIST at an inde-  ****/
+/**** pendent frequency during ****/
+/**** search tests.            ****/
+/**********************************/
+
+        Srch_tfreq.Min = "1/Srch_tper.Max";
+        Srch_tfreq.Typ = "1/Srch_tper.Max";
+        Srch_tfreq.Max = "1/Srch_tper.Min";
+        Srch_tper.Min = "10ns";
+        Srch_tper.Typ = "1/Srch_tfreq";
+        Srch_tper.Max = "100ns";
+/***********************************/
+
         tfreq.Min = "1/tper.Max";
         tfreq.Typ = "1/tper.Max";
         tfreq.Max = "1/tper.Min";
@@ -376,6 +392,8 @@ __Spec ACSpecs {
     __ParamGlobals {
             ACTableIndex { __Type = SCALAR; }
             twMCC_F { __Type = STRING; __Comment = "MCC Frequency indicator in testware"; }
+            Srch_tfreq { __Type = Hz; __Comment = "1\/tper.Max base frequency for test"; }
+            Srch_tper { __Type = s; __Comment = "1\/tfreq base period in terms of tfreq"; }
             tfreq { __Type = Hz; __Comment = "1\/tper.Max base frequency for test"; }
             tper { __Type = s; __Comment = "1\/tfreq base period in terms of tfreq"; }
             tfreqAsync { __Type = Hz; __Comment = "1\/tperAsync.Max base frequency for test"; }

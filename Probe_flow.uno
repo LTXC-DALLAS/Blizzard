@@ -36,7 +36,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = Continuity_S;
     }
     __Node ATPG_CPU_Vmin_S_1699 {
-        __XCoord = (315,27);
+        __XCoord = (180,28);
         __Port[0] {
             __PortPosition = 90;
         }
@@ -45,7 +45,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = ATPG_CPU_Vmin_S;
     }
     __Node PathDelay_Vmin_S_1743 {
-        __XCoord = (459,28);
+        __XCoord = (324,29);
         __Port[0] {
             __PortPosition = 90;
         }
@@ -335,7 +335,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = F_OS_SHRT_VDD;
     }
     __Node FuseCtlr_S_309 {
-        __XCoord = (184,27);
+        __XCoord = (458,28);
         __Port[0] {
             __PortPosition = 91;
         }
@@ -344,7 +344,7 @@ __SubFlow Probe_SUB_FLOW {
         __Exec = FuseCtlr_S;
     }
     __Node DieID_S_321 {
-        __XCoord = (596,28);
+        __XCoord = (586,27);
         __Port[0] {
             __PortPosition = 92;
         }
@@ -400,9 +400,9 @@ __SubFlow Probe_SUB_FLOW {
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = Continuity_1785;
     __PortConnections {
-        Continuity_1785 __Port[0] = FuseCtlr_S_309;
+        Continuity_1785 __Port[0] = ATPG_CPU_Vmin_S_1699;
         ATPG_CPU_Vmin_S_1699 __Port[0] = PathDelay_Vmin_S_1743;
-        PathDelay_Vmin_S_1743 __Port[0] = DieID_S_321;
+        PathDelay_Vmin_S_1743 __Port[0] = FuseCtlr_S_309;
         RAMBIST_Vmin_S_1711 __Port[0] = Trim_S_331;
         Srchs_Vmin_Pre_S_1726 __Port[0] = DieID_Prog_S_1803;
         Iddq0_VboxLO_S_1747 __Port[0] = F021FlashFlow_S_1753;
@@ -427,7 +427,7 @@ __SubFlow Probe_SUB_FLOW {
         FF_InitCheck_T_315 __Port[1] = F_FUSE_DIEID_PRE_READ_318;
         SupplyShorts_327 __Port[0] = FF_InitCheck_T_315;
         SupplyShorts_327 __Port[1] = F_OS_SHRT_VDD_330;
-        FuseCtlr_S_309 __Port[0] = ATPG_CPU_Vmin_S_1699;
+        FuseCtlr_S_309 __Port[0] = DieID_S_321;
         DieID_S_321 __Port[0] = RAMBIST_Vmin_S_1711;
         Trim_S_331 __Port[0] = FuncBIST_Vmin_S_336;
         FuncBIST_Vmin_S_336 __Port[0] = Srchs_Vmin_Pre_S_1726;
