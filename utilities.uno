@@ -1141,3 +1141,10 @@ __FunctionCall DisconnectOpenPinList {
     __Function = disconnect_digital_pins;
     disconnect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
 }
+__FunctionCall PowerCycleVmask_FC {
+    __Function = CyclePower;
+    powerDownLevels1 = __Expression { __String = "&DCsetup_ZeroPins_ZeroSupplies_RampDown"; }
+    powerDownDelay = __Expression { __String = "5ms"; }
+    powerUpLevels1 = __Expression { __String = "&PowerUpAtVmask"; }
+    powerUpLevels2 = __Expression { __String = "&DCsetup_LooseVmask"; }
+}
