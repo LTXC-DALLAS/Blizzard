@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U1.0d:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -1135,4 +1135,11 @@ __Test SCAN_PATHDELAY_1_DBG_PG {
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
+}
+__FunctionCall PowerCycleVmask_FC {
+    __Function = CyclePower;
+    powerDownLevels1 = __Expression { __String = "&DCsetup_ZeroPins_ZeroSupplies_RampDown"; }
+    powerDownDelay = __Expression { __String = "5ms"; }
+    powerUpLevels1 = __Expression { __String = "&PowerUpAtVmask"; }
+    powerUpLevels2 = __Expression { __String = "&DCsetup_LooseVmask"; }
 }
