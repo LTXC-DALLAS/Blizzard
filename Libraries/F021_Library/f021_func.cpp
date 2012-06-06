@@ -7700,11 +7700,6 @@ void F021_Set_TPADS(IntS TCRnum,
             STDConnect(tsupply);
          }
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
-<<<<<<< HEAD
-=======
-//         SetupHVFEM(tsupply, vProg, vRange, tsupply_relay);
-
->>>>>>> buzzard
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
          if(tistdscreenprint and TI_FlashDebug)  
          {
@@ -13154,7 +13149,6 @@ void RAM_Upload_PMOS_TrimCode() {
 //   } 
 //}   /* RAM_Upload_SoftTrim_All */
 //
-<<<<<<< HEAD
 
 void RAM_Upload_SoftTrim(const IntS &trimenakey,
                          const IntM &BGapVal,
@@ -13164,32 +13158,17 @@ void RAM_Upload_SoftTrim(const IntS &trimenakey,
                          const IntM &VSA5CTVal)
 {
    IntS addr_loc;
-=======
-//
-void RAM_Upload_SoftTrim(IntS trimenakey,
-                         IntM BGapVal,
-                         IntM IRefVal,
-                         IntM FOSCVal,
-                         IntM VHVSLPVal,
-                         IntM VSA5CTVal) {
-   IntS site,addr_loc,i;
->>>>>>> buzzard
    IntM msw_data,lsw_data;
    BoolS bcd_format,hexvalue;
    BoolS debugprint;
 
-<<<<<<< HEAD
-   if(tistdscreenprint and TI_FlashDebug)  
-=======
    if (tistdscreenprint and TI_FlashDebug)  
->>>>>>> buzzard
       cout << "+++++ RAM_Upload_SoftTrim +++++" << endl;
 
    bcd_format  = true;
    hexvalue    = true;
    addr_loc = ADDR_RAM_EFSOFTTRIM;
    
-<<<<<<< HEAD
    msw_data = trimenakey;  /*msword*/
    lsw_data = BGapVal << 8; /*lshift 8bit*/
    lsw_data += IRefVal;  /*lsword*/
@@ -13210,26 +13189,6 @@ void RAM_Upload_SoftTrim(IntS trimenakey,
       ReadRamAddress(addr_loc,addr_loc+(3*ADDR_RAM_INC));
    } 
 }   /* RAM_Upload_SoftTrim */
-=======
-   msw_data = trimenakey;  // msword
-   lsw_data = BGapVal;
-   lsw_data *= 0x100;   // lshift 8
-   lsw_data += IRefVal;
-   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-   
-   addr_loc += ADDR_RAM_INC;
-   msw_data = VSA5CTVal << 0x100;   // lshift 8
-   msw_data += VHVSLPVal;
-   lsw_data = FOSCVal << 0x100;   // lshift 8
-   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-
-   debugprint = false;
-   if (tistdscreenprint and debugprint) {
-      addr_loc = ADDR_RAM_EFSOFTTRIM;  
-      ReadRamAddress(addr_loc,addr_loc+(3*ADDR_RAM_INC));
-   }  
-}   // RAM_Upload_SoftTrim
->>>>>>> buzzard
 
 
 void RAM_Clear_SoftTrim_All()
