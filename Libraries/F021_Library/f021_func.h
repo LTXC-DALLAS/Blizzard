@@ -127,11 +127,12 @@ void Get_Flash_TestLogSpace_SCRAM();
 //void Get_TLogSpace_STAT4(    IntM msw_data,
 //                              IntM lsw_data);
 //void Get_TLogSpace_TESTFREQ(    IntM ret_val);
-void Get_TLogSpace_PFBin(    IntM &ret_val);
-void Get_TLogSpace_FAILADDR(    IntM msw_data,
-                                 IntM lsw_data);
-//void Get_TLogSpace_FAILDATA(    IntM msw_data,
-//                                 IntM lsw_data);
+void Get_TLogSpace_PFBin(IntM &ret_val);
+
+void Get_TLogSpace_FailAddr(IntM msw_data, IntM lsw_data);
+
+void Get_TLogSpace_FailData(IntM msw_data, IntM lsw_data);
+
 void Get_TLogSpace_TNUM(    IntM &msw_data,
                              IntM &lsw_data);
 //void Get_TLogSpace_MSTAT(      IntM msw_data, IntM lsw_data);
@@ -140,8 +141,9 @@ void Get_TLogSpace_TNUM(    IntM &msw_data,
 //void Get_TLogSpace_MaxPPulse(    IntM ret_val);
 //void Get_TLogSpace_TotPPulse(    IntM msw_data,
 //                                  IntM lsw_data);
-//void Get_TLogSpace_MeasFreq(    IntM msw_data,
-//                                 IntM lsw_data);
+
+void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data);
+
 //void Get_TLogSpace_RTIValue(    IntM ret_val);
 //void Get_Flash_MBoxSpace_OTP_SCRAM();
 //void Get_MBoxSpace_FlagNum(    IntM msw_data,
@@ -212,13 +214,11 @@ void F021_SetTestNum(IntS testnum);
 
 //void Check_RAM_TNUM(    IntS expTnum,
 //                             BoolM test_results);
-//
-//void MBox_Upload_RCODE_PSA(IntS banknum,
-//                                FlashCodeType code_type);
-//void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum,
-//                                       FlashCodeType code_type,
-//                                       IntS ovr_data);
-//
+
+void MBox_Upload_RCODE_PSA(IntS banknum, FlashCodeType code_type);
+
+void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ovr_data);
+
 TMResultM F021_RunTestNumber(const IntS &testnum,
                             const FloatS &maxtimeout,
                             FloatM &ret_timer);
@@ -284,10 +284,11 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //                        BoolS wstate_addr_ena,
 //                        BoolS wstate_pipe_ena);
 //void TL_GetARBWAIT();
-//void TL_SetARBADDR(IntS msw_addr,
-//                        IntS lsw_addr);
-//void TL_SetARBLENGTH(IntS msw_length,
-//                          IntS lsw_length);
+
+void TL_SetArbAddr(IntS msw_addr,IntS lsw_addr);
+
+void TL_SetArbLength(IntS msw_length,IntS lsw_length);
+
 //void TL_ArbitraryRead(IntS banknum,
 //                           IntS msw_addr,
 //                           IntS lsw_addr,
@@ -318,7 +319,7 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //void TL_EngOvride_VINH_CT(IntS ovr_data);
 //void TL_EngOvride_VSL_CT(IntS ovr_data);
 //void TL_EngOvride_VWL_CT(IntS ovr_data);
-//void TL_EngOvride_VRD_CT(IntS ovr_data);
+void TL_EngOvride_VRD_CT(IntS ovr_data);
 //void TL_EngOvride_VSA5_CT(IntS ovr_data);
 //void TL_EngOvride_RDM0_NMOS(IntS ovr_data);
 //void TL_EngOvride_VHV_ER_CT_MS(IntM ovr_data);
@@ -480,45 +481,49 @@ TMResultM F021_InitFLGlobalvars_func();
 
 //void Update_FLASH_RETEST_Var();
 //void Update_FLWBYTE_Var();
-//
-//void MeasInternalVT(    IntS testnum,
-//                             FloatS test_llim,
-//                             FloatS test_ulim,
-//                             BoolM ret_results,
-//                             FloatM ret_values);
-//
-//void F021_Vt_BinSearch_TTR(    IntS testnum,
-//                                    FloatM vstart,
-//                                    FloatM vstop,
-//                                    FloatS vresolution,
-//                                    FloatM irefarr,
-//                                    FloatS maxtime,
-//                                    FloatM ret_timer,
-//                                    FloatM ret_values);
-//
+
+void MeasInternalVT(    IntS      testnum,
+                        FloatS    test_llim,
+                        FloatS    test_ulim,
+                        TMResultM ret_results,
+                        FloatM    ret_values);
+
+void Poll_VCTRL(BoolS VctrlHi, TMResultM results, FloatS maxtime);
+
+void Set_TPAD (BoolS sameness, FloatM values, FloatS prevvalue, FloatS previref, FloatS iclamp,
+               PinM tp_iref, PinM tp_cg, FloatS vrngiref, FloatM irefarray);
+
+void F021_Vt_BinSearch_TTR(   IntS testnum,
+                            FloatM vstart,
+                            FloatM vstop,
+                            FloatS vresolution,
+                            FloatM irefarr,
+                            FloatS maxtime,
+                            FloatM ret_timer,
+                            FloatM ret_values);
+
 //BoolS F021_VT_Delta_func(    IntS pattype,
 //                                vttype vt_type,
 //                                StringS tname,
 //                                BoolM test_results,
 //                                BoolS dlogonly);
 //
-//void F021_BCC_BinSearch_TTR(    IntS testnum,
-//                                     FloatM Istart,
-//                                     FloatM Istop,
-//                                     FloatS Iresolution,
-//                                     FloatM VforceArr,
-//                                     FloatS maxtime,
-//                                     FloatM ret_timer,
-//                                     FloatM ret_values);
-//
-//BoolS TL_Run_BCCVT(StringS tname,
-//                      vttype vt_type,
-//                      prepostcorner prepost_type,
-//                      BoolS IsMainArray,
-//                      BoolS IsBcc,
-//                      StringS logstr,
-//                          BoolM test_results);
-//
+void F021_BCC_BinSearch_TTR(    IntS   testnum,
+                                FloatM Istart,
+                                FloatM Istop,
+                                FloatS Iresolution,
+                                FloatM VforceArr,
+                                FloatS maxtime,
+                                FloatM ret_timer,
+                                FloatM ret_values);
+
+TMResultM TL_Run_BCCVT(StringS       tname,
+                       vttype        vt_type,
+                       prepostcorner prepost_type,
+                       BoolS         IsMainArray,
+                       BoolS         IsBcc,
+                       StringS       logstr);
+
 //BoolS F021_BCC_Delta_func(    IntS pattype,
 //                                vttype vt_type,
 //                                StringS tname,

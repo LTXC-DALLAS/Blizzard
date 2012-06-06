@@ -10814,7 +10814,7 @@ TMResultM BankErs_PreTunOxide_func() {
    
 
 TMResultM PreTunOxideVT1_func() {
-   TMResultM final_results;
+   TMResultM final_results, tmp_results, test_results;
    BoolM logsites;
    StringS current_shell;
    IntS testnum;
@@ -10842,9 +10842,10 @@ TMResultM PreTunOxideVT1_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PreTunOxVT1_Test";
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PreTunOxBCC1_Test";
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
+         
+         test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          if (TI_FlashESDAEna) {
             FLEsda.ImageNum = ESDA_IMG_TUNOX_VT1_PRE;
             F021_CollectESDA(FLEsda.ImageNum);
@@ -10852,18 +10853,17 @@ TMResultM PreTunOxideVT1_func() {
       }
       else {
          tname = "PreTunOxBCC1_Test";
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PreTunOxVT1_Test";
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
+         test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
       } 
    } 
-   
+   final_results = DLOG.AccumulateResults(tmp_results, test_results);   
    return (final_results);
 }   /* PreTunOxideVT1_func */
    
 
-TMResultM PreTunOxideVT1OTP_func()
-{
+TMResultM PreTunOxideVT1OTP_func() {
    TMResultM final_results;
    StringS current_shell;
    IntS testnum;
@@ -10890,7 +10890,7 @@ TMResultM PreTunOxideVT1OTP_func()
       
       if (GL_DO_VT_FIRST) {
          tname = "PreTunOxVT1OTP_Test";
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
+//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
          tname = "PreTunOxBCC1OTP_Test";
 //         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
       }
