@@ -3289,7 +3289,7 @@ void Get_TLogSpace_PFBin(IntM &ret_val) {
    } 
 }   /* Get_TLogSpace_PFBin */
 
-void Get_TLogSpace_FAILADDR(IntM msw_data, IntM lsw_data) {
+void Get_TLogSpace_FailAddr(IntM msw_data, IntM lsw_data) {
    const IntS X16_IND_FADDR_MSW = 67; 
    const IntS X16_IND_FADDR_LSW = 68; 
 
@@ -3312,69 +3312,65 @@ void Get_TLogSpace_FAILADDR(IntM msw_data, IntM lsw_data) {
    lsw_data = lsw_val;
 
    if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
-      str1 = "FL_FAILADDR_MSW";
+      str1 = "FL_FAILADDR_MSW 0x";
        /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-      DLOG.Value(UTL_VOID, msw_val, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, ER_PASS, true);
+      cout << str1 << hex << msw_data << endl;
 //      PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
-      str1 = "FL_FAILADDR_LSW";
-      DLOG.Value(UTL_VOID, lsw_val, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, UTL_VOID, ER_PASS, true);
+      str1 = "FL_FAILADDR_LSW 0x";
+      cout << str1 << hex << lsw_data << endl; IO.Flush(IO.Stdout);
 //      PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
    } 
-}   /* Get_TLogSpace_FAILADDR */
+}   // Get_TLogSpace_FailAddr
    
-//void Get_TLogSpace_FAILDATA(    IntM msw_data,
-//                                 IntM lsw_data)
-//{
-//   const IntS X16_IND_FDATA_MSW = 69; 
-//   const IntS X16_IND_FDATA_LSW = 70; 
-//
-//   IntS addr_loc,site;
-//   IntM msw_val,lsw_val;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         msw_val = FL_TESTLOG_ARR[X16_IND_FDATA_MSW];
-//         lsw_val = FL_TESTLOG_ARR[X16_IND_FDATA_LSW];
-//      }
-//      else
-//      {
-//         addr_loc = ADDR_FAIL_DATA;
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr_loc,lsw_val);
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr_loc,msw_val);
-//      } 
-//
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//
-//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
-//      {
-//         str1 = "FL_FAILDATA_MSW";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
-//         str1 = "FL_FAILDATA_LSW";
-//         PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_FAILDATA */
+void Get_TLogSpace_FailData(IntM msw_data, IntM lsw_data) {
+   const IntS X16_IND_FDATA_MSW = 69; 
+   const IntS X16_IND_FDATA_LSW = 70; 
+
+   IntS addr_loc,site;
+   IntM msw_val,lsw_val;
+   StringS str1;
+
+//   if(GL_DO_ESDA_WITH_SCRAM)
+   if (0) {
+      msw_val = FL_TESTLOG_ARR[X16_IND_FDATA_MSW];
+      lsw_val = FL_TESTLOG_ARR[X16_IND_FDATA_LSW];
+   }
+   else {
+      addr_loc = ADDR_FAIL_DATA;
+      GetRamContentDec_16Bit("ramread_nburst_lsw",addr_loc,lsw_val);
+      GetRamContentDec_16Bit("ramread_nburst_msw",addr_loc,msw_val);
+   } 
+
+   msw_data = msw_val;
+   lsw_data = lsw_val;
+
+   if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_FAILDATA_MSW 0x";
+      cout << str1 << hex << lsw_data << endl;
+       /*PrintHeaderBool(GL_PLELL_FORMAT);*/
+//      PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
+      str1 = "FL_FAILDATA_LSW 0x";
+      cout << str1 << hex << lsw_data << endl; IO.Flush(IO.Stdout);
+//      PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
+   } 
+}   // Get_TLogSpace_FailData */
    
-void Get_TLogSpace_TNUM(    IntM &msw_data,
-                             IntM &lsw_data)
-{
-   const IntS X16_IND_TNUM_MSW = 71; 
-   const IntS X16_IND_TNUM_LSW = 72; 
+void Get_TLogSpace_TNUM(IntM &msw_data, IntM &lsw_data) {
+
+   const IntS X16_IND_TNUM_MSW = 70;   // was 71
+   const IntS X16_IND_TNUM_LSW = 71;   // was 72
+   StringS str1;
 
    msw_data = FL_TESTLOG_ARR[X16_IND_TNUM_MSW];
    lsw_data = FL_TESTLOG_ARR[X16_IND_TNUM_LSW];
 
-   if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
-   {
-      DLOG.Value(msw_data, UTL_VOID, UTL_VOID, UTL_VOID, "FL_TNUM_MSW");
-      DLOG.Value(lsw_data, UTL_VOID, UTL_VOID, UTL_VOID, "FL_TNUM_LSW");
+   if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_TNUM_MSW 0x";
+      cout << str1 << hex << msw_data << endl;
+      str1 = "FL_TNUM_LSW 0x";
+      cout << str1 << hex << lsw_data << endl; IO.Flush(IO.Stdout);
    } 
-}   /* Get_TLogSpace_TNUM */
+}   // Get_TLogSpace_TNUM
 
 //void Get_TLogSpace_MSTAT(      IntM msw_data, IntM lsw_data)
 //{
@@ -3446,6 +3442,7 @@ void Get_TLogSpace_TNUM(    IntM &msw_data,
 //}   /* Get_TLogSpace_MSTAT */
    
 void Get_TLogSpace_ErsPulse(IntM ret_val) {
+   
    const IntS X16_IND_ERS_PULSE = 75; 
 
    IntS site,addr;
@@ -3462,10 +3459,10 @@ void Get_TLogSpace_ErsPulse(IntM ret_val) {
    ret_val = tdata;
 
    if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
-      str1 = "FL_ERSPULSE";
+      str1 = "FL_ERSPULSE 0x";
       // PrintHeaderBool(GL_PLELL_FORMAT);
-      // TODO: Need datalog print here
       // PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
+      cout << str1 << hex << ret_val << endl; IO.Flush(IO.Stdout);
    }  
 }   // Get_TLogSpace_ErsPulse
 
@@ -3518,10 +3515,10 @@ void Get_TLogSpace_MaxPPulse(IntM ret_val) {
    ret_val = tdata;
 
    if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
-      str1 = "FL_MAXPPULSE";
+      str1 = "FL_MAXPPULSE 0x";
       // PrintHeaderBool(GL_PLELL_FORMAT);
-      // TODO: Add datalog call here
       // PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
+      cout << str1 << hex << ret_val << endl; IO.Flush(IO.Stdout);
    } 
 }   // Get_TLogSpace_MaxPPulse
 
@@ -3562,45 +3559,41 @@ void Get_TLogSpace_MaxPPulse(IntM ret_val) {
 //      } 
 //   } 
 //}   /* Get_TLogSpace_TotPPulse */
-//   
-//void Get_TLogSpace_MeasFreq(    IntM msw_data,
-//                                 IntM lsw_data)
-//{
-//   const IntS X16_IND_MEASFREQ_MSW = 79; 
-//   const IntS X16_IND_MEASFREQ_LSW = 80; 
-//
-//   IntS addr_loc,site;
-//   IntM msw_val,lsw_val;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         msw_val = FL_TESTLOG_ARR[X16_IND_MEASFREQ_MSW];
-//         lsw_val = FL_TESTLOG_ARR[X16_IND_MEASFREQ_LSW];
-//      }
-//      else
-//      {
-//         addr_loc = ADDR_MEASFREQ;
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr_loc,lsw_val);
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr_loc,msw_val);
-//      } 
-//
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//
-//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
-//      {
-//         str1 = "FL_MEASFREQ_MSW";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
-//         str1 = "FL_MEASFREQ_LSW";
-//         PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_MeasFreq */
-//   
+   
+void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data) {
+
+   const IntS X16_IND_MEASFREQ_MSW = 79; 
+   const IntS X16_IND_MEASFREQ_LSW = 80; 
+
+   IntS addr_loc,site;
+   IntM msw_val,lsw_val;
+   StringS str1;
+
+//   if(GL_DO_ESDA_WITH_SCRAM)
+   if (0) {
+      msw_val = FL_TESTLOG_ARR[X16_IND_MEASFREQ_MSW];
+      lsw_val = FL_TESTLOG_ARR[X16_IND_MEASFREQ_LSW];
+   }
+   else {
+      addr_loc = ADDR_MEASFREQ;
+      GetRamContentDec_16Bit("ramread_nburst_lsw",addr_loc,lsw_val);
+      GetRamContentDec_16Bit("ramread_nburst_msw",addr_loc,msw_val);
+   } 
+
+   msw_data = msw_val;
+   lsw_data = lsw_val;
+
+   if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_MEASFREQ_MSW 0x";
+       /*PrintHeaderBool(GL_PLELL_FORMAT);*/
+//      PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
+      cout << str1 << hex << msw_data << endl; IO.Flush(IO.Stdout);
+      str1 = "FL_MEASFREQ_LSW 0x";
+//      PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
+      cout << str1 << hex << lsw_data << endl; IO.Flush(IO.Stdout);
+   } 
+}   // Get_TLogSpace_MeasFreq
+   
 void Get_TLogSpace_RTIValue(IntM ret_val)
 {
    const IntS X16_IND_RTITIMER_MSW = 81; 
@@ -3612,8 +3605,6 @@ void Get_TLogSpace_RTIValue(IntM ret_val)
    StringS str1;
 
    tdata = 0;
-
-//   if(GL_DO_ESDA_WITH_SCRAM)  
 //   {
 //      tdata1 = FL_TESTLOG_ARR[X16_IND_RTITIMER_MSW];
 //      arrayandintegervalue(tdata1,tdata1,0x7fff,v_sites);
@@ -4781,43 +4772,35 @@ void GetRTIValue(    IntM ret_val)
 //      } 
 //   } 
 //}   /* TL_GetARBWAIT */
-//
-//void TL_SetARBADDR(IntS msw_addr,
-//                        IntS lsw_addr)
-//{
-//   IntM msw_data,lsw_data;
-//   BoolS hexvalue,bcd_format;
-//   IntS addr_loc;
-//
-//   if(v_any_dev_active)  
-//   {
-//      msw_data = msw_addr;
-//      lsw_data = lsw_addr;
-//      bcd_format = true;
-//      hexvalue = true;
-//      addr_loc = ADDR_RAM_ARB_TGADDR;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* TL_SetARBADDR */
-//   
-//void TL_SetARBLENGTH(IntS msw_length,
-//                          IntS lsw_length)
-//{
-//   IntM msw_data,lsw_data;
-//   BoolS hexvalue,bcd_format;
-//   IntS addr_loc;
-//
-//   if(v_any_dev_active)  
-//   {
-//      msw_data = msw_length;
-//      lsw_data = lsw_length;
-//      bcd_format = true;
-//      hexvalue = true;
-//      addr_loc = ADDR_RAM_ARB_TGLEN;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* TL_SetARBLENGTH */
-//   
+
+void TL_SetArbAddr(IntS msw_addr,IntS lsw_addr) {
+   IntM msw_data,lsw_data;
+   BoolS hexvalue,bcd_format;
+   IntS addr_loc;
+
+   msw_data = msw_addr;
+   lsw_data = lsw_addr;
+   bcd_format = true;
+   hexvalue = true;
+   addr_loc = ADDR_RAM_ARB_TGADDR;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+}   // TL_SetArbAddr
+   
+void TL_SetArbLength(IntS msw_length, IntS lsw_length) {
+   IntM msw_data,lsw_data;
+   BoolS hexvalue,bcd_format;
+   IntS addr_loc;
+
+   msw_data = msw_length;
+   lsw_data = lsw_length;
+   bcd_format = true;
+   hexvalue = true;
+   addr_loc = ADDR_RAM_ARB_TGLEN;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      
+}   // TL_SetArbLength
+   
 // /*override prog set up time - default 0x14*/
 //void TL_EngOvride_PSU(IntS ovr_data)
 //{
@@ -5573,36 +5556,33 @@ void TL_EngOvride_VHV_PG_CT(IntS ovr_data)
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //   } 
 //}   /* TL_EngOvride_VWL_CT */
-//   
-//void TL_EngOvride_VRD_CT(IntS ovr_data)
-//{
-//   const  DEFAULT_VAL = 0xB;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS OVRNUMWORD = 0x0100; 
-//   const IntS MB_WRFLAG = 0x1234; 
-//
-//   IntM msw_data,lsw_data;
-//   BoolS hexvalue,bcd_format;
-//   IntS addr_loc;
-//
-//   if(v_any_dev_active)  
-//   {
-//      bcd_format = true;
-//      hexvalue = true;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//      msw_data = MB_WRFLAG;
-//      lsw_data = OVRNUMWORD;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      msw_data = OVRIND_VRD_CT;
-//      if((ovr_data>==0) and (ovr_data<==0xf))  
-//         lsw_data = ovr_data;
-//      else
-//         lsw_data = DEFAULT_VAL;
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* TL_EngOvride_VRD_CT */
-//   
+   
+void TL_EngOvride_VRD_CT(IntS ovr_data) {
+
+   const IntS DEFAULT_VAL = 0xB;
+   const IntS OVRNUMWORD = 0x0100; 
+   const IntS MB_WRFLAG = 0x1234; 
+
+   IntM msw_data,lsw_data;
+   BoolS hexvalue,bcd_format;
+   IntS addr_loc;
+
+   bcd_format = true;
+   hexvalue = true;
+   addr_loc = ADDR_RAM_MAILBOX;
+   msw_data = MB_WRFLAG;
+   lsw_data = OVRNUMWORD;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   msw_data = OVRIND_VRD_CT;
+   if ((ovr_data >= 0) and (ovr_data <= 0xf))  
+      lsw_data = ovr_data;
+   else
+      lsw_data = DEFAULT_VAL;
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format); 
+}   // TL_EngOvride_VRD_CT
+   
 //void TL_EngOvride_VSA5_CT(IntS ovr_data)
 //{
 //   const IntS DEFAULT_VAL = 0x7; 
@@ -6240,109 +6220,98 @@ void TL_EngOvride_VHV_PG_CT(IntS ovr_data)
 //      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 //   } 
 //}   /* TL_EngOvride_RDM0_NMOS_PVCT */
-//
-//void MBox_Upload_RCODE_PSA(IntS banknum,
-//                                FlashCodeType code_type)
-//{
-//   IntS site,length;
-//   IntS wr_flag_num;
-//   IntS numword,numword_max;
-//   IntM msw_data,lsw_data;
-//   IntS addr_loc,msw_val,lsw_val;
-//   BoolS bcd_format,hexvalue;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type << " +++++" << endl;
-//
-//      msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_START_ADDR_LSW[code_type][banknum];
-//      TL_SetArbAddr(msw_val,lsw_val);
-//      
-//      msw_val = F021_RunCode.BANK_LEN_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_LEN_LSW[code_type][banknum];
-//      TL_SetArbLength(msw_val,lsw_val);
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      wr_flag_num = 0x1234;
-//      numword_max = 2;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//      
-//       /*upload write flag (msw) and data length (lsw)*/
-//      msw_data = wr_flag_num;  /*msword*/
-//      lsw_data = numword_max;  /*lsword*/
-//       /*upload to ram 32-bit write flag and data length*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//         
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//   } 
-//   
-//}   /* MBox_Upload_RCODE_PSA */
-//
-//void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum,
-//                                       FlashCodeType code_type,
-//                                       IntS ovr_data)
-//{
-//   IntS site,length;
-//   IntS wr_flag_num;
-//   IntS numword,numword_max;
-//   IntM msw_data,lsw_data;
-//   IntS addr_loc,msw_val,lsw_val;
-//   BoolS bcd_format,hexvalue;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type << " VRD CT == " << ovr_data:s_hex:5 << " +++++" << endl;
-//
-//      msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_START_ADDR_LSW[code_type][banknum];
-//      TL_SetArbAddr(msw_val,lsw_val);
-//      
-//      msw_val = F021_RunCode.BANK_LEN_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_LEN_LSW[code_type][banknum];
-//      TL_SetArbLength(msw_val,lsw_val);
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      wr_flag_num = 0x1234;
-//      numword_max = 0x0102;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//      
-//       /*upload write flag (msw) and data length (lsw)*/
-//      msw_data = wr_flag_num;  /*msword*/
-//      lsw_data = numword_max;  /*lsword*/
-//       /*upload to ram 32-bit write flag and data length*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//         
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//         
-//      addr_loc = addr_loc+ADDR_RAM_INC;
-//      msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
-//      lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
-//      msw_data = OVRIND_VRD_CT;
-//      lsw_data = ovr_data;
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//   } 
-//}   /* MBox_Upload_RCODE_PSA_VRD_CT */
-//
+
+void MBox_Upload_RCODE_PSA(IntS banknum,FlashCodeType code_type) {
+   IntS site,length;
+   IntS wr_flag_num;
+   IntS numword,numword_max;
+   IntM msw_data,lsw_data;
+   IntS addr_loc,msw_val,lsw_val;
+   BoolS bcd_format,hexvalue;
+
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type << " +++++" << endl;
+
+   msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_START_ADDR_LSW[code_type][banknum];
+   TL_SetArbAddr(msw_val,lsw_val);
+   
+   msw_val = F021_RunCode.BANK_LEN_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_LEN_LSW[code_type][banknum];
+   TL_SetArbLength(msw_val,lsw_val);
+
+   bcd_format  = true;
+   hexvalue    = true;
+   wr_flag_num = 0x1234;
+   numword_max = 2;
+   addr_loc = ADDR_RAM_MAILBOX;
+   
+   // upload write flag (msw) and data length (lsw)
+   msw_data = wr_flag_num;  // msword
+   lsw_data = numword_max;  // lsword
+   // upload to ram 32-bit write flag and data length
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
+                            msw_data,hexvalue,bcd_format);
+      
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
+   msw_data = msw_val;
+   lsw_data = lsw_val;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+   
+}   // MBox_Upload_RCODE_PSA
+
+void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ovr_data) {
+
+   IntS site,length;
+   IntS wr_flag_num;
+   IntS numword,numword_max;
+   IntM msw_data,lsw_data;
+   IntS addr_loc,msw_val,lsw_val;
+   BoolS bcd_format,hexvalue;
+
+   if (tistdscreenprint and TI_FlashDebug) {
+      cout << "+++++ MBox_Upload_RCODE_PSA : " << code_type;
+      cout << " VRD CT == " << setw(5) << hex << ovr_data << " +++++" << endl;
+   }   
+
+   msw_val = F021_RunCode.BANK_START_ADDR_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_START_ADDR_LSW[code_type][banknum];
+   TL_SetArbAddr(msw_val,lsw_val);
+   
+   msw_val = F021_RunCode.BANK_LEN_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_LEN_LSW[code_type][banknum];
+   TL_SetArbLength(msw_val,lsw_val);
+
+   bcd_format  = true;
+   hexvalue    = true;
+   wr_flag_num = 0x1234;
+   numword_max = 0x0102;
+   addr_loc = ADDR_RAM_MAILBOX;
+   
+   // upload write flag (msw) and data length (lsw)
+   msw_data = wr_flag_num;  // msword
+   lsw_data = numword_max;  // lsword
+   // upload to ram 32-bit write flag and data length
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
+                            msw_data,hexvalue,bcd_format);
+      
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
+   msw_data = msw_val;
+   lsw_data = lsw_val;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      
+   addr_loc = addr_loc+ADDR_RAM_INC;
+   msw_val = F021_RunCode.BANK_PSA_MSW[code_type][banknum];
+   lsw_val = F021_RunCode.BANK_PSA_LSW[code_type][banknum];
+   msw_data = OVRIND_VRD_CT;
+   lsw_data = ovr_data;
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+}   // MBox_Upload_RCODE_PSA_VRD_CT
+
 //void TL_CpuToBankWordAddr(IntS msw_cpuaddr,
 //                               IntS lsw_cpuaddr)
 //{
@@ -13200,7 +13169,7 @@ void RAM_Upload_SoftTrim(const IntS &trimenakey,
    BoolS bcd_format,hexvalue;
    BoolS debugprint;
 
-   if(tistdscreenprint and TI_FlashDebug)  
+   if (tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ RAM_Upload_SoftTrim +++++" << endl;
 
    bcd_format  = true;
@@ -15396,13 +15365,13 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 //}   /* F021_RefArr_Erase_func */
 //
 
-void MeasInternalVT(    IntS testnum,
-                             FloatS test_llim,
-                             FloatS test_ulim,
-                             BoolM ret_results,
-                             FloatM ret_values)
-{
-   BoolM savestates,results;
+void MeasInternalVT(    IntS       testnum,
+                        FloatS     test_llim,
+                        FloatS     test_ulim,
+                        TMResultM  ret_results,
+                        FloatM     ret_values) {
+   BoolM savestates;
+   TMResultM results;
    BoolM activestates,savesites;
    FloatS ttimer1,maxtime,tdelay;
    FloatS llimit,ulimit;
@@ -15444,7 +15413,7 @@ void MeasInternalVT(    IntS testnum,
       tsupply = FLTP1;
       if (GL_PUMPTYPE==ESPUMP) {
          ovr_slpct = 0xF;
-//         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,ovr_slpct,VSA5CT_TRIMSAVED);
+         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,ovr_slpct,VSA5CT_TRIMSAVED);
       } 
    }
    else {
@@ -15455,17 +15424,15 @@ void MeasInternalVT(    IntS testnum,
    } 
 
    if (GL_DO_BCCVT_RCODE_ENA)
-      ;
-//      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
 
    TIME.StartTimer();
-//   F021_TurnOff_AllTPADS;
-//   F021_Set_TPADS(tcrnum,tcrmode);
-//   F021_RunTestNumber_PMEX(tnum,maxtime,results);
+   F021_TurnOff_AllTPADS();
+   F021_Set_TPADS(tcrnum,tcrmode);
+   results = F021_RunTestNumber_PMEX(tnum,maxtime);
    TIME.Wait(tdelay);
-//   F021_Meas_TPAD_PMEX(tsupply,tcrnum,tcrmode,llimit,ulimit,values,results);
-//   Disable(s_pmexit);
-//   F021_TurnOff_AllTPADS;
+   values = F021_Meas_TPAD_PMEX(tsupply,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
 
    ret_values = values;
    ret_results = results;
@@ -15474,15 +15441,14 @@ void MeasInternalVT(    IntS testnum,
 //      Get_Flash_TestLogSpace_SCRAM;
 
    if ((not (do_bcc)) and (GL_PUMPTYPE==ESPUMP))
-      ;
-//      RAM_Clear_SoftTrim_All;
+      RAM_Clear_SoftTrim_All();
 
    if (GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA) {
       bank = (tnum & 0x000000F0) >>4;
       count = (tnum & 0x0000000F);
-      Get_TLogSpace_FAILADDR(msw_faddr,lsw_faddr);
-//      Get_TLogSpace_FAILDATA(msw_fdata,lsw_fdata);    /*port0*/
-//      Get_TLogSpace_MeasFreq(msw_fdata1,lsw_fdata1);  /*port1*/
+      Get_TLogSpace_FailAddr(msw_faddr,lsw_faddr);
+      Get_TLogSpace_FailData(msw_fdata,lsw_fdata);      // port0
+//      Get_TLogSpace_MeasFreq(msw_fdata1,lsw_fdata1);  // port1
 
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //      {
@@ -15507,776 +15473,738 @@ void MeasInternalVT(    IntS testnum,
       cout << str2 << " TNUM : " << hex << tnum << "  TT " << TIME.GetTimer() << endl; 
 }   // MeasInternalVT
 
-// /*Returned value if no converge: */
-// /*both passed : return 99v, both failed : return 0v*/
-//void F021_Vt_BinSearch_TTR(    IntS testnum,
-//                                    FloatM vstart,
-//                                    FloatM vstop,
-//                                    FloatS vresolution,
-//                                    FloatM irefarr,
-//                                    FloatS maxtime,
-//                                    FloatM ret_timer,
-//                                    FloatM ret_values)
-//{
-//   const IntS OPER_TCR5 = 0x0; 
-//   const IntS OPER_TCR6 = 0x1; 
-//   const IntS OPER_TCR39 = 0x2; 
-//
-//   BoolM savestates,results;
-//   BoolM activestates,savesites;
-//   BoolM min_results;
-//   BoolM max_results;
-//   BoolM mid_results;
-//   FloatM vpass, vfail, vmid;
-//   IntS site,opertype,tnumdta,i;
-//   FloatS ttimer1;
-//   FloatM tt_timer,irefarray;
-//   FloatS iclamp;
-//   FloatS tdelay;
-//   BoolS debugprint;
-//   BoolS save_printpass;
-//   BoolS save_scrnprint;
-//   FloatS maxtimeout;
-//   FloatS prevstart,prevstop;
-//   BoolS sameness,firstcnt;
-//   FloatS previref,vrngiref;
-//   PinM tp_iref,tp_cg;
-//   BoolS savesupdelay;
-//   option vdd_pgmMode,vdd_iGMode;
-//   FloatS vdd_iProg;
-//   FloatS vrangemax;
-//   option vstat_dbit,vstat_config;
-//   BoolS vstat_drv,vstat_load;
-//   BoolS vstat_pmu,vstat_upmu;
-//   BoolS vstat_stmask;
-//   IntS testnumber,redbit,otpbit;
-//   BoolS pbistena,redena;
-//   FloatM vdefault;
-//    /*++++++++++++++++*/
-//   IntS procedure RunTNUM_BIDI_Init(testnumber;
-//                               BoolM) var ret_results;
-//   
-//      BoolM final_results;
-//      IntS pmstop,site;
-//      FloatS tdelay1;
-//   
-//      if(v_any_dev_active)  
-//      {
-//         pmstop = 1;
-//         tdelay1 = 10ms;
-//         final_results = v_dev_active;
-//         F021_SetTestNum(testnumber);
-//         Enable(S_PMEXIT);
-//         PMEXSetDelay(S_PFlags,pmstop);
-//         PatternExecute(spareint1,f021_shell_exepat);
-//         ArrayAndBoolean(final_results,final_results,v_pf_status,v_sites);
-//         ret_results = final_results;
-//         DCConnect(NPORRST,S_High,S_Ldoff);
-//         
-//         DCConnect(F021_DONEPIN,S_High,S_ldoff);  /*strobe hi*/
-//         DCConnect(F021_NDONEPIN,S_Low,S_ldoff);  /*strobe low*/
-//         DCConnect(F021_PASSPIN,s_High,s_ldoff);  /*strobe hi*/
-//
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         {
-//            cout << "RunTNUM_BIDI_Init LOAD  ";
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            {
-//               if(v_dev_active[site])  
-//               {
-//                  if(final_results[site])  
-//                     cout << "  /  ");
-//                  else
-//                     cout << "  X  ";
-//               }
-//               else
-//                  cout << "  X  ";
-//            }   /*for site*/
-//            cout << endl;
-//         } 
-//         
-//         if((not tiignorefail) and (not TI_FlashCOFEna))  
-//            DevSetHoldStates(final_results);   /*de-activate failing site*/
-//      } 
-//   }   /* RunTNUM_BIDI_Init */
-//
-//   BoolS procedure Poll_VCTRL(VctrlHi;
-//                        BoolM) var ret_results;
-//   var
-//      BoolM donesites,poll_results,final_results;
-//      FloatS tdelay1,maxpolltime,polltimer;
-//      BoolS result;
-//      FloatM ttimer;
-//      option poll_opt;
-//      IntS site;
-//   {
-//      if(v_any_dev_active)  
-//      {
-//         tdelay1  = 2ms;
-//         final_results = v_dev_active;
-//         donesites = false;
-//
-//         if(VctrlHi)  
-//         {
-//            poll_opt = S_High;
-//            maxpolltime = 500ms;
-//         }
-//         else
-//         {
-//            poll_opt = S_Low;
-//            maxpolltime = maxtimeout;
-//         } 
-//
-//
-//         DCConnect(F021_VCTRLPIN,poll_opt,S_ldoff);
-//         TIME.Wait(tdelay1);
-//         result = false;
-//         timernstart(polltimer);
-//
-//         while((not result) and (timernread(polltimer)<maxpolltime)) do
-//         {
-//            VoltageCompareOpt(S_DATA);
-//            CompareGet(F021_VCTRLPIN);
-//            poll_results = v_pf_status;
-//            result = ArrayCompareBoolean(poll_results,v_dev_active,v_sites);
-//            
-//             /*record time for done site*/
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and poll_results[site] and (not donesites[site]))  
-//               {
-//                  ttimer[site] = timernread(polltimer);
-//                  donesites[site] = true;
-//               } 
-//            TIME.Wait(tdelay1);
-//         }   /*while*/
-//
-//         ArrayAndBoolean(final_results,final_results,poll_results,v_sites);
-//         ret_results = final_results;
-//         
-//          /*record time for time-out site*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and (not donesites[site]))  
-//            {
-//               ttimer[site] = timernread(polltimer);
-//               donesites[site] = true;
-//            } 
-//
-//         TIME.Wait(tdelay1);
-//     
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         {
-//            if(VctrlHi)  
-//               cout << " ":9 << "VCTRL (1)":10);
-//            else
-//               cout << " ":9 << "VCTRL (0)":10 << endl;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if V_dev_active[site]  
-//                  cout << "Site" << site:-5 << "  " << poll_results[site]:10 << "  PollTime : " << ttimer[site] << "  Results : " << final_results[site] << endl;
-//         }   /*screenprint*/
-//
-//         if((not tiignorefail) and (not TI_FlashCOFEna))  
-//            DevSetHoldStates(final_results);   /*de-activate failing site*/
-//      }   /*v_any_dev_active*/
-//   } 
-//      
-//   BoolM) procedure Poll_PFDONE(var ret_results;
-//   var
-//      BoolM done_results,ndone_results;
-//      BoolM pass_results,final_results;
-//      BoolM donesites,tmp_results;
-//      FloatS tdelay1,maxtimer,ttimer1;
-//      BoolS result;
-//      FloatM ttimer;
-//      option poll_opt;
-//      IntS site,tnumlo,tnumhi;
-//      IntS addr_loc,addr_loc2;
-//      IntM value1,value2,value3,value4;
-//   {
-//      if(v_any_dev_active)  
-//      {
-//         timernstart(ttimer1);
-//         tdelay1  = 2ms;
-//         final_results = v_dev_active;
-//         donesites = false;
-// /*
-//          DCConnect(NPORRST,S_High,S_Ldoff);
-//          DCConnect(F021_DONEPIN,S_High,S_ldoff); {strobe hi*/
-//         DCConnect(F021_NDONEPIN,S_Low,S_ldoff);  /*strobe low*/
-//         DCConnect(F021_PASSPIN,s_High,s_ldoff);  /*strobe hi*/
-//}         
-//         TIME.Wait(tdelay1);
-//         result = false;
-//         timernstart(maxtimer);
-//      
-//         while((not result) and (timernread(maxtimer)<maxtimeout)) do
-//         {
-//            TIME.Wait(tdelay1);
-//            VoltageCompareOpt(S_DATA);
-//            CompareGet(F021_DONEPIN);
-//            done_results = v_pf_status;
-//            CompareGet(F021_NDONEPIN);
-//            ndone_results = v_pf_status;
-//            ArrayAndBoolean(tmp_results,done_results,ndone_results,v_sites);
-//            result = ArrayCompareBoolean(tmp_results,v_dev_active,v_sites);
-//               
-//             /*record time for done site*/
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and tmp_results[site] and (not donesites[site]))  
-//                  {
-//                     ttimer[site] = timernread(maxtimer);
-//                     donesites[site] = true;
-//                  } 
-//         }   /*while*/
-//
-//         CompareGet(F021_PASSPIN);
-//         pass_results = v_pf_status;
-//            
-//          /*record time for time-out site*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and (not donesites[site]))  
-//            {
-//               ttimer[site] = timernread(maxtimer);
-//               donesites[site] = true;
-//            } 
-//
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//         {
-//            cout << "        " << "DONE (1)":10 << "  " << "NDONE (0)":10 << "  " << "PASS (1)" << endl;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if V_dev_active[site]  
-//                  cout << "Site " << site:2 << "  " << done_results[site]:10 << 
-//                          "  " << ndone_results[site]:10 << "  " << pass_results[site] << endl;
-//         } 
-//
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//         ArrayAndBoolean(final_results,final_results,pass_results,v_sites);
-//         ret_results = final_results;
-//
-//         if(tistdscreenprint and TI_FlashDebug)  
-//         {
-//            cout << "Poll_PFDONE " << testnumber:s_hex:-12;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and final_results[site])  
-//                  cout << "  /  ");
-//               else
-//                  cout << "  X  ";
-//            cout << "  TT " << timernread(ttimer1) << endl;
-//         } 
-//
-// /*         if((not tiignorefail) and (not TI_FlashCOFEna)) then
-//             DevSetHoldStates(final_results);  {de-activate failing site} */
-//      }   /*v_any_dev_active*/
-//   }   /*Poll_PFDONE*/
-//
-//   BoolS) procedure Set_VSTAT(VstatHi;
-//   var
-//      FloatS vdds_vProg,vdds_iProg;
-//      FloatS tdelay1,iclamp,vrng;
-//      IntS site;
-//   {
-//      if(v_any_dev_active)  
-//      {
-//         if(VstatHi)  
-//            DCConnect(F021_VSTATPIN,s_high,s_ldoff);
-//         else
-//            DCConnect(F021_VSTATPIN,s_low,s_ldoff);
-//
-//         VoltageCompareOpt(S_DATA);
-//
-//         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//            if(VstatHi)  
-//               cout << "Set VSTAT High");
-//            else
-//               cout << "Set VSTAT Low" << endl;
-//      } 
-//   }   /* Set_VSTAT */
-//
-//   FloatM procedure Set_TPAD(values;
-//                      FloatS) prevvalue;
-//   var
-//      IntS site;
-//      BoolM logsites;
-//   {
-//      if(v_any_dev_active)  
-//      {
-//         logsites = v_dev_active;
-//         if(not sameness)  
-//         {
-//        if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//           cout << "Set_TPAD" << endl;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(activestates[site])  
-//               {
-//                  if(opertype!=OPER_TCR5)  
-//                  {
-//                     STDSetVI(tp_iref,vrngiref,irefarray[site]);
-//                  } 
-//                  STDSetVI(tp_cg,values[site],iclamp);
-//                  devsetholdstate(site,false);
-//          if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//             cout << "Site" << site:-5 << " TPAD @ " << values[site] << endl;
-//               } 
-//            devsetholdstates(logsites);
-//         }
-//         else
-//         {
-//            if(opertype!=OPER_TCR5)  
-//            {
-//               STDSetVI(tp_iref,vrngiref,previref);
-//            } 
-//            STDSetVI(tp_cg,prevvalue,iclamp);
-//        if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//           cout << "Set_TPAD @ " << prevvalue << endl;
-//         } 
-//      }   /*v_any_dev_active*/
-//   }   /* Set_TPAD */
-//
-//   procedure CheckTNUM_DisPMEX; /* didn"t match any chunk types, FIX */
-//   var
-//      IntS site,tnumlo,tnumhi;
-//      IntS addr_loc,addr_loc2;
-//      IntM value1,value2,value3,value4;
-//      BoolM final_results;
-//   {
-//      if(v_any_dev_active)  
-//      {
-//         SupplySet(SHR_UPMUS,0v,10nA);
-//         DCConnect(F021_VSTATPIN,vstat_dbit,vstat_config);
-//         Disable(s_pmexit);
-//
-//         tnumhi = ((testnumber&0xffff0000)>>16)&0x0000ffff;
-//         tnumlo = testnumber&0x0000ffff;
-//         if(GL_DO_ESDA_WITH_SCRAM)  
-//            Get_Flash_TestLogSpace_SCRAM;         
-//         Get_TLogSpace_TNUM(value2,value1);
-//         Get_TLogSpace_PFBin(value3);
-//         ArrayAndIntegerValue(value4,value3,0xff00,v_sites);
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and final_results[site])  
-//               if((value1[site]!=tnumlo) or (value2[site]!=tnumhi) or (value4[site]!=0xaa00))  
-//                  final_results[site] = false;
-//         
-//         if(tistdscreenprint and TI_FlashDebug)  
-//         {
-//             /*Get_TLogSpace_PFBin(value3);*/
-//            addr_loc2 = ADDR_PF_BIN;
-//            addr_loc  = ADDR_TEST_INFO;
-//            cout << "RAM Loc (PF/Tnum) @ " << (addr_loc2):s_hex << " / " << 
-//                    (addr_loc):s_hex << "  ==  " << endl;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if v_dev_active[site]  
-//                  cout << "Site " << site:-5 << value3[site]:s_hex << " " << 
-//                          value2[site]:s_hex:8 << "  " << value1[site]:s_hex:8 << endl;
-//     } 
-//      } 
-//   }   /* CheckTNUM_DisPMEX */
-//         
-//    /*++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "Binary Search Vt TTR ..." << endl;
-//      
-//      debugprint = TI_FlashDebug and TIPrintPass;
-//      save_printpass = TIPrintPass;
-//      save_scrnprint = TIStdScreenPrint;
-//
-//      if(not debugprint)  
-//      {
-//         TIStdScreenPrint = false;
-//         TIPrintPass = false;
-//      } 
-//      
-//      iclamp = 100mA;
-//      tdelay = 5ms ; /*2ms*/
-//      maxtimeout = maxtime;
-//
-//      irefarray = irefarr;
-//
-//      vrngiref  = 2.5V;
-//      vrangemax = 0V;
-//      sameness = true;
-//      firstcnt = true;
+// RunTNUM_BIDI_Init removed from function F021_Vt_BinSearch_TTR below
+void RunTNUM_BIDI_Init( IntS testnumber, TMResultM ret_results) {
+
+   TMResultM final_results;
+   IntS pmstop,site;
+   FloatS tdelay1;
+
+   pmstop = 1;
+   tdelay1 = 10ms;
+//   final_results = v_dev_active;
+   F021_SetTestNum(testnumber);
+//   Enable(S_PMEXIT);
+//   PMEXSetDelay(S_PFlags,pmstop);
+
+//   PatternExecute(spareint1,f021_shell_exepat);
+   DIGITAL.ExecutePattern("f021_shell_exepat");
+   ret_results = final_results;
+//   ArrayAndBoolean(final_results,final_results,v_pf_status,v_sites);
+
+//   DCConnect(NPORRST,S_High,S_Ldoff);
+//   DCConnect(F021_DONEPIN,S_High,S_ldoff);  /*strobe hi*/
+//   DCConnect(F021_NDONEPIN,S_Low,S_ldoff);  /*strobe low*/
+//   DCConnect(F021_PASSPIN,s_High,s_ldoff);  /*strobe hi*/
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+   {
+      cout << "RunTNUM_BIDI_Init LOAD  ";
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      {
 //         if(v_dev_active[site])  
 //         {
-//            if(vstart[site]>vrangemax)  
-//               vrangemax = vstart[site];
-//            if(vstop[site]>vrangemax)  
-//               vrangemax = vstop[site];
-//
-//            if(firstcnt)  
-//            {
-//               prevstart = vstart[site];
-//               prevstop  = vstop[site];
-//               previref  = irefarray[site];
-//               firstcnt  = false;
-//            }
-//            else if((vstart[site]!=prevstart) or (vstop[site]!=prevstop) or (irefarray[site]!=previref))  
-//            {
-//               sameness = false;
-//                /*break;*/
-//            } 
-//         } 
-//
-//       /*pbist tnum type*/
-//      if((testnum&0xf0000000)==0xB0000000)  
-//      {
-//         if((testnum&0x000f0000)==0x00030000)  
-//            opertype = OPER_TCR6;
-//         else
-//            opertype = OPER_TCR5;
-//     pbistena = true;
-//     redena = false;
-//      }
-//      else
-//      {
-//         opertype = ((testnum&0x03000000) >>24) & 0x3;
-//     redbit = testnum&TNUM_REDUNDENA;
-//     otpbit = (testnum&0x00000f00)>>8;
-//     if((redbit==TNUM_REDUNDENA) or (otpbit==0x4) or (otpbit==0x5))  
-//        redena = true;
-//     pbistena = false;
-//      } 
-//
-//      switch(opertype) {
-//        case OPER_TCR5  :  
-//           tp_cg   = FLTP1;
-//         break; 
-//        case OPER_TCR6  :  
-//           tp_iref = FLTP2;
-//           tp_cg   = FLTP1;
-//         break; 
-//        case OPER_TCR39 :  
-//           tp_iref = FLTP1;
-//           tp_cg   = FLTP2;
-//         break; 
-//      } 
-//      
-//
-//      if(TI_FlashDebug and save_scrnprint)  
-//      {
-//         tistdscreenprint = true;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               switch(opertype) {
-//                 case OPER_TCR5 :  
-//                 case cout << "Site " << site:-5 << " TP1(CG) @ " << iclamp:-5:3 << endl;
-//                  break; 
-//                 case OPER_TCR6 :  
-//                 case cout << "Site " << site:-5 << " TP1(CG) @ " << iclamp:-5:3 << 
-//                 case "  TP2(Iref) @ " << vrngiref:-5:3 << " " << irefarray[site]:-5:3 << endl;
-//                  break; 
-//                 case OPER_TCR39 :  
-//                 case cout << "Site " << site:-5 << " TP2(CG) @ " << iclamp:-5:3 << 
-//                 case "  TP1(Iref) @ " << vrngiref:-5:3 << " " << irefarray[site]:-5:3 << endl;
-//                  break; 
-//               }   /* case */
-//            } 
-//         if(not debugprint)  
-//            tistdscreenprint = false;
-//      } 
-//                    
-//      timernstart(ttimer1);
-//      
-//      min_results = false;
-//      max_results = false;
-//      vmid = 0V;
-//      vpass = 0V;
-//      vfail = 0V;
-//
-//      savestates = v_dev_active;
-//      activestates = v_dev_active;
-//
-//      savesupdelay = v_no_supplyset_delay;
-//      v_no_supplyset_delay = true;
-//
-//      if(opertype!=OPER_TCR5)  
-//         STDSetVRange(tp_iref,vrngiref);
-//
-//      STDSetVRange(tp_cg,vrangemax);
-//         
-//      if(GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
-//         MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
-//      else if(GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
-//         MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//      else if(opertype==OPER_TCR6)  
-//         TL_EngOvride_VRD_CT(0xF);   /*KChau 11/16/10 - override VRD CT*/
-//      
-//      if(not GL_DO_VT_USING_BIDI)  
-//      {
-//         Set_TPAD(vstart,prevstart);
-//         TIME.Wait(tdelay);
-//         F021_RunTestNumber(testnum,maxtime,tt_timer,min_results);
-//      }
-//      else
-//      {
-//         DCconnectGet(F021_VSTATPIN,vstat_dbit,vstat_config,vstat_drv,vstat_load,vstat_pmu,vstat_upmu,vstat_stmask);
-//         savesites = v_dev_active;
-//     vdefault = 1.8V;
-//         testnumber = testnum;
-//     F021_TurnOff_AllTpads;
-//     Set_TPAD(vdefault,1.8v);
-//         RunTNUM_BIDI_Init(testnumber,min_results);
-//         Set_VSTAT(false);  /*set vstat lo*/
-//         Poll_VCTRL(true,results);  /*poll hi*/
-//         ArrayAndBoolean(min_results,min_results,results,v_sites);
-//         Set_TPAD(vstart,prevstart);
-//         TIME.Wait(tdelay);
-//         Set_VSTAT(true);  /*set vstat hi*/
-//         Poll_VCTRL(false,results);  /*poll lo*/
-//         ArrayAndBoolean(min_results,min_results,results,v_sites);
-//     Set_TPAD(vdefault,1.8v);
-//         Set_VSTAT(false);  /*set vstat lo*/
-//     if(v_any_dev_active and (not pbistena) and redena)  
-//     {
-//        Poll_VCTRL(true,results);  /*poll hi*/
-//        ArrayAndBoolean(min_results,min_results,results,v_sites);
-//        Set_TPAD(vstart,prevstart);
-//        TIME.Wait(tdelay);
-//        Set_VSTAT(true);  /*set vstat hi*/
-//        Poll_VCTRL(false,results);  /*poll lo*/
-//        ArrayAndBoolean(min_results,min_results,results,v_sites);
-//            Set_TPAD(vdefault,1.8v);
-//        Set_VSTAT(false);  /*set vstat lo*/
-//     } 
-//         Poll_PFDONE(results);
-//         ArrayAndBoolean(min_results,min_results,results,v_sites);
-//         devsetholdstates(savesites);
-//     CheckTNUM_DisPMEX;
-//      } 
-//
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//               if(min_results[site])  
-//                  cout << "Site " << site:3 << "  passed @ " << vstart[site]);
-//               else
-//                  cout << "Site " << site:3 << "  failed @ " << vstart[site] << endl;
-//      } 
-//
-//
-//      if(GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
-//         MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
-//      else if(GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
-//         MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//      else if(opertype==OPER_TCR6)  
-//         TL_EngOvride_VRD_CT(0xF);   /*KChau 11/16/10 - override VRD CT*/
-//      
-//      if(not GL_DO_VT_USING_BIDI)  
-//      {
-//         Set_TPAD(vstop,prevstop);
-//         TIME.Wait(tdelay);
-//         F021_RunTestNumber(testnum,maxtime,tt_timer,max_results);
-//      }
-//      else
-//      {
-//     Set_TPAD(vdefault,1.8v);
-//         RunTNUM_BIDI_Init(testnumber,max_results);
-//         Set_VSTAT(false);  /*set vstat lo*/
-//         Poll_VCTRL(true,results);  /*poll hi*/
-//         ArrayAndBoolean(max_results,max_results,results,v_sites);
-//         Set_TPAD(vstop,prevstop);
-//         TIME.Wait(tdelay);
-//         Set_VSTAT(true);  /*set vstat hi*/
-//         Poll_VCTRL(false,results);  /*poll lo*/
-//         ArrayAndBoolean(max_results,max_results,results,v_sites);
-//     Set_TPAD(vdefault,1.8v);
-//         Set_VSTAT(false);  /*set vstat lo*/
-//     if(v_any_dev_active and (not pbistena) and redena)  
-//     {
-//        Poll_VCTRL(true,results);  /*poll hi*/
-//        ArrayAndBoolean(max_results,max_results,results,v_sites);
-//            Set_TPAD(vstop,prevstop);
-//        TIME.Wait(tdelay);
-//        Set_VSTAT(true);  /*set vstat hi*/
-//        Poll_VCTRL(false,results);  /*poll lo*/
-//        ArrayAndBoolean(max_results,max_results,results,v_sites);
-//            Set_TPAD(vdefault,1.8v);
-//        Set_VSTAT(false);  /*set vstat lo*/
-//     } 
-//         Poll_PFDONE(results);
-//         ArrayAndBoolean(max_results,max_results,results,v_sites);
-//         devsetholdstates(savesites);
-//     CheckTNUM_DisPMEX;
-//      } 
-//
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//               if(max_results[site])  
-//                  cout << "Site " << site:3 << "  passed @ " << vstop[site]);
-//               else
-//                  cout << "Site " << site:3 << "  failed @ " << vstop[site] << endl;
-//      } 
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         if v_dev_active[site]  
-//         {
-//            if((min_results[site] and max_results[site]) or
-//               ((not min_results[site]) and (not max_results[site])))  
-//            {
-//               ret_timer[site] = timernread(ttimer1);
-//               
-//               if(min_results[site] and max_results[site])  
-//               {
-//                  vpass[site] = 99V;   /*default invalid value if both passed*/
-//                  if(save_scrnprint)  
-//                  {
-//                     tistdscreenprint=true;
-//                     cout << "Site " << site:3 << " Passing both voltages. " << 
-//                             vstart[site] << "  " << vstop[site] << "  not converged!!!";
-//                     cout << "  DISABLED " << endl;
-//                  } 
-//               }
-//               else
-//               {
-//                  if(save_scrnprint)  
-//                  {
-//                     tistdscreenprint=true;
-//                     cout << "Site " << site:3 << " Failing both voltages. " << 
-//                             vstart[site] << "  " << vstop[site] << "  not converged!!!";
-//                     cout << "  DISABLED " << endl;
-//                  } 
-//               } 
-//
-//               if(save_scrnprint and (not debugprint))  
-//                  tistdscreenprint=false;
-//
-//               activestates[site] = false;
-//               devsetholdstate(site,false);  /*disable site*/
-//            }
+//            if(final_results[site])  
+//               cout << "  /  ");
 //            else
-//            {
-//               if(min_results[site])  
-//               { 
-//                  vpass[site] = vstart[site];
-//                  vfail[site] = vstop[site];
-//               }
-//               else
-//               { 
-//                  vpass[site] = vstop[site];
-//                  vfail[site] = vstart[site];
-//               } 
-//               vmid[site] = (vpass[site]+vfail[site])/2;
-//            } 
-//         }   /*if v_dev_active*/
-//      }   /*for site*/
-//
-//      sameness = false;
-//      
-//      while(v_any_dev_active) do
-//      {
-//         if(GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
-//            MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
-//         else if(GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
-//            MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//         else if(opertype==OPER_TCR6)  
-//            TL_EngOvride_VRD_CT(0xF);   /*KChau 11/16/10 - override VRD CT*/
-//      
-//         if(not GL_DO_VT_USING_BIDI)  
-//         {
-//            Set_TPAD(vmid,prevstart);
-//            TIME.Wait(tdelay);
-//            F021_RunTestNumber(testnum,maxtime,tt_timer,mid_results);
+//               cout << "  X  ";
 //         }
 //         else
-//         {
-//            savesites = v_dev_active;
-//            Set_TPAD(vdefault,1.8v);
-//            RunTNUM_BIDI_Init(testnumber,mid_results);
-//        Set_VSTAT(false);  /*set vstat lo*/
-//            Poll_VCTRL(true,results);  /*poll hi*/
-//            ArrayAndBoolean(mid_results,mid_results,results,v_sites);
-//            Set_TPAD(vmid,prevstart);
-//            TIME.Wait(tdelay);
-//            Set_VSTAT(true);  /*set vstat hi*/
-//            Poll_VCTRL(false,results);  /*poll lo*/
-//            ArrayAndBoolean(mid_results,mid_results,results,v_sites);
-//            Set_TPAD(vdefault,1.8v);
-//            Set_VSTAT(false);  /*set vstat lo*/
-//        if(v_any_dev_active and (not pbistena) and redena)  
-//        {
-//           Poll_VCTRL(true,results);  /*poll hi*/
-//           ArrayAndBoolean(mid_results,mid_results,results,v_sites);
-//           Set_TPAD(vmid,prevstart);
-//           TIME.Wait(tdelay);
-//           Set_VSTAT(true);  /*set vstat hi*/
-//           Poll_VCTRL(false,results);  /*poll lo*/
-//           ArrayAndBoolean(mid_results,mid_results,results,v_sites);
-//               Set_TPAD(vdefault,1.8v);
-//           Set_VSTAT(false);  /*set vstat lo*/
-//        } 
-//            Poll_PFDONE(results);
-//            ArrayAndBoolean(mid_results,mid_results,results,v_sites);
-//            devsetholdstates(savesites);
-//        CheckTNUM_DisPMEX;
-//         } 
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(activestates[site])  
-//            {
-//               if(mid_results[site])  
-//               {
-//                  vpass[site] = vmid[site];
-//                  if(tistdscreenprint and debugprint)  
-//                     cout << "Site " << site:3 << "  passed @ " << vmid[site] << endl;
-//               }
-//               else
-//               {
-//                  vfail[site] = vmid[site];
-//                  if(tistdscreenprint and debugprint)  
-//                     cout << "Site " << site:3 << "  failed @ " << vmid[site] << endl;
-//               } 
-//
-//                /*continue searching*/
-//               if(abs(vpass[site]-vfail[site])>vresolution)  
-//                  vmid[site] = (vpass[site]+vfail[site])/2;
-//               else
-//               {  /*done searching*/
-//                  ret_timer[site] = timernread(ttimer1);
-//                  activestates[site] = false;
-//               } 
-//            }   /*if activestates*/
-//         }   /*for site*/
-//
-//         devsetholdstates(activestates);
-//      }   /*while*/
-//
-//       /*re-activate all incoming sites*/
-//      devsetholdstates(savestates);
-//      ret_values = vpass;
-//
-//      F021_TurnOff_AllTpads;
-//      TIME.Wait(tdelay);
-//
-//      TIPrintPass = save_printpass;
-//      TIStdScreenPrint = save_scrnprint;
-//      v_no_supplyset_delay = savesupdelay;
-//
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//      {
-//          /*writeln(tiwindow);*/
-//         cout << "F021_Vt_BinSearch TTR :  " << endl;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(savestates[site])  
-//               cout << "site " << site:5 << "  " << vpass[site]:5:3 << "  " << endl;
-//             /*else
-//                write(tiwindow,"  X  ","  ");*/
-//         cout << "TT == " << timernread(ttimer1) << endl;
-//      } 
-//
-//   }   /*if v_any_dev_active*/
-//
-//}   /* F021_Vt_BinSearch_TTR */
-//
+//            cout << "  X  ";
+//      }   /*for site*/
+      cout << endl;
+   } 
+   
+//   if((not TIIgnoreFail) and (not TI_FlashCOFEna))
+//      DevSetHoldStates(final_results);   /*de-activate failing site*/
+}   // RunTNUM_BIDI_Init
+
+// Poll_VCTRL removed from function F021_Vt_BinSearch_TTR below
+void Poll_VCTRL(BoolS VctrlHi, TMResultM ret_results, FloatS maxtimeout ) {
+
+   BoolM donesites;
+   TMResultM poll_results,final_results;
+   FloatS tdelay1,maxpolltime,polltimer;
+   BoolS result;
+   FloatM ttimer;
+//   option poll_opt;
+   IntS site;
+
+   tdelay1  = 2ms;
+//   final_results = v_dev_active;
+   donesites = false;
+
+   if(VctrlHi) {
+//      poll_opt = S_High;
+      maxpolltime = 500ms;
+   }
+   else {
+//      poll_opt = S_Low;
+      maxpolltime = maxtimeout;
+   } 
+
+
+//   DCConnect(F021_VCTRLPIN,poll_opt,S_ldoff);
+   TIME.Wait(tdelay1);
+   result = false;
+//   timernstart(polltimer);
+   TIME.StartTimer();
+
+//   while ((not result) and (TIME.GetTimer() < maxpolltime)) {
+//      VoltageCompareOpt(S_DATA);
+//      CompareGet(F021_VCTRLPIN);
+//      poll_results = v_pf_status;
+//      result = ArrayCompareBoolean(poll_results,v_dev_active,v_sites);
+        
+      
+       /*record time for done site*/
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//         if ( poll_results[si*] and (not donesites[si*]) ) {
+//            ttimer[si*] = timernread(polltimer);
+//            ttimer[si*] = TIME.GetTimer();
+//            donesites[si*] = true;
+//         }
+//      }
+//      TIME.Wait(tdelay1);
+//   }   // while
+
+//   ArrayAndBoolean(final_results,final_results,poll_results,v_sites);
+   DLOG.AccumulateResults(final_results, poll_results);
+   ret_results = final_results;
+   
+    /*record time for time-out site*/
+//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//      if ( (not donesites[si*]) ) {
+////         ttimer[si*] = timernread(polltimer);
+//         ttimer[si*] = TIME.GetTimer();
+//         donesites[si*] = true;
+//      }
+//   }
+
+   TIME.Wait(tdelay1);
+
+   if (tistdscreenprint and TI_FlashDebug and tiprintpass) {
+      if ( VctrlHi )  
+         cout << setw(9) << " " << setw(10) << "VCTRL (1)";
+      else
+         cout << setw(9) << " " << setw(10) << "VCTRL (0)" << endl;
+         
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) { 
+//         cout << "Site" << setw(5) << site << "  " << setw(10) << poll_results[si*] << "  PollTime : " << ttimer[si*];
+//         cout << "  Results : " << final_results[si*] << endl;
+//      }      
+   }   /*screenprint*/
+
+//   if((not tiignorefail) and (not TI_FlashCOFEna))  
+//      DevSetHoldStates(final_results);   /*de-activate failing site*/
+}   // Poll_VCTRL 
+
+// Poll_PFDONE removed from function F021_Vt_BinSearch_TTR below
+void Poll_PFDONE(IntS testnumber, TMResultM ret_results, FloatS maxtimeout) {
+
+   TMResultM done_results,ndone_results;
+   TMResultM pass_results,final_results, tmp_results;
+   BoolM donesites;
+   FloatS tdelay1,maxtimer,ttimer1;
+   TMResultM result;
+   FloatM ttimer;
+//   option poll_opt;
+   IntS site,tnumlo,tnumhi;
+   IntS addr_loc,addr_loc2;
+   IntM value1,value2,value3,value4;
+
+//   timernstart(ttimer1);
+   TIME.StartTimer();
+   tdelay1  = 2ms;
+//   final_results = v_dev_active;
+   donesites = false;
+ /*
+    DCConnect(NPORRST,S_High,S_Ldoff);
+    DCConnect(F021_DONEPIN,S_High,S_ldoff); {strobe hi*/
+//   DCConnect(F021_NDONEPIN,S_Low,S_ldoff);  /*strobe low*/
+//   DCConnect(F021_PASSPIN,s_High,s_ldoff);  /*strobe hi*/
+         
+   TIME.Wait(tdelay1);
+//   result = false;
+//   timernstart(maxtimer);
+   TIME.StartTimer();
+
+
+//   while((not result) and (TIME.GetTimer()<maxtimeout))
+   while( (TIME.GetTimer()<maxtimeout) ) {
+      TIME.Wait(tdelay1);
+//      VoltageCompareOpt(S_DATA);
+//      CompareGet(F021_DONEPIN);
+//      done_results = v_pf_status;
+//      CompareGet(F021_NDONEPIN);
+//      ndone_results = v_pf_status;
+//      ArrayAndBoolean(tmp_results,done_results,ndone_results,v_sites);
+      tmp_results = DLOG.AccumulateResults(done_results,ndone_results);
+      result = tmp_results;
+//      result = ArrayCompareBoolean(tmp_results,v_dev_active,v_sites);
+         
+       /*record time for done site*/
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//         if (tmp_results[si*] and (not donesites[si*])) {
+           //   ttimer[si*] = timernread(maxtimer);
+//            ttimer[si*] = TIME.GetTimer();
+//            donesites[site] = true;
+//         }
+//      }
+   }   /*while*/
+
+//   CompareGet(F021_PASSPIN);
+//   pass_results = v_pf_status;
+      
+    /*record time for time-out site*/
+//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//      if ((not donesites[si*])) {
+////         ttimer[site] = timernread(maxtimer);
+//         ttimer[si*] = TIME.GetTimer();
+//         donesites[si*] = true;
+//      }
+//   }
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+   {
+      cout << "        " << setw(10) << "DONE (1)  " << setw(10) << "NDONE (0)  " << "PASS (1)" << endl; 
+      cout << "Site " << setw(2) << site << "  " << setw(10) << done_results;
+      cout << "  " << setw(10) << ndone_results << "  " << pass_results << endl;
+   } 
+
+   DLOG.AccumulateResults(final_results,tmp_results);
+   DLOG.AccumulateResults(final_results,pass_results);
+   ret_results = final_results;
+
+//   if(tistdscreenprint and TI_FlashDebug) {
+//      cout << "Poll_PFDONE " << setw(12) << hex << testnumber;
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//         if (final_results[si*]) cout << "  /  ");
+//         else                   cout << "  X  ";
+//      }
+//      cout << "  TT " << ttimer1 << endl;
+//   } 
+
+   // if((not tiignorefail) and (not TI_FlashCOFEna)) then
+   //      DevSetHoldStates(final_results);  {de-activate failing site}
+}   // Poll_PFDONE
+
+// Set_VSTAT removed from function F021_Vt_BinSearch_TTR below
+void Set_VSTAT (BoolS VstatHi) {
+
+   FloatS vdds_vProg,vdds_iProg;
+   FloatS tdelay1,iclamp,vrng;
+   IntS site;
+
+//   if(VstatHi)
+//      DCConnect(F021_VSTATPIN,s_high,s_ldoff);
+//   else
+//      DCConnect(F021_VSTATPIN,s_low,s_ldoff);
+
+//   VoltageCompareOpt(S_DATA);
+
+   if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+      if (VstatHi)  
+         cout << "Set VSTAT High";
+      else
+         cout << "Set VSTAT Low" << endl;
+}   /* Set_VSTAT */
+
+// Set_TPAD removed from function F021_Vt_BinSearch_TTR below
+void Set_TPAD(BoolS sameness, FloatM values, FloatS prevvalue, FloatS previref, FloatS iclamp,
+              PinM tp_iref, PinM tp_cg, FloatS vrngiref, FloatM irefarray ) {
+
+   IntS opertype, site;
+   BoolM logsites;
+
+//   logsites = v_dev_active;
+
+   if (not sameness) {
+   if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+      cout << "Set_TPAD" << endl;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if (opertype != OPER_TCR5) {
+            STDSetVI(tp_iref,prevvalue,irefarray[*si],VI_FORCE_V,VI_MEASURE_I,vrngiref );
+         } 
+         STDSetVI(tp_cg,values[*si],iclamp,VI_FORCE_V,VI_MEASURE_I,vrngiref);
+         
+//         devsetholdstate(site,false);
+         if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+            cout << "Site" << setw(5) << *si << " TPAD @ " << values[*si] << endl;
+            
+//         devsetholdstates(logsites);
+      }
+   }
+   else {
+      if (opertype!=OPER_TCR5) {
+         STDSetVI(tp_iref,vrngiref,previref, VI_FORCE_V,VI_MEASURE_I,vrngiref);
+      } 
+      STDSetVI(tp_cg,prevvalue,iclamp, VI_FORCE_V,VI_MEASURE_I,vrngiref);
+      
+      if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+         cout << "Set_TPAD @ " << prevvalue << endl;
+   }
+}   // Set_TPAD
+
+void CheckTNUM_DisPMEX (IntS testnumber, TMResultM final_results) {
+   IntS site,tnumlo,tnumhi;
+   IntS addr_loc,addr_loc2;
+   IntM value1,value2,value3,value4;
+
+//   SupplySet(SHR_UPMUS,0V,10nA);
+//   DCConnect(F021_VSTATPIN,vstat_dbit,vstat_config);
+//   Disable(s_pmexit);
+
+   tnumhi = ((testnumber & IntS(0xffff0000))>>16) & IntS(0x0000ffff);
+   tnumlo = testnumber&0x0000ffff;
+//   if(GL_DO_ESDA_WITH_SCRAM)  
+//      Get_Flash_TestLogSpace_SCRAM();         
+   Get_TLogSpace_TNUM(value2,value1);
+   Get_TLogSpace_PFBin(value3);
+   value4 = value3 & 0xff00;
+//   ArrayAndIntegerValue(value4,value3,0xff00,v_sites);
+   
+//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//      if ( final_results[*si])  
+//         if ((value1[*si]!=tnumlo) or (value2[*si]!=tnumhi) or (value4[*si]!=0xaa00))  
+//            final_results[*si] = false;
+//   }         
+   
+   if(tistdscreenprint and TI_FlashDebug) {
+      // Get_TLogSpace_PFBin(value3);
+      addr_loc2 = ADDR_PF_BIN;
+      addr_loc  = ADDR_TEST_INFO;
+      cout << "RAM Loc (PF/Tnum) @ " << hex << (addr_loc2) << " / " << hex << (addr_loc) << "  ==  " << endl;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) { 
+          cout << "Site " << setw(5) << *si << hex << value3[*si] << " ";
+          cout << hex << value2[*si] << "  " << setw(8) << hex << value1[*si] << endl;
+      }           
+   } 
+}   // CheckTNUM_DisPMEX
+         
+
+// Returned value if no converge:
+// both passed : return 99v, both failed : return 0v
+void F021_Vt_BinSearch_TTR( IntS   testnum,
+                            FloatM vstart,
+                            FloatM vstop,
+                            FloatS vresolution,
+                            FloatM irefarr,
+                            FloatS maxtime,
+                            FloatM ret_timer,
+                            FloatM ret_values) {
+
+   
+   TMResultM results;
+   BoolM savestates;
+   BoolM activestates,savesites;
+   TMResultM min_results;
+   TMResultM max_results;
+   TMResultM mid_results;
+   FloatM vpass, vfail, vmid;
+   IntS site,opertype,tnumdta,i;
+   FloatS ttimer1;
+   FloatM tt_timer,irefarray;
+   FloatS iclamp;
+   FloatS tdelay;
+   BoolS debugprint;
+   BoolS save_printpass;
+   BoolS save_scrnprint;
+   FloatS maxtimeout;
+   FloatS prevstart,prevstop;
+   BoolS sameness,firstcnt;
+   FloatS previref,vrngiref;
+   PinM tp_iref,tp_cg;
+   BoolS savesupdelay;
+//   option vdd_pgmMode,vdd_iGMode;
+   FloatS vdd_iProg;
+   FloatS vrangemax;
+//   option vstat_dbit,vstat_config;
+   BoolS vstat_drv,vstat_load;
+   BoolS vstat_pmu,vstat_upmu;
+   BoolS vstat_stmask;
+   IntS testnumber,redbit,otpbit;
+   BoolS pbistena,redena;
+   FloatM vdefault;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "Binary Search Vt TTR ..." << endl;
+   
+   debugprint = TI_FlashDebug and tiprintpass;
+   save_printpass = tiprintpass;
+   save_scrnprint = tistdscreenprint;
+
+   if(not debugprint) {
+      tistdscreenprint = false;
+      tiprintpass = false;
+   } 
+   
+   iclamp = 100mA;
+   tdelay = 5ms ; // 2ms
+   maxtimeout = maxtime;
+
+   irefarray = irefarr;
+
+   vrngiref  = 2.5V;
+   vrangemax = 0V;
+   sameness = true;
+   firstcnt = true;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      if (vstart[*si]>vrangemax) vrangemax = vstart[*si];
+      
+      if (vstop[*si]>vrangemax) vrangemax = vstop[*si];
+
+      if (firstcnt) {
+         prevstart = vstart[*si];
+         prevstop  = vstop[*si];
+         previref  = irefarray[*si];
+         firstcnt  = false;
+      }
+      else if ((vstart[*si]!=prevstart) or (vstop[*si]!=prevstop) or (irefarray[*si]!=previref)) {
+         sameness = false;
+         // break;
+      }
+   }
+
+   // pbist tnum type
+   if ((testnum & IntS(0xf0000000)) == IntS(0xB0000000))  
+   {
+      if ((testnum & IntS(0x000f0000)) == 0x00030000)  
+         opertype = OPER_TCR6;
+      else
+         opertype = OPER_TCR5;
+         
+      pbistena = true;
+      redena = false;
+   }
+   else {
+      opertype = ((testnum&0x03000000) >>24) & 0x3;
+      redbit = testnum&TNUM_REDUNDENA;
+      otpbit = (testnum&0x00000f00)>>8;
+      
+      if ((redbit==TNUM_REDUNDENA) or (otpbit==0x4) or (otpbit==0x5))  
+         redena = true;
+         
+      pbistena = false;
+   } 
+
+   switch (opertype) {
+     case OPER_TCR5  :  
+        tp_cg   = FLTP1;
+        break; 
+     case OPER_TCR6  :  
+        tp_iref = FLTP2;
+        tp_cg   = FLTP1;
+        break; 
+     case OPER_TCR39 :  
+        tp_iref = FLTP1;
+        tp_cg   = FLTP2;
+        break; 
+   } 
+   
+
+   if (TI_FlashDebug and save_scrnprint) {
+      tistdscreenprint = true;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         switch(opertype) {
+           case OPER_TCR5 :  
+              cout << "Site " << setw(5) << *si << " TP1(CG) @ " << iclamp << endl;
+              break; 
+           case OPER_TCR6 :  
+              cout << "Site " << setw(5) << *si << " TP1(CG) @ " << iclamp;
+              cout << "  TP2(Iref) @ " << vrngiref << " " << irefarray[*si] << endl;
+              break; 
+           case OPER_TCR39 :  
+              cout << "Site " << setw(5) << site << " TP2(CG) @ " << iclamp;
+              cout << "  TP1(Iref) @ " << vrngiref << " " << irefarray[*si] << endl;
+              break; 
+         }   // case
+      }
+      if (not debugprint)  
+         tistdscreenprint = false;
+   } 
+                 
+   TIME.StartTimer();
+   
+   min_results = TM_NOTEST;
+   max_results = TM_NOTEST;
+   vmid = 0V;
+   vpass = 0V;
+   vfail = 0V;
+
+//   savestates = v_dev_active;
+//   activestates = v_dev_active;
+
+//   savesupdelay = v_no_supplyset_delay;
+//   v_no_supplyset_delay = true;
+
+   if (opertype != OPER_TCR5)
+      VI.SetMeasureVRange(tp_iref,vrngiref);
+//      STDSetVRange(tp_iref,vrngiref);
+
+   VI.SetMeasureVRange(tp_cg,vrangemax);
+//   STDSetVRange(tp_cg,vrangemax);
+      
+   if (GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
+      MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
+   else if (GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+   else if (opertype==OPER_TCR6)  
+      TL_EngOvride_VRD_CT(0xF);   // KChau 11/16/10 - override VRD CT
+   
+   if (not GL_DO_VT_USING_BIDI) {
+      Set_TPAD(sameness, vstart, prevstart, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      F021_RunTestNumber(testnum,maxtime,tt_timer);
+   }
+   else {
+//      DCconnectGet(F021_VSTATPIN,vstat_dbit,vstat_config,vstat_drv,vstat_load,vstat_pmu,vstat_upmu,vstat_stmask);
+//      savesites = v_dev_active;
+      vdefault = 1.8V;
+      testnumber = testnum;
+      F021_TurnOff_AllTPADS();
+      Set_TPAD(sameness, vdefault, 1.8V, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      RunTNUM_BIDI_Init(testnumber,min_results);
+      Set_VSTAT(false);  // set vstat lo
+      Poll_VCTRL(true, results, maxtimeout);  // poll hi
+      DLOG.AccumulateResults(min_results, results);
+//      ArrayAndBoolean(min_results,min_results,results,v_sites);
+      Set_TPAD(sameness, vstart, prevstart, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      Set_VSTAT(true);  // set vstat hi
+      Poll_VCTRL(false, results, maxtimeout);  // poll lo
+      DLOG.AccumulateResults(min_results, results);
+//      ArrayAndBoolean(min_results,min_results,results,v_sites);
+      Set_TPAD(sameness, vdefault, 1.8V, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      Set_VSTAT(false);  // set vstat lo
+      
+      if ((not pbistena) and redena) {
+         Poll_VCTRL(true, results, maxtimeout);  // poll hi
+         DLOG.AccumulateResults(min_results, results);
+//         ArrayAndBoolean(min_results,min_results,results,v_sites);
+         Set_TPAD(sameness, vstart, prevstart, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         TIME.Wait(tdelay);
+         Set_VSTAT(true);  // set vstat hi
+         Poll_VCTRL(false, results, maxtimeout);  // poll lo
+         DLOG.AccumulateResults(min_results, results);
+//         ArrayAndBoolean(min_results,min_results,results,v_sites);
+         Set_TPAD(sameness, vdefault, 1.8V, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         Set_VSTAT(false);  // set vstat lo
+      } 
+      Poll_PFDONE(testnumber, results, maxtimeout);
+      DLOG.AccumulateResults(min_results, results);
+//      ArrayAndBoolean(min_results,min_results,results,v_sites);
+//      devsetholdstates(savesites);
+      CheckTNUM_DisPMEX(testnum, results);
+   } 
+
+   if (tistdscreenprint and debugprint) {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if(min_results[*si])  
+            cout << "Site " << setw(3) << *si << "  passed @ " << vstart[*si];
+         else
+            cout << "Site " << setw(3) << *si << "  failed @ " << vstart[*si] << endl;
+      }
+   } 
+
+   if(GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
+      MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
+   else if(GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+   else if(opertype==OPER_TCR6)  
+      TL_EngOvride_VRD_CT(0xF);   /*KChau 11/16/10 - override VRD CT*/
+   
+   if (not GL_DO_VT_USING_BIDI) {
+      Set_TPAD(sameness, vstop, prevstop, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      max_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
+   }
+   else {
+      Set_TPAD(sameness, vdefault, 1.8V, previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      RunTNUM_BIDI_Init(testnumber,max_results);
+      Set_VSTAT(false);  // set vstat lo
+      Poll_VCTRL(true,results,maxtimeout);  // poll hi
+//      ArrayAndBoolean(max_results,max_results,results,v_sites);
+     DLOG.AccumulateResults(max_results,results);
+     Set_TPAD(sameness,vstop,prevstop,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      Set_VSTAT(true);  // set vstat hi
+     Poll_VCTRL(false,results,maxtimeout);  // poll lo
+//      ArrayAndBoolean(max_results,max_results,results,v_sites);
+     DLOG.AccumulateResults(max_results,results);
+     Set_TPAD(sameness,vdefault,1.8V,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      Set_VSTAT(false);  // set vstat lo
+      
+      if ((not pbistena) and redena) {
+        Poll_VCTRL(true,results,maxtimeout);  // poll hi
+//         ArrayAndBoolean(max_results,max_results,results,v_sites);
+        DLOG.AccumulateResults(max_results,results);
+        Set_TPAD(sameness,vstop,prevstop,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         TIME.Wait(tdelay);
+         Set_VSTAT(true);  // set vstat hi
+        Poll_VCTRL(false,results,maxtimeout);  // poll lo
+//         ArrayAndBoolean(max_results,max_results,results,v_sites);
+        DLOG.AccumulateResults(max_results,results);
+        Set_TPAD(sameness,vdefault,1.8V,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         Set_VSTAT(false);  // set vstat lo
+      }
+      
+     Poll_PFDONE(testnum,results,maxtimeout);
+//      ArrayAndBoolean(max_results,max_results,results,v_sites);
+     DLOG.AccumulateResults(max_results,results);
+//      devsetholdstates(savesites);
+      CheckTNUM_DisPMEX(testnum, results);
+   } 
+
+  if(tistdscreenprint and debugprint) {
+     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+        if (activestates[*si])  
+           if (max_results[*si])  
+              cout << "Site " << setw(3) << "  passed @ " << vstop[*si];
+           else
+              cout << "Site " << setw(3) << "  failed @ " << vstop[*si] << endl;
+     }
+  } 
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      if((min_results[*si] and max_results[*si]) or
+         ((not min_results[*si]) and (not max_results[*si]))) {
+        ret_timer[*si] = TIME.GetTimer();
+         
+         if (min_results[*si] and max_results[*si]) {
+            vpass[*si] = 99V;   /*default invalid value if both passed*/
+            if (save_scrnprint) {
+               tistdscreenprint=true;
+               cout << "Site " << setw(3) << *si << " Passing both voltages. " << 
+                       vstart[*si] << "  " << vstop[*si] << "  not converged!!!";
+               cout << "  DISABLED " << endl;
+            } 
+         }
+         else {
+            if (save_scrnprint) {
+               tistdscreenprint=true;
+               cout << "Site " << setw(3) << *si << " Failing both voltages. " << 
+                       vstart[*si] << "  " << vstop[*si] << "  not converged!!!";
+               cout << "  DISABLED " << endl;
+            } 
+         } 
+
+         if (save_scrnprint and (not debugprint))  
+            tistdscreenprint=false;
+
+//         activestates[site] = false;
+//         devsetholdstate(site,false);  /*disable site*/
+      }
+     else {
+        if (min_results[*si]) { 
+           vpass[*si] = vstart[*si];
+           vfail[*si] = vstop[*si];
+        }
+        else { 
+           vpass[*si] = vstop[*si];
+           vfail[*si] = vstart[*si];
+        } 
+        vmid[*si] = (vpass[*si]+vfail[*si])/2;
+     } 
+   }   /*for site*/
+
+   sameness = false;
+   
+   if (GL_DO_BCCVT_RCODE_ENA and (opertype==OPER_TCR6))  
+      MBox_Upload_RCODE_PSA_VRD_CT(GL_DO_BCCVT_RCODE_BANK,Random,0xF);
+   else if (GL_DO_BCCVT_RCODE_ENA and (opertype!=OPER_TCR6))  
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+   else if (opertype==OPER_TCR6)  
+      TL_EngOvride_VRD_CT(0xF);   /*KChau 11/16/10 - override VRD CT*/
+
+   if (not GL_DO_VT_USING_BIDI) {
+      Set_TPAD(sameness,vmid,prevstart,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      F021_RunTestNumber(testnum,maxtime,tt_timer);
+   }
+   else {
+//      savesites = v_dev_active;
+      Set_TPAD(sameness,vdefault,1.8V,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      RunTNUM_BIDI_Init(testnumber,mid_results);
+      Set_VSTAT(false);  /*set vstat lo*/
+      Poll_VCTRL(true,results,maxtimeout);  /*poll hi*/
+      DLOG.AccumulateResults(mid_results,results);
+//      ArrayAndBoolean(mid_results,mid_results,results,v_sites);
+      Set_TPAD(sameness,vmid,prevstart,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      TIME.Wait(tdelay);
+      Set_VSTAT(true);  /*set vstat hi*/
+      Poll_VCTRL(false,results,maxtimeout);  /*poll lo*/
+      DLOG.AccumulateResults(mid_results,results);
+//      ArrayAndBoolean(mid_results,mid_results,results,v_sites);
+      Set_TPAD(sameness,vdefault,1.8V,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+      Set_VSTAT(false);  /*set vstat lo*/
+     
+      if ((not pbistena) and redena) {
+         Poll_VCTRL(true,results,maxtimeout);  /*poll hi*/
+         DLOG.AccumulateResults(mid_results,results);
+//         ArrayAndBoolean(mid_results,mid_results,results,v_sites);
+         Set_TPAD(sameness,vmid,prevstart,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         TIME.Wait(tdelay);
+         Set_VSTAT(true);  /*set vstat hi*/
+         Poll_VCTRL(false,results,maxtimeout);  /*poll lo*/
+         DLOG.AccumulateResults(mid_results,results);
+//         ArrayAndBoolean(mid_results,mid_results,results,v_sites);
+         Set_TPAD(sameness,vdefault,1.8V,previref, iclamp, tp_iref, tp_cg, vrngiref, irefarray);
+         Set_VSTAT(false);  /*set vstat lo*/
+      } 
+      Poll_PFDONE(testnum,results,maxtimeout);
+      DLOG.AccumulateResults(mid_results,results);
+//      ArrayAndBoolean(mid_results,mid_results,results,v_sites);
+//      devsetholdstates(savesites);
+      CheckTNUM_DisPMEX(testnum,mid_results);
+   } 
+  
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      if (mid_results[*si]) {
+         vpass[*si] = vmid[*si];
+         if (tistdscreenprint and debugprint)  
+            cout << "Site " << setw(3) << "  passed @ " << vmid[*si] << endl;
+      }
+      else {
+         vfail[*si] = vmid[*si];
+         if (tistdscreenprint and debugprint)  
+            cout << "Site " << setw(3) << "  failed @ " << vmid[*si] << endl;
+      } 
+
+      /*continue searching*/
+      if ( MATH.Abs(vpass[*si]-vfail[*si]) > vresolution)  
+         vmid[*si] = (vpass[*si]+vfail[*si])/2;
+      else {  /*done searching*/
+         ret_timer[*si] = TIME.GetTimer();
+         activestates[*si] = false;
+      } 
+    }   /*for site*/
+
+//      devsetholdstates(activestates);
+
+    /*re-activate all incoming sites*/
+//   devsetholdstates(savestates);
+   ret_values = vpass;
+
+   F021_TurnOff_AllTPADS();
+   TIME.Wait(tdelay);
+
+   tiprintpass = save_printpass;
+   tistdscreenprint = save_scrnprint;
+//   v_no_supplyset_delay = savesupdelay;
+
+   if (tistdscreenprint and TI_FlashDebug and tiprintpass)  {
+      // writeln(tiwindow);
+      cout << "F021_Vt_BinSearch TTR :  " << endl;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if(savestates[*si])  
+            cout << "site " << setw(5) << *si << "  " << vpass[*si] << "  " << endl;
+         /*else
+            write(tiwindow,"  X  ","  ");*/
+      cout << "TT == " << TIME.GetTimer() << endl;
+   } 
+}   // F021_Vt_BinSearch_TTR
+
 //BoolS F021_VT_Delta_func(    IntS pattype,
 //                                vttype vt_type,
 //                                StringS tname,
@@ -16704,405 +16632,376 @@ void MeasInternalVT(    IntS testnum,
 //   F021_VT_Delta_func = V_any_dev_active;
 //}   /*F021_VT_Delta_func*/
 //   
-//   
-// /*Returned value if no converge: */
-// /*both passed : return 1ua, both failed : return 0ua*/
-//void F021_BCC_BinSearch_TTR(    IntS testnum,
-//                                     FloatM Istart,
-//                                     FloatM Istop,
-//                                     FloatS Iresolution,
-//                                     FloatM VforceArr,
-//                                     FloatS maxtime,
-//                                     FloatM ret_timer,
-//                                     FloatM ret_values)
-//{
+
+// Save_FailInfo_To_SAMP_ACCY moved out of F021_BCC_BinSearch_TTR below
+//BoolM Save_FailInfo_To_SAMP_ACCY(IntS testnum, TMResultM test_results, FloatM ivalues) {
+//
+//   IntS i,bank,count;
+//   IntM msw_faddr,lsw_faddr;
+//   IntM msw_fdata,lsw_fdata;
+//   IntM msw_fdata1,lsw_fdata1;
+//
+//   bank = (testnum&0x000000F0) >>4;
+//   count = (testnum&0x0000000F);
+//   Get_TLogSpace_FAILADDR(msw_faddr,lsw_faddr);
+//   Get_TLogSpace_FAILDATA(msw_fdata,lsw_fdata);    // port0
+//   Get_TLogSpace_MeasFreq(msw_fdata1,lsw_fdata1);  // port1
+//   for (i = 1;i <= v_sites;i++) {
+//      FL_SAMP_ACCY_VT[bank][count][i] = ivalues[i];
+//      FL_SAMP_ACCY_VT_FADDR_MSW[bank][count][i] = msw_faddr[i];
+//      FL_SAMP_ACCY_VT_FADDR_LSW[bank][count][i] = lsw_faddr[i];
+//      FL_SAMP_ACCY_VT_FDATA_MSW[bank][count][i] = msw_fdata[i];
+//      FL_SAMP_ACCY_VT_FDATA_LSW[bank][count][i] = lsw_fdata[i];
+//      FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count][i] = msw_fdata1[i];
+//      FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count][i] = lsw_fdata1[i];
+//      if(tistdscreenprint and TI_FlashDebug)  
+//      {
+//         cout << "Site" << i:-5 << " FL_SAMP_ACCY_VT["][bank:-2]["][ "][count:-2]["] == " << ivalues[i] << endl;
+//         cout << " ":-9 << " FL_SAMP_ACCY_VT_FADDR MSW/LSW == " << msw_faddr[i]:s_hex:-7 << " " << lsw_faddr[i]:s_hex:-7 << endl;
+//         cout << " ":-9 << " FL_SAMP_ACCY_VT_FDATA MSW/LSW == " << msw_fdata[i]:s_hex:-7 << " " << lsw_fdata[i]:s_hex:-7 << endl;
+//         cout << " ":-9 << " FL_SAMP_ACCY_VT_FDATA1 MSW/LSW == " << msw_fdata1[site]:s_hex:-7 << " " << lsw_fdata1[i]:s_hex:-7 << endl;
+//      }
+//   }
+//}   // Save_FailInfo_To_SAMP_ACCY
+   
+// Returned value if no converge:
+// both passed : return 1ua, both failed : return 0ua
+void F021_BCC_BinSearch_TTR (    IntS   testnum,
+                                 FloatM Istart,
+                                 FloatM Istop,
+                                 FloatS Iresolution,
+                                 FloatM VforceArr,
+                                 FloatS maxtime,
+                                 FloatM ret_timer,
+                                 FloatM ret_values) {
+                                 
+   enum OperatorType { OPER_TCR6 = 0x1, OPER_TCR39 = 0x2, OPER_TCR38 = 0x3 };
+   
 //   const IntS OPER_TCR6 = 0x1; 
 //   const IntS OPER_TCR39 = 0x2; 
 //   const IntS OPER_TCR38 = 0x3; 
-//
-//   BoolM savestates,activestates,logsites;
-//   BoolM min_results,max_results;
-//   BoolM mid_results;
-//   FloatM Ipass,Ifail,Imid;
-//   FloatM vforce;
-//   IntS site,opertype,tdata;
-//   FloatM tt_timer;
-//   FloatS cg_irange,cg_vrange;
-//   BoolS debugprint,savesupdelay;
-//   BoolS save_printpass,save_scrnprint;
-//   FloatS maxtimeout,tdelay,ttimer1;
-//   FloatS prevstart,prevstop,vProg;
-//   BoolS sameness,firstcnt,tg_ena;
-//   PinM tsupply,tp_cg;
+
+   BoolM savestates,activestates,logsites;
+   BoolM min_results,max_results;
+   BoolM mid_results;
+   FloatM Ipass,Ifail,Imid;
+   FloatM vforce;
+   IntS site,opertype,tdata;
+   FloatM tt_timer;
+   FloatM cg_irange,cg_vrange;
+   BoolS debugprint,savesupdelay;
+   BoolS save_printpass,save_scrnprint;
+   FloatS maxtimeout,tdelay,ttimer1;
+   FloatM prevstart,prevstop,vProg;
+   BoolS sameness,firstcnt,tg_ena;
+   PinM tsupply,tp_cg;
 //   option vdd_pgmMode,vdd_iGMode;
-//   FloatS vdd_iProg;
-//    /*++++++++++++++++*/
-//   BoolM procedure Save_FailInfo_To_SAMP_ACCY(test_results;
-//                                        FloatM) ivalues;
-//   
-//      IntS i,bank,count;
-//      IntM msw_faddr,lsw_faddr;
-//      IntM msw_fdata,lsw_fdata;
-//      IntM msw_fdata1,lsw_fdata1;
-//   
-//         bank = (testnum&0x000000F0) >>4;
-//         count = (testnum&0x0000000F);
-//         Get_TLogSpace_FAILADDR(msw_faddr,lsw_faddr);
-//         Get_TLogSpace_FAILDATA(msw_fdata,lsw_fdata);    /*port0*/
-//         Get_TLogSpace_MeasFreq(msw_fdata1,lsw_fdata1);  /*port1*/
-//         for (i = 1;i <= v_sites;i++)
-//            if(v_dev_active[i] and (not test_results[i]))  
-//            {
-//               FL_SAMP_ACCY_VT[bank][count][i] = ivalues[i];
-//               FL_SAMP_ACCY_VT_FADDR_MSW[bank][count][i] = msw_faddr[i];
-//               FL_SAMP_ACCY_VT_FADDR_LSW[bank][count][i] = lsw_faddr[i];
-//               FL_SAMP_ACCY_VT_FDATA_MSW[bank][count][i] = msw_fdata[i];
-//               FL_SAMP_ACCY_VT_FDATA_LSW[bank][count][i] = lsw_fdata[i];
-//               FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count][i] = msw_fdata1[i];
-//               FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count][i] = lsw_fdata1[i];
-//               if(tistdscreenprint and TI_FlashDebug)  
-//               {
-//                  cout << "Site" << i:-5 << " FL_SAMP_ACCY_VT["][bank:-2]["][ "][count:-2]["] == " << ivalues[i] << endl;
-//                  cout << " ":-9 << " FL_SAMP_ACCY_VT_FADDR MSW/LSW == " << msw_faddr[i]:s_hex:-7 << " " << lsw_faddr[i]:s_hex:-7 << endl;
-//                  cout << " ":-9 << " FL_SAMP_ACCY_VT_FDATA MSW/LSW == " << msw_fdata[i]:s_hex:-7 << " " << lsw_fdata[i]:s_hex:-7 << endl;
-//                  cout << " ":-9 << " FL_SAMP_ACCY_VT_FDATA1 MSW/LSW == " << msw_fdata1[site]:s_hex:-7 << " " << lsw_fdata1[i]:s_hex:-7 << endl;
-//               } 
-//            }   /*v_dev_active*/
-//   }   /* Save_FailInfo_To_SAMP_ACCY */
-//    /*++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
+   FloatS vdd_iProg;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "Binary Search BCC TTR ..." << endl;
+   
+   debugprint = TI_FlashDebug and tiprintpass;
+   save_printpass = tiprintpass;
+   save_scrnprint = tistdscreenprint;
+//   savesupdelay = v_no_supplyset_delay;
+
+   if(not debugprint) {
+      tistdscreenprint = false;
+      tiprintpass = false;
+   } 
+
+
+   // pbist tnum type
+   if ( (testnum & IntS(0xf0000000)) == IntS(0xB0000000) ) {
+      if ( IntS((testnum & 0x000f0000)) == IntS(0x00050000) )  
+         opertype = OPER_TCR38;
+      else
+         opertype = OPER_TCR6;
+   }
+   else
+      opertype = ((testnum&0x03000000) >>24) & 0x3;
+
+   switch (opertype) {
+     case OPER_TCR6  :  
+        tsupply = FLTP2;
+        tp_cg   = FLTP1;
+        tg_ena  = true;
+        break; 
+     case OPER_TCR38 :  
+        tsupply = FLTP1;
+        tg_ena  = false;
+        break; 
+     case OPER_TCR39 :  
+        tsupply = FLTP1;
+        tp_cg   = FLTP2;
+        tg_ena  = true;
+        break; 
+   }   // case
+
+    /*tdata := ((testnum&0x0000f000) >>12) & 0xf;*/
+
+   cg_irange = 100mA;
+
+//   timernstart(ttimer1);
+   TIME.StartTimer();
+   
+   tdelay = 5ms;  /*50ms;*/
+   maxtimeout = maxtime;
+
+   sameness = true;
+   firstcnt = true;
+
+
+   if (firstcnt) {
+      prevstart = Istart;
+      prevstop  = Istop;
+      firstcnt  = false;
+   }
+   else if ((Istart !=prevstart) or (Istop !=prevstop)) {
+      sameness = false;
+   }
+
+   min_results = false;
+   max_results = false;
+   Imid = 0uA;
+   Ipass = 0uA;
+   Ifail = 0uA;
+
+//   savestates = v_dev_active;
+//   activestates = v_dev_active;
+//   logsites = v_dev_active;
+
+//   v_no_supplyset_delay = true;
+
+   if(tg_ena) {
+      cg_vrange = VforceArr;
+//      STDSetVRange(tp_cg,cg_vrange);
+//      STDSetVI(tp_cg,cg_vrange,cg_irange);
+   } 
+
+   vProg = 2.5V;  // iref vrng
+//   STDSetVRange(tsupply,vProg);
+   
+   if(TI_FlashDebug and save_scrnprint)  
+   {
+      tistdscreenprint = true;
+      switch(opertype) {
+        case OPER_TCR6  :  
+           cout << "TP1(CG) @ " << cg_vrange << " " << cg_irange << "  TP2(Iref) @ " << vProg << endl;
+           break; 
+        case OPER_TCR38 :  
+           cout << "TP1(Iref) @ " << vProg << endl;
+           break; 
+        case OPER_TCR39 :  
+           cout << "TP2(CG) @ " << cg_vrange << " " << cg_irange << "  TP1(Iref) @ " << vProg << endl;
+            break; 
+      }   // case
+      if(not debugprint)  
+         tistdscreenprint = false;
+   } 
+
+   if(not sameness) {
+      ;
+//      STDSetVI(tsupply,vProg,Istart);
+   }
+   else {
+      ;
+//      STDSetVI(tsupply,vProg,prevstart);
+   } 
+      
+   TIME.Wait(tdelay);
+   if(GL_DO_BCCVT_RCODE_ENA)  
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+      
+   F021_RunTestNumber(testnum,maxtime,tt_timer);
+
+//   if(tistdscreenprint and debugprint)  
 //   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "Binary Search BCC TTR ..." << endl;
-//      
-//      debugprint = TI_FlashDebug and TIPrintPass;
-//      save_printpass = TIPrintPass;
-//      save_scrnprint = TIStdScreenPrint;
-//      savesupdelay = v_no_supplyset_delay;
-//
-//      if(not debugprint)  
-//      {
-//         TIStdScreenPrint = false;
-//         TIPrintPass = false;
-//      } 
-//
-//
-//       /*pbist tnum type*/
-//      if((testnum&0xf0000000)==0xB0000000)  
-//      {
-//         if((testnum&0x000f0000)==0x00050000)  
-//            opertype = OPER_TCR38;
-//         else
-//            opertype = OPER_TCR6;
-//      }
-//      else
-//         opertype = ((testnum&0x03000000) >>24) & 0x3;
-//
-//      switch(opertype) {
-//        case OPER_TCR6  :  
-//           tsupply = FLTP2;
-//           tp_cg   = FLTP1;
-//           tg_ena  = true;
-//         break; 
-//        case OPER_TCR38 :  
-//           tsupply = FLTP1;
-//           tg_ena  = false;
-//         break; 
-//        case OPER_TCR39 :  
-//           tsupply = FLTP1;
-//           tp_cg   = FLTP2;
-//           tg_ena  = true;
-//         break; 
-//      }   /* case */
-//
-//       /*tdata := ((testnum&0x0000f000) >>12) & 0xf;*/
-//
-//      cg_irange = 100mA;
-//
-//      timernstart(ttimer1);
-//      
-//      tdelay = 5ms;  /*50ms;*/
-//      maxtimeout = maxtime;
-//
-//      sameness = true;
-//      firstcnt = true;
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(firstcnt)  
-//            {
-//               prevstart = Istart[site];
-//               prevstop  = Istop[site];
-//               firstcnt  = false;
-//            }
-//            else if((Istart[site]!=prevstart) or (Istop[site]!=prevstop))  
-//            {
-//               sameness = false;
-//               break;
-//            } 
-//         } 
-//
-//      
-//      min_results = false;
-//      max_results = false;
-//      Imid = 0uA;
-//      Ipass = 0uA;
-//      Ifail = 0uA;
-//
-//      savestates = v_dev_active;
-//      activestates = v_dev_active;
-//      logsites = v_dev_active;
-//
-//      v_no_supplyset_delay = true;
-//
-//      if(tg_ena)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               cg_vrange = VforceArr[site];
-//               break;
-//            } 
-//         STDSetVRange(tp_cg,cg_vrange);
-//         STDSetVI(tp_cg,cg_vrange,cg_irange);
-//      } 
-//
-//      vProg = 2.5V;  /*iref vrng*/
-//      STDSetVRange(tsupply,vProg);
-//      
-//      if(TI_FlashDebug and save_scrnprint)  
-//      {
-//         tistdscreenprint = true;
-//         switch(opertype) {
-//           case OPER_TCR6  :  
-//           case cout << "TP1(CG) @ " << cg_vrange:-5:3 << " " << cg_irange:-5:3 << "  TP2(Iref) @ " << vProg:-5:3 << endl;
-//            break; 
-//           case OPER_TCR38 :  
-//           case cout << "TP1(Iref) @ " << vProg:-5:3 << endl;
-//            break; 
-//           case OPER_TCR39 :  
-//           case cout << "TP2(CG) @ " << cg_vrange:-5:3 << " " << cg_irange:-5:3 << "  TP1(Iref) @ " << vProg:-5:3 << endl;
-//            break; 
-//         }   /* case */
-//         if(not debugprint)  
-//            tistdscreenprint = false;
-//      } 
-//
-//      if(not sameness)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//            {
-//               STDSetVI(tsupply,vProg,Istart[site]);
-//               devsetholdstate(site,false);
-//            } 
-//         devsetholdstates(activestates);
-//      }
-//      else
-//      {
-//         STDSetVI(tsupply,vProg,prevstart);
-//      } 
-//         
-//      TIME.Wait(tdelay);
-//      if(GL_DO_BCCVT_RCODE_ENA)  
-//         MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//      F021_RunTestNumber(testnum,maxtime,tt_timer,min_results);
-//
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//               if(min_results[site])  
-//                  cout << "Site " << site:3 << "  passed @ " << Istart[site]);
-//               else
-//                  cout << "Site " << site:3 << "  failed @ " << Istart[site] << endl;
-//      } 
-//
-//      if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
-//         if(not arraycompareboolean(logsites,min_results,v_sites))  
-//               Save_FailInfo_To_SAMP_ACCY(min_results,Istart);
-//
-//      if(not sameness)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//            {
-//               STDSetVI(tsupply,vProg,Istop[site]);
-//               devsetholdstate(site,false);
-//            } 
-//         devsetholdstates(activestates);
-//      }
-//      else
-//      {
-//         STDSetVI(tsupply,vProg,prevstop);
-//      } 
-//         
-//      TIME.Wait(tdelay);
-//      if(GL_DO_BCCVT_RCODE_ENA)  
-//         MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//      F021_RunTestNumber(testnum,maxtime,tt_timer,max_results);
-//
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(activestates[site])  
-//               if(max_results[site])  
-//                  cout << "Site " << site:3 << "  passed @ " << Istop[site]);
-//               else
-//                  cout << "Site " << site:3 << "  failed @ " << Istop[site] << endl;
-//      } 
-//      
-//      if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
-//         if(not arraycompareboolean(logsites,max_results,v_sites))  
-//            Save_FailInfo_To_SAMP_ACCY(max_results,Istop);
-//
+//         if(activestates[site])  
+//            if(min_results[site])  
+//               cout << "Site " << site:3 << "  passed @ " << Istart[site]);
+//            else
+//               cout << "Site " << site:3 << "  failed @ " << Istart[site] << endl;
+//   } 
+
+//   if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
+//      if(not arraycompareboolean(logsites,min_results,v_sites))  
+//          Save_FailInfo_To_SAMP_ACCY(min_results,Istart);
+
+   if (not sameness) {
+      ;
+//      STDSetVI(tsupply,vProg,Istop[site]);
+   }
+   else {
+      ;
+//      STDSetVI(tsupply,vProg,prevstop);
+   } 
+      
+   TIME.Wait(tdelay);
+   if(GL_DO_BCCVT_RCODE_ENA)  
+      MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+   F021_RunTestNumber(testnum,maxtime,tt_timer);
+
+//   if(tistdscreenprint and debugprint)  
+//   {
 //      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//         if(activestates[site])  
+//            if(max_results[site])  
+//               cout << "Site " << site:3 << "  passed @ " << Istop[site]);
+//            else
+//               cout << "Site " << site:3 << "  failed @ " << Istop[site] << endl;
+//   } 
+   
+//   if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
+//      if(not arraycompareboolean(logsites,max_results,v_sites))  
+//         Save_FailInfo_To_SAMP_ACCY(max_results,Istop);
+
+//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//   {
+//      if v_dev_active[site]  
 //      {
-//         if v_dev_active[site]  
+//         if((min_results[site] and max_results[site]) or
+//            ((not min_results[site]) and (not max_results[site])))  
 //         {
-//            if((min_results[site] and max_results[site]) or
-//               ((not min_results[site]) and (not max_results[site])))  
+//            ret_timer[site] = timernread(ttimer1);
+//            
+//            if(min_results[site] and max_results[site])  
 //            {
-//               ret_timer[site] = timernread(ttimer1);
-//               
-//               if(min_results[site] and max_results[site])  
+//                /*if(tdata=0) then
+//                   Ipass[site] := 5ua
+//                else*/
+//                  Ipass[site] = 1uA;   /*default invalid value if both passed*/
+//               if(save_scrnprint)  
 //               {
-//                   /*if(tdata=0) then
-//                      Ipass[site] := 5ua
-//                   else*/
-//                     Ipass[site] = 1uA;   /*default invalid value if both passed*/
-//                  if(save_scrnprint)  
-//                  {
-//                     tistdscreenprint=true;
-//                     cout << "Site " << site:3 << " Passing both Currents. " << 
-//                             Istart[site] << "  " << Istop[site] << "  not converged!!!";
-//                     cout << "  DISABLED " << endl;
-//                  } 
-//               }
-//               else
-//               {
-//                  if(save_scrnprint)  
-//                  {
-//                     tistdscreenprint=true;
-//                     cout << "Site " << site:3 << " Failing both Currents. " << 
-//                             Istart[site] << "  " << Istop[site] << "  not converged!!!";
-//                     cout << "  DISABLED " << endl;
-//                  } 
+//                  tistdscreenprint=true;
+//                  cout << "Site " << site:3 << " Passing both Currents. " << 
+//                          Istart[site] << "  " << Istop[site] << "  not converged!!!";
+//                  cout << "  DISABLED " << endl;
 //               } 
-//
-//               if(save_scrnprint and (not debugprint))  
-//                  tistdscreenprint=false;
-//
-//               activestates[site] = false;
-//               devsetholdstate(site,false);  /*disable site*/
 //            }
 //            else
 //            {
-//               if(min_results[site])  
-//               { 
-//                  Ipass[site] = Istart[site];
-//                  Ifail[site] = Istop[site];
-//               }
-//               else
-//               { 
-//                  Ipass[site] = Istop[site];
-//                  Ifail[site] = Istart[site];
+//               if(save_scrnprint)  
+//               {
+//                  tistdscreenprint=true;
+//                  cout << "Site " << site:3 << " Failing both Currents. " << 
+//                          Istart[site] << "  " << Istop[site] << "  not converged!!!";
+//                  cout << "  DISABLED " << endl;
 //               } 
-//               Imid[site] = (Ipass[site]+Ifail[site])/2;
 //            } 
-//         }   /*if v_dev_active*/
+//
+//            if(save_scrnprint and (not debugprint))  
+//               tistdscreenprint=false;
+//
+//            activestates[site] = false;
+//            devsetholdstate(site,false);  /*disable site*/
+//         }
+//         else
+//         {
+//            if(min_results[site])  
+//            { 
+//               Ipass[site] = Istart[site];
+//               Ifail[site] = Istop[site];
+//            }
+//            else
+//            { 
+//               Ipass[site] = Istop[site];
+//               Ifail[site] = Istart[site];
+//            } 
+//            Imid[site] = (Ipass[site]+Ifail[site])/2;
+//         } 
+//      }   /*if v_dev_active*/
+//   }   /*for site*/
+
+//   while(v_any_dev_active) do
+//   {
+//      logsites = v_dev_active;
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//      {
+//         if(activestates[site])  
+//         {
+//            STDSetVI(tsupply,vProg,Imid[site]);
+//            devsetholdstate(site,false);
+//         }   /*activestates*/
 //      }   /*for site*/
 //
-//      while(v_any_dev_active) do
-//      {
-//         logsites = v_dev_active;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(activestates[site])  
-//            {
-//               STDSetVI(tsupply,vProg,Imid[site]);
-//               devsetholdstate(site,false);
-//            }   /*activestates*/
-//         }   /*for site*/
-//
-//         devsetholdstates(activestates);
-//         TIME.Wait(tdelay);
-//         if(GL_DO_BCCVT_RCODE_ENA)  
-//            MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
-//         F021_RunTestNumber(testnum,maxtime,tt_timer,mid_results);
-//
-//         if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
-//            if(not arraycompareboolean(logsites,mid_results,v_sites))  
-//               Save_FailInfo_To_SAMP_ACCY(mid_results,Imid);
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            if(activestates[site])  
-//            {
-//               if(mid_results[site])  
-//               {
-//                  Ipass[site] = Imid[site];
-//                  if(tistdscreenprint and debugprint)  
-//                     cout << "Site " << site:3 << "  passed @ " << Imid[site] << endl;
-//               }
-//               else
-//               {
-//                  Ifail[site] = Imid[site];
-//                  if(tistdscreenprint and debugprint)  
-//                     cout << "Site " << site:3 << "  failed @ " << Imid[site] << endl;
-//               } 
-//
-//                /*continue searching*/
-//               if(abs(Ipass[site]-Ifail[site])>Iresolution)  
-//                  Imid[site] = (Ipass[site]+Ifail[site])/2;
-//               else
-//               {  /*done searching*/
-//                  ret_timer[site] = timernread(ttimer1);
-//                  activestates[site] = false;
-//               } 
-//            }   /*if activestates*/
-//         }   /*for site*/
-//
-//         devsetholdstates(activestates);
-//      }   /*while*/
-//
-//       /*re-activate all incoming sites*/
-//      devsetholdstates(savestates);
-//      ret_values = Ipass;
-//
-//      F021_TurnOff_AllTpads;
+//      devsetholdstates(activestates);
 //      TIME.Wait(tdelay);
+//      if(GL_DO_BCCVT_RCODE_ENA)  
+//         MBox_Upload_RCODE_PSA(GL_DO_BCCVT_RCODE_BANK,Random);
+//      F021_RunTestNumber(testnum,maxtime,tt_timer,mid_results);
 //
-//      TIPrintPass = save_printpass;
-//      TIStdScreenPrint = save_scrnprint;
-//      v_no_supplyset_delay = savesupdelay;
+//      if(GL_DO_CHARZ_SAMP_ACCY and GL_DO_SAVE_SAMP_ACCY_DATA)  
+//         if(not arraycompareboolean(logsites,mid_results,v_sites))  
+//            Save_FailInfo_To_SAMP_ACCY(mid_results,Imid);
 //
-//      if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //      {
-//         cout << "F021_BCC_BinSearch TTR :  " << endl;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(savestates[site])  
-//               cout << "site " << site:5 << "  " << Ipass[site]:5:3 << "  " << endl;
-//         cout << "TT == " << timernread(ttimer1) << endl;
-//      } 
+//         if(activestates[site])  
+//         {
+//            if(mid_results[site])  
+//            {
+//               Ipass[site] = Imid[site];
+//               if(tistdscreenprint and debugprint)  
+//                  cout << "Site " << site:3 << "  passed @ " << Imid[site] << endl;
+//            }
+//            else
+//            {
+//               Ifail[site] = Imid[site];
+//               if(tistdscreenprint and debugprint)  
+//                  cout << "Site " << site:3 << "  failed @ " << Imid[site] << endl;
+//            } 
 //
-//   }   /*if v_any_dev_active*/
+//             /*continue searching*/
+//            if(abs(Ipass[site]-Ifail[site])>Iresolution)  
+//               Imid[site] = (Ipass[site]+Ifail[site])/2;
+//            else
+//            {  /*done searching*/
+//               ret_timer[site] = timernread(ttimer1);
+//               activestates[site] = false;
+//            } 
+//         }   /*if activestates*/
+//      }   /*for site*/
 //
-//}   /* F021_BCC_BinSearch_TTR */
-//
+//      devsetholdstates(activestates);
+//   }   /*while*/
 
-TMResultM TL_Run_BCCVT (StringS tname,
-                      vttype vt_type,
-                      prepostcorner prepost_type,
-                      BoolS IsMainArray,
-                      BoolS IsBcc,
-                      StringS logstr) {
+    /*re-activate all incoming sites*/
+//   devsetholdstates(savestates);
+   ret_values = Ipass;
+
+   F021_TurnOff_AllTPADS();
+   TIME.Wait(tdelay);
+
+   tiprintpass = save_printpass;
+   tistdscreenprint = save_scrnprint;
+//   v_no_supplyset_delay = savesupdelay;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
+   {
+      cout << "F021_BCC_BinSearch TTR :  " << endl;
+//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//         if(savestates[site])  
+//            cout << "site " << site:5 << "  " << Ipass[site]:5:3 << "  " << endl;
+//      cout << "TT == " << timernread(ttimer1) << endl;
+   } 
+
+}   // F021_BCC_BinSearch_TTR
+
+
+TMResultM TL_Run_BCCVT (StringS       tname,
+                        vttype        vt_type,
+                        prepostcorner prepost_type,
+                        BoolS         IsMainArray,
+                        BoolS         IsBcc,
+                        StringS       logstr) {
+                        
    const IntS TCR39 = 39; 
 
    BoolM savesites,logsites;
-   TMResultM final_results;
-   BoolM tmp_results;
+   TMResultM final_results, tmp_results;
    IntS site,bank,sblk,eblk,count,i,j;
    IntS start_tnum,testnum,pattype,tcrnum;
    TPModeType tcrmode;
@@ -17753,7 +17652,7 @@ TMResultM TL_Run_BCCVT (StringS tname,
          for (count = sblk;count <= eblk;count++) {
             // do twice if pbist and redund enable, do once if nonpbist
             for (iter = miniter; iter <= maxiter; iter) {
-               tmp_results = false;
+               tmp_results = TM_NOTEST;
 
                if( special_opt==5) {
                   GL_DO_BCCVT_RCODE_ENA = true;
@@ -17763,21 +17662,21 @@ TMResultM TL_Run_BCCVT (StringS tname,
                if (IsBcc) {
                   if (iter==miniter) {
                      if (GL_DO_BCC_USING_INTERNAL) {
-//                        MeasInternalVT(testnum,Llimit,Ulimit,tmp_results,vt_values);
-                          tt_timer = TIME.GetTimer();
+                        MeasInternalVT(testnum,Llimit,Ulimit,tmp_results,vt_values);
+                        tt_timer = TIME.GetTimer();
                      }
                      else {
-//                        F021_BCC_BinSearch_TTR(testnum,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
+                        F021_BCC_BinSearch_TTR(testnum,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
                      } 
                      pbistred = false;
                   }
                   else if (iter==(miniter+1)) {
                      if (GL_DO_BCC_USING_INTERNAL) {
-//                        MeasInternalVT(testnum+TNUM_REDUNDENA,Llimit,Ulimit,tmp_results,vt_values);
+                        MeasInternalVT(testnum+TNUM_REDUNDENA,Llimit,Ulimit,tmp_results,vt_values);
                         tt_timer = TIME.GetTimer();
                      }
                      else {
-//                        F021_BCC_BinSearch_TTR(testnum+TNUM_REDUNDENA,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
+                        F021_BCC_BinSearch_TTR(testnum+TNUM_REDUNDENA,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
                      } 
                      pbistred = true;
                   } 
@@ -17785,13 +17684,12 @@ TMResultM TL_Run_BCCVT (StringS tname,
                   if (not GL_DO_BCC_USING_INTERNAL) {
                      // translate to internal value
                      if (iratio==TNUM_MULT2) {
-//                        ArrayAddTReal(vt_intvalues,vt_values,vt_values,v_sites);
+                        vt_intvalues += vt_values;
                         vt_values = vt_intvalues;
                      }
                      else if (iratio==TNUM_MULT4) {
-//                        ArrayAddTReal(vt_intvalues,vt_values,vt_values,v_sites);
-//                        ArrayAddTReal(vt_intvalues,vt_intvalues,vt_values,v_sites);
-//                        ArrayAddTReal(vt_intvalues,vt_intvalues,vt_values,v_sites);
+                        vt_intvalues += vt_values;
+                        vt_intvalues *= 2;
                         vt_values = vt_intvalues;
                      }
                      else if (iratio==TNUM_DIV2) { 
@@ -17799,8 +17697,11 @@ TMResultM TL_Run_BCCVT (StringS tname,
                      } 
                   } 
                   
-                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
-                     tmp_results = true;
+//                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
+//                     tmp_results = true;
+                    tmp_results = TIDlog.Value(vt_values, UTL_VOID, Llimit, Ulimit, unitval, "InternalVT",
+                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+                    
                   
                   // KChau 03/01/10 - added special case for bcc0
                   switch (vt_type) {
@@ -17816,13 +17717,19 @@ TMResultM TL_Run_BCCVT (StringS tname,
                      case  RDDISTBVT0:
                      case  RDDISTB2VT0:
                      case  RCODEVT0 :   
-                        if ((vt_values>0uA) and (vt_values < 5uA)) { 
-                           vt_values = 5uA;
-                           tmp_results = true;
-                        }
+//                        if ((vt_values>0uA) and (vt_values < 5uA)) { 
+//                           vt_values = 5uA;
+//                           tmp_results = true;
+//                        }
+                          tmp_results = TIDlog.Value(vt_values, UTL_VOID, 0.0uA, 5.0uA, unitval, "InternalVT_BCC0",
+                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                         break; 
                   }   // case
                   
+                    if ( (not(tmp_results == TM_PASS)) and (not(datalogonly)) ) {
+                       if (special_opt==3) GL_BCC0DRL_RESULT = false;
+                       if (special_opt==4) GL_BCC1DRL_RESULT = false;
+                    }   
 //                  if ( (not (tmp_results)) and (not (datalogonly)) )  {
 //                     if (special_opt==3)  
 //                        GL_BCC0DRL_RESULT = false;
@@ -17869,7 +17776,7 @@ TMResultM TL_Run_BCCVT (StringS tname,
                else {
                   if (iter==miniter) {
                      if (GL_DO_VT_USING_INTERNAL) {
-//                        MeasInternalVT(testnum,Llimit,Ulimit,tmp_results,vt_values);
+                        MeasInternalVT(testnum,Llimit,Ulimit,tmp_results,vt_values);
                         tt_timer = TIME.GetTimer();
                      }
                      else
@@ -17878,17 +17785,19 @@ TMResultM TL_Run_BCCVT (StringS tname,
                   }
                   else if (iter==(miniter+1)) {
                      if (GL_DO_VT_USING_INTERNAL) {
-//                        MeasInternalVT(testnum+TNUM_REDUNDENA,Llimit,Ulimit,tmp_results,vt_values);
+                        MeasInternalVT(testnum+TNUM_REDUNDENA,Llimit,Ulimit,tmp_results,vt_values);
                         ttimer2 = TIME.GetTimer();
                         tt_timer = ttimer2;
                      }
                      else
-//                        F021_VT_BinSearch_TTR(testnum+TNUM_REDUNDENA,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
+                       F021_Vt_BinSearch_TTR(testnum+TNUM_REDUNDENA,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
                      pbistred = true;
                   } 
                   
-                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
-                     tmp_results = true;
+//                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
+//                     tmp_results = true;
+                    tmp_results = TIDlog.Value(vt_values, UTL_VOID, Llimit, Ulimit, unitval, "InternalVT_BCC",
+                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                   
 //                  if ((not (tmp_results)) and (not (datalogonly))) {
 //                     if (special_opt==3)  
@@ -17963,17 +17872,20 @@ TMResultM TL_Run_BCCVT (StringS tname,
                   str3 += str4;
                } 
                
-               if (pbistred)  
-                  str5 = str1 + "_RED";
-               else
-                  str5 = str1;
+               if (pbistred)  str5 = str1 + "_RED";
+               else           str5 = str1;
+               
                str5 = str5 + str3;
                
-               if (iter==miniter)
-                  ;
+               if (iter==miniter) {
+                  cout << "\n   " << str5 << " TestNum:0x" << hex << testnum << " Result:" << tmp_results;
+                  cout << " LoLim:" << Llimit << " HiLom:" << Ulimit << vt_values << endl;
+               } 
 //                  PrintResultParam(str5,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
-               else
-                  ;
+               else {
+                  cout << "\n   " << str5 << " TestNum:0x" << hex << testnum+TNUM_REDUNDENA << " Result:" << tmp_results;
+                  cout << " LoLim:" << Llimit << " HiLom:" << Ulimit << vt_values << endl;
+               }
 //                  PrintResultParam(str5,testnum+TNUM_REDUNDENA,tmp_results,Llimit,Ulimit,vt_values,GL_PLELL_FORMAT);
 
                if(logena) {
@@ -18005,6 +17917,8 @@ TMResultM TL_Run_BCCVT (StringS tname,
 //               
 //               if (not v_any_dev_active)  
 //                  break;
+                 if (tmp_results != TM_PASS)
+                    break;
             }   // for iter
 
             testnum = testnum+1;
@@ -18040,7 +17954,7 @@ TMResultM TL_Run_BCCVT (StringS tname,
       if(tistdscreenprint) {
          // PrintHeaderBool(GL_PLELL_FORMAT);
 //         PrintResultBool(str1,start_tnum,final_results,GL_PLELL_FORMAT);
-         cout << "   TT " << ttimer1 << endl;
+         cout << "   TT = " << tt_timer << endl;
          cout << endl;
       }         // if tistdscreenprint
       
@@ -18911,8 +18825,8 @@ TMResultM F021_Program_func(    IntS start_testnum,
  
 TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
-   enum TargetType   { TARGET_BANK = 0, TARGET_SECT, TARGET_OTP = 4, TARGET_SEMIOTP };
-   enum OperatorType { TOPT_WO_PREC = 0, TOPT_W_PREC }; 
+   
+    
 
    IntM erspulse,cmptpulse,preconpulse;
    TMResultM final_results, test_results;

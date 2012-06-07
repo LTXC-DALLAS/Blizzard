@@ -76,6 +76,10 @@ __PinType ANALOG_IO_PWR {
     __Type = VIPin;
     __ControlFlags ReloadAtTest = __True;
 }
+__PinType ANALOG_VIS_PWR {
+    __Type = VIPin;
+    __ControlFlags ReloadAtTest = __True;
+}
 __PinType MixedSignal_I {
     __Type = ResourcePin;
 }
