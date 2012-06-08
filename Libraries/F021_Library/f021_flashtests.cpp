@@ -10864,9 +10864,16 @@ TMResultM PreTunOxideVT1_func() {
          tname = "PreTunOxBCC1_Test";
          
          test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         final_results = DLOG.AccumulateResults(tmp_results, test_results);
+         
          if (TI_FlashESDAEna) {
-            FLEsda.ImageNum = ESDA_IMG_TUNOX_VT1_PRE;
-            F021_CollectESDA(FLEsda.ImageNum);
+            final_results = TM_PASS;
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               if ( final_results[*si] != TM_PASS ) {
+                  FLEsda.ImageNum = ESDA_IMG_TUNOX_VT1_PRE;
+                  F021_CollectESDA(FLEsda.ImageNum);
+               }
+            }
          } 
       }
       else {
@@ -10874,9 +10881,10 @@ TMResultM PreTunOxideVT1_func() {
          tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PreTunOxVT1_Test";
          test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         final_results = DLOG.AccumulateResults(tmp_results, test_results);
       } 
    } 
-   final_results = DLOG.AccumulateResults(tmp_results, test_results);   
+      
    return (final_results);
 }   /* PreTunOxideVT1_func */
    
