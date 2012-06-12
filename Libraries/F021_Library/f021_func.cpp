@@ -16550,7 +16550,8 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
 //            TWTRealToRealMS(median_values,realval,unitval);
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //            PrintResultParam(tmpstr3,0,tmp_results,LLimit,ULimit,median_values,GL_PLELL_FORMAT);
-              cout << tmpstr3 << tmp_results << Llimit << Ulimit << median_values << endl;
+              cout << tmpstr3 << "   " << tmp_results << "   " << Llimit;
+              cout << "   " << Ulimit << "   " << median_values << endl;
 //            if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
 //            {
 //               if(not datalogonly)  
@@ -16561,19 +16562,19 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
 //            TWTRealToRealMS(vt_val1,realval,unitval);
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //            PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,vt_val1,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << ULimit_Median << vt_val1 << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   " << ULimit_Median << "   " << vt_val1 << endl;
             
             tmpstr3 = tmpstr2 + "_DLT3";
 //            TWTRealToRealMS(vt_val2,realval,unitval);
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //            PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,vt_val2,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << ULimit_Median << vt_val2 << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   " << ULimit_Median << "   " << vt_val2 << endl;
             
             tmpstr3 = tmpstr2 + "_MAX";
 //            TWTRealToRealMS(max_vt_med,realval,unitval);
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //            PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,max_vt_med,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << ULimit_Median << max_vt_med << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   " << ULimit_Median << "   " << max_vt_med << endl;
          }   /*Median*/
          
       }   /*for bankcount*/
@@ -18133,7 +18134,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
                cout << "Bank " << setw(3) << bankcount << vt_type << " is configured as Disable !!" << endl;
          }
          else {
-            for (count = blkstart;count <= blkstop;count++) {
+            for (count = blkstart; count <= blkstop; ++count) {
 //             logsites = v_dev_active;
                tmp_results = TM_NOTEST;
                vt_values = 0uA;
@@ -18217,7 +18218,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 
                if (tistdscreenprint)  
 //                PrintResultParam(tmpstr3,0,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
-                  cout << tmpstr3 << tmp_results << Llimit << Ulimit << vt_values << endl;
+                  cout << tmpstr3 << "   " << tmp_results << "   " << Llimit << "   " << Ulimit << "   " << vt_values << endl;
                
 //             TWTRealToRealMS(vt_values,realval,unitval);
 //             TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
@@ -18296,7 +18297,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 //          TWTRealToRealMS(median_values,realval,unitval);
 //          TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //          PrintResultParam(tmpstr3,0,tmp_results,LLimit,ULimit,median_values,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << Llimit << Ulimit << median_values << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   " << Llimit << "   " << Ulimit << "   " << median_values << endl;
             
 //          if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))
 //          {
@@ -18309,19 +18310,19 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 //          TWTRealToRealMS(vt_val1,realval,unitval);
 //          TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //          PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,vt_val1,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << 0V << ULimit_Median << vt_val1 << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   0V   " << ULimit_Median << "   " << vt_val1 << endl;
             
             tmpstr3 = tmpstr2 + "_DLT3";
 //          TWTRealToRealMS(vt_val2,realval,unitval);
 //          TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //          PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,vt_val2,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << 0V << ULimit_Median << vt_val2 << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   0V   " << ULimit_Median << "   " << vt_val2 << endl;
             
             tmpstr3 = tmpstr2 + "_MAX";
 //          TWTRealToRealMS(max_vt_med,realval,unitval);
 //          TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //          PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,max_vt_med,GL_PLELL_FORMAT);
-            cout << tmpstr3 << tmp_results << 0V << ULimit_Median << max_vt_med << endl;
+            cout << tmpstr3 << "   " << tmp_results << "   0V   " << ULimit_Median << "   " << max_vt_med << endl;
          }  // Median
          
       }  // for bankcount
