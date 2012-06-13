@@ -17203,6 +17203,7 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                   case  RCODEVT0 : 
                      if (GL_DO_MASK_1S_BCC0_DRL_PBIST)  
                         start_tnum = start_tnum+TNUM_PBIST_MASK1S;
+                     break;
                }   // case
 
                miniter = 1;
@@ -17306,10 +17307,10 @@ TMResultM TL_Run_BCCVT (StringS       tname,
             }  // using_pbist
             else {
                switch(tcrnum) {
-                 case 5  : start_tnum = TNUM_TCR5;
-                 case 6  : start_tnum = TNUM_TCR6;
-                 case 38 : start_tnum = TNUM_TCR38;
-                 default : start_tnum = TNUM_TCR39;
+                 case 5  : start_tnum = TNUM_TCR5;  break;
+                 case 6  : start_tnum = TNUM_TCR6;  break;
+                 case 38 : start_tnum = TNUM_TCR38; break;
+                 default : start_tnum = TNUM_TCR39; break;
                }   // case
                
                start_tnum = start_tnum + MainVT.IRATIO[vt_type][prepost] + MainVT.TDATA[vt_type] + MainVT.RDOPTION[vt_type][prepost];
@@ -17319,8 +17320,7 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                   start_tnum = start_tnum+TNUM_REDUNDENA;
 
                // internal vt0 only
-               if (GL_DO_VT_USING_INTERNAL and (str2.Find("0") >= 0) )  
-               {
+               if (GL_DO_VT_USING_INTERNAL and (str2.Find("0") >= 0) ) {
                   internal_ena = true;
                   start_tnum = TNUM_TCR72 + MainVT.TDATA[vt_type];  // + MainVT.RDOPTION[vt_type,prepost];
                   if (do_ena_red)  
@@ -17413,10 +17413,10 @@ TMResultM TL_Run_BCCVT (StringS       tname,
             }  // using_pbist
             else {
                switch (tcrnum) {
-                 case 5  : start_tnum = TNUM_TCR5;
-                 case 6  : start_tnum = TNUM_TCR6;
-                 case 38 : start_tnum = TNUM_TCR38;
-                 default : start_tnum = TNUM_TCR39;
+                 case  5 : start_tnum = TNUM_TCR5;  break;
+                 case  6 : start_tnum = TNUM_TCR6;  break;
+                 case 38 : start_tnum = TNUM_TCR38; break;
+                 default : start_tnum = TNUM_TCR39; break;
                }   // case
                
                start_tnum = start_tnum+OtpBCC.IRATIO[vt_type][prepost]+
@@ -17573,7 +17573,7 @@ TMResultM TL_Run_BCCVT (StringS       tname,
          maxbank=F021_Flash.MAXBANK;
       } 
       
-      for (bank = minbank;bank <= maxbank;bank++) {
+      for (bank = minbank; bank <= maxbank; ++bank) {
          switch (vt_type) {
             case RCODEVT0 :
                if (F021_RunCode.DO_RUNCODE_VT0_ENA[Random][bank]) {
@@ -17641,9 +17641,9 @@ TMResultM TL_Run_BCCVT (StringS       tname,
             }   // case
          }   // if EMUBANK
 
-         for (count = sblk;count <= eblk;count++) {
+         for (count = sblk; count <= eblk ; ++count) {
             // do twice if pbist and redund enable, do once if nonpbist
-            for (iter = miniter; iter <= maxiter; iter) {
+            for (iter = miniter; iter <= maxiter; ++iter) {
                tmp_results = TM_NOTEST;
 
                if( special_opt==5) {
@@ -17691,6 +17691,10 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                   
 //                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
 //                     tmp_results = true;
+
+                    // Set passing SIM value
+                    if (SYS.TesterSimulated()) vt_values = ((Ulimit - Llimit) / 2.);
+                    
                     tmp_results = TIDlog.Value(vt_values, UTL_VOID, Llimit, Ulimit, unitval, "InternalVT",
                                                UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                     
@@ -17708,13 +17712,13 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                      case  EGFG5VT0:
                      case  RDDISTBVT0:
                      case  RDDISTB2VT0:
-                     case  RCODEVT0 :   
-//                        if ((vt_values>0uA) and (vt_values < 5uA)) { 
-//                           vt_values = 5uA;
-//                           tmp_results = true;
-//                        }
-                          tmp_results = TIDlog.Value(vt_values, UTL_VOID, 0.0uA, 5.0uA, unitval, "InternalVT_BCC0",
-                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+                     case  RCODEVT0 :
+                        
+                        // Set passing SIM value
+                        if (SYS.TesterSimulated()) vt_values = ((5.0uA - 0.0uA) / 2.);
+                        
+                        tmp_results = TIDlog.Value(vt_values, UTL_VOID, 0.0uA, 5.0uA, unitval, "InternalVT_BCC0",
+                                                   UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                         break; 
                   }   // case
                   
@@ -17772,7 +17776,8 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                         tt_timer = TIME.GetTimer();
                      }
                      else
-//                        F021_VT_BinSearch_TTR(testnum,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
+                        F021_Vt_BinSearch_TTR(testnum,startArr,stopArr,resol,forceArr,maxtime,tt_timer,vt_values);
+                        
                      pbistred = false;
                   }
                   else if (iter==(miniter+1)) {
@@ -17786,10 +17791,11 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                      pbistred = true;
                   } 
                   
-//                  if ((vt_values >= Llimit) and (vt_values <= Ulimit))  
-//                     tmp_results = true;
-                    tmp_results = TIDlog.Value(vt_values, UTL_VOID, Llimit, Ulimit, unitval, "InternalVT_BCC",
-                                               UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
+                  // Set passing SIM value
+                  if (SYS.TesterSimulated()) vt_values = ((Ulimit - Llimit) / 2.);
+                  
+                  tmp_results = TIDlog.Value(vt_values, UTL_VOID, Llimit, Ulimit, unitval, "InternalVT_BCC",
+                                             UTL_VOID, UTL_VOID, true, TWMinimumData, ER_PASS, false);
                   
 //                  if ((not (tmp_results)) and (not (datalogonly))) {
 //                     if (special_opt==3)  
@@ -17834,7 +17840,7 @@ TMResultM TL_Run_BCCVT (StringS       tname,
                   } 
                }   // VT
                
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+               DLOG.AccumulateResults(final_results,tmp_results);
                
                str3 = "_B";
 //               str3 += CONV.IntToString(bank);  // Bug IntToStr can't convert zero (SPR142812)
@@ -17876,7 +17882,7 @@ TMResultM TL_Run_BCCVT (StringS       tname,
 //                  PrintResultParam(str5,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
                else {
                   cout << "\n   " << str5 << " TestNum:0x" << hex << testnum+TNUM_REDUNDENA << " Result:" << vt_values;
-                  cout << " LoLim:" << Llimit << " HiLom:" << Ulimit << vt_values << endl;
+                  cout << " LoLim:" << Llimit << " HiLim:" << Ulimit << vt_values << endl;
                }
 //                  PrintResultParam(str5,testnum+TNUM_REDUNDENA,tmp_results,Llimit,Ulimit,vt_values,GL_PLELL_FORMAT);
 
@@ -18110,7 +18116,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
    }
    else {  //-- bank/otp/blk/sect --
       
-      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
+      for (bankcount = 0; bankcount <= F021_Flash.MAXBANK; ++bankcount) {
          if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
             blkstart = bankcount;
             blkstop  = bankcount;
@@ -18138,6 +18144,9 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 //             logsites = v_dev_active;
                tmp_results = TM_NOTEST;
                vt_values = 0uA;
+               
+               // Set passing SIM value
+               if (SYS.TesterSimulated()) vt_values = ((Ulimit - Llimit) / 2.);
                    
                if (pattype==OTPTYPE) {
                   if (same_vttype)  
@@ -18265,7 +18274,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
             max_vt_med = 0uA;
             
             for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
-               for (count = blkstart;count <= blkstop;count++)
+               for (count = blkstart; count <= blkstop; ++count)
                   tmp_delta[count] = MATH.Abs(BANK_BCC_DELTA_VALUE[bankcount][count][vt_type][*si]);
                
 //             ArraySortTreal(sorted_vt_delta,tmp_delta,4,s_ascending);
@@ -18801,9 +18810,6 @@ TMResultM F021_Program_func(    IntS start_testnum,
  
 TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
-   
-    
-
    IntM erspulse,cmptpulse,preconpulse;
    TMResultM final_results, test_results;
    IntS bankcount,count;
@@ -18919,7 +18925,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
       maxtime = GL_F021_BANK_ERS_MAXTIME;
 
-      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
+      for (bankcount = 0; bankcount <= F021_Flash.MAXBANK; ++bankcount) {
          if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
             blkstart = bankcount;
             blkstop  = bankcount;
@@ -18935,17 +18941,15 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
          testnum  = start_testnum+(bankcount<<4);
 
-         for (count = blkstart;count <= blkstop;count++) {
+         for (count = blkstart; count <= blkstop; ++count) {
             faildetect = false;
             final_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
             
             // TW strings
             tmpstr2 = "_B";  // _B#
-//            tmpstr2 += CONV.IntToString(bankcount);  // Bug: Can't convert zero to a string
-            if ( bankcount == 0 )
-               tmpstr2 += "0";
-            else
-               tmpstr2 += CONV.IntToString(bankcount);
+//            tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+            if ( bankcount == 0 ) tmpstr2 += "0";
+            else                  tmpstr2 += CONV.IntToString(bankcount);
             
            
             if ((pattype==BLOCKTYPE) or (pattype==SECTTYPE)) {
@@ -18955,11 +18959,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                else
                   tmpstr3 = "S";
                
-//            tmpstr2 += CONV.IntToString(count);  // Bug: Can't convert zero to a string
-               if ( count == 0 )
-                  tmpstr3 += "0";
-               else
-                  tmpstr3 += CONV.IntToString(count);
+//            tmpstr3 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+               if ( count == 0 ) tmpstr3 += "0";
+               else              tmpstr3 += CONV.IntToString(count);
                tmpstr2 += tmpstr3;
             } 
             

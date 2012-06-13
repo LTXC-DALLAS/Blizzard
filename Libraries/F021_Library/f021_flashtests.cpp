@@ -7157,41 +7157,39 @@ TMResultM EGCG_Leak_Vmax_func()
 
 // oxide below FG stress
 TMResultM PgmFF_Stress_func() {
-//   const IntS TESTID = 158; 
-//
+   const IntS TESTID = 158; 
+
    TMResultM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//#if $TP3_TO_TP5_PRESENT  
-//   tcrnum = 52;;
-//#else
-//   tcrnum = 107;
-//#endif
-//
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+
+   if (MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+   
+#if $TP3_TO_TP5_PRESENT  
+   tcrnum =  52;
+#else
+   tcrnum = 107;
+#endif
+
 //       /*KChau -- A08 mix mode - use mms*/
-//      tcrnum = 107;
-//      
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tcrmode = ProgMode;
-//      
-//      F021_Stress_func(TNUM_BANK_PGMFF_STRESS,PGMFF_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
+      tcrnum = 107;
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tcrmode = ProgMode;
+      
+      final_results = F021_Stress_func(TNUM_BANK_PGMFF_STRESS,"PGMFF_Stress_Test",tcrnum,tcrmode);
+   } 
    return(final_results);
 //   PgmFF_Stress_func = v_any_dev_active;
 }   // PgmFF_Stress_func
@@ -7232,44 +7230,42 @@ TMResultM PgmFF_Stress_func() {
 //}   /* PunchThru_Stress_func */
 //
 //
-//BoolS FGWL_Stress_func()
-//{
-//   const IntS TESTID = 149; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[FGWLVT1][post] or MainVT.ENA[FGWLVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//#if $TP3_TO_TP5_PRESENT  
-//   tcrnum = 52;;
-//#else
-//   tcrnum = 107;
-//#endif
-//   
-//       /*KChau -- A08 mix mode - use mms*/
-//      tcrnum = 107;
-//      tcrmode = PvfyMode;  /*Note: actual mode is ProgMode but use PvfyMode for different bias cond w/ same tcr#*/
-//      F021_Stress_func(TNUM_BANK_PGMFF_STRESS,FGWL_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
+TMResultM FGWL_Stress_func()
+{
+   const IntS TESTID = 149; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+
+   if (MainBCC.ENA[FGWLVT1][post] or MainVT.ENA[FGWLVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+
+#if $TP3_TO_TP5_PRESENT  
+      tcrnum = 52;;
+#else
+      tcrnum = 107;
+#endif
+   
+      // KChau -- A08 mix mode - use mms
+      tcrnum = 107;
+      tcrmode = PvfyMode; // Note: actual mode is ProgMode but use PvfyMode for different bias cond w/ same tcr#
+      final_results = F021_Stress_func(TNUM_BANK_PGMFF_STRESS,"FGWL_Stress_Test",tcrnum,tcrmode);
+   } 
+     return(final_results);
 //   FGWL_Stress_func = v_any_dev_active;
-//}   /* FGWL_Stress_func */
+}   // FGWL_Stress_func
 
 
 // oxide below FG stress
@@ -8126,151 +8122,148 @@ TMResultM TunOxideStress_func() {
 //   Bank_Cvfy_func = v_any_dev_active;
 //}   /* Bank_Cvfy_func */
 //   
-//
-// /*dummy empty function to separate binning for 9X pgm fail*/
-//BoolS Flash_Cycle9X_Pgm_func()
-//{
-//   Flash_Cycle9X_Pgm_func = v_any_dev_active;
-//}   /* Flash_Cycle9X_Pgm_func */
-//
-//BoolS Flash_Cycle9X_func()
-//{
-//   const IntS TESTID = 79; 
-//   const IntS MINITER = 1; 
-//   const IntS MAXITER = 9; 
-//
-//   BoolM final_results,logsites,soft_results;
-//   StringS current_shell;
-//   IntS testnum,loop,tid,PPULim,minloop,maxloop;
-//   StringS tname;
-//   StringS1D tname_pg,tname_er; /* :MANUAL FIX REQUIRED: array dimensions are : MINITER..MAXITER */
-//   BoolS runpgm,runers;
-//
-//#if $FL_USE_AUTO_FLOW  
-//   minloop = MINITER;
-//   maxloop = MAXITER;
-//   runpgm  = true;
-//   runers  = true;
-//#else
-//   minloop = MINITER;
-//   maxloop = MINITER;
-//   runpgm  = false;
-//   runers  = true;
-//#endif
-//   
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)       
-//      F021_LoadFlashShell_func;
-//
-//   tname_pg[1] = Cyc9X_Pgm1_Test;
-//   tname_pg[2] = Cyc9X_Pgm2_Test;
-//   tname_pg[3] = Cyc9X_Pgm3_Test;
-//   tname_pg[4] = Cyc9X_Pgm4_Test;
-//   tname_pg[5] = Cyc9X_Pgm5_Test;
-//   tname_pg[6] = Cyc9X_Pgm6_Test;
-//   tname_pg[7] = Cyc9X_Pgm7_Test;
-//   tname_pg[8] = Cyc9X_Pgm8_Test;
-//   tname_pg[9] = Cyc9X_Pgm9_Test;
-//
-//   tname_er[1] = Cyc9X_Ers1_Test;
-//   tname_er[2] = Cyc9X_Ers2_Test;
-//   tname_er[3] = Cyc9X_Ers3_Test;
-//   tname_er[4] = Cyc9X_Ers4_Test;
-//   tname_er[5] = Cyc9X_Ers5_Test;
-//   tname_er[6] = Cyc9X_Ers6_Test;
-//   tname_er[7] = Cyc9X_Ers7_Test;
-//   tname_er[8] = Cyc9X_Ers8_Test;
-//   tname_er[9] = Cyc9X_Ers9_Test;
-//
-//   GL_FLTESTID = TESTID;
-//
-//   final_results = v_dev_active;
-//   soft_results = v_dev_active;
-//   
-//   for (loop = minloop;loop <= maxloop;loop++)
-//   {
-//       /*pgm*/
-//      if(v_any_dev_active and runpgm)  
-//      {
-//         logsites = v_dev_active;
-//         tname   = tname_pg[loop];
-//
-//         if(GL_DO_PGM_USING_PBIST)  
-//         {
-//            testnum = TNUM_FASTPRECON;
-//         }
-//         else
-//            testnum = TNUM_BANK_PROG_SM;
-//
-//     if(GL_DO_REDENA)  
-//        testnum = testnum+TNUM_REDUNDENA;
-//
-//         if(loop==1)  
-//         {
-//            PPULim = 1;
-//            F021_Special_Program_func(testnum,tname,PPULim,final_results,soft_results);
-//             /*softbinning*/
-//            TestOpen(GoodHiPP_Test);
-//            ResultsRecordActive(soft_results, S_NULL);
-//            TestClose;
-//         }
-//         else
-//         {
-//            F021_Program_func(testnum,tname,final_results);
-//         } 
-//         
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//                /*if(GL_DO_FL_PBIST) then
-//                   FLEsda.Tnum := TNUM_PBIST_RDM0S
-//                else*/
-//                  FLEsda.Tnum = TNUM_BANK_RDM0s;
-//               FLEsda.Imagenum = ESDA_IMG_CYC9X_PGM0s;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            }   /* if */
-//      } 
-//
-//       /*ers*/
-//      if(v_any_dev_active and runers)  
-//      {
-//         logsites = v_dev_active;
-//         tname   = tname_er[loop];
-//         
-//         if(GL_DO_ERS_BY_SECTOR)  
-//         {
-//            testnum = TNUM_SECT_ERS_NOPRECON_SM;
-//         }
-//         else
-//            testnum = TNUM_BANK_ERS_NOPRECON;
-//            
-//     if(GL_DO_REDENA)  
-//        testnum = testnum+TNUM_REDUNDENA;
-//         F021_Erase_func(testnum,tname,final_results);
-//
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//                /*if(GL_DO_FL_PBIST) then
-//                   FLEsda.Tnum := TNUM_PBIST_RDM1S+TNUM_TARGET_SECT
-//                else*/
-//                  FLEsda.Tnum = TNUM_BANK_RDM1s;
-//           if(GL_DO_ERS_BY_SECTOR)  
-//          FLEsda.Tnum = FLEsda.Tnum+TNUM_TARGET_SECT;
-//               FLEsda.Imagenum = ESDA_IMG_CYC9X_ERS;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      } 
-//
-//      if(not v_any_dev_active)  
-//         break;
-//   }   /*loop*/
-//   
-//   Flash_Cycle9X_func = v_any_dev_active;
-//} 
-//
+
+// dummy empty function to separate binning for 9X pgm fail
+TMResultM Flash_Cycle9X_Pgm_func() {
+   TMResultM dummy_results;
+
+   dummy_results = TM_NOTEST;
+   return(dummy_results);
+// Flash_Cycle9X_Pgm_func = v_any_dev_active;
+}   // Flash_Cycle9X_Pgm_func
+
+TMResultM Flash_Cycle9X_func() {
+   const IntS TESTID = 79; 
+   const IntS MINITER = 1; 
+   const IntS MAXITER = 9; 
+
+   TMResultM final_results;
+   BoolM logsites,soft_results;
+   StringS current_shell;
+   IntS testnum,loop,tid,PPULim,minloop,maxloop;
+   StringS tname;
+   StringS1D tname_pg,tname_er; // :MANUAL FIX REQUIRED: array dimensions are : MINITER..MAXITER
+   BoolS runpgm,runers;
+
+#if $FL_USE_AUTO_FLOW  
+   minloop = MINITER;
+   maxloop = MAXITER;
+   runpgm  = true;
+   runers  = true;
+#else
+   minloop = MINITER;
+   maxloop = MINITER;
+   runpgm  = false;
+   runers  = true;
+#endif
+   
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)       
+      F021_LoadFlashShell_func();
+
+   tname_pg[1] = "Cyc9X_Pgm1_Test";
+   tname_pg[2] = "Cyc9X_Pgm2_Test";
+   tname_pg[3] = "Cyc9X_Pgm3_Test";
+   tname_pg[4] = "Cyc9X_Pgm4_Test";
+   tname_pg[5] = "Cyc9X_Pgm5_Test";
+   tname_pg[6] = "Cyc9X_Pgm6_Test";
+   tname_pg[7] = "Cyc9X_Pgm7_Test";
+   tname_pg[8] = "Cyc9X_Pgm8_Test";
+   tname_pg[9] = "Cyc9X_Pgm9_Test";
+
+   tname_er[1] = "Cyc9X_Ers1_Test";
+   tname_er[2] = "Cyc9X_Ers2_Test";
+   tname_er[3] = "Cyc9X_Ers3_Test";
+   tname_er[4] = "Cyc9X_Ers4_Test";
+   tname_er[5] = "Cyc9X_Ers5_Test";
+   tname_er[6] = "Cyc9X_Ers6_Test";
+   tname_er[7] = "Cyc9X_Ers7_Test";
+   tname_er[8] = "Cyc9X_Ers8_Test";
+   tname_er[9] = "Cyc9X_Ers9_Test";
+
+   GL_FLTESTID = TESTID;
+
+// final_results = v_dev_active;
+// soft_results = v_dev_active;
+   
+   for (loop = minloop; loop <= maxloop; ++loop) {
+      // pgm
+      if (runpgm)  {
+//       logsites = v_dev_active;
+         tname   = tname_pg[loop];
+
+         if(GL_DO_PGM_USING_PBIST)
+            testnum = TNUM_FASTPRECON;
+         else
+            testnum = TNUM_BANK_PROG_SM;
+
+         if (GL_DO_REDENA)  
+            testnum = testnum+TNUM_REDUNDENA;
+
+         if (loop==1) {
+            PPULim = 1;
+//            final_results = F021_Special_Program_func(testnum,tname,PPULim,soft_results);
+            // softbinning
+//          TestOpen(GoodHiPP_Test);
+//          ResultsRecordActive(soft_results, S_NULL);
+//          TestClose;
+         }
+         else {
+//            final_results = F021_Program_func(testnum,tname);
+         } 
+         
+         if (TI_FlashESDAEna) {
+//          if(not arraycompareboolean(logsites,final_results,v_sites))  
+            {
+                /*if(GL_DO_FL_PBIST) then
+                   FLEsda.Tnum := TNUM_PBIST_RDM0S
+                else*/
+
+               FLEsda.Tnum = TNUM_BANK_RDM0S;
+               FLEsda.ImageNum = ESDA_IMG_CYC9X_PGM0S;
+               F021_CollectESDA(FLEsda.ImageNum);
+            }   // TI_FlashESDAEna
+         }
+      }
+
+      // ers
+      if (runers) {
+//       logsites = v_dev_active;
+         tname   = tname_er[loop];
+         
+         if(GL_DO_ERS_BY_SECTOR)
+            testnum = TNUM_SECT_ERS_NOPRECON_SM;
+         else
+            testnum = TNUM_BANK_ERS_NOPRECON;
+            
+        if (GL_DO_REDENA)  
+           testnum = testnum+TNUM_REDUNDENA;
+
+        final_results = F021_Erase_func(testnum,tname);
+
+        if (TI_FlashESDAEna)  
+//          if(not arraycompareboolean(logsites,final_results,v_sites))  
+            {
+                /*if(GL_DO_FL_PBIST) then
+                   FLEsda.Tnum := TNUM_PBIST_RDM1S+TNUM_TARGET_SECT
+                else*/
+
+               FLEsda.Tnum = TNUM_BANK_RDM1S;
+               if (GL_DO_ERS_BY_SECTOR)  
+                  FLEsda.Tnum = FLEsda.Tnum+TNUM_TARGET_SECT;
+               FLEsda.ImageNum = ESDA_IMG_CYC9X_ERS;
+               F021_CollectESDA(FLEsda.ImageNum);
+            } 
+      } 
+
+//    if(not v_any_dev_active)  
+         break;
+   }   // loop
+   return(final_results);
+   
+// Flash_Cycle9X_func = v_any_dev_active;
+} 
+
 //
 //BoolS RdMChk_func(StringS tname,
 //                     IntS testnum)
@@ -8893,69 +8886,66 @@ TMResultM TunOxideStress_func() {
 //   DRLDeltaVT1OTP_func = v_any_dev_active;
 //}   /* DRLDeltaVT1OTP_func */
 //   
-//
-//BoolS RdM1_PstCycle9X_func()
-//{
-//   const IntS TESTID = 80; 
-//
-//   BoolM final_results,logsites;
-//   StringS current_shell;
-//   IntS testnum,tid;
-//   StringS tname;
-//
-//#if $FL_USE_AUTO_FLOW  
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tname = RdM1_PstCyc9X_Test;
-//
-//    /*when using pbist then read func do 1) redund if gl_do_redena=true; 2) main&ecc*/
-//   if(GL_DO_FL_PBIST)  
-//      testnum = TNUM_PBIST_RDM1s;
-//   else
-//   {
-//      testnum = TNUM_BANK_RDM1s;
-//      if(GL_DO_RD_WITH_TOPTION==1)  
-//         testnum = testnum+TNUM_TOPTION_PSARD;
-//      if(GL_DO_REDENA)  
-//         testnum = testnum+TNUM_REDUNDENA;
-//   } 
-//   
-//   logsites = v_dev_active;
-//   F021_Read_func(testnum,tname,final_results);
-//   
-//   if(TI_FlashESDAEna)  
-//      if(not arraycompareboolean(logsites,final_results,v_sites))  
-//      {
-//         FLEsda.ImageNum = ESDA_IMG_CYC9X_RDM1s;
-//         FLEsda.Tnum = TNUM_BANK_RDM1s;
-//         F021_CollectESDA(FLEsda.ImageNum);
-//      } 
-//
-//    /*KChau 03/29/10 - added for stress charz*/
-//   if(v_any_dev_active and TI_FlashCharEna and GL_DO_CHARZ_STRESS)  
-//   {
-//      Charz_TunOx;
-//      Charz_ONO;
-//      Charz_ThinOx;
-//      Charz_CSFG;
-//      Charz_EGFG;
-//      Charz_PgmFF;
-//      Charz_FGWL;
-//      Charz_RdDisturb;
-//      Charz_PunThru;
-//      Charz_RevTun;
-//      TL_RunTestNum(TNUM_OTP_PROG,"");
-//   } 
-//#endif
-//   
-//   RdM1_PstCycle9X_func = v_any_dev_active;
-//}   /* RdM1_PstCycle9X_func */
-//
+
+TMResultM RdM1_PstCycle9X_func() {
+   const IntS TESTID = 80; 
+
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum,tid;
+   StringS tname;
+
+#if $FL_USE_AUTO_FLOW  
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tname = "RdM1_PstCyc9X_Test";
+
+   // when using pbist then read func do 1) redund if gl_do_redena=true; 2) main&ecc
+   if (GL_DO_FL_PBIST)  
+      testnum = TNUM_PBIST_RDM1S;
+   else {
+      testnum = TNUM_BANK_RDM1S;
+      if (GL_DO_RD_WITH_TOPTION==1)  
+         testnum = testnum+TNUM_TOPTION_PSARD;
+      if (GL_DO_REDENA)  
+         testnum = testnum+TNUM_REDUNDENA;
+   } 
+   
+// logsites = v_dev_active;
+   final_results = F021_Read_func(testnum,tname);
+   
+   if(TI_FlashESDAEna)  
+//    if(not arraycompareboolean(logsites,final_results,v_sites))  
+      {
+         FLEsda.ImageNum = ESDA_IMG_CYC9X_RDM1S;
+         FLEsda.Tnum = TNUM_BANK_RDM1S;
+         F021_CollectESDA(FLEsda.ImageNum);
+      } 
+
+   // KChau 03/29/10 - added for stress charz
+   if (TI_FlashCharEna and GL_DO_CHARZ_STRESS) {
+      Charz_TunOx;
+      Charz_ONO;
+      Charz_ThinOx;
+      Charz_CSFG;
+      Charz_EGFG;
+      Charz_PgmFF;
+      Charz_FGWL;
+      Charz_RdDisturb;
+      Charz_PunThru;
+      Charz_RevTun;
+      TL_RunTestNum(TNUM_OTP_PROG,"");
+   } 
+#endif
+   return(final_results);
+   
+// RdM1_PstCycle9X_func = v_any_dev_active;
+}   /* RdM1_PstCycle9X_func */
+
 // /*dummy empty function to separate binning for 1X pgm fail*/
 //BoolS Flash_Cycle1X_Pgm_func()
 //{
@@ -9731,223 +9721,206 @@ TMResultM TunOxideStress_func() {
 //   
   
 TMResultM BankErs_PrePgmFF_func() {
-//   const IntS TESTID = 154; 
-//
+   const IntS TESTID = 154; 
+
    TMResultM final_results;
-     BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
-//      (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)       
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname = Ers_PrePgmFF_Test;
-//      
-//      if(v_any_dev_active)  
-//      {
-//         logsites = v_dev_active;
-//         if(GL_DO_ERS_BY_SECTOR)  
-//         {
-//            testnum = TNUM_SECT_ERS_NOPRECON_SM;
-//         }
-//         else
-//            testnum = TNUM_BANK_ERS_NOPRECON;
-//         if(GL_DO_REDENA)  
-//            testnum = testnum+TNUM_REDUNDENA;
-//         F021_Erase_func(testnum,tname,final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Tnum = TNUM_BANK_RDM1s;
-//               FLEsda.Imagenum = ESDA_IMG_BLK1;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      } 
-//   } 
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
+      (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)       
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "Ers_PrePgmFF_Test";
+      
+//      logsites = v_dev_active;
+      if (GL_DO_ERS_BY_SECTOR) {
+         testnum = TNUM_SECT_ERS_NOPRECON_SM;
+      }
+      else
+         testnum = TNUM_BANK_ERS_NOPRECON;
+         
+      if (GL_DO_REDENA)  
+         testnum = testnum+TNUM_REDUNDENA;
+         
+      final_results = F021_Erase_func(testnum,tname);
+      
+      if (TI_FlashESDAEna)  
+//         if(not arraycompareboolean(logsites,final_results,v_sites))  
+         {
+            FLEsda.Tnum = TNUM_BANK_RDM1S;
+            FLEsda.ImageNum = ESDA_IMG_BLK1;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   } 
    return(final_results);
 //   BankErs_PrePgmFF_func = v_any_dev_active;
 }  //  BankErs_PrePgmFF_func
    
 
 TMResultM PrePgmFFVT1_func() {
-//   const IntS TESTID = 156; 
-//
+   const IntS TESTID = 156; 
+
    TMResultM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
-//      (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = PGMFFVT1;
-//      prepost = pre;
-//      
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
+      (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = PGMFFVT1;
+      prepost = pre;
+      
 //      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PrePgmFFVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PrePgmFFBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PrePgmFFVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PrePgmFFBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         if (TI_FlashESDAEna)  
 //            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_BLK1;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PrePgmFFBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PrePgmFFVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
+            {
+               FLEsda.ImageNum = ESDA_IMG_BLK1;
+               F021_CollectESDA(FLEsda.ImageNum);
+            } 
+      }
+      else {
+         tname = "PrePgmFFBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PrePgmFFVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+   } 
    return(final_results);
 //   PrePgmFFVT1_func = v_any_dev_active;
 }   // PrePgmFFVT1_func
    
 
 TMResultM PrePgmFFVT1OTP_func() {
-//   const IntS TESTID = 157; 
-//
+   const IntS TESTID = 157; 
+
    TMResultM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
-//      (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = OTPTYPE;
-//      vtcat   = PGMFFVT1;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PrePgmFFVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PrePgmFFBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PrePgmFFBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PrePgmFFVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
+      (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {   
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = OTPTYPE;
+      vtcat   = PGMFFVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PrePgmFFVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PrePgmFFBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else {
+         tname = "PrePgmFFBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PrePgmFFVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
    return(final_results);
 //   PrePgmFFVT1OTP_func = v_any_dev_active;
 }   // PrePgmFFVT1OTP_func
 
 
 TMResultM PstPgmFFVT1_func() {
-//   const IntS TESTID = 159; 
-//
+   const IntS TESTID = 159; 
+
    TMResultM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = PGMFFVT1;
-//      prepost = post;
-//      
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if (MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = PGMFFVT1;
+      prepost = post;
+      
 //      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstPgmFFVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PstPgmFFBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PstPgmFFVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PstPgmFFBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         if (TI_FlashESDAEna)  
 //            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_BLK1;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PstPgmFFBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PstPgmFFVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
+            {
+               FLEsda.ImageNum = ESDA_IMG_BLK1;
+               F021_CollectESDA(FLEsda.ImageNum);
+            } 
+      }
+      else {
+         tname = "PstPgmFFBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PstPgmFFVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+   } 
    return(final_results);
 //   PstPgmFFVT1_func = v_any_dev_active;
 }   // PstPgmFFVT1_func
@@ -9955,46 +9928,41 @@ TMResultM PstPgmFFVT1_func() {
 
 TMResultM PstPgmFFVT1OTP_func() {
    TMResultM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(OtpBCC.ENA[PGMFFVT1][post] or OtpVT.ENA[PGMFFVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = PGMFFVT1;
-//      prepost = post;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstPgmFFVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PstPgmFFBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstPgmFFBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PstPgmFFVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if (OtpBCC.ENA[PGMFFVT1][post] or OtpVT.ENA[PGMFFVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = PGMFFVT1;
+      prepost = post;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PstPgmFFVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PstPgmFFBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else {
+         tname = "PstPgmFFBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PstPgmFFVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
    return(final_results);
 //   PstPgmFFVT1OTP_func = v_any_dev_active;
 }   // PstPgmFFVT1OTP_func
@@ -10002,34 +9970,32 @@ TMResultM PstPgmFFVT1OTP_func() {
 
 TMResultM PgmFFVT1Delta_func() {
    TMResultM final_results;
-//   BoolM logsites;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
+   BoolM logsites;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
 //   logsites = v_dev_active;
-//
-//   if(MainVT.ENA[PGMFFVT1][post])  
-//   {
-//      dlogonly = MainVT.DLOGONLY[PGMFFVT1][post];
-//      tname = PgmFFVT1DLT_Test;
-//      pattype = MainVT.MEMCFG[PGMFFVT1];
-//      F021_VT_Delta_func(pattype,PGMFFVT1,tname,final_results,dlogonly);
-//   } 
-//
-//   if(MainBCC.ENA[PGMFFVT1][post])  
-//   {
-//      dlogonly = MainBCC.DLOGONLY[PGMFFVT1][post];
-//      tname = PgmFFBCC1DLT_Test;
-//      pattype = MainBCC.MEMCFG[PGMFFVT1];
-//      F021_BCC_Delta_func(pattype,PGMFFVT1,tname,final_results,dlogonly);
-//      if(TI_FlashESDAEna)  
+
+   if (MainVT.ENA[PGMFFVT1][post]) {
+      dlogonly = MainVT.DLOGONLY[PGMFFVT1][post];
+      tname = "PgmFFVT1DLT_Test";
+      pattype = MainVT.MEMCFG[PGMFFVT1];
+      final_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+   } 
+
+   if (MainBCC.ENA[PGMFFVT1][post]) {
+      dlogonly = MainBCC.DLOGONLY[PGMFFVT1][post];
+      tname = "PgmFFBCC1DLT_Test";
+      pattype = MainBCC.MEMCFG[PGMFFVT1];
+      final_results = F021_BCC_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+      if (TI_FlashESDAEna)  
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.Imagenum = ESDA_IMG_BLK1;
-//            F021_CollectESDA(FLEsda.Imagenum);
-//         } 
-//   } 
+         {
+            FLEsda.ImageNum = ESDA_IMG_BLK1;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   } 
    return(final_results);
 //   PgmFFVT1Delta_func = v_any_dev_active;
 }   // PgmFFVT1Delta_func
@@ -10037,25 +10003,25 @@ TMResultM PgmFFVT1Delta_func() {
 
 TMResultM PgmFFVT1DeltaOTP_func() {
    TMResultM final_results;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
-//   if(OtpVT.ENA[PGMFFVT1][post])  
-//   {
-//      dlogonly = OtpVT.DLOGONLY[PGMFFVT1][post];
-//      tname = PgmFFVT1DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_VT_Delta_func(pattype,PGMFFVT1,tname,final_results,dlogonly);
-//   } 
-//   
-//   if(OtpBCC.ENA[PGMFFVT1][post])  
-//   {
-//      dlogonly = OtpBCC.DLOGONLY[PGMFFVT1][post];
-//      tname = PgmFFBCC1DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_BCC_Delta_func(pattype,PGMFFVT1,tname,final_results,dlogonly);
-//   } 
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
+   if (OtpVT.ENA[PGMFFVT1][post]) {
+      dlogonly = OtpVT.DLOGONLY[PGMFFVT1][post];
+      tname = "PgmFFVT1DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+   } 
+   
+   if (OtpBCC.ENA[PGMFFVT1][post])  
+   {
+      dlogonly = OtpBCC.DLOGONLY[PGMFFVT1][post];
+      tname = "PgmFFBCC1DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results = F021_BCC_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+   }
+   
    return(final_results);
 //   PgmFFVT1DeltaOTP_func = v_any_dev_active;
 }   // PgmFFVT1DeltaOTP_func
@@ -10388,384 +10354,348 @@ TMResultM PgmFFVT1DeltaOTP_func() {
 //   PunchThruVT1DeltaOTP_func = v_any_dev_active;
 //}   /* PunchThruVT1DeltaOTP_func */
 //   
-//
-//BoolS BankErs_PreFGWL_func()
-//{
-//   const IntS TESTID = 145; 
-//
-//   BoolM final_results,logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
-//      (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname = Ers_PreFGWL_Test;
-//      
-//      if(v_any_dev_active)  
-//      {
-//         logsites = v_dev_active;
-//         if(GL_DO_ERS_BY_SECTOR)  
-//         {
-//            testnum = TNUM_SECT_ERS_NOPRECON_SM;
-//         }
-//         else
-//            testnum = TNUM_BANK_ERS_PRECON;
-//         if(GL_DO_REDENA)  
-//            testnum = testnum+TNUM_REDUNDENA;
-//         F021_Erase_func(testnum,tname,final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Tnum = TNUM_BANK_RDM1s;
-//               if(GL_DO_ERS_BY_SECTOR)  
-//                  FLEsda.Tnum = FLEsda.Tnum+TNUM_TARGET_SECT;
-//               FLEsda.Imagenum = ESDA_IMG_FGWL_ERS;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      } 
-//   } 
-//   
+
+TMResultM BankErs_PreFGWL_func() {
+   const IntS TESTID = 145; 
+
+   TMResultM final_results,logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
+      (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "Ers_PreFGWL_Test";
+      
+//    logsites = v_dev_active;
+      if (GL_DO_ERS_BY_SECTOR) {
+         testnum = TNUM_SECT_ERS_NOPRECON_SM;
+      }
+      else
+         testnum = TNUM_BANK_ERS_PRECON;
+
+      if (GL_DO_REDENA)  
+         testnum = testnum+TNUM_REDUNDENA;
+      final_results = F021_Erase_func(testnum,tname);
+
+      if (TI_FlashESDAEna)  
+//       if(not arraycompareboolean(logsites,final_results,v_sites))  
+         {
+            FLEsda.Tnum = TNUM_BANK_RDM1S;
+            if (GL_DO_ERS_BY_SECTOR)  
+               FLEsda.Tnum = FLEsda.Tnum+TNUM_TARGET_SECT;
+            FLEsda.ImageNum = ESDA_IMG_FGWL_ERS;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   } 
+   return(final_results);
+   
 //   BankErs_PreFGWL_func = v_any_dev_active;
-//}   /* BankErs_PreFGWL_func */
-//   
-//
-//BoolS ErsOTP_PreFGWL_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[FGWLVT1][pre] and (OtpBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
-//      (OtpVT.ENA[FGWLVT1][pre] and (OtpVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      testnum = TNUM_OTP_ERS_NOPRECON;
-//      tname = ErsOTP_PreFGWL_Test;
-//      F021_Erase_func(testnum,tname,final_results);
-//   } 
-//   
-//   ErsOTP_PreFGWL_func = v_any_dev_active;
-//}   /* ErsOTP_PreFGWL_func */
-//   
-//
-//BoolS PreFGWLVT1_func()
-//{
-//   const IntS TESTID = 147; 
-//
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   FloatS istart,istop,ires;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
-//      (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      if(TI_FlashCharEna and GL_DO_CHARZ_BCC)  
-//      {
-//         istart = MainBCC.SSTART[FGWLVT1][pre];
-//         istop  = MainBCC.SSTOP[FGWLVT1][pre];
-//         ires   = 1uA;
-//         testnum = TNUM_TCR38+MainBCC.IRATIO[FGWLVT1][pre]+MainBCC.RDOPTION[FGWLVT1][pre]+TNUM_DATA_1s;
+}   // BankErs_PreFGWL_func
+   
+
+TMResultM ErsOTP_PreFGWL_func() {
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[FGWLVT1][pre] and (OtpBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
+      (OtpVT.ENA[FGWLVT1][pre] and (OtpVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      testnum = TNUM_OTP_ERS_NOPRECON;
+      tname = "ErsOTP_PreFGWL_Test";
+      final_results = F021_Erase_func(testnum,tname);
+   } 
+   return(final_results);
+   
+// ErsOTP_PreFGWL_func = v_any_dev_active;
+}   // ErsOTP_PreFGWL_func
+   
+
+TMResultM PreFGWLVT1_func() {
+   const IntS TESTID = 147; 
+
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   FloatS istart,istop,ires;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
+      (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      if (TI_FlashCharEna and GL_DO_CHARZ_BCC)  {
+         istart = MainBCC.SSTART[FGWLVT1][pre];
+         istop  = MainBCC.SSTOP[FGWLVT1][pre];
+         ires   = 1uA;
+         testnum = TNUM_TCR38+MainBCC.IRATIO[FGWLVT1][pre]+MainBCC.RDOPTION[FGWLVT1][pre]+TNUM_DATA_1S;
 //         Charz_BCC(VMX,testnum,BANKTYPE,istart,istop,ires,true,"Z_FGWL_BC1MX");
-//      } 
-//      
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = FGWLVT1;
-//      prepost = pre;
-//      
-//      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreFGWLVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PreFGWLBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_FGWL_VT1_PRE;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PreFGWLBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PreFGWLVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      } 
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = FGWLVT1;
+      prepost = pre;
+      
+//    logsites = v_dev_active;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreFGWLVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PreFGWLBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         if (TI_FlashESDAEna)  
+//          if(not arraycompareboolean(logsites,v_sites))  
+            {
+               FLEsda.ImageNum = ESDA_IMG_FGWL_VT1_PRE;
+               F021_CollectESDA(FLEsda.ImageNum);
+            } 
+      }
+      else {
+         tname = "PreFGWLBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PreFGWLVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+   } 
+   return(final_results);
 //   PreFGWLVT1_func = v_any_dev_active;
-//}   /* PreFGWLVT1_func */
-//   
-//
-//BoolS PreFGWLVT1OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[FGWLVT1][pre] and (OtpBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
-//      (OtpVT.ENA[FGWLVT1][pre] and (OtpVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = FGWLVT1;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreFGWLVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PreFGWLBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreFGWLBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PreFGWLVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PreFGWLVT1OTP_func = v_any_dev_active;
-//}   /* PreFGWLVT1OTP_func */
-//
-//
-//BoolS PstFGWLVT1_func()
-//{
-//   const IntS TESTID = 150; 
-//
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[FGWLVT1][post] or MainVT.ENA[FGWLVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = FGWLVT1;
-//      prepost = post;
-//      
-//      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstFGWLVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PstFGWLBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
-//            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.Imagenum = ESDA_IMG_FGWL_VT1_PST;
-//               F021_CollectESDA(FLEsda.Imagenum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PstFGWLBCC1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PstFGWLVT1_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PstFGWLVT1_func = v_any_dev_active;
-//}   /* PstFGWLVT1_func */
-//   
-//
-//BoolS PstFGWLVT1OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(OtpBCC.ENA[FGWLVT1][post] or OtpVT.ENA[FGWLVT1][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = FGWLVT1;
-//      prepost = post;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstFGWLVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PstFGWLBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstFGWLBCC1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PstFGWLVT1OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
-//   PstFGWLVT1OTP_func = v_any_dev_active;
-//}   /* PstFGWLVT1OTP_func */
-//   
-//
-//BoolS FGWLVT1Delta_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
-//   if(MainVT.ENA[FGWLVT1][post])  
-//   {
-//      dlogonly = MainVT.DLOGONLY[FGWLVT1][post];
-//      tname = FGWLVT1DLT_Test;
-//      pattype = MainVT.MEMCFG[FGWLVT1];
-//      F021_VT_Delta_func(pattype,FGWLVT1,tname,final_results,dlogonly);
-//   } 
-//
-//   logsites = v_dev_active;
-//   
-//   if(MainBCC.ENA[FGWLVT1][post])  
-//   {
-//      dlogonly = MainBCC.DLOGONLY[FGWLVT1][post];
-//      tname = FGWLBCC1DLT_Test;
-//      pattype = MainBCC.MEMCFG[FGWLVT1];
-//      F021_BCC_Delta_func(pattype,FGWLVT1,tname,final_results,dlogonly);
-//      if(TI_FlashESDAEna)  
-//         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.Imagenum = ESDA_IMG_FGWL_VT1_DLT;
-//            F021_CollectESDA(FLEsda.Imagenum);
-//         } 
-//   } 
-//   
-//   FGWLVT1Delta_func = v_any_dev_active;
-//}   /* FGWLVT1Delta_func */
-//   
-//
-//BoolS FGWLVT1DeltaOTP_func()
-//{
-//   BoolM final_results;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
-//   if(OtpVT.ENA[FGWLVT1][post])  
-//   {
-//      dlogonly = OtpVT.DLOGONLY[FGWLVT1][post];
-//      tname = FGWLVT1DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_VT_Delta_func(pattype,FGWLVT1,tname,final_results,dlogonly);
-//   } 
-//   
-//   if(OtpBCC.ENA[FGWLVT1][post])  
-//   {
-//      dlogonly = OtpBCC.DLOGONLY[FGWLVT1][post];
-//      tname = FGWLBCC1DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_BCC_Delta_func(pattype,FGWLVT1,tname,final_results,dlogonly);
-//   } 
-//   
+}   // PreFGWLVT1_func
+   
+
+TMResultM PreFGWLVT1OTP_func() {
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[FGWLVT1][pre] and (OtpBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
+      (OtpVT.ENA[FGWLVT1][pre] and (OtpVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = FGWLVT1;
+      prepost = pre;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PreFGWLVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PreFGWLBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else {
+         tname = "PreFGWLBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PreFGWLVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   return(final_results);
+// PreFGWLVT1OTP_func = v_any_dev_active;
+}   // PreFGWLVT1OTP_func
+
+  
+TMResultM PstFGWLVT1_func() {
+   const IntS TESTID = 150; 
+
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if (MainBCC.ENA[FGWLVT1][post] or MainVT.ENA[FGWLVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = FGWLVT1;
+      prepost = post;
+      
+//    logsites = v_dev_active;
+      
+      if (GL_DO_VT_FIRST)  {
+         tname = "PstFGWLVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PstFGWLBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         if (TI_FlashESDAEna)  
+//          if(not arraycompareboolean(logsites,final_results,v_sites))  
+            {
+               FLEsda.ImageNum = ESDA_IMG_FGWL_VT1_PST;
+               F021_CollectESDA(FLEsda.ImageNum);
+            } 
+      }
+      else {
+         tname = "PstFGWLBCC1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PstFGWLVT1_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+   } 
+   return(final_results);
+// PstFGWLVT1_func = v_any_dev_active;
+}   // PstFGWLVT1_func
+   
+
+TMResultM PstFGWLVT1OTP_func() {
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+
+   if (OtpBCC.ENA[FGWLVT1][post] or OtpVT.ENA[FGWLVT1][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena)  {
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = FGWLVT1;
+      prepost = post;
+      
+      if (GL_DO_VT_FIRST) {
+         tname = "PstFGWLVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PstFGWLBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else {
+         tname = "PstFGWLBCC1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PstFGWLVT1OTP_Test";
+         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   }
+   return(final_results);
+   
+// PstFGWLVT1OTP_func = v_any_dev_active;
+}   // PstFGWLVT1OTP_func
+   
+
+TMResultM FGWLVT1Delta_func() {
+   TMResultM final_results;
+   BoolM logsites;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
+   if(MainVT.ENA[FGWLVT1][post]) {
+      dlogonly = MainVT.DLOGONLY[FGWLVT1][post];
+      tname = "FGWLVT1DLT_Test";
+      pattype = MainVT.MEMCFG[FGWLVT1];
+      final_results = F021_VT_Delta_func(pattype,FGWLVT1,tname,dlogonly);
+   } 
+
+// logsites = v_dev_active;
+   
+   if (MainBCC.ENA[FGWLVT1][post])  {
+      dlogonly = MainBCC.DLOGONLY[FGWLVT1][post];
+      tname = "FGWLBCC1DLT_Test";
+      pattype = MainBCC.MEMCFG[FGWLVT1];
+      final_results = F021_BCC_Delta_func(pattype,FGWLVT1,tname,dlogonly);
+      if (TI_FlashESDAEna)  
+//       if(not arraycompareboolean(logsites,final_results,v_sites))  
+         {
+            FLEsda.ImageNum = ESDA_IMG_FGWL_VT1_DLT;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } 
+   }
+   return(final_results);
+   
+// FGWLVT1Delta_func = v_any_dev_active;
+}   // FGWLVT1Delta_func
+   
+
+TMResultM FGWLVT1DeltaOTP_func() {
+   TMResultM final_results;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
+   if (OtpVT.ENA[FGWLVT1][post]) {
+      dlogonly = OtpVT.DLOGONLY[FGWLVT1][post];
+      tname = "FGWLVT1DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results = F021_VT_Delta_func(pattype,FGWLVT1,tname,dlogonly);
+   } 
+   
+   if (OtpBCC.ENA[FGWLVT1][post]) {
+      dlogonly = OtpBCC.DLOGONLY[FGWLVT1][post];
+      tname = "FGWLBCC1DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results = F021_BCC_Delta_func(pattype,FGWLVT1,tname,dlogonly);
+   }
+   return(final_results);
+   
 //   FGWLVT1DeltaOTP_func = v_any_dev_active;
-//}   /* FGWLVT1DeltaOTP_func */
-//   
-//
+}   // FGWLVT1DeltaOTP_func
+   
+
 TMResultM BankErs_PreTunOxide_func() {
    const IntS TESTID = 181; 
 
@@ -17670,33 +17600,31 @@ TMResultM TunOxideVT1DeltaOTP_func() {
 //}   /* PgmOTP_PreRdDisturb2_func */
 
 TMResultM ErsOTP_PrePgmFF_func() {
-//   const IntS TESTID = 155; 
-//
+   const IntS TESTID = 155; 
+
    TMResultM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
-//      (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      testnum = TNUM_OTP_ERS_NOPRECON;
-//      tname = ErsOTP_PrePgmFF_Test;
-//      F021_Erase_func(testnum,tname,final_results);
-//   } 
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+
+   if ((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
+      (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if (do_ena) {
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      testnum = TNUM_OTP_ERS_NOPRECON;
+      tname = "ErsOTP_PrePgmFF_Test";
+      final_results = F021_Erase_func(testnum,tname);
+   } 
    return(final_results);
 //   ErsOTP_PrePgmFF_func = v_any_dev_active;
 }   // ErsOTP_PrePgmFF_func
