@@ -6588,6 +6588,175 @@ __Test RdM1_PstCycle9X_func_T {
     }
 }
 
+__Test PreconOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
+    __Entry[1] = DCsetup_Loose;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PreconOTP;
+        __TestMethod {
+            __Name = PreconOTP_func;
+        }
+    }
+}
+__Test RdM0OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0OTP;
+        __TestMethod {
+            __Name = RdM0OTP_func;
+        }
+    }
+}
+__Test EraseOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = EraseOTP;
+        __TestMethod {
+            __Name = EraseOTP_func;
+        }
+    }
+}
+__Test RdM1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM1OTP;
+        __TestMethod {
+            __Name = RdM1OTP_func;
+        }
+    }
+}
+__Test PgmOTPTemplate_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmOTPTemplate;
+        __TestMethod {
+            __Name = PgmOTPTemplate_func;
+        }
+    }
+}
+__Test RdM1OTPTemplate_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM1OTPTemplate;
+        __TestMethod {
+            __Name = RdM1OTPTemplate_func;
+        }
+    }
+}
+__Test RdM0OTPTemplate_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0OTPTemplate;
+        __TestMethod {
+            __Name = RdM0OTPTemplate_func;
+        }
+    }
+}
+
+__Test PgmChkboard_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
+    __Entry[1] = DCsetup_Loose;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmChkboard;
+        __TestMethod {
+            __Name = PgmChkboard_func;
+        }
+    }
+}
+__Test RdM0Chkboard_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0Chkboard;
+        __TestMethod {
+            __Name = RdM0Chkboard_func;
+        }
+    }
+}
+__Test RdM1Chkboard_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM1Chkboard;
+        __TestMethod {
+            __Name = RdM1Chkboard_func;
+        }
+    }
+}
+__Test PgmChkboardOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmChkboardOTP;
+        __TestMethod {
+            __Name = PgmChkboardOTP_func;
+        }
+    }
+}
+
 __Test ATPG_CPU_Vstress {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;

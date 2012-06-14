@@ -7871,231 +7871,206 @@ TMResultM TunOxideStress_func() {
 //} 
 //
 //
-//
-//BoolS PreconOTP_func()
-//{
-//   const IntS TESTID = 245; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   testnum = TNUM_OTP_PRECON;
-//
-//   tname = PreconOTP_Test;
-//   
-//   F021_Program_func(testnum,tname,final_results);
-//
-//   PreconOTP_func = v_any_dev_active;
-//}   /* PreconOTP_func */
-//   
-//
-//BoolS RdM0OTP_func()
-//{
-//   const IntS TESTID = 246; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   if(GL_DO_FL_PBIST)  
-//      testnum = TNUM_PBIST_RDM0S+TNUM_TARGET_OTP;
-//   else
-//      testnum = TNUM_OTP_RDM0s;
-//
-//   tname = RdM0OTP_Test;
-//   
-//   F021_Read_func(testnum,tname,final_results);
-//
-//   RdM0OTP_func = v_any_dev_active;
-//}   /* RdM0OTP_func */
-//   
-//
-//BoolS EraseOTP_func()
-//{
-//   const IntS TESTID = 247; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   testnum = TNUM_OTP_ERS_PRECON;   /*sm ers*/
-//
-//   tname = ErsOTP_Test;
-//   
-//   F021_Erase_func(testnum,tname,final_results);
-//
-//   EraseOTP_func = v_any_dev_active;
-//}   /* EraseOTP_func */
-//   
-//
-//BoolS RdM1OTP_func()
-//{
-//   const IntS TESTID = 248; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   if(GL_DO_FL_PBIST)  
-//      testnum = TNUM_PBIST_RDM1S+TNUM_TARGET_OTP;
-//   else
-//      testnum = TNUM_OTP_RDM1s;
-//
-//   tname = RdM1OTP_Test;
-//   
-//   F021_Read_func(testnum,tname,final_results);
-//
-//   RdM1OTP_func = v_any_dev_active;
-//}   /* RdM1OTP_func */
-//   
-//
-//BoolS PgmOTPTemplate_func()
-//{
-//   const IntS TESTID = 249; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS tmpbool,dlogonly;
-//
-//   GL_FLTESTID = TESTID;
-//   PwrupAtVnom_1;
-//
-//   if(TITestType!=MP3)  
-//   {
-//      if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR)  
-//      {
-//         tmpbool = GL_DO_CHARZ_OVRTEMPL_W89;
-//         GL_DO_CHARZ_OVRTEMPL_W89 = false;
-//         F021_LoadFlashShell_func;
-//         GL_DO_CHARZ_OVRTEMPL_W89 = tmpbool;
-//      }
-//      else
-//      {
-//         current_shell = "FlashShell";
-//         if(GL_PREVIOUS_SHELL != current_shell)        
-//            F021_LoadFlashShell_func;
-//      } 
-//
-//      final_results = v_dev_active;
-//      tname = PgmOTPTmplt_Test;
-//      dlogonly = false;
-//
-//       /*added fake repair*/
-//      if(v_any_dev_active)  
-//      {
-//          /*maybe not needed but want to be sure -- to be removed later on*/
-//          /*if(GL_DO_VHV_CT_TRIM) then
-//             RAM_Upload_VHV_CT_TrimVal;*/
-//         
-//         if(GL_DO_REPAIR and (GL_FAKEREP_COUNT == GL_FAKEREP_SAMPLING))  
-//         {
-//            Run_Update_FakeRepair(tname,final_results,dlogonly);
-//         }
-//         else
-//         {
-//            testnum = TNUM_OTP_PROG_TEMPLATE;
-//            F021_Program_func(testnum,tname,final_results);
-//         } 
-//         if(GL_DO_IREF_PMOS_TRIM and v_any_dev_active)  
-//            RAM_Clear_PMOS_SoftTrim;
-//      } 
-//   }
-//   else
-//   {
-//       /*restore otp template @mp3*/
-//      RAM_Upload_PMOS_TrimCode;
-//      tname = PgmOTPRestore_Test;
-//      dlogonly = false;
-//      F021_RestoreOTPInfo_func(tname,final_results,dlogonly);
-//      if(GL_DO_IREF_PMOS_TRIM)  
+
+TMResultM PreconOTP_func() {
+   const IntS TESTID = 245; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   testnum = TNUM_OTP_PRECON;
+
+   tname = "PreconOTP_Test";
+   
+//   final_results = F021_Program_func(testnum,tname);
+
+   return(final_results);
+
+// PreconOTP_func = v_any_dev_active;
+}   /* PreconOTP_func */
+   
+
+TMResultM RdM0OTP_func() {
+   const IntS TESTID = 246; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   if (GL_DO_FL_PBIST)  
+      testnum = TNUM_PBIST_RDM0S+TNUM_TARGET_OTP;
+   else
+      testnum = TNUM_OTP_RDM0S;
+
+   tname = "RdM0OTP_Test";
+//   final_results = F021_Read_func(testnum,tname);
+
+   return(final_results);
+// RdM0OTP_func = v_any_dev_active;
+}   // RdM0OTP_func
+   
+
+TMResultM EraseOTP_func() {
+   const IntS TESTID = 247; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   testnum = TNUM_OTP_ERS_PRECON;  // sm ers
+
+   tname = "ErsOTP_Test";
+   final_results = F021_Erase_func(testnum,tname);
+   
+   return(final_results);
+// EraseOTP_func = v_any_dev_active;
+}   // EraseOTP_func
+   
+
+TMResultM RdM1OTP_func() {
+   const IntS TESTID = 248; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   if (GL_DO_FL_PBIST)  
+      testnum = TNUM_PBIST_RDM1S+TNUM_TARGET_OTP;
+   else
+      testnum = TNUM_OTP_RDM1S;
+
+   tname = "RdM1OTP_Test";
+//   final_results = F021_Read_func(testnum,tname);
+   
+   return(final_results);
+
+// RdM1OTP_func = v_any_dev_active;
+}   // RdM1OTP_func
+   
+
+TMResultM PgmOTPTemplate_func() {
+   const IntS TESTID = 249; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS tmpbool,dlogonly;
+
+   GL_FLTESTID = TESTID;
+
+   if (SelectedTITestType!=MP3) {
+      if (TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR) {
+         tmpbool = GL_DO_CHARZ_OVRTEMPL_W89;
+         GL_DO_CHARZ_OVRTEMPL_W89 = false;
+         F021_LoadFlashShell_func();
+         GL_DO_CHARZ_OVRTEMPL_W89 = tmpbool;
+      }
+      else {
+         current_shell = "FlashShell";
+         if (GL_PREVIOUS_SHELL != current_shell)        
+            F021_LoadFlashShell_func();
+      } 
+
+//    final_results = v_dev_active;
+      tname = "PgmOTPTmplt_Test";
+      dlogonly = false;
+
+       /*added fake repair*/
+      if (GL_DO_REPAIR and (GL_FAKEREP_COUNT == GL_FAKEREP_SAMPLING)) {
+//         final_results = Run_Update_FakeRepair(tname,dlogonly);
+      }
+      else {
+         testnum = TNUM_OTP_PROG_TEMPLATE;
+//         final_results = F021_Program_func(testnum,tname);
+      } 
+      if (GL_DO_IREF_PMOS_TRIM)
+         ;
+//         RAM_Clear_PMOS_SoftTrim();
+   }
+   else {
+      // restore otp template @mp3
+      RAM_Upload_PMOS_TrimCode();
+      tname = "PgmOTPRestore_Test";
+      dlogonly = false;
+//      final_results = F021_RestoreOTPInfo_func(tname,dlogonly);
+      if (GL_DO_IREF_PMOS_TRIM)  
 //         RAM_Clear_PMOS_SoftTrim;
-//      GL_DO_RESTORE_OTP_ON_FAIL = false;
-//   } 
-//
-//   PgmOTPTemplate_func = v_any_dev_active;
-//}   /* PgmOTPTemplate_func */
-//   
-//BoolS RdM1OTPTemplate_func()
-//{
-//   const IntS TESTID = 250; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   testnum = TNUM_OTP_RDM1S_TEMPLATE;
-//   tname = RdM1OTPTmplt_Test;
-//   F021_Read_func(testnum,tname,final_results);
-//   
-//   RdM1OTPTemplate_func = v_any_dev_active;
-//} 
-//
-//BoolS RdM0OTPTemplate_func()
-//{
-//   const IntS TESTID = 251; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   PwrupAtVnom_1;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   testnum = TNUM_OTP_RDM0S_TEMPLATE;
-//   tname = RdM0OTPTmplt_Test;
-//   F021_Read_func(testnum,tname,final_results);
-//   
-//   RdM0OTPTemplate_func = v_any_dev_active;
-//} 
-//
+      GL_DO_RESTORE_OTP_ON_FAIL = false;
+   }
+   return(final_results);
+
+// PgmOTPTemplate_func = v_any_dev_active;
+}   // PgmOTPTemplate_func
+   
+TMResultM RdM1OTPTemplate_func() {
+   const IntS TESTID = 250; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   testnum = TNUM_OTP_RDM1S_TEMPLATE;
+   tname = "RdM1OTPTmplt_Test";
+//   final_results = F021_Read_func(testnum,tname);
+   
+   return(final_results);
+// RdM1OTPTemplate_func = v_any_dev_active;
+} 
+
+TMResultM RdM0OTPTemplate_func() {
+   const IntS TESTID = 251; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   testnum = TNUM_OTP_RDM0S_TEMPLATE;
+   tname = "RdM0OTPTmplt_Test";
+//   final_results = F021_Read_func(testnum,tname);
+
+   return(final_results);
+   
+// RdM0OTPTemplate_func = v_any_dev_active;
+} 
+
 //
 //BoolS Bank_Cvfy_func()
 //{
@@ -8264,22 +8239,15 @@ TMResultM Flash_Cycle9X_func() {
 // Flash_Cycle9X_func = v_any_dev_active;
 } 
 
-//
-//BoolS RdMChk_func(StringS tname,
-//                     IntS testnum)
-//{
-//   BoolM final_results;
-//
-//   if(v_any_dev_active)  
-//   {
-//      final_results = v_dev_active;
-//      
-//      F021_Read_func(testnum,tname,final_results);
-//   } 
-//   
-//   RdMChk_func = v_any_dev_active;
-//}   /* RdMChk_func */
-//   
+
+TMResultM RdMChk_func(StringS tname, IntS testnum) {
+   TMResultM final_results;
+
+//   final_results = F021_Read_func(testnum,tname);
+   return(final_results);
+   
+}   // RdMChk_func
+   
 //
 //BoolS RdM0DRL_func()
 //{
@@ -15994,50 +15962,44 @@ TMResultM TunOxideVT1DeltaOTP_func() {
 //   SectErs_func = v_any_dev_active;
 //}   /* SectErs_func */
 //   
-//
-//BoolS RdM1_func()
-//{
-//   const IntS TESTID = 260; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS savebool;
-//
-// /* KChau 10/21 -- bypass for now since no RPO test @MP1 -- */
-//
-//   savebool = GL_DO_REDENA;
-//   GL_DO_REDENA = false;
-//   GL_FLTESTID = TESTID;
-//   tname = RdM1_Test;
-//
-//   if(TITestType!=MP1)  
-//   {      
-//      PwrupAtVmin_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//
-//      if(GL_DO_FL_PBIST)  
-//         testnum = TNUM_PBIST_RDM1s;
-//      else
-//      {
-//         testnum = TNUM_BANK_RDM1s;
-//         if(GL_DO_RD_WITH_TOPTION==1)  
-//            testnum = testnum+TNUM_TOPTION_PSARD;
-//     if(GL_DO_REDENA)  
-//        testnum = testnum+TNUM_REDUNDENA;
-//      } 
-//
-//      F021_Read_func(testnum,tname,final_results);
-//   } 
-//   
-//   GL_DO_REDENA = savebool;
-//   RdM1_func = v_any_dev_active;
-//}   /* RdM1_func */
-//   
+
+TMResultM RdM1_func() {
+   const IntS TESTID = 260; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS savebool;
+
+   // KChau 10/21 -- bypass for now since no RPO test @MP1 --
+   savebool = GL_DO_REDENA;
+   GL_DO_REDENA = false;
+   GL_FLTESTID = TESTID;
+   tname = "RdM1_Test";
+
+   if (SelectedTITestType != MP1)  {      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+
+      if(GL_DO_FL_PBIST)  
+         testnum = TNUM_PBIST_RDM1S;
+      else {
+         testnum = TNUM_BANK_RDM1S;
+         if (GL_DO_RD_WITH_TOPTION==1)  
+            testnum = testnum+TNUM_TOPTION_PSARD;
+         if(GL_DO_REDENA)  
+            testnum = testnum+TNUM_REDUNDENA;
+      }
+
+//      final_results = F021_Read_func(testnum,tname);
+   } 
+   GL_DO_REDENA = savebool;
+   
+   return(final_results);
+}   // RdM1_func
+   
 // /*post repaired*/
 //BoolS PgmMain_2_func()
 //{
@@ -16259,68 +16221,63 @@ TMResultM TunOxideVT1DeltaOTP_func() {
 //   RdM1_2_func = v_any_dev_active;
 //}   /* RdM1_2_func */
 //
-//
-//BoolS RefreshOTP_func()
-//{
-//   const IntS TESTID = 269; 
-//
-//   BoolM final_results,activesites;
-//   StringS current_shell;
-//   IntS testnum,site;
-//   StringS tname;
-//   BoolM savesites,disallsites;
-//   BoolS runena;
-//
-//#if $FL_USE_AUTO_FLOW==false  
-//   runena = true;;
-//#else
-//   if(TITestType==MP3)  
-//      runena = false;
-//   else
-//      runena = true;
-//#endif
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      testnum = TNUM_OTP_REFRESH;
-//      tname = RefreshOTP_Test;
-//   
-//      if(TITestType==MP2)  
-//      {
-//         savesites = v_dev_active;
-//         disallsites = false;
-//         ArrayAndboolean(activesites,savesites,GL_FLASH_RETEST,v_sites);
-//         
-//         if(not Arraycompareboolean(activesites,disallsites,v_sites))  
-//         {
-//            devsetholdstates(activesites);
-//            TL_RunTestNum(TNUM_OTP_ERS_NOPRECON,"");
-//            F021_RestoreOTPInfo_func(tname,final_results,false);
-//            if((not TIIgnoreFail) or (not TI_FlashCOFEna))  
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(savesites[site] and (not GL_FLASH_RETEST[site]))  
-//                     final_results[site] = true;
-//               devsetholdstates(final_results);
-//            }
-//            else
-//               devsetholdstates(savesites);
-//         } 
-//      } 
-//      
-//      F021_Erase_func(testnum,tname,final_results);
-//   } 
-//   
-//   RefreshOTP_func = v_any_dev_active;
-//}   /* RefreshOTP_func */
-//   
+
+TMResultM RefreshOTP_func() {
+   const IntS TESTID = 269; 
+
+   TMResultM final_results;
+   BoolS activesites;
+   StringS current_shell;
+   IntS testnum,site;
+   StringS tname;
+   BoolM savesites,disallsites;
+   BoolS runena;
+
+#if $FL_USE_AUTO_FLOW==false  
+   runena = true;;
+#else
+   if (SelectedTITestType==MP3)  
+      runena = false;
+   else
+      runena = true;
+#endif
+
+   if(runena) {
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      testnum = TNUM_OTP_REFRESH;
+      tname = "RefreshOTP_Test";
+   
+      if (SelectedTITestType==MP2) {
+//       savesites = v_dev_active;
+//       disallsites = false;
+//       ArrayAndboolean(activesites,savesites,GL_FLASH_RETEST,v_sites);
+         
+//       devsetholdstates(activesites);
+         TL_RunTestNum(TNUM_OTP_ERS_NOPRECON,"");
+//         final_results = F021_RestoreOTPInfo_func(tname,false);
+//         if ((not TIIgnoreFail) or (not TI_FlashCOFEna)) {
+         if ((not TI_FlashCOFEna)) {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if(savesites[*si] and (not GL_FLASH_RETEST[*si]))  
+                  final_results[*si] = TM_PASS;
+//          devsetholdstates(final_results);
+         }
+         else
+            ;
+//          devsetholdstates(savesites);
+      } 
+      
+      final_results = F021_Erase_func(testnum,tname);
+   } 
+   return(final_results);
+   
+// RefreshOTP_func = v_any_dev_active;
+}   // RefreshOTP_func
+   
 //
 //BoolS Block_Cvfy_func()
 //{
@@ -16353,213 +16310,191 @@ TMResultM TunOxideVT1DeltaOTP_func() {
 //   Block_Cvfy_func = v_any_dev_active;
 //}   /* Block_Cvfy_func */
 //   
-//
-//BoolS PgmChkboard_func()
-//{
-//   const IntS TESTID = 271; 
-//
-//   BoolM final_results;
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//
-//   if((TITestType==MP1) and GL_DO_CHARZ_FREQ_RANDCODE)  
-//   {
-//      if(GL_CHARZ_FREQ_RANDCODE_COUNT==1)  
-//      {
-//         FlashCode_WR_EXE_func(PgmRCod_Test,Random,final_results);
-//         FreqSchmoo_RandCode;
-//         powerdownall;
-//         TIME.Wait(1ms);
-//         PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//         ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,v[vih_loose_osc_vnom],v[vil_loose]);
-//         clockpinset(s_clk_1a,s_clock);
-//         patternexecute(spareint1,f021_shell_loadpat);
+
+TMResultM PgmChkboard_func() {
+   const IntS TESTID = 271; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+
+   if ((SelectedTITestType==MP1) and GL_DO_CHARZ_FREQ_RANDCODE) {
+      if (GL_CHARZ_FREQ_RANDCODE_COUNT == 1) {
+//         final_results = FlashCode_WR_EXE_func("PgmRCod_Test",Random);
+//         FreqSchmoo_RandCode();
+//         powerdownall();
+         TIME.Wait(1ms);
+//       PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
+//       ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,v[vih_loose_osc_vnom],v[vil_loose]);
+//       clockpinset(s_clk_1a,s_clock);
+//       patternexecute(spareint1,f021_shell_loadpat);
 //         f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//         TL_RunTestNum(TNUM_BANK_ERS_NOPRECON,"");
-//      } 
-//      GL_CHARZ_FREQ_RANDCODE_COUNT = GL_CHARZ_FREQ_RANDCODE_COUNT+1;
-//      if(GL_CHARZ_FREQ_RANDCODE_COUNT > GL_CHARZ_FREQ_RANDCODE_SAMPLING)  
-//         GL_CHARZ_FREQ_RANDCODE_COUNT = 1;
-//   } 
-//   
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tname   = PgmChk_Test;
-//
-//   switch(TITestType) {
-//     case MP1 :  
-//              testnum = TNUM_BANK_PROG_ECHK_DISTURB;
-//            break; 
-//     case MP2 :  
-//              testnum = TNUM_BANK_PROG_OCHK_DISTURB;
-//            break; 
-//     default:  
-//        testnum = TNUM_BANK_PROG_OCHK_DISTURB;
-//      break; 
-//   }   /* case */
-//
-//   F021_Program_func(testnum,tname,final_results);
-//
-//   PgmChkboard_func = v_any_dev_active;
-//} 
-//   
-//
-//BoolS RdM0Chkboard_func()
-//{
-//   const IntS TESTID = 272; 
-//
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//   BoolS runena;
-//
-//#if $FL_USE_AUTO_FLOW==false  
-//   if(TITestType==MP1)  
-//      runena = false;
-//   else
-//      runena = false;
-//#else
-//   if(TITestType==MP3)  
-//      runena = false;
-//   else
-//      runena = true;
-//#endif
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmin_1;
-//   
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname   = RdM0Chk_Test;
-//      
-//      switch(TITestType) {
-//        case MP1 :  
-//                 testnum = TNUM_BANK_RDM0ECHK;      
-//               break; 
-//        case MP2 :  
-//                 testnum = TNUM_BANK_RDM0OCHK;      
-//               break; 
-//        default: testnum = TNUM_BANK_RDM0OCHK;
-//      }   /* case */
-//      if(GL_DO_RD_WITH_TOPTION==1)  
-//         testnum = testnum+TNUM_TOPTION_PSARD;
-//
-//      RdMChk_func(tname,testnum);
-//   } 
-//   
-//   RdM0Chkboard_func = v_any_dev_active;
-//} 
-//   
-//
-//BoolS RdM1Chkboard_func()
-//{
-//   const IntS TESTID = 273; 
-//
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//   BoolS runena;
-//
-//#if $FL_USE_AUTO_FLOW==false  
-//   if(TITestType==MP1)  
-//      runena = false;
-//   else
-//      runena = false;
-//#else
-//   if(TITestType==MP3)  
-//      runena = false;
-//   else
-//      runena = true;
-//#endif
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname   = RdM1Chk_Test;
-//      
-//      switch(TITestType) {
-//        case MP1 :  
-//                 testnum = TNUM_BANK_RDM1ECHK;      
-//               break; 
-//        case MP2 :  
-//                 testnum = TNUM_BANK_RDM1OCHK;      
-//               break; 
-//        default: testnum = TNUM_BANK_RDM1OCHK;
-//      }   /* case */
-//      if(GL_DO_RD_WITH_TOPTION==1)  
-//         testnum = testnum+TNUM_TOPTION_PSARD;
-//      RdMChk_func(tname,testnum);
-//   } 
-//
-//   RdM1Chkboard_func = v_any_dev_active;
-//} 
-//   
-//
-//
-//BoolS PgmChkboardOTP_func()
-//{
-//   const IntS TESTID = 274; 
-//
-//   BoolM final_results;
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//   BoolS runena;
-//
-//#if $FL_USE_AUTO_FLOW==false  
-//   if(TITestType==MP1)  
-//      runena = true;
-//   else
-//      runena = false;
-//#else
-//   if(TITestType==MP3)  
-//      runena = false;
-//   else
-//      runena = true;
-//#endif
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname   = PgmChkSemiOTP_Test;
-//      
-//      switch(TITestType) {
-//        case  MP1: case MP3 :   
-//           testnum = TNUM_OTP_PROG_ECHK_DISTURB_SEMI;
-//         break; 
-//        case MP2 :  
-//                 testnum = TNUM_OTP_PROG_OCHK_DISTURB_SEMI;
-//               break; 
-//      }   /* case */
-//
-//      F021_Program_func(testnum,tname,final_results);
-//   } 
-//   
-//   PgmChkboardOTP_func = v_any_dev_active;
-//} 
-//   
+         TL_RunTestNum(TNUM_BANK_ERS_NOPRECON,"");
+      } 
+      GL_CHARZ_FREQ_RANDCODE_COUNT = GL_CHARZ_FREQ_RANDCODE_COUNT + 1;
+      if (GL_CHARZ_FREQ_RANDCODE_COUNT > GL_CHARZ_FREQ_RANDCODE_SAMPLING)  
+         GL_CHARZ_FREQ_RANDCODE_COUNT = 1;
+   }
+   
+// PwrupAtVnom_1;
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tname = "PgmChk_Test";
+
+   switch (SelectedTITestType) {
+     case MP1 : testnum = TNUM_BANK_PROG_ECHK_DISTURB; break; 
+     case MP2 : testnum = TNUM_BANK_PROG_OCHK_DISTURB; break; 
+     default:   testnum = TNUM_BANK_PROG_OCHK_DISTURB; break; 
+   }   // case
+
+//   final_results = F021_Program_func(testnum,tname);
+   return(final_results);
+
+// PgmChkboard_func = v_any_dev_active;
+}   // PgmChkboard_func
+   
+
+TMResultM RdM0Chkboard_func() {
+   const IntS TESTID = 272; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+   BoolS runena;
+
+#if $FL_USE_AUTO_FLOW==false  
+   if (SelectedTITestType==MP1)  
+      runena = false;
+   else
+      runena = false;
+#else
+   if (SelectedTITestType==MP3)  
+      runena = false;
+   else
+      runena = true;
+#endif
+
+   if (runena) {
+//    PwrupAtVmin_1;
+   
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "RdM0Chk_Test";
+      
+      switch (SelectedTITestType) {
+        case MP1: testnum = TNUM_BANK_RDM0ECHK; break; 
+        case MP2: testnum = TNUM_BANK_RDM0OCHK; break; 
+        default:  testnum = TNUM_BANK_RDM0OCHK; break;
+      }   // case
+      if (GL_DO_RD_WITH_TOPTION == 1)  
+         testnum = testnum+TNUM_TOPTION_PSARD;
+
+      final_results = RdMChk_func(tname,testnum);
+   }
+   return(final_results);
+   
+// RdM0Chkboard_func = v_any_dev_active;
+}   // RdM0Chkboard_func
+   
+
+TMResultM RdM1Chkboard_func() {
+   const IntS TESTID = 273; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+   BoolS runena;
+
+#if $FL_USE_AUTO_FLOW==false  
+   if (SelectedTITestType==MP1)  
+      runena = false;
+   else
+      runena = false;
+#else
+   if (SelectedTITestType==MP3)  
+      runena = false;
+   else
+      runena = true;
+#endif
+
+   if (runena) {
+//    PwrupAtVmax_1;
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "RdM1Chk_Test";
+      
+      switch(SelectedTITestType) {
+        case MP1: testnum = TNUM_BANK_RDM1ECHK; break; 
+        case MP2: testnum = TNUM_BANK_RDM1OCHK; break; 
+        default:  testnum = TNUM_BANK_RDM1OCHK; break;
+      }   // case
+
+      if (GL_DO_RD_WITH_TOPTION==1)  
+         testnum = testnum+TNUM_TOPTION_PSARD;
+      final_results = RdMChk_func(tname,testnum);
+   } 
+   return(final_results);
+
+}   // RdM1Chkboard_func
+   
+TMResultM PgmChkboardOTP_func() {
+   const IntS TESTID = 274; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+   BoolS runena;
+
+#if $FL_USE_AUTO_FLOW==false  
+   if (SelectedTITestType==MP1)  
+      runena = true;
+   else
+      runena = false;
+#else
+   if (SelectedTITestType==MP3)  
+      runena = false;
+   else
+      runena = true;
+#endif
+
+   if(runena)  {
+//    PwrupAtVnom_1;
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "PgmChkSemiOTP_Test";
+      
+      switch(SelectedTITestType) {
+        case MP1:
+        case MP3: testnum = TNUM_OTP_PROG_ECHK_DISTURB_SEMI; break; 
+        case MP2: testnum = TNUM_OTP_PROG_OCHK_DISTURB_SEMI; break; 
+      }   // case
+
+//      final_results = F021_Program_func(testnum,tname);
+   }
+   return(final_results);
+   
+// PgmChkboardOTP_func
+}
+   
 //
 //BoolS PreDRLVT0MinOTP_func()
 //{
@@ -20439,53 +20374,47 @@ TMResultM ErsOTP_PreTunOxide_func() {
 //   RdM0OTP_PreEGFG_LF3_func = v_any_dev_active;
 //}   /* RdM0OTP_PreEGFG_LF3_func */
 //
-//
-//BoolS SenAmpNoise_Screen_func()
-//{
-//   const IntS TESTID = 300; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   StringS tname;
-//   IntS tcrnum,tdata,ttarget;
-//   FloatS vcg;
-//   BoolS redundena,dopgm,do_ena;
-//
-//   if(GL_BANKTYPE==FLESBANK)  
-//      do_ena = false;
-//   else
-//      do_ena = true;
-//
-//   if(do_ena)  
-//   {
-//      if(v_any_dev_active and GL_DO_CHARZ_SAMPNOISE)  
-//      {
-//         dopgm = false;
-//         Charz_SenAmpNoise_RPC_EF(VMX,dopgm);
-//      } 
-//      
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      
-//      tcrnum  = 6;
-//      tdata   = TNUM_DATA_ECHK;
-//      ttarget = TNUM_TARGET_QUAD;
-//      vcg     = 0V;
-//      tname   = SAMP_Screen_Test;
-//      redundena = false;
-//      dopgm = false;  /*already pgm in new mp1 flow*/
-//      
-//      SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,0,0,0,"");
-//   } 
-//   
-//   SenAmpNoise_Screen_func = v_any_dev_active;
-//}   /* SenAmpNoise_Screen_func */
-//
+
+TMResultM SenAmpNoise_Screen_func() {
+   const IntS TESTID = 300; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   StringS tname;
+   IntS tcrnum,tdata,ttarget;
+   FloatS vcg;
+   BoolS redundena,dopgm,do_ena;
+
+   if (GL_BANKTYPE==FLESBANK)  
+      do_ena = false;
+   else
+      do_ena = true;
+
+   if (do_ena) {
+      dopgm = false;
+//    Charz_SenAmpNoise_RPC_EF(VMX,dopgm);
+      
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      
+      tcrnum  = 6;
+      tdata   = TNUM_DATA_ECHK;
+      ttarget = TNUM_TARGET_QUAD;
+      vcg     = 0V;
+      tname   = "SAMP_Screen_Test";
+      redundena = false;
+      dopgm = false;  // already pgm in new mp1 flow
+      
+//      final_results = SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,dopgm,0,0,0,"");
+   }
+   return(final_results);
+   
+// SenAmpNoise_Screen_func = v_any_dev_active;
+}   // SenAmpNoise_Screen_func
+
 //
 //BoolS PreDRLRandCodeVT0Min_func()
 //{
