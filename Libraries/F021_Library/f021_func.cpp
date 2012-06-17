@@ -7156,45 +7156,40 @@ void F021_SetTestNum(IntS testnum)
 
 }  /*F021_SetTestNum*/
 
-//void Check_RAM_TNUM(    IntS expTnum,
-//                             BoolM test_results)
-//{
-//   IntS site,tnumhi,tnumlo;
-//   BoolM tmp_results;
-//   IntM msw_tnum,lsw_tnum;
-//
-//   if(v_any_dev_active)  
-//   {
-//      tmp_results = v_dev_active;      
-//      tnumhi = ((expTnum&0xffff0000)>>16)&0x0000ffff;
-//      tnumlo = expTnum&0x0000ffff;
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//         Get_Flash_TestLogSpace_SCRAM;
-//
-//      Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-//      
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((lsw_tnum[site]!=tnumlo) or (msw_tnum[site]!=tnumhi))  
-//               tmp_results[site] = false;
-//      test_results = tmp_results;
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//      {
-//         cout << "Check RAM expected TNUM " << expTnum:s_hex << endl;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               cout << "Site " << site:-5 << msw_tnum[site]:s_hex:-8 << lsw_tnum[site]:s_hex:-8;
-//               if(tmp_results[site])  
-//                  cout << "/":5);
-//               else
-//                  cout << "X":5 << endl;
-//            } 
-//      } 
-//   } 
-//}   /* Check_RAM_TNUM */
+TMResultM Check_RAM_TNUM(IntS expTnum) {
+   TMResultM test_results;
+   IntS site,tnumhi,tnumlo;
+   TMResultM tmp_results;
+   IntM msw_tnum,lsw_tnum;
+
+
+   tmp_results = TM_NOTEST;      
+   tnumhi = ((expTnum & IntS(0xffff0000))>>16) & IntS(0x0000ffff);
+   tnumlo = expTnum&0x0000ffff;
+
+//   if(GL_DO_ESDA_WITH_SCRAM)  
+//      Get_Flash_TestLogSpace_SCRAM;
+
+   Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      if ((lsw_tnum[*si]!=tnumlo) or (msw_tnum[*si]!=tnumhi))  
+         tmp_results[*si] = TM_FAIL;
+   }
+   test_results = tmp_results;
+
+   if (tistdscreenprint and TI_FlashDebug) {
+      cout << "Check RAM expected TNUM " << hex << expTnum << endl;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         cout << "Site " << *si << hex <<msw_tnum[*si] << hex << lsw_tnum[*si];
+         if (tmp_results[*si] == TM_PASS)  
+            cout << "/";
+         else
+            cout << "X" << endl;
+      } 
+   }
+   return(test_results);
+}   /* Check_RAM_TNUM */
       
 
  /*Set Flash TestNumber in RAM and execute*/
@@ -7723,315 +7718,287 @@ void F021_Set_TPADS(IntS TCRnum,
       IO.Print(IO.Stdout,"\n");
 }   /* F021_Set_TPADS */
 
-//void F021_Set_TPADS_ByOrder(IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolS rampup)
-//{
-//   FloatS tdelay,iProg,vProg,vRange,vforce;
-//   IntS fdlen1,fdlen2;
-//   PinM tsupply;  /*PSSupplyName;*/
-//   IntS tpnum,special_opt,i,miniter,maxiter;
-//   StringS str1;
-//   BoolS suppena;
-//   TPMeasType meastype;
-//   vttype stresstype;
-// 
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << endl;
-//
-//      fdlen1 = 5;
-//      fdlen2 = 3;
-//
-//       /*look up vt/stress type*/
-//      switch(TCRnum) {
-//        case 23 :  
-//                switch(TCRMode) {
-//                  case case EvfyMode : stresstype = EGFG4VT0;
-//                  case case PvfyMode : stresstype = EGFG3VT0;
-//                  case default:  
-//                     stresstype = EGFG4VT0;
-//                     if(tistdscreenprint)  
-//                  case case cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
-//                   break; 
-//                 break;   /* case */
-//             } 
-//        52, 107, 108 : {
-//                switch(TCRMode) {
-//                  case CvfyMode : stresstype = TUNOXTSMCVT1;
-//                  case EvfyMode : stresstype = TUNOXVT1;
-//                  case ProgMode : stresstype = PGMFFVT1;
-//                  case PvfyMode : stresstype = FGWLVT1;
-//                  default:  
-//                     stresstype = TUNOXVT1;
-//                     if(tistdscreenprint)  
-//                  case cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
-//                   break; 
-//                }   /* case */
-//             } 
-//        53 : {
-//                stresstype = ONOVT0;
-//             } 
-//        54 : {
-//                switch(TCRMode) {
-//                  case ErsMode  : stresstype = THINOXVT1;
-//                  case PvfyMode : stresstype = PUNTHRUVT1;
-//                  case ProgMode : stresstype = REVTUNVT1;
-//                  default:  
-//                     stresstype = THINOXVT1;
-//                     if(tistdscreenprint)  
-//                  case cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
-//                   break; 
-//                }   /* case */
-//             } 
-//        58 : {
-//                switch(TCRMode) {
-//                  case ReadMode : stresstype = RDDISTBVT0;
-//                  case PvfyMode : stresstype = RDDISTB2VT0;
-//                  default:  
-//                     stresstype = RDDISTBVT0;
-//                     if(tistdscreenprint)  
-//                  case cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
-//                   break; 
-//                }   /* case */
-//             } 
-//        84, 110 : {
-//                stresstype = CSFGVT0;
-//             } 
-//        otherwise {
-//           stresstype = EGFG1VT0;
-//           if(tistdscreenprint)  
-//              cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
-//        } 
-//      }   /* case */
-//
-//      miniter = 1;
-//      maxiter = 5;
-//
-//      if(rampup)  
-//      {
-//         for (i = miniter;i <= maxiter;i++)
-//         {
-//            tpnum = TPadSeq.TPUPSEQ[stresstype][i];
-//            suppena = false;
-//
-//            if(tpnum==0)  
-//               break;
-//            
-//            switch(tpnum) {
-//              case 1 :  
-//                     if(TCR.TP1_Ena[TCRnum])  
-//                      
-//                        meastype = TCR.TP1_MeasType[TCRnum];
-//                        if(meastype==MeasVoltType)  
-//                         
-//                           vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRmode];
-//                           vProg  = 0V;
-//                         
-//                        else
-//                         
-//                           vRange = TCR.TP1_VRange[TCRnum][TCRmode];
-//                           vProg  = vRange;
-//                         break; 
-//                        
-//                        if(meastype==MeasCurrType)  
-//                           iProg = 1.2*abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//                        else
-//                           iProg = abs(TCR.TP1_IRange[TCRnum][TCRmode]);
-//                        tsupply  = FLTP1;
-//                        str1     = "TP1";
-//                        suppena  = true;
-//                      break; 
-//                   break; 
-//              case 2 :  
-//                     if(TCR.TP2_Ena[TCRnum])  
-//                      
-//                        meastype = TCR.TP2_MeasType[TCRnum];
-//                        if(meastype==MeasVoltType)  
-//                         
-//                           vRange = 1.2*TCR.TP2_VRange[TCRnum][TCRmode];
-//                           vProg  = 0V;
-//                         
-//                        else
-//                         
-//                           vRange = TCR.TP2_VRange[TCRnum][TCRmode];
-//                           vProg  = vRange;
-//                         break; 
-//                        
-//                        if(meastype==MeasCurrType)  
-//                           iProg = 1.2*abs(TCR.TP2_IRange[TCRnum][TCRmode]);
-//                        else
-//                           iProg = abs(TCR.TP2_IRange[TCRnum][TCRmode]);                        
-//                        tsupply  = FLTP2;
-//                        str1     = "TP2";
-//                        suppena  = true;
-//                      break; 
-//                   break; 
-//#if $TP3_TO_TP5_PRESENT  
-//              case 3 :  
-//                     if(TCR.TP3_Ena[TCRnum])  
-//                     {
-//                        meastype = TCR.TP3_MeasType[TCRnum];
-//                        if(meastype==MeasVoltType)  
-//                        {
-//                           vRange = 1.2*TCR.TP3_VRange[TCRnum][TCRmode];
-//                           vProg  = 0V;
-//                        }
-//                        else
-//                        {
-//                           vRange = TCR.TP3_VRange[TCRnum][TCRmode];
-//                           vProg  = vRange;
-//                        } 
-//                        
-//                        if(meastype==MeasCurrType)  
-//                           iProg = 1.2*abs(TCR.TP3_IRange[TCRnum][TCRmode]);
-//                        else
-//                           iProg = abs(TCR.TP3_IRange[TCRnum][TCRmode]);
-//                        tsupply  = FLTP3;
-//                        str1     = "TP3";
-//                        suppena  = true;
-//                     } 
-//                  } 
-//              4 : {
-//                     if(TCR.TP4_Ena[TCRnum])  
-//                     {
-//                        meastype = TCR.TP4_MeasType[TCRnum];
-//                        if(meastype==MeasVoltType)  
-//                        {
-//                           vRange = 1.2*TCR.TP4_VRange[TCRnum][TCRmode];
-//                           vProg  = 0V;
-//                        }
-//                        else
-//                        {
-//                           vRange = TCR.TP4_VRange[TCRnum][TCRmode];
-//                           vProg  = vRange;
-//                        } 
-//                        
-//                        if(meastype==MeasCurrType)  
-//                           iProg = 1.2*abs(TCR.TP4_IRange[TCRnum][TCRmode]);
-//                        else
-//                           iProg = abs(TCR.TP4_IRange[TCRnum][TCRmode]);
-//                        tsupply  = FLTP4;
-//                        str1     = "TP4";
-//                        suppena  = true;
-//                     } 
-//                  } 
-//              5 : {
-//                     if(TCR.TP5_Ena[TCRnum])  
-//                     {
-//                        meastype = TCR.TP5_MeasType[TCRnum];
-//                        if(meastype==MeasVoltType)  
-//                        {
-//                           vRange = 1.2*TCR.TP5_VRange[TCRnum][TCRmode];
-//                           vProg  = 0V;
-//                        }
-//                        else
-//                        {
-//                           vRange = TCR.TP5_VRange[TCRnum][TCRmode];
-//                           vProg  = vRange;
-//                        } 
-//                        
-//                        if(meastype==MeasCurrType)  
-//                           iProg = 1.2*abs(TCR.TP5_IRange[TCRnum][TCRmode]);
-//                        else
-//                           iProg = abs(TCR.TP5_IRange[TCRnum][TCRmode]);
-//                        tsupply  = FLTP5;
-//                        str1     = "TP5";
-//                        suppena  = true;
-//                     } 
-//                  } 
-//#endif
-//            }   /* case */
-//            
-//            if(suppena)  
-//            {
-//               STDSetVRange(tsupply,vRange);
-//               STDSetVI(tsupply,vProg,iProg);
-//               if(tistdscreenprint and TI_FlashDebug)  
-//               {
-//                  cout << "Setting TPADs --  TCR " << tcrnum:-fdlen1 << endl;
-//                  cout << str1:-fdlen1 << " Vprog == " << vProg:-fdlen1:fdlen2 << 
-//                          " VRange == " << vRange:-fdlen1:fdlen2 << 
-//                          " Iprog == " << iProg:-fdlen1:fdlen2 << endl;
-//               } 
-//            }   /*if suppena*/
-//         }   /*for i*/
-//      }  /*rampup*/
-//      else
-//      {  /*rampdown*/
-//         for (i = maxiter;i <= miniter;i++)
-//         {
-//            tpnum = TPadSeq.TPUPSEQ[stresstype][i];
-//            suppena = false;
-//            vProg = 0V;
-//            iProg = 1mA;
-//            switch(tpnum) {
-//              case 1 :  
-//                     if(TCR.TP1_Ena[TCRnum])  
-//                      
-//                        tsupply = FLTP1;
-//                        str1 = "TP1";
-//                        suppena = true;
-//                      break; 
-//                   break; 
-//              case 2 :  
-//                     if(TCR.TP2_Ena[TCRnum])  
-//                      
-//                        tsupply = FLTP2;
-//                        str1 = "TP2";
-//                        suppena = true;
-//                      break; 
-//                   break; 
-//#if $TP3_TO_TP5_PRESENT  
-//              case 3 :  
-//                     if(TCR.TP3_Ena[TCRnum])  
-//                      
-//                        tsupply = FLTP3;
-//                        str1 = "TP3";
-//                        suppena = true;
-//                      break; 
-//                   break; 
-//              case 4 :  
-//                     if(TCR.TP4_Ena[TCRnum])  
-//                      
-//                        tsupply = FLTP4;
-//                        str1 = "TP4";
-//                        suppena = true;
-//                      break; 
-//                   break; 
-//              case 5 :  
-//                     if(TCR.TP5_Ena[TCRnum])  
-//                      
-//                        tsupply = FLTP5;
-//                        str1 = "TP5";
-//                        suppena = true;
-//                      break; 
-//                   break; 
-//#endif
-//            }   /* case */
-//
-//            if(suppena)  
-//            {
-//               STDSetVI(tsupply,vProg,iProg);
-//               if(tistdscreenprint and TI_FlashDebug)  
-//               {
-//                  cout << " TPADs --  TCR " << tcrnum:-fdlen1 << endl;
-//                  cout << str1:-fdlen1 << " Vprog == " << vProg:-fdlen1:fdlen2 << 
-//                          " Iprog == " << iProg:-fdlen1:fdlen2 << endl;
-//               } 
-//            }   /*if suppena*/
-//         }   /*for i*/
-//      }   /*rampdown*/
-//
-//      
-//      tdelay = 10us;
-//      TIME.Wait(tdelay);
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << endl;
-//   } 
-//}   /* F021_Set_TPADS_ByOrder */
-//      
+void F021_Set_TPADS_ByOrder(IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 BoolS rampup) {
+
+   FloatS tdelay,iProg,vProg,vRange,vforce;
+   IntS fdlen1,fdlen2;
+   PinM tsupply;  // PSSupplyName
+   IntS tpnum,special_opt,i,miniter,maxiter;
+   StringS str1;
+   BoolS suppena;
+   TPMeasType meastype;
+   vttype stresstype;
+ 
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << endl;
+
+   fdlen1 = 5;
+   fdlen2 = 3;
+
+   // look up vt/stress type
+   switch(TCRnum) {
+     case 23 :  
+        switch(TCRMode) {
+           case EvfyMode : stresstype = EGFG4VT0; break;
+           case PvfyMode : stresstype = EGFG3VT0; break;
+           default:  
+              stresstype = EGFG4VT0;
+              if (tistdscreenprint)  
+                 cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
+              break; 
+        }
+        break;   // case 23
+     case 52: case 107: case 108:
+        switch(TCRMode) {
+           case CvfyMode : stresstype = TUNOXTSMCVT1;
+           case EvfyMode : stresstype = TUNOXVT1;
+           case ProgMode : stresstype = PGMFFVT1;
+           case PvfyMode : stresstype = FGWLVT1;
+           default:  
+              stresstype = TUNOXVT1;
+              if (tistdscreenprint)  
+                 cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
+              break; 
+        }
+        break;   // case 52
+     case 53:
+        stresstype = ONOVT0;
+        break;
+     case 54:
+        switch(TCRMode) {
+           case ErsMode  : stresstype = THINOXVT1;  break;
+           case PvfyMode : stresstype = PUNTHRUVT1; break;
+           case ProgMode : stresstype = REVTUNVT1;  break;
+           default:  
+              stresstype = THINOXVT1;
+              if (tistdscreenprint)  
+                 cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
+              break; 
+        }
+        break;   // case 54
+     case 58:
+        switch(TCRMode) {
+           case ReadMode : stresstype = RDDISTBVT0;  break;
+           case PvfyMode : stresstype = RDDISTB2VT0; break;
+           default:  
+              stresstype = RDDISTBVT0;
+              if (tistdscreenprint)  
+                 cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
+              break; 
+        }
+        break;   // case 58 
+     case 84: case 110:
+        stresstype = CSFGVT0;
+        break;
+     default:
+        stresstype = EGFG1VT0;
+        if (tistdscreenprint)  
+           cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
+        break;
+   }   // switch TRCnum
+
+   miniter = 1;
+   maxiter = 5;
+
+   if (rampup) {
+      for (i = miniter;i <= maxiter;i++) {
+         tpnum = TPadSeq.TPUPSEQ[stresstype][i];
+         suppena = false;
+
+         if (tpnum==0)  
+            break;
+         
+         switch(tpnum) {
+            case 1 :  
+               if (TCR.TP1_Ena[TCRnum]) {
+                  meastype = TCR.TP1_MeasType[TCRnum];
+                  if (meastype==MeasVoltType)  { 
+                     vRange = 1.2*TCR.TP1_VRange[TCRnum][TCRMode];
+                     vProg  = 0V;
+                  }
+                  else {
+                     vRange = TCR.TP1_VRange[TCRnum][TCRMode];
+                     vProg  = vRange;
+                  }
+                     
+                  if (meastype==MeasCurrType)  
+                     iProg = 1.2*TCR.TP1_IRange[TCRnum][TCRMode];
+                  else
+                     iProg = TCR.TP1_IRange[TCRnum][TCRMode];
+
+                  tsupply  = FLTP1;
+                  str1     = "TP1";
+                  suppena  = true;
+               }
+               break; 
+           case 2 :  
+              if (TCR.TP2_Ena[TCRnum]) {
+                 meastype = TCR.TP2_MeasType[TCRnum];
+                 if (meastype==MeasVoltType) {
+                    vRange = 1.2*TCR.TP2_VRange[TCRnum][TCRMode];
+                    vProg  = 0V;
+                 }
+                 else {
+                    vRange = TCR.TP2_VRange[TCRnum][TCRMode];
+                    vProg  = vRange;
+                 }
+                     
+                 if (meastype==MeasCurrType)  
+                    iProg = 1.2*TCR.TP2_IRange[TCRnum][TCRMode];
+                 else
+                    iProg = TCR.TP2_IRange[TCRnum][TCRMode];                        
+
+                 tsupply  = FLTP2;
+                 str1     = "TP2";
+                 suppena  = true;
+                   break; 
+              }
+              break; 
+#if $TP3_TO_TP5_PRESENT  
+           case 3:  
+              if (TCR.TP3_Ena[TCRnum])  {
+                 meastype = TCR.TP3_MeasType[TCRnum];
+                 if (meastype==MeasVoltType)  {
+                    vRange = 1.2*TCR.TP3_VRange[TCRnum][TCRMode];
+                    vProg  = 0V;
+                 }
+                 else {
+                    vRange = TCR.TP3_VRange[TCRnum][TCRMode];
+                    vProg  = vRange;
+                 } 
+                     
+                 if (meastype==MeasCurrType)  
+                    iProg = 1.2*abs(TCR.TP3_IRange[TCRnum][TCRMode]);
+                 else
+                    iProg = abs(TCR.TP3_IRange[TCRnum][TCRMode]);
+
+                 tsupply  = FLTP3;
+                 str1     = "TP3";
+                 suppena  = true;
+              } 
+              break;
+           case 4:
+              if (TCR.TP4_Ena[TCRnum]) {
+                 meastype = TCR.TP4_MeasType[TCRnum];
+                 if (meastype==MeasVoltType)  {
+                    vRange = 1.2*TCR.TP4_VRange[TCRnum][TCRMode];
+                    vProg  = 0V;
+                 }
+                 else {
+                    vRange = TCR.TP4_VRange[TCRnum][TCRMode];
+                    vProg  = vRange;
+                 } 
+                  
+                 if(meastype==MeasCurrType)  
+                    iProg = 1.2*abs(TCR.TP4_IRange[TCRnum][TCRMode]);
+                 else
+                    iProg = abs(TCR.TP4_IRange[TCRnum][TCRMode]);
+
+                 tsupply  = FLTP4;
+                 str1     = "TP4";
+                 suppena  = true;
+             } 
+             break;
+           case 5:
+              if (TCR.TP5_Ena[TCRnum])  {
+                 meastype = TCR.TP5_MeasType[TCRnum];
+                 if (meastype==MeasVoltType)  {
+                    vRange = 1.2*TCR.TP5_VRange[TCRnum][TCRMode];
+                    vProg  = 0V;
+                 }
+                 else {
+                    vRange = TCR.TP5_VRange[TCRnum][TCRMode];
+                    vProg  = vRange;
+                 } 
+                     
+                 if (meastype==MeasCurrType)  
+                    iProg = 1.2*abs(TCR.TP5_IRange[TCRnum][M]);
+                 else
+                    iProg = abs(TCR.TP5_IRange[TCRnum][TCRMode]);
+
+                 tsupply  = FLTP5;
+                 str1     = "TP5";
+                 suppena  = true;
+              } 
+              break;
+#endif
+         }   // switch(tpnum)
+         
+         if (suppena) {
+//            STDSetVRange(tsupply,vRange);
+//            STDSetVI(tsupply,vProg,iProg);
+            if (tistdscreenprint and TI_FlashDebug) {
+               cout << "Setting TPADs --  TCR " << TCRnum << endl;
+               cout << str1 << " Vprog == " << vProg;
+               cout << " VRange == " << vRange << " Iprog == " << iProg << endl;
+            } 
+         }   // if suppena
+      }   // for i
+   }  // rampup
+   else {
+      for (i = maxiter;i <= miniter;i++) {
+         tpnum = TPadSeq.TPUPSEQ[stresstype][i];
+         suppena = false;
+         vProg = 0V;
+         iProg = 1mA;
+         switch(tpnum) {
+            case 1 :  
+               if (TCR.TP1_Ena[TCRnum]) {
+                  tsupply = FLTP1;
+                  str1 = "TP1";
+                  suppena = true;
+               }
+               break; 
+            case 2 :  
+               if (TCR.TP2_Ena[TCRnum]) {
+                  tsupply = FLTP2;
+                  str1 = "TP2";
+                  suppena = true;
+               }
+               break; 
+#if $TP3_TO_TP5_PRESENT  
+            case 3 :  
+               if (TCR.TP3_Ena[TCRnum]) {
+                  tsupply = FLTP3;
+                  str1 = "TP3";
+                  suppena = true;
+               } 
+               break; 
+            case 4 :  
+               if (TCR.TP4_Ena[TCRnum]) {
+                  tsupply = FLTP4;
+                  str1 = "TP4";
+                  suppena = true;
+               } 
+               break; 
+            case 5 :  
+               if (TCR.TP5_Ena[TCRnum]) {
+                  tsupply = FLTP5;
+                  str1 = "TP5";
+                  suppena = true;
+               } 
+               break; 
+#endif
+         }   // switch(tpnum)
+
+         if (suppena)  {
+//          STDSetVI(tsupply,vProg,iProg);
+            if (tistdscreenprint and TI_FlashDebug) {
+               cout << " TPADs --  TCR " << TCRnum << endl;
+               cout << str1 << " Vprog == " << vProg << " Iprog == " << iProg << endl;
+            } 
+         }   // if suppena
+      }   // for i
+   }   // rampdown
+
+   tdelay = 10us;
+   TIME.Wait(tdelay);
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << endl;
+}   // F021_Set_TPADS_ByOrder
+      
 //
 //void F021_UnSet_TPADS(IntS TCRnum)
 //{
@@ -14517,27 +14484,16 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 }   /* F021_Flash_Leak_func */
 
    
-TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode) {
-
-   const IntS TARGET_BANK = 0x0; 
-   const IntS TARGET_SECT = 0x1; 
-   const IntS TARGET_LOGSECT = 0x2; 
-   const IntS TARGET_OTP = 0x4; 
-   const IntS TARGET_SEMIOTP = 0x5; 
-   const IntS TARGET_DATAOTP = 0x6; 
-   const IntS TARGET_ARB = 0xA;
-   const IntS STRESS_WLS = 0x0; 
-   const IntS STRESS_BLS = 0x1; 
-   const IntS STRESS_SLS = 0x2; 
+TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode) { 
 
    FloatS tdelay,maxtime,stresstime;
    BoolM savesites,logsites,activesites;
    IntS count,maxsector,tpnum;
    IntS bankcount,bankstart,bankstop;
    IntS blkcount,blkstart,blkstop;
-   BoolM tmp_results;
-   TMResultM final_results;
-   BoolM rtest_results,allfalse;
+   TMResultM tmp_results, test_results;
+   TMResultM rtest_results, final_results;
+   BoolM allfalse;
    IntS site,pattype,testnum,length;
    IntS opertype;
    FloatS ttimer1,ttimer2;
@@ -14572,278 +14528,280 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
      default  : special_opt = 0;
    }
              
-//   if (special_opt!=0) {
-//      // special case1 -- EGFG stress using bank ers stress tcr23, need ramp tpad
-//      // special case2 -- read disturb stress using wls tcr58, need ramp tpad & vdds
-//      testpad     = FLTP1;
+   if (special_opt!=0) {
+      // special case1 -- EGFG stress using bank ers stress tcr23, need ramp tpad
+      // special case2 -- read disturb stress using wls tcr58, need ramp tpad & vdds
+      testpad     = FLTP1;
 //      pgmMode     = S_VI_Mode;
-//      rampstart   = TCR.TP1_VCharLo[TCRnum][TCRMode];
-//      rampstop    = TCR.TP1_VCharHi[TCRnum][TCRMode];
-//      iProg       = TCR.TP1_IRange[TCRnum][TCRMode];
-//      tdelay      = 10us;
-//
-//      if (special_opt==2) {
-//         tmpstr2 = FL_PUMP_SUPPLY_NAME;
-//         if(tmpstr2!="VDD3VFL") {
-//            ramp3vfl = false;
-//         }
-//         else {
-//            ramp3vfl = true;
+      rampstart   = TCR.TP1_VCharLo[TCRnum][TCRMode];
+      rampstop    = TCR.TP1_VCharHi[TCRnum][TCRMode];
+      iProg       = TCR.TP1_IRange[TCRnum][TCRMode];
+      tdelay      = 10us;
+
+      if (special_opt==2) {
+         tmpstr2 = "FL_PUMP_SUPPLY_NAME";
+         if(tmpstr2!="VDD3VFL") {
+            ramp3vfl = false;
+         }
+         else {
+            ramp3vfl = true;
 //            STDGetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
-//         } 
-//      }   // special_opt=2
-//   }   // if special_opt
-//
-//   tmpstr1 = tname;
-//   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
-//   fl_testname = tname;
-//   
-//   TIME.StartTimer();     
-//
-////   if (TI_FlashCOFEna)  
-////      F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-////   savesites = V_dev_active;
-////   tmp_results = V_dev_active;
-////   final_results = V_dev_active;
-//
-//   testnum = start_testnum;
-//   target_bits = (testnum & 0x00000f00) >>8;
-//   stress_bits = (testnum & 0x00f00000) >>20;
-//
-//   switch(target_bits) {
-//     case TARGET_BANK : pattype = BANKTYPE;
-//     case TARGET_SECT : pattype = SECTTYPE;
-//     case TARGET_OTP  : pattype = OTPTYPE;
-//     default:     pattype = MODTYPE;
-//   } 
-//
-//   stresstime = 0s;
-//   
-//   for (tpnum = GL_TPADMIN; tpnum <= GL_TPADMAX; tpnum++) {
-//      supena = false;
-//      switch (tpnum) {
-//        case 1 :  
-//           if (TCR.TP1_Ena[TCRnum])  
-//              vstress = TCR.TP1_VRange[TCRnum][TCRmode];
-//           tmpstr3 = "TP1";
-//           if (stresstime==0s)  
-//              stresstime = TCR.TP1_FTime[TCRnum][TCRmode];
-//           supena = true;
-//           break; 
-//        case 2 :  
-//           if (TCR.TP2_Ena[TCRnum])  
-//              vstress = TCR.TP2_VRange[TCRnum][TCRmode];
-//              tmpstr3 = "TP2";
-//              if (stresstime==0s)  
-//                 stresstime = TCR.TP2_FTime[TCRnum][TCRmode];
-//              supena = true;
-//              break; 
-//#if $TP3_TO_TP5_PRESENT  
-//        case 3 :  
-//           if (TCR.TP3_Ena[TCRnum])  
-//              vstress = TCR.TP3_VRange[TCRnum][TCRmode];
-//           tmpstr3 = "TP3";
-//           if (stresstime==0s)  
-//              stresstime = TCR.TP3_FTime[TCRnum][TCRmode];
-//           supena = true;
-//           break; 
-//        case 4 :  
-//           if (TCR.TP4_Ena[TCRnum])       
-//              vstress = TCR.TP4_VRange[TCRnum][TCRmode];
-//           tmpstr3 = "TP4";
-//           if (stresstime==0s)  
-//              stresstime = TCR.TP4_FTime[TCRnum][TCRmode];
-//           supena = true;
-//           break; 
-//        case 5 :  
-//           if (TCR.TP5_Ena[TCRnum])  
-//              vstress = TCR.TP5_VRange[TCRnum][TCRmode];
-//           tmpstr3 = "TP5";
-//           if (stresstime==0s)  
-//              stresstime = TCR.TP5_FTime[TCRnum][TCRmode];
-//           supena = true;
-//           break; 
-//#endif
-//      }   // case
-//
-//      if (tistdscreenprint and supena)  
-//         cout << tmpstr3:-4 << "== " << vstress:-5:3 << "  ";
-//   }   // for tpnum
-//
-//   if (tistdscreenprint) {
-//      cout << "Stress Time == " << stresstime << endl;
-//      cout << endl;
-////      PrintHeaderBool(GL_PLELL_FORMAT);
-//   }   // if tistdscreenprint
-//      
-//   if (pattype == MODTYPE) {
-//       /*+++ Module operation +++*/
-//      final_results = false;
-//      if (tistdscreenprint)  
-//         cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
-//   }
-//   else {
-//      /*++++++++ Bank operation ++++++++*/
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//
-//      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
-//         if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
-//            blkstart = bankcount;
-//            blkstop  = bankcount;
-//         }
-//         else if(pattype==BLOCKTYPE) {
-//            blkstart = 0;
-//            blkstop  = F021_Flash.MAXBLOCK[bankcount];
-//         }
-//         else {
-//            blkstart = 0;
-//            blkstop  = F021_Flash.MAXSECT[bankcount];
-//         } 
-//
-//         testnum = start_testnum+(bankcount<<4);
-//
-//         for (count = blkstart;count <= blkstop;count++) {
-//            logsites = v_dev_active;
-//            tmp_results = v_dev_active;
-//            rtest_results = v_dev_active;
-//            timernstart(ttimer2);
-//
-//            F021_TurnOff_AllTpads();
-//
-//            if ((special_opt==2) and ramp3vfl) {
+         } 
+      }   // special_opt=2
+   }   // if special_opt
+
+   tmpstr1 = tname;
+   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+   
+   TIME.StartTimer();     
+
+//   if (TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+//   savesites = V_dev_active;
+//   tmp_results = V_dev_active;
+//   final_results = V_dev_active;
+
+   testnum = start_testnum;
+   target_bits = (testnum & 0x00000f00) >>8;
+   stress_bits = (testnum & 0x00f00000) >>20;
+
+   switch(target_bits) {
+     case TARGET_BANK : pattype = BANKTYPE;
+     case TARGET_SECT : pattype = SECTTYPE;
+     case TARGET_OTP  : pattype = OTPTYPE;
+     default:     pattype = MODTYPE;
+   } 
+
+   stresstime = 0s;
+   
+   for (tpnum = GL_TPADMIN; tpnum <= GL_TPADMAX; tpnum++) {
+      supena = false;
+      switch (tpnum) {
+        case 1 :  
+           if (TCR.TP1_Ena[TCRnum])  
+              vstress = TCR.TP1_VRange[TCRnum][TCRMode];
+           tmpstr3 = "TP1";
+           if (stresstime==0s)  
+              stresstime = TCR.TP1_FTime[TCRnum][TCRMode];
+           supena = true;
+           break; 
+        case 2 :  
+           if (TCR.TP2_Ena[TCRnum])  
+              vstress = TCR.TP2_VRange[TCRnum][TCRMode];
+              tmpstr3 = "TP2";
+              if (stresstime==0s)  
+                 stresstime = TCR.TP2_FTime[TCRnum][TCRMode];
+              supena = true;
+              break; 
+#if $TP3_TO_TP5_PRESENT  
+        case 3 :  
+           if (TCR.TP3_Ena[TCRnum])  
+              vstress = TCR.TP3_VRange[TCRnum][TCRMode];
+           tmpstr3 = "TP3";
+           if (stresstime==0s)  
+              stresstime = TCR.TP3_FTime[TCRnum][TCRMode];
+           supena = true;
+           break; 
+        case 4 :  
+           if (TCR.TP4_Ena[TCRnum])       
+              vstress = TCR.TP4_VRange[TCRnum][TCRMode];
+           tmpstr3 = "TP4";
+           if (stresstime==0s)  
+              stresstime = TCR.TP4_FTime[TCRnum][TCRMode];
+           supena = true;
+           break; 
+        case 5 :  
+           if (TCR.TP5_Ena[TCRnum])  
+              vstress = TCR.TP5_VRange[TCRnum][TCRMode];
+           tmpstr3 = "TP5";
+           if (stresstime==0s)  
+              stresstime = TCR.TP5_FTime[TCRnum][TCRMode];
+           supena = true;
+           break; 
+#endif
+      }   // case
+
+      if (tistdscreenprint and supena)  
+         cout << setw(4) << tmpstr3 << "== " << vstress << "  ";
+   }   // for tpnum
+
+   if (tistdscreenprint) {
+      cout << "Stress Time == " << stresstime << endl;
+      cout << endl;
+//      PrintHeaderBool(GL_PLELL_FORMAT);
+   }   // if tistdscreenprint
+      
+   if (pattype == MODTYPE) {
+      // +++ Module operation +++
+      final_results = TM_NOTEST;
+      if (tistdscreenprint)  
+         cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
+   }
+   else {
+      // ++++++++ Bank operation ++++++++
+      maxtime = GL_F021_PARAM_MAXTIME;
+
+      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
+         if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
+            blkstart = bankcount;
+            blkstop  = bankcount;
+         }
+         else if(pattype==BLOCKTYPE) {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXBLOCK[bankcount];
+         }
+         else {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXSECT[bankcount];
+         } 
+
+         testnum = start_testnum+(bankcount<<4);
+
+         for (count = blkstart;count <= blkstop;count++) {
+//          logsites = v_dev_active;
+//          tmp_results = v_dev_active;
+//          rtest_results = v_dev_active;
+            ttimer2 = TIME.GetTimer();
+
+            F021_TurnOff_AllTPADS();
+
+            if ((special_opt==2) and ramp3vfl) {
 //               STDSetVI(FL_PUMP_SUPPLY_NAME,rampstop,vdds_iProg);
-//               if (tistdscreenprint and TI_FlashDebug) {
-//                  tmpstr2 = FL_PUMP_SUPPLY_NAME
-//                  cout << "Pump Supply " << tmpstr2 << " @ " << rampstop << endl;
-//               } 
-//            } 
-//
-//            final_results = F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//
-//            if (special_opt==4) {
-//               vRange = 15V;
-//                /*KChau 04/21/10 - using 12.5v as default*/
-//               vProg = VHV_Ers_Target - 500mV;
+               if (tistdscreenprint and TI_FlashDebug) {
+                  tmpstr2 = "FL_PUMP_SUPPLY_NAME";
+                  cout << "Pump Supply " << tmpstr2 << " @ " << rampstop << endl;
+               } 
+            } 
+
+            rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+
+            if (special_opt==4) {
+               vRange = 15V;
+               // KChau 04/21/10 - using 12.5v as default
+               vProg = VHV_Ers_Target - 500mV;
 //               STDSetVRange(testpad,vRange);
 //               STDSetVI(testpad,vProg,iProg);
-//               TIME.Wait(stresstime);
+               TIME.Wait(stresstime);
 //               STDSetVI(testpad,0V,iProg);
-//               if (tistdscreenprint and TI_FlashDebug)  
-//                  cout << " EG @ " << vProg:-5:3 << endl;
-//            }
-//            else if (special_opt==5) {
-//               F021_Set_TPADS (tcrnum,tcrmode);
-//               TIME.Wait(stresstime);
-//            }                  
-//            else {
-//               F021_Set_TPADS_ByOrder(tcrnum,tcrmode,rampup);
-//               TIME.Wait(stresstime);
-//               F021_Set_TPADS_ByOrder(tcrnum,tcrmode,not(rampup));
-//            } 
-//
-//            F021_TurnOff_AllTpads();
-//
-//            if ((special_opt==2) and ramp3vfl)  
+               if (tistdscreenprint and TI_FlashDebug)  
+                  cout << " EG @ " << vProg << endl;
+            }
+            else if (special_opt==5) {
+               F021_Set_TPADS (TCRnum,TCRMode);
+               TIME.Wait(stresstime);
+            }                  
+            else {
+               F021_Set_TPADS_ByOrder(TCRnum,TCRMode,rampup);
+               TIME.Wait(stresstime);
+               F021_Set_TPADS_ByOrder(TCRnum,TCRMode,not(rampup));
+            } 
+
+            F021_TurnOff_AllTPADS();
+
+            if ((special_opt==2) and ramp3vfl)  
 //               STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
-//
-//            Disable(s_pmexit);
-//            Check_RAM_TNUM(testnum,tmp_results);
-//
-//             /*KChau - added so not to bin out on rddist2 stress test*/
-//            if (not ((tcrnum==58) and (tcrmode==PvfyMode))) {
-//               ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//            } 
-//            
-//            f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//
-//            ttimer2 = TIME.StopTimer();
-//            tt_timer = ttimer2;
-//
-//             /*log to TW*/
-//
-//            tmpstr2 = "_B";  // _B#
-//            // Bug with IntToString for zero           
-//            if ( bankcount == 0 ) tmpstr2 += "0";
-//                                  tmpstr2 += CONV.IntToString(bankcount);
-//
-//            if (pattype==BLOCKTYPE) {
-//               tmpstr3 = "BLK";
-//               if ( count == 0 ) tmpstr3 += "0";
-//                                 tmpstr3 += CONV.IntToString(count);
-//               
-//               tmpstr2 += tmpstr3;
-//            } 
-//            tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
-//            tmpstr4 = tmpstr3 + "_TT";
-//            TWTRealToRealMS(tt_timer,realval,unitval);
-//            TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//         
-//            if (tistdscreenprint)  
-//               PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT);
-//            
-//             /*log failed test to tw*/
-//             /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
-//            if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//            {
-//               F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
-//               
-//               if(TI_FlashCOFEna)  
-//                  F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-//            } 
-//            
-//            testnum = testnum+1;
-//            
-//            if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//               Devsetholdstates(final_results);
-//            
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for count*/
-//
-//          /*run once only for vhv stress*/
-//         if(special_opt == 5)  
-//            break;
-//         
-//      }   /*for bankcount*/
-//   }    /*+++ End of Bank operation +++*/
-//
-//    /*restore all active sites*/
-//   Devsetholdstates(savesites);
-//
-//   ResultsRecordActive(final_results, S_NULL);
-//   TestClose;
-//
-//   test_results = final_results;
-//   
-//   if(TI_FlashCOFEna)  
+
+//          Disable(s_pmexit);
+            tmp_results = Check_RAM_TNUM(testnum);
+
+            // KChau - added so not to bin out on rddist2 stress test
+            if (not ((TCRnum==58) and (TCRMode==PvfyMode))) {
+               DLOG.AccumulateResults(tmp_results,rtest_results);
+               DLOG.AccumulateResults(final_results,rtest_results);
+            } 
+            
+//            F021_RunTestNumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+
+            ttimer2 = TIME.GetTimer();
+            tt_timer = ttimer2;
+
+            // log to TW
+            tmpstr2 = "_B";  // _B#
+            //  tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+            if ( bankcount == 0 ) tmpstr2 = "0";
+            else                  tmpstr2 = CONV.IntToString(bankcount);
+
+            if (pattype==BLOCKTYPE) {
+               tmpstr3 = "BLK";
+               //  tmpstr3 = CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
+               if ( count == 0 ) tmpstr3 = "0";
+               else              tmpstr3 = CONV.IntToString(count);
+               tmpstr2 += tmpstr3;
+            } 
+            tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
+            tmpstr4 = tmpstr3 + "_TT";
+//          TWTRealToRealMS(tt_timer,realval,unitval);
+//          TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+         
+//             PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT);
+            if (tistdscreenprint)  
+               cout << tmpstr3 << testnum << tmp_results << endl;
+            
+            // log failed test to tw
+            // KChau 12/21/07 - determine if any site is failing to log to TW.
+//          if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
+//          {
+//             F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+//             
+//             if(TI_FlashCOFEna)  
+//                F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+//          } 
+            
+            testnum = testnum+1;
+            
+//          if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//             Devsetholdstates(final_results);
+            
+//          if(not v_any_dev_active)  
+               break;
+         }   // for count
+
+         // run once only for vhv stress*/
+         if(special_opt == 5)  
+            break;
+         
+      }   // for bankcount
+   }    // +++ End of Bank operation +++
+
+   // restore all active sites
+// Devsetholdstates(savesites);
+
+// ResultsRecordActive(final_results, S_NULL);
+// TestClose;
+
+   test_results = final_results;
+   
+   if (TI_FlashCOFEna)  
+      ;
 //      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//
-//   if((special_opt==2) and ramp3vfl)  
+
+   if ((special_opt==2) and ramp3vfl)
+      ;
 //      STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
-//   
-//   F021_TurnOff_AllTPADS;
-//   f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//   
-//   ttimer1 = timernread(ttimer1);
-//   tt_timer = ttimer1;
-//
-//   tmpstr4 = tmpstr1 + "_TTT";
-//   TWTRealToRealMS(tt_timer,realval,unitval);
-//   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//   if(tistdscreenprint)  
-//   {
-//       /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//      PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
-//      cout << "   TT " << ttimer1 << endl;
-//      cout << endl;
-//   }         /*if tistdscreenprint*/
-//   
-//   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//   //   DevSetHoldStates(final_results);
-//
+   
+   F021_TurnOff_AllTPADS();
+//   F021_RunTestNumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+   
+   ttimer1 = TIME.GetTimer();
+   tt_timer = ttimer1;
+
+   tmpstr4 = tmpstr1 + "_TTT";
+// TWTRealToRealMS(tt_timer,realval,unitval);
+// TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+
+   if (tistdscreenprint)  {
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+      //PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
+      cout << tmpstr1 << start_testnum << final_results << endl;
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   }   // if tistdscreenprint
+   
+//   if ((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//      DevSetHoldStates(final_results);
+
    return(final_results);
 }   // F021_Stress_func
 

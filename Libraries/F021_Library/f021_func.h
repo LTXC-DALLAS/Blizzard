@@ -205,8 +205,8 @@ void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data);
 
 void F021_SetTestNum(IntS testnum);
 
-//void Check_RAM_TNUM(    IntS expTnum,
-//                             BoolM test_results);
+TMResultM Check_RAM_TNUM( IntS expTnum);
+
 
 void MBox_Upload_RCODE_PSA(IntS banknum, FlashCodeType code_type);
 
@@ -236,10 +236,10 @@ TMResultM F021_RunTestNumber(const IntS &testnum,
 //
 void F021_Set_TPADS(IntS TCRnum,
                          TPModeType TCRMode);
-//void F021_Set_TPADS_ByOrder(IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolS rampup);
-//
+void F021_Set_TPADS_ByOrder(IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 BoolS rampup);
+
 //void F021_UnSet_TPADS(IntS TCRnum);
 
 void F021_TurnOff_AllTPADS();
