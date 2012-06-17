@@ -302,6 +302,15 @@ __PatternMap DefaultPatternMap {
     __DefaultSourcePath = "./Patterns/Ascii";
     __DefaultBinaryPath = "./Patterns/Binary/$TESTER";
     __DefaultPatternGroup = "TDLStdPatGrp";
+
+/********************************************************************/
+/**   Trevor's Blizzard PBist Logout pattern emailed 14jun12 - cjp **/
+/********************************************************************/
+    __Pattern pb_pb_fail_insert {
+        __File "pb_pb_fail_insert";
+        __Path "./Patterns/Ascii";
+    }
+
 /*****************************************************/
 /**   Trevor's v4p0 flash patterns emailed 18may12  **/
 /*****************************************************/

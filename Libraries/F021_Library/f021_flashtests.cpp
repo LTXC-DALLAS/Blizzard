@@ -16845,14 +16845,13 @@ TMResultM RdNormSCyc_FreqSrch_func() {
 //   RdM1_3_func = v_any_dev_active;
 //}   /* RdM1_3_func */
 //   
-//
-//BoolS Flash_ISleep_Pst_func()
-//{
-//   BoolM final_results;
-//
-//   Flash_ISleep_Pst_func = v_any_dev_active;
-//} 
-//
+
+TMResultM Flash_ISleep_Pst_func() {
+   TMResultM final_results;
+
+   return(final_results);
+}   //Flash_ISleep_Pst_func 
+
 //BoolS Flash_IStdby_Pst_func()
 //{
 //   BoolM final_results;

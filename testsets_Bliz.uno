@@ -6130,6 +6130,35 @@ __Test Pump_VHV2X_Vmax {
     }
 }
 
+__Test Pbist_Logout_Debug_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Pbist_Logout_Debug;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "ALLPINS"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'pb_pb_fail_insert'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "TRUE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "FALSE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+
 __Test BankErs_PreTunOxide_func_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
@@ -6957,6 +6986,21 @@ __Test RdNormSCyc_FreqSrch_func_T {
     }
 }
 
+__Test Flash_ISleep_Pst_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Flash_ISleep_Pst;
+        __TestMethod {
+            __Name = Flash_ISleep_Pst_func;
+        }
+    }
+}
 
 __Test ATPG_CPU_Vstress {
     __Mask[0] = ACSpecsMask;

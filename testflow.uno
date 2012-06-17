@@ -1194,64 +1194,131 @@ __SubFlow F021FlashFlow_S {
         __TestID = "";
         __Exec = F021_Pump;
     }
+    __Node Pbist_Logout_Debug_T_350 {
+        __XCoord = (500,50);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 270;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
+        __TestID = "89000000";
+        __Exec = Pbist_Logout_Debug_T;
+    }
     __Node F021_TunOxide_360 {
         __XCoord = (50,200);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = F021_TunOxide;
     }
     __Node F021_PgmFF_370 {
         __XCoord = (200,200);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = F021_PgmFF;
     }
     __Node F021_FGWL_380 {
         __XCoord = (350,200);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = F021_FGWL;
     }
     __Node F021_Cycle9X_390 {
         __XCoord = (500,200);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = F021_Cycle9X;
     }
     __Node F021_OTP_400 {
         __XCoord = (650,200);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = F021_OTP;
     }
     __Node F021_Chkboard_410 {
-        __XCoord = (50,300);
-        __InputPosition = 270;
+        __XCoord = (650,300);
+        __Port[0] {
+            __PortPosition = 270;
+        }
+        __InputPosition = 90;
         __TestID = "\'SubFlow\'";
         __Exec = F021_Chkboard;
     }
     __Node F021_Misc_420 {
-        __XCoord = (200,300);
-        __InputPosition = 270;
+        __XCoord = (500,300);
+        __Port[0] {
+            __PortPosition = 270;
+        }
+        __InputPosition = 90;
         __TestID = "\'SubFlow\'";
         __Exec = F021_Misc;
     }
     __Node F021_PreDRL_430 {
         __XCoord = (350,300);
-        __InputPosition = 270;
+        __Port[0] {
+            __PortPosition = 270;
+        }
+        __InputPosition = 90;
         __TestID = "\'SubFlow\'";
         __Exec = F021_PreDRL;
     }
     __Node F021_Read_440 {
-        __XCoord = (500,300);
-        __InputPosition = 270;
+        __XCoord = (200,300);
+        __Port[0] {
+            __PortPosition = 270;
+        }
+        __InputPosition = 90;
         __TestID = "\'SubFlow\'";
         __Exec = F021_Read;
+    }
+    __Node F021_ISleep_450 {
+        __XCoord = (50,300);
+        __Port[0] {
+            __PortPosition = 270;
+        }
+        __InputPosition = 90;
+        __TestID = "\'SubFlow\'";
+        __Exec = F021_ISleep;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
         F021_InitFLGlobalVars_317 __Port[0] = F021_Pump_347;
+        F021_TunOxide_360 __Port[0] = F021_PgmFF_370;
+        F021_PgmFF_370 __Port[0] = F021_FGWL_380;
+        F021_FGWL_380 __Port[0] = F021_Cycle9X_390;
+        F021_Cycle9X_390 __Port[0] = F021_OTP_400;
+        F021_OTP_400 __Port[0] = F021_Chkboard_410;
+        F021_Chkboard_410 __Port[0] = F021_Misc_420;
+        F021_Misc_420 __Port[0] = F021_PreDRL_430;
+        F021_PreDRL_430 __Port[0] = F021_Read_440;
+        F021_Read_440 __Port[0] = F021_ISleep_450;
     }
 }
 
@@ -3844,5 +3911,42 @@ __SubFlow F021_Read {
         RdPipe_Vmin_func_T_320 __Port[0] = RdPipe_Vmax_func_T_330;
         RdPipe_Vmax_func_T_330 __Port[0] = RdNormSCyc_FreqSrch_func_T_340;
         RdNormSCyc_FreqSrch_func_T_340 __Port[0] = F021_READ_Exit_350;
+    }
+}
+
+__SubFlow F021_ISleep {
+    __Node Flash_ISleep_Pst_func_T_300 {
+        __XCoord = (50,50);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 270;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
+        __TestID = "89000000";
+        __Exec = Flash_ISleep_Pst_func_T;
+    }
+    __Node F021_ISleep_Exit_310 {
+        __XCoord = (190,60);
+        __InputPosition = 270;
+        __TestID = "\'FlowNode\'";
+        __PortSelect = "0";
+        __PortNumber = 0;
+    }
+    __NameFormat = "{Exec}_{GCounter}";
+    __StartNode = Flash_ISleep_Pst_func_T_300;
+    __PortConnections {
+        Flash_ISleep_Pst_func_T_300 __Port[0] = F021_ISleep_Exit_310;
     }
 }
