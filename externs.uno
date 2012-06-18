@@ -92,6 +92,11 @@ __ExternalRef {
    __File = "Probe_flow.uno";
 }
 
+// Added 18jun12 cjp
+__ExternalRef {
+   __File = "toolkit.uno";
+}
+
 //Only interested in probe --BJP
 //__ExternalRef  {   __File = "Final_Flow.uno";   }
 
