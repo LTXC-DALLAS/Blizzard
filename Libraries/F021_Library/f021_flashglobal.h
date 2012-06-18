@@ -130,8 +130,10 @@ enum TPModeType {ReadMode,ProgMode,PvfyMode,ErsMode,EvfyMode,CvfyMode};
 enum VCornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
 
 enum OperatorType { OPER_TCR5 = 0x0, OPER_TCR6 = 0x1, OPER_TCR39 = 0x2, OPER_TCR38 = 0x3 };
-enum TargetType { TARGET_BANK = 0, TARGET_SECT, TARGET_OTP = 4, TARGET_SEMIOTP };
+enum TargetType { TARGET_BANK = 0x0, TARGET_SECT, TARGET_LOGSECT, TARGET_OTP = 0x4,
+                  TARGET_SEMIOTP, TARGET_DATAOTP, TARGET_ARB = 0xA };
 enum OptionType { TOPT_WO_PREC = 0, TOPT_W_PREC };
+enum StressType { STRESS_WLS = 0x0, STRESS_BLS, STRESS_SLS };
 
 struct F021_RunCodeRec {
   /*+++ info for program & execute +++*/

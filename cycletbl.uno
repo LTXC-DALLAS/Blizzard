@@ -1742,7 +1742,9 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[14] = f021_shell_exepat_vco_v4p0_Thrd;
     __Thread[15] = jtag_reset_init_Thrd;
     __Thread[16] = ldo_bypass_init_Thrd;
+    __Thread[17] = pb_pb_fail_insert_Thrd;
     __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
@@ -2715,5 +2717,11 @@ __Thread FF_CheckROM_Mg0_NoEd_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = FF_CheckROM_Mg0_NoEd;
+    }
+}
+__Thread pb_pb_fail_insert_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_fail_insert;
     }
 }

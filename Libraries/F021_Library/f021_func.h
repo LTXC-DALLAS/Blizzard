@@ -205,8 +205,8 @@ void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data);
 
 void F021_SetTestNum(IntS testnum);
 
-//void Check_RAM_TNUM(    IntS expTnum,
-//                             BoolM test_results);
+TMResultM Check_RAM_TNUM( IntS expTnum);
+
 
 void MBox_Upload_RCODE_PSA(IntS banknum, FlashCodeType code_type);
 
@@ -236,10 +236,10 @@ TMResultM F021_RunTestNumber(const IntS &testnum,
 //
 void F021_Set_TPADS(IntS TCRnum,
                          TPModeType TCRMode);
-//void F021_Set_TPADS_ByOrder(IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolS rampup);
-//
+void F021_Set_TPADS_ByOrder(IntS TCRnum,
+                                 TPModeType TCRMode,
+                                 BoolS rampup);
+
 //void F021_UnSet_TPADS(IntS TCRnum);
 
 void F021_TurnOff_AllTPADS();
@@ -493,7 +493,7 @@ void Poll_VCTRL(BoolS VctrlHi, TMResultM results, FloatS maxtime);
 void Set_TPAD (BoolS sameness, FloatM values, FloatS prevvalue, FloatS previref, FloatS iclamp,
                PinM tp_iref, PinM tp_cg, FloatS vrngiref, FloatM irefarray);
 
-void F021_Vt_BinSearch_TTR(   IntS testnum,
+void F021_Vt_BinSearch_TTR( IntS testnum,
                             FloatM vstart,
                             FloatM vstop,
                             FloatS vresolution,
@@ -502,12 +502,11 @@ void F021_Vt_BinSearch_TTR(   IntS testnum,
                             FloatM ret_timer,
                             FloatM ret_values);
 
-//BoolS F021_VT_Delta_func(    IntS pattype,
-//                                vttype vt_type,
-//                                StringS tname,
-//                                BoolM test_results,
-//                                BoolS dlogonly);
-//
+TMResultM F021_VT_Delta_func( IntS    pattype,
+                              vttype  vt_type,
+                              StringS tname,
+                              BoolS   dlogonly);
+                                
 void F021_BCC_BinSearch_TTR(    IntS   testnum,
                                 FloatM Istart,
                                 FloatM Istop,
@@ -524,12 +523,12 @@ TMResultM TL_Run_BCCVT(StringS       tname,
                        BoolS         IsBcc,
                        StringS       logstr);
 
-//BoolS F021_BCC_Delta_func(    IntS pattype,
-//                                vttype vt_type,
-//                                StringS tname,
-//                                BoolM test_results,
-//                                BoolS dlogonly);
-//
+TMResultM F021_BCC_Delta_func(  IntS    pattype,
+                                vttype  vt_type,
+                                StringS tname,
+                                BoolS   dlogonly);
+
+
 TMResultM F021_Program_func(    IntS start_testnum,
                                StringS tname);
 //if function returns TMResultM no need for argument test_results BoolM test_results);
