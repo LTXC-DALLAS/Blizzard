@@ -229,5 +229,32 @@ StringS IntToVLSIDriveStr(const IntS &srcInt, const IntS &numBits, const bool &i
 }   /* end IntToVLSIDriveStr */
 
 
+// Converts a StringS into an UnsignedS. Only works up to 32 bits. 
+UnsignedS BinStringToUnsigned(const StringS &inString, const bool &isMSBFirst)
+{
+   UnsignedS return_val = 0;
+   int bit_num;
+   IntS str_length = inString.Length();
+   
+   if (str_length > 32)
+   {
+      ERR.ReportError(ERR_PARAMETER_OUT_OF_RANGE, "BinStringToUnsigned can only accomodate up to 32-bit strings.", 
+                      str_length, NO_SITES, UTL_VOID);
+      return (0);
+   }
 
-
+   for (bit_num = 0; bit_num < str_length; ++bit_num)
+   {
+      if (inString[bit_num] == '1')
+      {
+         if (isMSBFirst)
+         {
+            return_val &= (1 << ((str_length-1)-bit_num));
+         } else {
+            return_val &= (1 << bit_num);
+         }
+      }
+   }
+   
+   return(return_val);
+}

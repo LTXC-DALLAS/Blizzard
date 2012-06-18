@@ -583,9 +583,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 //BoolS GetShellInfo_func();
 //
 //BoolS F021_FlowCheck_func(    BoolM test_results);
-//
-//void F021_InitFLEfuseStr();
-//
+
+void F021_InitFLEfuseStr();
+
 //void RAM_Upload_SoftTrim_All(IntS BGapVal,
 //                                  IntS IRefVal,
 //                                  IntS FOSCVal,

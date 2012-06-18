@@ -1566,7 +1566,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 //         {
 //            maxcapcount = 8;
 //            istep = 8;
-//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)   //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                      PMT_RAMBUS,S_binary,
 //                                      Mid(addr_str,13-(4*offsetcyc),4));
@@ -1722,7 +1722,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 //         IntToBinStr(curraddr>>2,addr_str);
 //         if(GL_USE_RAMPMT_X64)  
 //         {
-//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                      PMT_RAMBUS,S_binary,
 //                                      Mid(addr_str,13-(4*offsetcyc),4));
@@ -2203,7 +2203,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //         for (counter = 2;counter <= maxcapcount;counter++)
 //            data_cycle[counter] = data_cycle[1]+counter;
 //      } 
-//      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                data_pins,S_binary,
 //                                Mid(addr_str,13-(4*offsetcyc),4));
@@ -2963,7 +2963,7 @@ void GetRamContent_SCRAM(IntS start_addr,
 //      }
 //      else
 //      {
-//         for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//         for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //            Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                   data_pins,S_binary,
 //                                   Mid(addr_str,13-(4*offsetcyc),4));
@@ -6635,7 +6635,7 @@ void TL_EngOvride_VHV_PG_CT(IntS ovr_data)
 //      if(dbit != 0)  
 //      {
 //         wdindex = i;  /*as appears in esda word index*/
-//         for (j = 15;j <= 0;j++)
+//         for (j = 15;j >= 0;--j)
 //         {
 //            k = (dbit & (1<<j)) >>j;
 //            if(k==1)  
@@ -7982,7 +7982,7 @@ void F021_Set_TPADS(IntS TCRnum,
 //      }  /*rampup*/
 //      else
 //      {  /*rampdown*/
-//         for (i = maxiter;i <= miniter;i++)
+//         for (i = maxiter;i >= miniter;--i)
 //         {
 //            tpnum = TPadSeq.TPUPSEQ[stresstype][i];
 //            suppena = false;
@@ -25192,53 +25192,44 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //} 
 //   
 //
-// /*init global var BAK_EFSTR,MAIN_EFSTR*/
-//void F021_InitFLEfuseStr()
-//{
-//   IntS site,maxbank;
-//   StringS tmpstr1,hdpstr;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//
-//       /*build individual string from LSB-MSB*/
-//       /*bank str*/
-//      tmpstr1 = "00000000000000000000000000000000";
-//
-//       /*HDPUMP -- efuse bit vbgsten=0, vbgtrim[5]=1, vbgtrim[0]=6, vosc[5]=8, vosc[0]=13*/
-//       /*ireftrim[4]=15, ireftrim[0]=19, ireftrim[5]=21, vhvslopect[3]=22, vhvslopect[0]=25*/
-//       /*vsa5ct[3]=26, vsa5ct[0]=29*/
-//      hdpstr = "000000000000000000000000000000";
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//         cout << "INIT FLASH EFUSE STRING LSB-MSB : MAIN/BANK" << endl;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         if(v_dev_active[site])  
-//         {
-//            BANK_EFSTR[site] = "";
-//             /*lsb-msb*/
-//            for (maxbank = 0;maxbank <= F021_Flash.MAXBANK;maxbank++)
-//               BANK_EFSTR[site] = BANK_EFSTR[site] + tmpstr1;
-//
-//             /*--- HDPUMP ---*/
-//            MAINBG_EFSTR[site] = "";
-//            MAINBG_EFSTR[site] = MAINBG_EFSTR[site] + hdpstr;
-//            MAINBG_EFSTR_SHORT[site] = "000000";
-//            
-//            if(tistdscreenprint and debugprint)  
-//            {
-//               cout << "Site : " << site:3 << endl;
-//               cout << BANK_EFSTR[site] << endl;
-//               cout << MAINBG_EFSTR[site] << endl;
-//            } 
-//     }   /*if v_dev_active*/
-//      }   /*for site*/
-//   }   /*if v_any_dev*/
-//}   /* F021_InitFLEfuseStr */
+ /*init global var BAK_EFSTR,MAIN_EFSTR*/
+void F021_InitFLEfuseStr()
+{
+   IntS maxbank;
+   StringM tmpstr1,hdpstr;
+   BoolS debugprint;
+
+    /*build individual string from LSB-MSB*/
+    /*bank str*/
+   tmpstr1 = "00000000000000000000000000000000";
+
+    /*HDPUMP -- efuse bit vbgsten=0, vbgtrim[5]=1, vbgtrim[0]=6, vosc[5]=8, vosc[0]=13*/
+    /*ireftrim[4]=15, ireftrim[0]=19, ireftrim[5]=21, vhvslopect[3]=22, vhvslopect[0]=25*/
+    /*vsa5ct[3]=26, vsa5ct[0]=29*/
+   hdpstr = "000000000000000000000000000000";
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+      cout << "INIT FLASH EFUSE STRING LSB-MSB : MAIN/BANK" << endl;
+      
+   BANK_EFSTR = "";
+    /*lsb-msb*/
+   for (maxbank = 0;maxbank <= F021_Flash.MAXBANK;++maxbank)
+      BANK_EFSTR = BANK_EFSTR + tmpstr1;
+
+    /*--- HDPUMP ---*/
+   MAINBG_EFSTR = hdpstr;
+   
+   if(tistdscreenprint and debugprint)  
+   {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         cout << "Site : " << *si << endl;
+         cout << BANK_EFSTR[*si] << endl;
+         cout << MAINBG_EFSTR[*si] << endl;
+      } 
+   }
+}   /* F021_InitFLEfuseStr */
 
 void SaveMbgEfuseTrimString(IntS trimValue, SITE whichSite)
 {
@@ -29844,7 +29835,7 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
 //                              {
 //                                 dbit= FL_WORSTBIT_FDATA[i+1][site];
 //                                  /*writeln(tiwindow,"i=",i:-5,"dbit=",dbit:s_hex);*/
-//                                 for (j = 15;j <= 0;j++)
+//                                 for (j = 15;j >= 0;--j)
 //                                 {
 //                                    k = (dbit & (1<<j)) >>j;
 //                                     /*writeln(tiwindow,"j=",j:-5," k=",k:-5);*/
@@ -32621,7 +32612,7 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
 //         else
 //            tnum = 0x41000100+tnumdata+(bank<<4);  /*s0*/
 //         
-//         for (i= = downto;i= <= do;i=++)
+//         for (i = maxratio; i >= minratio; --i)
 //         {
 //            if(ovrideEF)  
 //               TL_EngOvride_RDM0_NMOS_EF_PVCT(i,ovrideEF_Index,ovrideEF_Val,0);

@@ -1186,7 +1186,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node F021_Pump_347 {
-        __XCoord = (340,62);
+        __XCoord = (455,60);
         __Port[0] {
             __PortPosition = 93;
         }
@@ -1195,15 +1195,53 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_Pump;
     }
     __Node F021_TunOxide_360 {
-        __XCoord = (197,199);
+        __XCoord = (264,229);
+        __Port[0] {
+            __PortPosition = 340;
+        }
         __InputPosition = 268;
         __TestID = "";
         __Exec = F021_TunOxide;
+    }
+    __Node FlashEfuse_T_387 {
+        __XCoord = (178,95);
+        __Port[0] {
+            __PortPosition = 87;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 271;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_VEfuseR"; __Type = INTEGER; }
+        }
+        __TestID = "99000000";
+        __Exec = FlashEfuse_T;
+    }
+    __Node MainBG_Trim_T_390 {
+        __XCoord = (299,94);
+        __Port[0] {
+            __PortPosition = 94;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 271;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+        }
+        __TestID = "100000000";
+        __Exec = MainBG_Trim_T;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
         F021_InitFLGlobalVars_317 __Port[0] = F021_Pump_347;
+        FlashEfuse_T_387 __Port[0] = MainBG_Trim_T_390;
     }
 }
 

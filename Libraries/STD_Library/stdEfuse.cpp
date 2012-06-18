@@ -484,7 +484,7 @@ BoolM STDReadFuseRow(StringS &techName,
   return readRowStatus;
 } /* STDReadFuseRow */
  
-BoolM STDReadFuseROM(StringS codeOption,
+TMResultM STDReadFuseROM(StringS codeOption,
 //                    FuseROMCtlr STDFuseFarmRec,
                      IntS ctlrNum, IntS blkNum,
                      IntM rowStart, IntM rowStop,
@@ -496,7 +496,7 @@ BoolM STDReadFuseROM(StringS codeOption,
                      IntM MSBPadding,
                      StringS TWVarName)  
 {
-  BoolM readDataStatus = false;
+  TMResultM readDataStatus = TM_PASS;
   
   IntS si;
   IntS index;
@@ -532,7 +532,6 @@ BoolM STDReadFuseROM(StringS codeOption,
   errorCode = 0;
 
   readTested = ActiveSites;
-  readDataStatus = true;
 
   //ArrayCopyBoolean(readDataStatus, V_Dev_Active, V_Sites);
   
@@ -625,7 +624,7 @@ BoolM STDReadFuseROM(StringS codeOption,
           if ((errorCode[*si] > 1) || (actReadRowStr[*si].Length() != TechRowLen))  
           {
             devActive -= *si;
-            readDataStatus[*si] = false;
+            readDataStatus[*si] = TM_FAIL;
             readTested -= *si;
           }
           else
@@ -638,7 +637,7 @@ BoolM STDReadFuseROM(StringS codeOption,
               if (currRowAddr[*si] < 5) // (currRowAddr[site] < FuseROMCtlr.MaxFROMRepairs[blkNum])
               {
                 devActive -= *si;
-                readDataStatus[*si] = false;
+                readDataStatus[*si] = TM_FAIL;
                 readTested -= *si;
               }
               else
@@ -651,7 +650,7 @@ BoolM STDReadFuseROM(StringS codeOption,
                 {
                   case 1:
                     devActive -= *si;
-                    readDataStatus[*si] = false;
+                    readDataStatus[*si] = TM_FAIL;
                     readTested -= *si;
                     break; 
                   case 2:
@@ -664,7 +663,7 @@ BoolM STDReadFuseROM(StringS codeOption,
                     break; 
                   default:
                     devActive -= *si;
-                    readDataStatus[*si] = false;
+                    readDataStatus[*si] = TM_FAIL;
                     readTested -= *si;
                     break; 
                 }             
@@ -708,17 +707,17 @@ BoolM STDReadFuseROM(StringS codeOption,
       /*********************************************************/ 
       returnDataStr[*si] = returnDataStr[*si].Substring(LSBPadding[*si], returnDataStr[*si].Length() - (MSBPadding[*si] + LSBPadding[*si]));
 
-      if (readDataStatus[*si])  
+      if (readDataStatus[*si]==TM_PASS)  
       {
         if ((errorCode[*si] == 0) && (returnDataStr[*si] != saveInitDataStr[*si]))  
           errorCode[*si] = 1;
 
         if (errorCode[*si] == 0)  
-          readDataStatus[*si] = true;
+          readDataStatus[*si] = TM_PASS;
         else
         {
           if (errorCode[*si] == 1)  
-            readDataStatus[*si] = false;
+            readDataStatus[*si] = TM_FAIL;
         } 
       }
     }
@@ -728,7 +727,7 @@ BoolM STDReadFuseROM(StringS codeOption,
 } /* STDReadFuseROM */      
 
 
-BoolM STDProgramFuseRow(IntS version, 
+TMResultM STDProgramFuseRow(IntS version, 
                         StringS techName,
 //                      FuseROMCtlr STDFuseFarmRec,
                         IntS ctlrNum, IntS blkNum,
@@ -746,7 +745,7 @@ BoolM STDProgramFuseRow(IntS version,
   This function is used to program a FROM row using Modify/Capture.
  *****************************************************************************/
 {
-   BoolM progRowStatus = true;
+   TMResultM progRowStatus = TM_PASS;
 
    IntS dwBits;
    IntS strLen;
@@ -940,7 +939,7 @@ BoolM STDProgramFuseRow(IntS version,
     if (false) // not V_PF_Status[site]  
     {
       progError[*si] = 50;
-      progRowStatus[*si] = false;
+      progRowStatus[*si] = TM_FAIL;
 //    DevSetHoldState(site, FALSE);
     }
     else
@@ -1009,7 +1008,7 @@ BoolM STDProgramFuseRow(IntS version,
 } /* STDProramFuseROW */
 
 
-BoolM STDProgramFuseROM(StringS codeOption,
+TMResultM STDProgramFuseROM(StringS codeOption,
 //                      FuseROMCtlr STDFuseFarmRec,
                         IntS ctlrNum, IntS blkNum,
                         IntM rowAddrStart,
@@ -1030,7 +1029,7 @@ BoolM STDProgramFuseROM(StringS codeOption,
                         IntM &numRepairBits)
                         
 {
-  BoolM progDataStatus;
+  TMResultM progDataStatus;
 
   IntS index;
   IntS unProgrammedBits;
@@ -1055,7 +1054,7 @@ BoolM STDProgramFuseROM(StringS codeOption,
   BoolM sitesToProg;
   BoolM sitesToRead;
   BoolM sitesToRestore;
-  BoolM returnRowStatus;
+  TMResultM returnRowStatus;
   BoolM preReadRowDone;
   StringS repairRowDataStr;
   StringS tmpRowStr;
@@ -1365,7 +1364,7 @@ void FF_Debug()
   IntM errorCode;
   IntM MSBPadding;
   StringS TWVarName;  
-  BoolM results;
+  TMResultM results;
     
   codeOption = "F021";
   ctlrNum = 1;

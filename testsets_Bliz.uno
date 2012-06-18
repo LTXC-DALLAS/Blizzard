@@ -1,4 +1,4 @@
-Unison:U1.0d:S5.3;
+Unison:U3.0:S5.3;
 __Test Digital_Continuity {
     __Entry[0] = DCsetup_allZero;
     __Exit[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
@@ -4763,11 +4763,6 @@ __Test F021_InitFLGlobalVars {
         }
     }
 }
-__Test FlashEfuse_func {
-    __Entry[0] = DCsetup_Loose;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
-    __PortExpression[1] = __Expression { __String = "TRUE"; }
-}
 __Test F021_FlashConfig_test {
     __Mask[0] = PSSpecsMask;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
@@ -4780,7 +4775,7 @@ __Test F021_FlashConfig_test {
     }
 }
 __Test Pump_Iref_Vnom {
-//Not defined anywhere    __Entry[0] = PowerCycleVmask_FC;
+    __Entry[0] = PowerCycleVmask_FC;
     __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
@@ -7214,6 +7209,63 @@ __Test a_iddq_T {
             ExecuteSitesSerially = __Expression { __String = "FALSE"; }
             MeasurementAverages = __Expression { __String = "5"; }
             CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+}
+__Test FlashEfuse_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = FlashEfuse_func;
+        }
+    }
+}
+__Test MainBG_Trim_T {
+    __Entry[0] = PowerCycleVmask_FC;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = jtag_reset_1;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'jtag_reset_init_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = ldo_bypass_1;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ldo_bypass_init_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[2] = {
+        __Title = Block3;
+        __TestMethod {
+            __Name = MainBG_Trim_func;
         }
     }
 }

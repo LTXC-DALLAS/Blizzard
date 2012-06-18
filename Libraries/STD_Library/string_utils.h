@@ -31,6 +31,7 @@ StringS ReverseString(const StringS &inString);
 // StringBinToHex takes a binary string and returns a hex string
 // representation of the binary string with only hex characters (ie, 
 // no leading 0x)
+// It treats the string as MSB-first.
 StringS StringBinToHex(const StringS &inString);
 
 
@@ -61,6 +62,10 @@ StringS IntToVLSIDriveStr(const IntS &srcInt, const IntS &numBits, const bool &i
 // of padToLength, if padToLength is not UTL_VOID. If the binary number takes more
 // bits than padToLength, then the string will be longer than padToLength.
 StringS IntToBinStr(const IntS &srcInt, const IntS &padToLength, const bool &isMSBFirst);
+
+
+// Converts a StringS into an UnsignedS. Only works up to 32 bits. 
+UnsignedS BinStringToUnsigned(const StringS &inString, const bool &isMSBFirst);
 
 #endif
 

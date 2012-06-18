@@ -197,6 +197,7 @@
 
 #include <f021_func.h>
 #include <string_utils.h>
+#include <efuse.h>
 using namespace std; 
 
 //#include "$TYPES"
@@ -4136,389 +4137,360 @@ using namespace std;
 //   return TM_PASS;
 //}   /* Flash_IStdby_func */
 
-//BoolS FlashEfuse_MP1_func()
-//{
-//   const IntS BANK_EF_LEN = 32; 
-//   const IntS PUMP_EF_LEN = 30; 
-//   const IntS IND_VBG_MSB = 2; 
-//   const IntS IND_VBG_LSB = 7; 
-//   const IntS IND_FOSC_MSB = 9; 
-//   const IntS IND_FOSC_LSB = 14; 
-//   const IntS IND_IREF_USB = 16; 
-//   const IntS IND_IREF_LSB = 20; 
-//   const IntS IND_IREF_MSB = 22; 
-//   const IntS IND_VHVSLCT_MSB = 23; 
-//   const IntS IND_VHVSLCT_LSB = 26; 
-//   const IntS IND_VSA5CT_MSB = 27; 
-//   const IntS IND_VSA5CT_LSB = 30; 
-//   const IntS FOSC_MAXEFUSE = 6; 
-//
-//   BoolM tmp_results,final_results;
-//   BoolM marg_results,cmp_results;
-//   BoolM logsites,savesites;
-//   IntS site;
-//   FloatS tdelay,ttimer1;
-//   StringS tname;
+TMResultM FlashEfuse_MP1_func()
+{
+   const IntS BANK_EF_LEN = 32; 
+   const IntS PUMP_EF_LEN = 30; 
+   const IntS IND_VBG_MSB = 1; // reduced by 1
+   const IntS IND_VBG_LSB = 6; // reduced by 1
+   const IntS IND_FOSC_MSB = 8; // reduced by 1
+   const IntS IND_FOSC_LSB = 13; // reduced by 1
+   const IntS IND_IREF_USB = 15; // reduced by 1
+   const IntS IND_IREF_LSB = 19; // reduced by 1
+   const IntS IND_IREF_MSB = 21; // reduced by 1
+   const IntS IND_VHVSLCT_MSB = 22; // reduced by 1
+   const IntS IND_VHVSLCT_LSB = 25; // reduced by 1
+   const IntS IND_VSA5CT_MSB = 26; // reduced by 1
+   const IntS IND_VSA5CT_LSB = 29; // reduced by 1
+   const IntS FOSC_MAXEFUSE = 6; 
+
+   TMResultM tmp_results,final_results;
+   TMResultM marg_results,cmp_results;
+   Sites savesites;
+   FloatS tdelay,ttimer;
+   StringS tname;
 //   StringS tmpstr3,tmpstr1,tmpstr2;
-//   IntS banklen,auxlen,mainlen,count;
-//   StringS hex_actstr,hex_expstr;
-//   StringS actlabel,explabel;
-//   StringS bit0_4_str,bit5_9_str,bit10_23_str;
-//   StringS bit24_28_str,bit29_31_str;
-//   StringS tmp_str,tmp_expstr;
-//   IntS pmos_trimsol,tvalue;
-//   BoolM ipmos_cmp_results;
+   IntS banklen,auxlen,mainlen,count;
+   StringS hex_actstr,hex_expstr;
+   StringS actlabel,explabel;
+   StringS bit0_4_str,bit5_9_str,bit10_23_str;
+   StringS bit24_28_str,bit29_31_str;
+   StringS tmp_str,tmpstr1, tmp_expstr;
+   IntS pmos_trimsol,tvalue;
+   TMResultM ipmos_cmp_results;
 //   BoolS all_bank_trimmed;
-//   StringS bank_expstr,main_expstr;
-//   StringS bank_str,main_str;
+   StringS bank_expstr,main_expstr;
+   StringS bank_str,main_str;
+   StringS read_code_option;
 //   StringS dummstr1,dummstr2,dummstr3,dummstr4;
-//   StringM reverse_expStr,rdStr,flnullstr;
-//   IntM eferrcode;
-//
-//   TI_FlashCOFEna = GL_SAVEFLCOFENA;
-//   F021_InitFLEfuseStr;
-//      
-//   if(v_any_dev_active)  
-//   {
-//      tdelay = 2ms;
-//      timernstart(ttimer1);
-//
-//      tname = FlashEfuseRd_Test;
-//      writestring(tmpstr3,tname);
-//      TestOpen(tname);
-//
-//      final_results = v_dev_active;
-//      tmp_results = v_dev_active;
-//      logsites = v_dev_active;
-//
-//      savesites = v_dev_active;
-//      GL_FLASH_RETEST = false;
-//      SITE_IPMOS_TRIMMED = false;
-//      MAINBG_TRIMSAVED = 0;
-//      MAINIREF_TRIMSAVED = 0;
-//      FOSC_TRIMSAVED = 0;
-//      VHV_SLPCT_TRIMSAVED = 0;
-//      VSA5CT_TRIMSAVED = 0;
-//
-//      PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU);
+   StringM reverse_expStr,rdStr,flnullstr;
+   IntM eferrcode;
+
+   TI_FlashCOFEna = GL_SAVEFLCOFENA;
+   F021_InitFLEfuseStr();
+      
+   tdelay = 2ms;
+   TIME.StartTimer();
+
+   tname = "FlashEfuseRd_Test";
+
+   final_results = TM_NOTEST;
+   tmp_results = TM_PASS; // set to FAIL later, if needed
+
+   savesites = ActiveSites;
+   GL_FLASH_RETEST = false;
+   SITE_IPMOS_TRIMMED = false;
+   MAINBG_TRIMSAVED = 0;
+   MAINIREF_TRIMSAVED = 0;
+   FOSC_TRIMSAVED = 0;
+   VHV_SLPCT_TRIMSAVED = 0;
+   VSA5CT_TRIMSAVED = 0;
+
+// delay probably not needed since we set levels in Levels object 
+// instead of here
+//   TIME.Wait(tdelay);
+
+   // :TODO: figure out what to do about instData...efuse.p/h and var.p/h stuff....
+   flnullstr = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
+   
+   // :TODO: Where the heck is readData coming from?
+   if(GL_EFUSE_RD_CODEOPTION != "")  
+   {
+      read_code_option = GL_EFUSE_RD_CODEOPTION;
+   }
+   else
+   {
+      read_code_option = "F021";
+      if(tistdscreenprint)  
+      {
+         cout << endl;
+         cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
+         cout << "!!! Setting it to \"F021\" not using SCRAM option    !!!" << endl;
+         cout << endl;
+      } 
+   } 
+   //:TODO: implement ReadFuseROM
+   eferrcode = ReadFuseROM(read_code_option, NonMBist, MgN, flnullstr, margFlashChainStr, tmp_results);
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      if((eferrcode[*si] == 0x15) || (eferrcode[*si] == 0x5))    /*single/double bit error*/
+         tmp_results[*si] = TM_FAIL;
+         
+   // No need to accumulate yet since final_results hasn't been set yet
+   final_results = tmp_results;
+
+    /*reverse and save efuse str (lsb-msb) for later use*/
+   SaveFlashProgString = margFlashChainStr;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      if(tmp_results[*si]==TM_PASS)  
+         for (count = 0;count <= F021_Flash.MAXBANK;count++)
+            BANK_TO_PMOS_TRIM[*si][count] = true;  /*set for trim later*/
+      if(tistdscreenprint and TI_FlashDebug)  
+         cout << "Site" << *si << " margFlashChainStr = " << margFlashChainStr[*si] << endl;
+   }
+
+    /*if any site fail, then extract & determine if failing site has*/
+    /*valid trim solution & must passing marg rd as well.*/
+    /*efuse bits can be either 0s or 1s are: main/aux bandgap,iref.*/
+    /*remaining efuse bits should be 0s so compare them.*/
+   if (tmp_results.AnyEqual(TM_FAIL))  
+   {
+      Sites new_active_sites = ActiveSites;
+      new_active_sites.DisableFailingSites(tmp_results.Equal(TM_FAIL));
+      // no need to use non-Runtime SetActiveSites since we don't care about the return
+      // value. There should be no way to get here and have all sites disabled
+      // since we know at least one site has to be TM_FAIL.
+      RunTime.SetActiveSites(new_active_sites);
+
+      // set to fail later if they fail
+      marg_results = TM_PASS;
+      cmp_results = TM_PASS;
+      ipmos_cmp_results = TM_PASS;
+      
+      if(tistdscreenprint)  
+         cout << "Checking Flash eFuse Chain that has already" << 
+                 " trimmed for valid value and margin read ... " << endl;
+      
+      banklen = (F021_Flash.MAXBANK+1)*BANK_EF_LEN;
+      mainlen = PUMP_EF_LEN;  /*hdpump*/
+      
+      reverse_expStr = margFlashChainStr;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         SITE site = si.GetValue();
+
+         if(tistdscreenprint and TI_FlashDebug)  
+            cout << "Site : " << site << "  Flash Chain (msb-lsb) : " << reverse_expStr[site] << endl;
+         
+
+          /*----- extract & compare BANK STR -----*/
+         bank_expstr = BANK_EFSTR[site];  /*all 0s*/
+         bank_str = reverse_expStr[site].Substring(mainlen, banklen); // removed +1...pascal starts strings at 1
+         
+          /*check if virgin bank*/
+         if(bank_str==bank_expstr)  
+         {
+             /*+++ all banks=0s +++*/
+            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+               BANK_TO_PMOS_TRIM[site][count] = true;  /*set for trim later*/
+         }
+         else if(!GL_DO_IREF_PMOS_TRIM)  
+         {
+             /*+++ all banks<>0s so failed +++*/
+            ipmos_cmp_results[site] = TM_FAIL;
+            final_results[site] = TM_FAIL;
+            SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
+            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+               BANK_TO_PMOS_TRIM[site][count] = false;
+         }
+         else
+         {
+             /*+++ all banks<>0s but do pmos trim so check bit0:4, bit10:23, and bit5:9, bit24:28, bit29:31 for each bank +++*/
+            for (count = 0;count <= F021_Flash.MAXBANK;count++)
+            {
+               tmp_str = bank_str.Substring(count*BANK_EF_LEN, BANK_EF_LEN); /*extract indiv bank actual bits*/
+       
+               if(tistdscreenprint)  
+                  cout << "Site" << site << "Bank " << count << " efstr " << tmp_str << endl;
+                  
+               tmp_expstr = bank_expstr.Substring(count*BANK_EF_LEN, BANK_EF_LEN); /*32 bits of 0s*/
+
+                /*+++ individual bank has not trimmed, i.e. all 0s +++*/
+               if(tmp_str==tmp_expstr)  
+                  BANK_TO_PMOS_TRIM[site][count] = true  ; /*set for trim later*/
+               else
+               {
+                  /*+++ non-0s so check for trim correctness +++*/
+                  /*bit31=msb,bit0=lsb*/
+                  bit0_4_str = bank_str.Substring(count*BANK_EF_LEN+27, 5);
+                  bit5_9_str = bank_str.Substring(count*BANK_EF_LEN+22, 5);
+                  bit10_23_str = bank_str.Substring(count*BANK_EF_LEN+8, 14);
+                  bit24_28_str = bank_str.Substring(count*BANK_EF_LEN+3, 5);
+                  bit29_31_str = bank_str.Substring(count*BANK_EF_LEN, 3);
+                  tmp_str = bit5_9_str; /*msb-lsb*/
+                   
+                   /*tmp_str:=stringreverse(bit5_9_str);} {msb-lsb*/
+                  pmos_trimsol =  int(BinStringToUnsigned(tmp_str, true));
+                  
+                  if((bit0_4_str==BANKEF_BIT0_4) && ((bit10_23_str==BANKEF_BIT10_23) || (bit10_23_str==BANKEF_BIT10_23_BANKNUM[count])) &&
+                     (bit29_31_str==BANKEF_BIT29_31))  
+                  {
+                     BANK_TO_PMOS_TRIM[site][count] = false;
+                  }
+                  else
+                  {
+                     SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
+                     BANK_TO_PMOS_TRIM[site][count] = false;
+                     ipmos_cmp_results[site] = TM_FAIL;
+                     final_results[site] = TM_FAIL;
+                     if(not RunAllTests)  
+                        break;  /*out of for count loop*/
+                  }   /*if-else trim correctness*/
+               }   /*if-else tmp_str/tmp_expstr*/
+            }   /*for count*/
+
+             /*determine if all banks trimmed*/
+            if((!SITE_IPMOS_TRIMMED[site]) && (ipmos_cmp_results[site] == TM_PASS))  
+            {
+               bool all_bank_trimmed = true;
+               for (count = 0;count <= F021_Flash.MAXBANK;count++)
+                  if(BANK_TO_PMOS_TRIM[site][count])  
+                  {
+                     all_bank_trimmed = false;
+                     break;
+                  } 
+               if(all_bank_trimmed)  
+                  SITE_IPMOS_TRIMMED[site] = true;
+            } 
+         }   /*if-else banks<>0 & gl_do_iref_pmos_trim*/
+         
+         
+          /*----- extract & compare PUMP STR -----*/
+         main_expstr = MAINBG_EFSTR[site];
+         main_str = reverse_expStr[site].Substring(0, mainlen);
+     
+         if(tistdscreenprint)  
+            cout << "Pump efstr " << main_str << endl;
+            
+          /*bgap: bit0 is bgap soft trim enable, bit[1:6]=vbg*/
+         for (count = IND_VBG_MSB;count <= IND_VBG_LSB;count++)
+            main_expstr[count] = main_str[count];
+         tvalue = int(BinStringToUnsigned(main_str.Substring(IND_VBG_MSB, GL_MAINBG_MAXEFUSE), true));
+         MAINBG_TRIMSAVED[site] = tvalue;
+         
+         
+          /*iref: bit[15:19,21]*/
+         for (count = IND_IREF_USB;count <= IND_IREF_LSB;count++)
+            main_expstr[count] = main_str[count];
+         main_expstr[IND_IREF_MSB] = main_str[IND_IREF_MSB];
+         tmpstr1 = main_str.Substring(IND_IREF_MSB, 1) + main_str.Substring(IND_IREF_USB, GL_MAINIREF_MAXEFUSE-1);
+         tvalue = int(BinStringToUnsigned(tmpstr1, true));
+         MAINIREF_TRIMSAVED[site] = tvalue;
+
+          /*need to add vhvslopect & vsa5ct check here*/
+         for (count = IND_VHVSLCT_MSB;count <= IND_VHVSLCT_LSB;count++)
+            main_expstr[count] = main_str[count];
+         tvalue = int(BinStringToUnsigned(main_str.Substring(IND_VHVSLCT_MSB, GL_VHV_SLPCT_MAXEFUSE), true));
+         VHV_SLPCT_TRIMSAVED[site] = tvalue;
+
+         for (count = IND_VSA5CT_MSB;count <= IND_VSA5CT_LSB;count++)
+            main_expstr[count] = main_str[count];
+         tvalue = int(BinStringToUnsigned(main_str.Substring(IND_VSA5CT_MSB, GL_VSA5CT_MAXEFUSE), true));
+         VSA5CT_TRIMSAVED[site] = tvalue;
+
+          /*fosc: bit[8:13]*/
+         for (count = IND_FOSC_MSB;count <= IND_FOSC_LSB;count++)
+            main_expstr[count] = main_str[count];
+         tvalue = int(BinStringToUnsigned(main_str.Substring(IND_FOSC_MSB, FOSC_MAXEFUSE), true));
+         FOSC_TRIMSAVED[site] = tvalue;
+
+         if(tistdscreenprint)  
+            cout << "Site" << site << " MAINBG_TRIMSAVED == " << MAINBG_TRIMSAVED[site] << 
+                    " MAINIREF_TRIMSAVED == " << MAINIREF_TRIMSAVED[site] << 
+                    " FOSC_TRIMSAVED == " << FOSC_TRIMSAVED[site] << 
+                    " VHVSLPCT_TRIMSAVED == " << VHV_SLPCT_TRIMSAVED[site] << 
+                    " VSA5CT_TRIMSAVED == " << VSA5CT_TRIMSAVED[site] << endl;
+         
+         if(main_str!=main_expstr)  
+         {
+            final_results[site] = TM_FAIL;
+            cmp_results[site] = TM_FAIL;
+         } 
+
+          /*log to TW*/
+         actlabel = "FL_EFRD_ACT";
+         explabel = "FL_EFRD_EXP";
+
+         hex_actstr = "0x" + StringBinToHex(margFlashChainStr[site]);         
+         
+         hex_expstr = "0x" + StringBinToHex(main_expstr + bank_expstr); /*Msb-Lsb*/
+         
+         if(tistdscreenprint and (cmp_results[site]==TM_FAIL))  
+         {
+            cout << "Site : " << site << " Failed String Compare " << endl;
+            cout << "   Expect : " << hex_expstr << endl;
+            cout << "   Actual : " << hex_actstr << endl;
+         } 
+      }
+
+      // Moved outside of site loop
+      TWPDLDataLogText(actlabel,hex_actstr,TWMinimumData);
+      TWPDLDataLogText(explabel,hex_expstr,TWMinimumData);
+
+// Don't know why they re-powered up...may need to init part?
+//      PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU); 
 //      ClockSet(S_CLOCK1A, false, FreqArr[ DMA ],
 //               v[vih_loose_osc_VEfuseR],v[vil_loose]);
-//     clockpinset(s_clk_1a, s_clock);
-//      TIME.Wait(tdelay);
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            flnullstr[site] = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
-//      
-//      if(GL_EFUSE_RD_CODEOPTION != "")  
-//      {
-//         readData.codeOption = GL_EFUSE_RD_CODEOPTION;
-//      }
-//      else
-//      {
-//         readData.codeOption = "F021";
-//         if(tistdscreenprint)  
-//         {
-//            cout << endl;
-//            cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
-//            cout << "!!! Setting it to "F021" not using SCRAM option    !!!" << endl;
-//            cout << endl;
-//         } 
-//      } 
-//
-//      ReadFuseROM(NonMBist, MgN, flnullstr,margFlashChainStr,tmp_results);
-//
-//
-//      eferrcode = readData.errorCode;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((eferrcode[site] == 0x15) or (eferrcode[site] == 0x5))    /*single/double bit error*/
-//               tmp_results[site] = false;
-//
-//      Arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//
-//       /*reverse and save efuse str (lsb-msb) for later use*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            dummstr1 = margFlashChainStr[site];
-//             /*dummstr2 := stringreverse(dummstr1); {lsb-msb*/
-//            SaveFlashProgString[site] = dummstr2;}
-//            SaveFlashProgString[site] = dummstr1;
-//            if(tmp_results[site])  
-//               for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  BANK_TO_PMOS_TRIM[count][site] = true;  /*set for trim later*/
-//            if(tistdscreenprint and ti_flashdebug)  
-//               cout << "Site" << site:-4 << " margFlashChainStr == " << margFlashChainStr[site] << endl;
-//         } 
-//
-//       /*if any site fail, then extract & determine if failing site has*/
-//       /*valid trim solution & must passing marg rd as well.*/
-//       /*efuse bits can be either 0s or 1s are: main/aux bandgap,iref.*/
-//       /*remaining efuse bits should be 0s so compare them.*/
-//      if not(arraycompareboolean(logsites,tmp_results,v_sites))  
-//      {
-//         arrayxorboolean(tmp_results,tmp_results,logsites,v_sites);
-//         devsetholdstates(tmp_results);
-//
-//         marg_results = v_dev_active;
-//         cmp_results = v_dev_active;
-//         ipmos_cmp_results = v_dev_active;
-//         
-//         if(tistdscreenprint)  
-//            cout << "Checking Flash eFuse Chain that has already" << 
-//                    " trimmed for valid value and margin read ... " << endl;
-//         
-//         banklen = (F021_Flash.MAXBANK+1)*BANK_EF_LEN;
-//         mainlen = PUMP_EF_LEN;  /*hdpump*/
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               dummstr1 = margFlashChainStr[site];  /*msb-lsb*/
-//                /*dummstr2 := stringreverse(dummstr1);} {lsb-mbs*/
-//               reverse_expStr[site] = dummstr1;
-//
-//               if(tistdscreenprint and ti_flashdebug)  
-//                  cout << "Site : " << site:2 << "  Flash Chain (msb-lsb) : " << dummstr1 << endl;
-//               
-//
-//                /*----- extract & compare BANK STR -----*/
-//               bank_expstr = BANK_EFSTR[site];  /*all 0s*/
-//               writestring(bank_str,mid(dummstr1,mainlen+1,banklen));
-//               
-//                /*check if virgin bank*/
-//               if(bank_str==bank_expstr)  
-//               {
-//                   /*+++ all banks=0s +++*/
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                     BANK_TO_PMOS_TRIM[count][site] = true;  /*set for trim later*/
-//               }
-//               else if(not GL_DO_IREF_PMOS_TRIM)  
-//               {
-//                   /*+++ all banks<>0s so failed +++*/
-//                  ipmos_cmp_results[site] = false;
-//                  final_results[site] = false;
-//                  SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                     BANK_TO_PMOS_TRIM[count][site] = false;
-//               }
-//               else
-//               {
-//                   /*+++ all banks<>0s but do pmos trim so check bit0:4, bit10:23, and bit5:9, bit24:28, bit29:31 for each bank +++*/
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  {
-//                     writestring(tmp_str,mid(bank_str,(1+(count*BANK_EF_LEN)),BANK_EF_LEN));  /*extract indiv bank actual bits*/
-//             if(tistdscreenprint)  
-//            cout << "Site" << site:-5 << "Bank " << count:-5 << " efstr " << tmp_str << endl;
-//                     writestring(tmp_expstr,mid(bank_expstr,(1+(count*BANK_EF_LEN)),BANK_EF_LEN));  /*32 bits of 0s*/
-//
-//                      /*+++ individual bank has not trimmed, i.e. all 0s +++*/
-//                     if(tmp_str==tmp_expstr)  
-//                        BANK_TO_PMOS_TRIM[count][site] = true  ; /*set for trim later*/
-//                     else
-//                     {
-//                         /*+++ non-0s so check for trim correctness +++*/
-//                         /*bit31=msb,bit0=lsb*/
-//                        writestring(bit0_4_str,mid(bank_str,(28+(count*BANK_EF_LEN)),5));
-//                        writestring(bit5_9_str,mid(bank_str,(23+(count*BANK_EF_LEN)),5));
-//                        writestring(bit10_23_str,mid(bank_str,(9+(count*BANK_EF_LEN)),14));
-//                        writestring(bit24_28_str,mid(bank_str,(4+(count*BANK_EF_LEN)),5));
-//                        writestring(bit29_31_str,mid(bank_str,(1+(count*BANK_EF_LEN)),3));
-//                        tmp_str=bit5_9_str;  /*msb-lsb*/
-//                         /*tmp_str:=stringreverse(bit5_9_str);} {msb-lsb*/
-//                        readstring("0b" + tmp_str) + pmos_trimsol;
-//                        
-//                        if((bit0_4_str==BANKEF_BIT0_4) and ((bit10_23_str==BANKEF_BIT10_23) or (bit10_23_str==BANKEF_BIT10_23_BANKNUM[count])) and
-//                           (bit29_31_str==BANKEF_BIT29_31))  
-//                        {
-//                           BANK_TO_PMOS_TRIM[count][site] = false;
-//                        }
-//                        else
-//                        {
-//                           SITE_IPMOS_TRIMMED[site] = true;   /*set as already trimmed*/
-//                           BANK_TO_PMOS_TRIM[count][site] = false;
-//                           ipmos_cmp_results[site] = false;
-//                           final_results[site] = false;
-//                           if(not TIIgnoreFail)  
-//                              break;  /*out of for count loop*/
-//                        }   /*if-else trim correctness*/
-//                     }   /*if-else tmp_str/tmp_expstr*/
-//                  }   /*for count*/
-//
-//                   /*determine if all banks trimmed*/
-//                  if((not SITE_IPMOS_TRIMMED[site]) and (ipmos_cmp_results[site]))  
-//                  {
-//                     all_bank_trimmed = true;
-//                     for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                        if(BANK_TO_PMOS_TRIM[count][site])  
-//                        {
-//                           all_bank_trimmed = false;
-//                           break;
-//                        } 
-//                     if(all_bank_trimmed)  
-//                        SITE_IPMOS_TRIMMED[site] = true;
-//                  } 
-//               }   /*if-else banks<>0 & gl_do_iref_pmos_trim*/
-//               
-//               
-//                /*----- extract & compare PUMP STR -----*/
-//               main_expstr = MAINBG_EFSTR[site];
-//               writestring(main_str,mid(dummstr1,1,mainlen));
-//           if(tistdscreenprint)  
-//          cout << "Pump efstr " << main_str << endl;
-//                /*bgap: bit0 is bgap soft trim enable, bit[1:6]=vbg*/
-//               for (count = IND_VBG_MSB;count <= IND_VBG_LSB;count++)
-//                  main_expstr[count] = main_str[count];
-//               writestring(tmpstr1,mid(main_str,IND_VBG_MSB,GL_MAINBG_MAXEFUSE));
-//               readstring("0b" + tmpstr1) + tvalue;
-//               MAINBG_TRIMSAVED[site] = tvalue;
-//               
-//                /*iref: bit[15:19,21]*/
-//               for (count = IND_IREF_USB;count <= IND_IREF_LSB;count++)
-//                  main_expstr[count] = main_str[count];
-//               main_expstr[IND_IREF_MSB] = main_str[IND_IREF_MSB];
-//               writestring(tmpstr1,mid(main_str,IND_IREF_USB,GL_MAINIREF_MAXEFUSE-1));
-//               writestring(tmpstr2,mid(main_str,IND_IREF_MSB,1));
-//               tmpstr1 = tmpstr2 + tmpstr1;
-//               readstring("0b" + tmpstr1) + tvalue;
-//               MAINIREF_TRIMSAVED[site] = tvalue;
-//
-//                /*need to add vhvslopect & vsa5ct check here*/
-//               for (count = IND_VHVSLCT_MSB;count <= IND_VHVSLCT_LSB;count++)
-//                  main_expstr[count] = main_str[count];
-//               writestring(tmpstr1,mid(main_str,IND_VHVSLCT_MSB,GL_VHV_SLPCT_MAXEFUSE));
-//               readstring("0b" + tmpstr1) + tvalue;
-//               VHV_SLPCT_TRIMSAVED[site] = tvalue;
-//
-//               for (count = IND_VSA5CT_MSB;count <= IND_VSA5CT_LSB;count++)
-//                  main_expstr[count] = main_str[count];
-//               writestring(tmpstr1,mid(main_str,IND_VSA5CT_MSB,GL_VSA5CT_MAXEFUSE));
-//               readstring("0b" + tmpstr1) + tvalue;
-//               VSA5CT_TRIMSAVED[site] = tvalue;
-//
-//                /*fosc: bit[8:13]*/
-//               for (count = IND_FOSC_MSB;count <= IND_FOSC_LSB;count++)
-//                  main_expstr[count] = main_str[count];
-//               writestring(tmpstr1,mid(main_str,IND_FOSC_MSB,FOSC_MAXEFUSE));
-//               readstring("0b" + tmpstr1) + tvalue;
-//               FOSC_TRIMSAVED[site] = tvalue;
-//
-//               if(tistdscreenprint)  
-//                  cout << "Site" << site:-5 << " MAINBG_TRIMSAVED == " << MAINBG_TRIMSAVED[site]:-5 << 
-//                          " MAINIREF_TRIMSAVED == " << MAINIREF_TRIMSAVED[site]:-5 << 
-//                          " FOSC_TRIMSAVED == " << FOSC_TRIMSAVED[site]:-5 << 
-//                          " VHVSLPCT_TRIMSAVED == " << VHV_SLPCT_TRIMSAVED[site]:-5 << 
-//                          " VSA5CT_TRIMSAVED == " << VSA5CT_TRIMSAVED[site]:-5 << endl;
-//               
-//               if(main_str!=main_expstr)  
-//               {
-//                  final_results[site] = false;
-//                  cmp_results[site] = false;
-//               } 
-//
-//                /*log to TW*/
-//               actlabel = "FL_EFRD_ACT";
-//               explabel = "FL_EFRD_EXP";
-//      
-//               hex_actstr = stringbintohex(dummstr1,s_pad_msb);
-//                /*hex_actstr := concat("0x",hex_actstr);*/
-//               TWPDLDatalogTextSite(actlabel,hex_actstr,site,TWMinimumData);
-//               
-//               writestring(dummstr3,main_expstr,bank_expstr);  /*Msb-Lsb*/
-//                /*dummstr4 := stringreverse(dummstr3); {msb-lsb}*/
-//               hex_expstr = stringbintohex(dummstr3,s_pad_msb);
-//                /*hex_expstr := concat("0x",hex_expstr);*/
-//               TWPDLDatalogTextSite(explabel,hex_expstr,site,TWMinimumData);
-//               
-//               if(tistdscreenprint and (not cmp_results[site]))  
-//               {
-//                  cout << "Site : " << site:2 << " Failed String Compare " << endl;
-//                  cout << "   Expect : " << hex_expstr << endl;
-//                  cout << "   Actual : " << hex_actstr << endl;
-//               } 
-//                  
-//            }   /*v_dev_active*/
-//
-//         PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU); 
-//         ClockSet(S_CLOCK1A, false, FreqArr[ DMA ],
-//                  v[vih_loose_osc_VEfuseR],v[vil_loose]);
-//         clockpinset(s_clk_1a,s_clock);
-//         TIME.Wait(tdelay);
-//         
-//         if(GL_EFUSE_RD_CODEOPTION != "")  
-//         {
-//            readData.codeOption = GL_EFUSE_RD_CODEOPTION;
-//         }
-//         else
-//         {
-//            readData.codeOption = "F021";
-//            if(tistdscreenprint)  
-//            {
-//               cout << endl;
-//               cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
-//               cout << "!!! Setting it to "F021" not using SCRAM option    !!!" << endl;
-//               cout << endl;
-//            } 
-//         } 
-//
-//         ReadFuseROM(NonMBist, Mg1A, reverse_expStr,rdStr,marg_results);
-//
-//         eferrcode = readData.errorCode;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               if((eferrcode[site] == 0x15) or (eferrcode[site] == 0x5))  
-//                  marg_results[site] = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if(marg_results[site] and cmp_results[site] and ipmos_cmp_results[site])  
-//               {
-//                  final_results[site] = true;
-//                  GL_FLASH_RETEST[site] = true;
-//                  if(tistdscreenprint)  
-//                     cout << "Site : " << site:2 << 
-//                             " Flash Already Trimmed.  PASSED." << endl;
-//               }
-//               else
-//                  final_results[site] = false;
-//            } 
-//
-//         Devsetholdstates(savesites);
-//
-//      }   /*if not arraycmp*/
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr3,0,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << timernread(ttimer1) << endl;
-//         cout << endl;
-//      } 
-//
-//      if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//         F021_Log_FailPat_To_TW(tmpstr3,final_results,tname);
-//
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//      
-//      if((not tiignorefail) and (not TI_FlashCOFEna))  
-//         devsetholdstates(final_results);
-//
-//      PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(tdelay);
-//   } 
-//
-//    /*null out gl_previous_shell*/
-//   GL_PREVIOUS_SHELL = "";
-//
-//   FlashEfuse_MP1_func = v_any_dev_active;
-//}   /* FlashEfuse_MP1_func */
-//
+      
+      if(GL_EFUSE_RD_CODEOPTION != "")  
+      {
+         read_code_option = GL_EFUSE_RD_CODEOPTION;
+      }
+      else
+      {
+         read_code_option = "F021";
+         if(tistdscreenprint)  
+         {
+            cout << endl;
+            cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
+            cout << "!!! Setting it to \"F021\" not using SCRAM option    !!!" << endl;
+            cout << endl;
+         } 
+      } 
+
+      eferrcode = ReadFuseROM(read_code_option, NonMBist, Mg1A, reverse_expStr,rdStr,marg_results);
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if((eferrcode[*si] == 0x15) or (eferrcode[*si] == 0x5))  
+            marg_results[*si] = TM_FAIL;
+
+      final_results = DLOG.AccumulateResults(final_results, marg_results);
+      final_results = DLOG.AccumulateResults(final_results, cmp_results);
+      final_results = DLOG.AccumulateResults(final_results, ipmos_cmp_results);
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if (final_results[*si] == TM_PASS)
+         {
+            GL_FLASH_RETEST[*si] = true;
+            if(tistdscreenprint)  
+               cout << "Site : " << *si << 
+                       " Flash Already Trimmed.  PASSED." << endl;
+         }
+
+      RunTime.SetActiveSites(savesites);
+
+   }   /*if not arraycmp*/
+
+   ttimer = TIME.StopTimer();
+   
+   if(tistdscreenprint)  
+   {
+      DLOG.Value(ttimer, 0., UTL_VOID, "ms", "FlashEfuseRd_Test_TT");
+   } 
+
+//:TODO: Come back and implement when F021_Log_FailPat_ToTW is done -- low priority
+//   if(final_results.AnyEqual(TM_FAIL))  
+//      F021_Log_FailPat_To_TW(tmpstr3,final_results,tname);
+
+    /*null out gl_previous_shell*/
+   GL_PREVIOUS_SHELL = "";
+
+   return(final_results);
+}   /* FlashEfuse_MP1_func */
+
 //BoolS FlashEfuse_MPx_func()
 //{
 //   BoolM tmp_results,final_results;
@@ -4617,24 +4589,28 @@ using namespace std;
 //
 //   FlashEfuse_MPx_func = v_any_dev_active;
 //}   /* FlashEfuse_MPx_func */
-//
-//BoolS FlashEfuse_func()
-//{
-//   const IntS TESTID = 5; 
-//
-//   IntS i;
-//
-//   GL_FLTESTID = TESTID;
-//   switch(TITestType) {
-//     case MP1 : FlashEfuse_MP1_func;
-//     default: FlashEfuse_MPx_func;
-//   }   /* case */
-//   
-//    /*null out gl_previous_shell*/
-//   GL_PREVIOUS_SHELL = "";
-//   FlashEfuse_func = v_any_dev_active;
-//} 
-//
+
+TMResultM FlashEfuse_func()
+{
+   const IntS TESTID = 5; 
+   
+   TMResultM final_results;
+
+   GL_FLTESTID = TESTID;
+   switch(SelectedTITestType) {
+     case MP1 : final_results = FlashEfuse_MP1_func();
+                break;
+     default: 
+               // :TODO: Implement FlashEfuse_MPx_func!
+               //final_results = FlashEfuse_MPx_func();
+              break;
+   }   /* case */
+   
+    /*null out gl_previous_shell*/
+   GL_PREVIOUS_SHELL = "";
+   return final_results;
+} 
+
 // /*old function - use for engineering debug purpose*/
 //BoolS MainBG_Trim_ENG_func()
 //{
