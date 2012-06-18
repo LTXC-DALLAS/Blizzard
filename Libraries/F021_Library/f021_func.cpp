@@ -3620,14 +3620,14 @@ void Get_TLogSpace_RTIValue(IntM ret_val)
       //GetRamContentDec_16bit(ramread_nburst_lsw,addr,tdata0);
       GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr,tdata0);
 //      arrayandintegervalue(tdata1,tdata1,0x7fff,v_sites);
-//      tdata1 = tdata1 & 0x0000ffff; //mask the upper two bites
+      tdata1 = tdata1 & IntS(0x0000ffff); //mask the upper two bites
                                       //This code generates an erro
-      tdata1 = tdata1 << 16;
-      tdata1 = tdata >> 16;
+//      tdata1 = tdata1 << 16;
+//      tdata1 = tdata >> 16;
 //      arraymultintegervalue(tdata,tdata1,0x10000,v_sites);
-//      tdata = tdata1 * 0xffff0000; //mask the lower two bites
+      tdata = tdata1 * IntS(0xffff0000); //mask the lower two bites
                                    //This code generates an error
-      tdata = tdata << 16;
+//      tdata = tdata << 16;
 //      arrayaddinteger(tdata,tdata,tdata0,v_sites);
       tdata = tdata | tdata0;
 //   } 
@@ -3905,7 +3905,7 @@ void GetRTIValue(    IntM ret_val)
 //   StringS tmpstr;
 //
 //   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      if(v_dev_active[site] and (not results[site]))  
+//      if(v_dev_active[site] and (not results[site]))  //if site is active and site results are false
 //      {
 //         if((len(site_cof_inst_str[site]) + len(failstr)) < 255)  
 //            site_cof_inst_str[site] = site_cof_inst_str[site] + failstr;
@@ -14069,19 +14069,31 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //}   /* F021_Bank_Para_MBox_func */
 //   
 //
-//TMResultM F021_Flash_Leak_func(    IntS start_testnum,
-void F021_Flash_Leak_func(    IntS start_testnum,
+TMResultM Bool2TMRes ( BoolM TransThis )
+{
+   TMResultM Trans(TM_NOTEST);
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+       if(TransThis[*si]=true)  
+           Trans[*si] = TM_PASS;
+       else
+          Trans[*si] = TM_FAIL;
+   } 
+   return Trans;
+}
+TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                                   StringS tname,
                                   prepostcorner prepost_type,
-                                  StringS vcorner,
+                                  VCornerType vcorner,
                                   IntS TCRnum,
-                                  TPModeType TCRMode,
-                                  BoolM test_results)
+                                  TPModeType TCRMode)
+//taken care of by return TMResultM   BoolM test_results)
 {
    FloatS tdelay,maxtime;
-   BoolM savesites,logsites;
-   TMResultM rtest_results;
-   BoolM tmp_results,final_results;
+   Sites new_active_sites,savesites,retestsites;
+   BoolM logsites;
+   TMResultM tm_results;
+   BoolM tmp_results,final_results,rtest_results;
    IntS count,maxsector,tpnum;
    IntS bankcount,bankstart,bankstop;
    IntS blkcount,blkstart,blkstop;
@@ -14107,9 +14119,13 @@ void F021_Flash_Leak_func(    IntS start_testnum,
    IntS special_opt;
    TPModeType tmptcrmode;
    VCornerType tmpvcorner;
-   BoolM disallsites,retestsites;
+   BoolM disallsites;
    BoolS retest_ena;
 
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   retestsites=new_active_sites;
+   
 //   if(V_any_dev_active)  
    if (ActiveSites.GetPassingSites().AnyEqual(true))
    {
@@ -14140,12 +14156,15 @@ void F021_Flash_Leak_func(    IntS start_testnum,
       
 //      savesites = V_dev_active;
 //      tmp_results = V_dev_active;
+      final_results = TM_NOTEST;
 //      final_results = V_dev_active;
+      tmp_results = final_results;  
 
       binout_ena = false;
       rampena = false;
       retest_ena = false;
 
+      //***** Begin Switch statement code *****
       if ((TCRnum>=7) | (TCRnum<=12))
          special_opt = 1;
       else if ((TCRnum==13) | (TCRnum>=15) | (TCRnum<=17))
@@ -14153,16 +14172,17 @@ void F021_Flash_Leak_func(    IntS start_testnum,
          special_opt = 3;
          if(TCRnum!=13)  
          {   
-//            retestsites = GL_FLASH_RETEST;
+//            retestsites = GL_FLASH_RETEST; //BoolM GL_FLASH_RETEST
 //            arrayandboolean(retestsites,retestsites,v_dev_active,v_sites);
-            retestsites = GL_FLASH_RETEST & ActiveSites.GetPassingSites();
+            retestsites.DisableFailingSites(!GL_FLASH_RETEST); //disable sites that are not set to retest
+            
 //vlct function arraycompareboolean looks at v_sites elements of retestsites and disallsites & compares
 //them element by element.  If all elements are the same, true is returned.  Otherwise false.  So this
 //if boolean returns !true if there are all retestsites are false and !false if some retestsites are true.
 //In other words, if there is at least one retest site, then do the retest_ena and ulim_retest assignment
 //            disallsites = false;
 //            if(not arraycompareboolean(retestsites,disallsites,v_sites))  
-            if(retestsites.AnyEqual(true))
+            if(SetActiveSites(retestsites))
             {   
                retest_ena = true;
                Ulim_retest = BLS_VBL_LEAK_Prog_ULim_Retest;
@@ -14173,6 +14193,7 @@ void F021_Flash_Leak_func(    IntS start_testnum,
          special_opt = 3;
       else
          special_opt = 0;
+      //***** End Switch statement code *****
 
 //switch doesn't work and anyhow this translation is jacked up
 //      switch(TCRnum) {
@@ -14196,8 +14217,7 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 //        default: special_opt = 0;
 //      }   /* case */
       
-      
-      if(TCRnum==13)  
+      if((TCRnum==13))  
       {
          tpnum     = 2;
          testpad   = FLTP2;
@@ -14221,12 +14241,14 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 // This is only sent to testpad ramp code, which doesn't use it.  Thus, commented out.
 //         pgmMode   = S_VI_Mode;
       } 
+      //***** Begin Switch statement code *****
       if (((TCRnum>=7)&(TCRnum<=9))|(TCRnum==13)|((TCRnum>=15)&(TCRnum<=17))|(TCRnum==23)|((TCRnum>=58)&(TCRnum<=60)))
          pattype = BANKTYPE;
       else if (((TCRnum>=10)&(TCRnum<=12))|(TCRnum==14)|((TCRnum>=20)&(TCRnum<=22))|(TCRnum==24)|(TCRnum==37)|((TCRnum>=61)&(TCRnum<=63)))
          pattype = BLOCKTYPE;
       else pattype = SECTTYPE;
-      
+      //***** End Switch statement code *****
+     
 //      switch(TCRnum) {
 //        7..9,      /*bank CG stress vhv*/
 //        13,        /*bank EG/SL stress vsl*/
@@ -14252,7 +14274,7 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 //           pattype = SECTTYPE;  /*dummy - use for tp1/tp2 pin lkg*/
 //         break; 
 //      }   /* case */
-
+ 
       
       if(tistdscreenprint)  
          PrintHeaderParam(GL_PLELL_FORMAT);
@@ -14290,15 +14312,19 @@ void F021_Flash_Leak_func(    IntS start_testnum,
             for (count = blkstart;count <= blkstop;count++)
             {
                logsites = ActiveSites.GetPassingSites();
-//               rtest_results = logsites;
+               rtest_results = logsites;
 //               timernstart(ttimer2);
-               TIME.StartTimer();
+               ttimer2 = TIME.GetTimer();
                
                if(special_opt==3)  
                   F021_Set_TPADS(TCRnum,TCRMode);
                
-               rtest_results=F021_RunTestNumber_PMEX(testnum,maxtime);
-
+               tm_results=F021_RunTestNumber_PMEX(testnum,maxtime);
+               if (tm_results == TM_PASS) 
+                  rtest_results = true; 
+               else 
+                  rtest_results = false;
+               
                if(special_opt!=3)  
                   F021_Set_TPADS(TCRnum,TCRMode);
                
@@ -14328,18 +14354,23 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                     if(v_dev_active[site])  
 //                     {
-//                        if(special_opt==1)  
-//                           meas_value[site] = meas_value[site]-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site];
-//                        else
-//                           meas_value[site] = PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site]-meas_value[site];
-//                           
-//                        if((meas_value[site]>==llim) and (meas_value[site]<==ulim))  
-//                           tmp_results[site] = true;
-//                        else
-//                           tmp_results[site] = false;
-//                        if(debugprint and tistdscreenprint)  
-//                           cout << "Site " << site:-5 << " Total Meas==" << total_value[site]:-5:3 << endl;
-//                     } 
+                        if(special_opt==1)  
+                           meas_value = meas_value-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner];
+                        else
+                           meas_value = PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner]-meas_value;
+                           
+                        if((meas_value>=Llim) and (meas_value<=Ulim))  
+                           tmp_results = true;
+                        else
+                           tmp_results = false;
+                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                     {
+                        if(debugprint and tistdscreenprint)  
+                        {
+                           //cout << "Site " << site:-5 << " Total Meas==" << total_value[si]:-5:3 << endl;
+                           IO.Flush(IO.Stdout);
+                        }
+                     } 
 /*                   if(specail_opt==1)
                       meas_valu = meas_value-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site];
                    else
@@ -14372,13 +14403,13 @@ void F021_Flash_Leak_func(    IntS start_testnum,
                }   /*if special_opt*/
 
 //               ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-//               tmp_results = tmp_results & rtest_results;
-//               if(pattype==BANKTYPE)  
-//               {
+                 tmp_results=tmp_results&rtest_results;
+                 if(pattype==BANKTYPE)  
+                 {
 //  Unison is sited.  Don't need a site iterator here.
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                     if(v_dev_active[site])  
-//                        BANK_PARA_VALUE[bankcount][tcrnum][tcrmode][tpnum][prepost][vcorner][site] = meas_value[site];
+//                        BANK_PARA_VALUE[bankcount][tcrnum][tcrmode][tpnum][prepost][vcorner] = meas_value;
 //This array isn't really used for too much.  Comment out for now
 //                  BANK_PARA_VALUE[bankcount][TCRnum][TCRMode][tpnum][prepost][vcorner] = meas_value;
 //               }
@@ -14398,12 +14429,14 @@ void F021_Flash_Leak_func(    IntS start_testnum,
                
                 /*log to TW*/
 //               writestring(tmpstr2,bankcount:1);
-               tmpstr2 = CONV.IntToString(bankcount);
+               if (bankcount==0) tmpstr2 = "0";
+               else tmpstr2 = CONV.IntToString(bankcount);
                tmpstr2 = "_B" + tmpstr2;  /*_B#*/
                if(pattype!=BANKTYPE)  
                {
 //                  writestring(tmpstr3,count:1);
-                  tmpstr3 = CONV.IntToString(count);                  
+                  if (count==0) tmpstr3 = "0";
+                  else tmpstr3 = CONV.IntToString(count);                  
                   if(pattype==BLOCKTYPE)  
                      tmpstr3 = "BLK" + tmpstr3;
                   else
@@ -14465,11 +14498,13 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 //                  ((prepost==post) and (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][tpnum])))  
 //                  Devsetholdstates(final_results);
                
-//               if(not v_any_dev_active)  
-//                  break;
+//               if(not v_any_dev_active) 
+               if(!(ActiveSites.GetPassingSites().AnyEqual(true))) 
+                  break;
             }   /*for count*/
 //            if(not v_any_dev_active)  
-//               break;
+            if(!(ActiveSites.GetPassingSites().AnyEqual(true))) 
+               break;
          }   /*for bankcount*/
       }    /*+++ End of Bank operation +++*/
 
@@ -14479,17 +14514,18 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 //      ResultsRecordActive(final_results, S_NULL);
 //      TestClose;
 
-      test_results = final_results;
+//      test_results = final_results;
       
 //      if(TI_FlashCOFEna)  
 //         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
       
 //      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
+       ttimer1 = TIME.GetTimer();
+      tt_timer = ttimer1;
 
       tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+//      TWTRealToRealMS(tt_timer,realval,unitval); //do not need to move tt_timer to realval in Unison
+      TWPDLDataLogRealVariable(tmpstr4, tt_timer.GetUnits(),tt_timer,TWMinimumData);
 
       if(tistdscreenprint)  
       {
@@ -14507,13 +14543,14 @@ void F021_Flash_Leak_func(    IntS start_testnum,
 
       F021_TurnOff_AllTPADS();
 
- /*     if(prepost == post)  
-         if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-            DevSetHoldStates(final_results);
-            
-   } */  /*if v_any_dev_active*/
+ //     if(prepost == post)  
+//         if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//            DevSetHoldStates(final_results);
+//            
+   } /*if v_any_dev_active*/
 
 //   F021_Flash_Leak_func = V_any_dev_active;
+   return(Bool2TMRes ( final_results ));
 }   /* F021_Flash_Leak_func */
 
    
@@ -18394,8 +18431,8 @@ TMResultM TL_Run_BCCVT (StringS       tname,
 //   
 //   
 TMResultM F021_Program_func(    IntS start_testnum,
-                               StringS tname,
-                               BoolM test_results)
+                               StringS tname)
+//if function returns TMResultM no need for argument test_results: BoolM test_results);
 {
    const IntS none_ena = 0; 
    const IntS cmpress_ena = 1; 
@@ -18409,10 +18446,9 @@ TMResultM F021_Program_func(    IntS start_testnum,
    const IntS TARGET_DATAOTP = 6; 
    const IntS TOPT_SW_COMPRESS = 0x31; 
 
-   BoolM savesites,logsites;
-   TMResultM final_results;
+   Sites savesites,new_active_sites,logsites;
+   TMResultM final_results,tmp_results;
    IntM pgmpulse;
-   TMResultM tmp_results;
    IntS bankcount,count;
    IntS site,opertype,pattype;
    FloatS ttimer1,ttimer2;
@@ -18440,6 +18476,9 @@ TMResultM F021_Program_func(    IntS start_testnum,
    IntS blkstart,blkstop;
    BoolS dlogonly,faildetect;
 
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+
 //   if(V_any_dev_active)  
 //   {
       if(tistdscreenprint and TI_FlashDebug)  
@@ -18466,8 +18505,9 @@ TMResultM F021_Program_func(    IntS start_testnum,
 //
 //      savesites = V_dev_active;
 //      tmp_results = V_dev_active;
+      final_results = TM_NOTEST;
 //      final_results = V_dev_active;
-//
+      tmp_results = final_results;  
       testnum = start_testnum;
 //
 //       /*otp template pgm w/ eng override*/
@@ -18479,6 +18519,7 @@ TMResultM F021_Program_func(    IntS start_testnum,
       else
       {
          target_bits = (testnum & 0x00000f00) >>8;
+         /*** BEGIN if else tree replaces switch statement ***/
          if (target_bits == TARGET_BANK)
          {
             pattype=BANKTYPE;
@@ -18495,6 +18536,7 @@ TMResultM F021_Program_func(    IntS start_testnum,
          {
             pattype = MODTYPE;
          }
+         /*** END if else tree replaces switch statement ***/
  //        switch(target_bits) 
 //         {
 //           case TARGET_BANK    : pattype = BANKTYPE;
@@ -18510,18 +18552,18 @@ TMResultM F021_Program_func(    IntS start_testnum,
          {
             if(tistdscreenprint)  
             {
-               cout << endl;
-               cout << "*** WARNING: OVERRIDE PULSE LIMITS is Enable." << 
-                    "  MAKE SURE THIS IS INTENTIONALLY DONE SO <<  i.e. Engineering Debug Only ***" << endl;
-               cout << endl;
+               cout << endl; cout << "*** WARNING: OVERRIDE PULSE LIMITS is Enable." << "  MAKE SURE THIS IS INTENTIONALLY DONE SO <<  i.e. Engineering Debug Only ***" << endl;cout << endl;
+               IO.Flush(IO.Stdout);
             } 
              /*make sure not use in production unless*/
             if(!TI_FlashCOFEna)  
             {
                pattype = MODTYPE;
-               if(tistdscreenprint)  
-                  cout << "*** PLS SET TI_FlashCOFEna true" << 
-                       " IF INTENTION OVERRIDE PULSE LIMITS. ***" << endl;
+               if(tistdscreenprint) 
+               {
+                  cout << "*** PLS SET TI_FlashCOFEna true" << " IF INTENTION OVERRIDE PULSE LIMITS. ***" << endl;
+                  IO.Flush(IO.Stdout);
+               }
             } 
          } //if((testnum&0x00400000)>0) 
       } //else
@@ -18529,12 +18571,16 @@ TMResultM F021_Program_func(    IntS start_testnum,
        /*check bank/sector bits*/
       if((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0))  
       {
-         if(tistdscreenprint)  
-            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-                    "  Please double check!!! ***" << endl;
-         if(not tistdscreenprint)  
-            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-                    "  Please double check!!! ***" << endl;
+         if(tistdscreenprint)
+         {
+            cout << "*** ERROR: Bank/Sector bits are not start @0." << "  Please double check!!! ***" << endl;
+            IO.Flush(IO.Stdout);
+         }
+         if(not tistdscreenprint) 
+         {
+            cout << "*** ERROR: Bank/Sector bits are not start @0." << "  Please double check!!! ***" << endl;
+            IO.Flush(IO.Stdout);
+         }
          pattype = MODTYPE;
       } 
 
@@ -18546,8 +18592,11 @@ TMResultM F021_Program_func(    IntS start_testnum,
       {
           /*+++ Module operation +++*/
          final_results = TM_FAIL;
-         if(tistdscreenprint)  
+         if(tistdscreenprint)
+         {
             cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
+            IO.Flush(IO.Stdout);
+         }
       }
       else 
       {
@@ -18599,7 +18648,8 @@ TMResultM F021_Program_func(    IntS start_testnum,
                 /*previously was using 2CT=50mV, 70mV. New format is 0xppmm where pp=positive CT, mm=negCT*/
                if(firsttime)  
                {
-                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                    //Unison is sited.  Does not need this site iterator
+//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
  //                    if(v_dev_active[site])  
 //                     {
                      if((PUMP_PARA_VALUE[ProgMode][post]) != 0.0V)  
@@ -18677,8 +18727,11 @@ TMResultM F021_Program_func(    IntS start_testnum,
 //               }   /* case */
                 if (opertype == cmpress_ena)
                 {
-                    if(tistdscreenprint and TI_FlashDebug)  
+                    if(tistdscreenprint and TI_FlashDebug)
+                    {
                        cout << "Upload correction factor for compressed pgming..." << endl;
+                       IO.Flush(IO.Stdout);
+                    }
                     addr_loc_mbox = ADDR_RAM_MAILBOX;
                     src_data2 = wr_flag_num;  /*msword*/
                     src_data1 = 2;  /*lsword} {2 16-bit word*/
@@ -18696,11 +18749,11 @@ TMResultM F021_Program_func(    IntS start_testnum,
                    RAM_Upload_VHV_PMOS_EngOvride(count);
                 }
                faildetect = false;
-               //unison is sited.  don't need this
 //               logsites = v_dev_active;
+               logsites = ActiveSites;
                tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
 //               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-               final_results = final_results & tmp_results;
+               final_results = DLOG.AccumulateResults(final_results,tmp_results);
                
                pgmpulse = 0;
                Get_TLogSpace_MaxPPulse(pgmpulse);
@@ -18718,11 +18771,13 @@ TMResultM F021_Program_func(    IntS start_testnum,
                 /*tw string: PGMx_B#_TT and PGMx_B#_PGM_PLS*/
                //writestring(tmpstr2,bankcount:1);
                IO.Print(tmpstr2, "%1d", bankcount);
+               IO.Flush(IO.Stdout);
                tmpstr2 = "_B" + tmpstr2;  /*_B#*/
 
                if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
                {
                   IO.Print(tmpstr3, "%1d", count);
+                  IO.Flush(IO.Stdout);
                   if(pattype==BLOCKTYPE)  
                      tmpstr3 = "BLK" + tmpstr3;
                   else
@@ -18753,24 +18808,28 @@ TMResultM F021_Program_func(    IntS start_testnum,
                 /*log failed test to tw*/
                 /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
 
-//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//               {
-//                  faildetect = true;
-//                  if(not dlogonly)  
-//                     F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites)) 
+                if (ActiveSites !=  logsites) 
+               {
+                  faildetect = true;
+                  if(not dlogonly)  {}
+//                     F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname); //not yet implemented
 //                  
-//                  if(TI_FlashCOFEna)  
-//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+                  if(TI_FlashCOFEna)  {}
+//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results); //not yet implemented
 //
-//                  if(TI_FlashESDAEna and (not dlogonly))  
-//                     if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//                        SetFlashESDAVars(tmp_results,bankcount,bankcount);
-//                     else
-//                        SetFlashESDAVars(tmp_results,bankcount,count);
-//               } 
+                  if(TI_FlashESDAEna and (not dlogonly))  
+                     if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
+                        SetFlashESDAVars(tmp_results,bankcount,bankcount); //not yet implemented
+                     else
+                     {
+//                        SetFlashESDAVars(tmp_results,bankcount,count); //not yet implemented
+                     }
+               } 
                
                testnum = testnum+1; 
 
+//No Devsetholdstates analog in Unison so forget this code
 //               if(faildetect and (not dlogonly))  
 //                  if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
 //                     Devsetholdstates(final_results);
@@ -18792,31 +18851,34 @@ TMResultM F021_Program_func(    IntS start_testnum,
 //         ResultsRecordActive(savesites, S_NULL);         
 //      TestClose;
 //
-//      test_results = final_results;
+//      test_results = final_results; //test_results removed from the arguments list
 //      
 //      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//      
+//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results); //not yet implemented
+      
 //      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr4 = tmpstr1 + "_TTT";
+      ttimer1 = TIME.StopTimer();
+      //tt_timer = ttimer1;
+
+      tmpstr4 = tmpstr1 + "_TTT";
+      //Unison is sited.  Don't need this
 //      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//      {
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      }         /*if tistdscreenprint*/
-//      
+      TWPDLDataLogRealVariable(tmpstr4, ttimer1.GetUnits(),ttimer1,TWMinimumData);
+
+      if(tistdscreenprint)  
+      {
+          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
+//         PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT); not yet implemented
+         cout << "   TT " << ttimer1 << endl; 
+         cout << endl;
+         IO.Flush(IO.Stdout);
+      }         /*if tistdscreenprint*/
+      
 //      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
 //         DevSetHoldStates(final_results);
-//            
+            
 //   }   /*if v_any_dev_active*/
-//
+
 //   F021_Program_func = V_any_dev_active;
      return(final_results);
 }   /*F021_Program_func*/
@@ -19072,67 +19134,98 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 
 //
 //
-//BoolS F021_Read_func(    IntS start_testnum,
-//                            StringS tname,
+TMResultM F021_Read_func(    IntS start_testnum,
+                            StringS tname)
 //                            BoolM test_results)
-//{
-//   const IntS TARGET_BANK = 0x0; 
-//   const IntS TARGET_SECT = 0x1; 
-//   const IntS TARGET_BLOCK = 0x2; 
-//   const IntS TARGET_LOGSECT = 0x3; 
-//   const IntS TARGET_OTP = 0x4; 
-//   const IntS TARGET_SEMIOTP = 0x5; 
-//   const IntS TARGET_DATAOTP = 0x6; 
+{
+   const IntS TARGET_BANK = 0x0; 
+   const IntS TARGET_SECT = 0x1; 
+   const IntS TARGET_BLOCK = 0x2; 
+   const IntS TARGET_LOGSECT = 0x3; 
+   const IntS TARGET_OTP = 0x4; 
+   const IntS TARGET_SEMIOTP = 0x5; 
+   const IntS TARGET_DATAOTP = 0x6; 
 //   const  TARGET_ARB = 0xA;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//
-//   BoolM savesites,red_results;
-//   BoolM tmp_results,final_results;
-//   IntS bankcount,count;
-//   IntS site,opertype,pattype;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   StringS tmpstr5,str1,str2;
-//   IntS testnum,redtnum;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   FloatS maxtime;
-//   IntS length;
-//   BoolM logsites;
-//   IntM rti_timer;
-//   IntS setbitesda,prevtestnum;
-//   IntS imgnum,start_imgnum;
-//   StringM site_cof_inst_str;
-//   IntS target_bits,special_opt,tmpint;
-//   IntS blkstart,blkstop;
-//   BoolS faildetect,datalogonly;
+
+   BoolM v_any_dev_active;
+   Sites savesites;
+   TMResultM tmp_results,final_results,red_results;
+   IntS bankcount,count;
+   IntS site,opertype,pattype;
+   FloatS ttimer1,ttimer2;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   StringS tmpstr5,str1,str2;
+   IntS testnum,redtnum;
+   FloatM FloatSval;
+//   TWUnit unitval; don't need this.  Just us GetUnits()
+   StringS fl_testname;
+   FloatS maxtime;
+   IntS length;
+   Sites logsites;
+   IntM rti_timer;
+   IntS setbitesda,prevtestnum;
+   IntS imgnum,start_imgnum;
+   StringM site_cof_inst_str;
+   IntS target_bits,special_opt,tmpint;
+   IntS blkstart,blkstop;
+   BoolS faildetect,datalogonly;
 //
 //   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_Read_func +++++" << endl;      
-//
+   if (ActiveSites.GetPassingSites().AnyEqual(true))
+   {
+      if(tistdscreenprint and TI_FlashDebug)  
+         cout << "+++++ F021_Read_func +++++" << endl;      
+
 //      writestring(tmpstr1,tname);
+      tmpstr1 = tname.Substring(2,tname.Length()-6);
 //      length = len(tmpstr1);
 //      writestring(tmpstr1,mid(tmpstr1,2,length-6));
-//      fl_testname = tname;
-//
-//      timernstart(ttimer1);
-//
+      fl_testname = tname;
+
+      TIME.StartTimer();
+
 //      PrintHeaderBool(GL_PLELL_FORMAT);
 //
 //      TestOpen(fl_testname);
-//
-//      if(TI_FlashCOFEna)  
+
+
+      if(TI_FlashCOFEna)  
 //         F021_Init_COF_Inst_Str(site_cof_inst_str);
+         //F021_Init_COF_Inst_Str basically clears the string to empty
+         site_cof_inst_str = "";
 //
 //      savesites = V_dev_active;
+      savesites = ActiveSites;
+      tmp_results = TM_NOTEST;
+      final_results = TM_NOTEST;
 //      tmp_results = V_dev_active;
 //      final_results = V_dev_active;
 //
-//      testnum = start_testnum;
-//      target_bits = (testnum & 0x00000f00) >>8;
+      testnum = start_testnum;
+      target_bits = (testnum & 0x00000f00) >>8;
+      //***** Begin Switch statement code *****
+      if (target_bits == TARGET_BANK)
+      {
+         pattype = BANKTYPE;
+      }
+      else if (target_bits == TARGET_SECT)
+      {
+         pattype = SECTTYPE;
+      }
+      else if (target_bits == TARGET_BLOCK)
+      {
+         pattype = BLOCKTYPE;
+      }
+      else if ((target_bits == TARGET_OTP) || (target_bits == TARGET_SEMIOTP) || (target_bits == TARGET_DATAOTP))
+      {
+         pattype = OTPTYPE;
+      }
+      else
+      {
+         pattype = MODTYPE;
+      }
+      //***** End Switch statement code *****
 //      switch(target_bits) {
 //        case TARGET_BANK                : pattype = BANKTYPE;
 //        case TARGET_SECT                : pattype = SECTTYPE;
@@ -19142,222 +19235,240 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
 //        default:     pattype = MODTYPE;
 //      }   /*case*/
 //
-//       /*check bank/sector bits*/
-//      if((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0))  
-//      {
-//         if(tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         if(not tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         pattype = MODTYPE;
-//      } 
-//
-//       /*check if deplete tnum 0x43...*/
-//      tmpint = ((testnum&0xff000000) >>24) & 0xff;
-//      if(tmpint==0x43)  
-//      {
-//         if(pattype==BANKTYPE)  
-//            special_opt = 1;
-//         else
-//            special_opt = 2;
-//         datalogonly = true;
-//      }
-//      else if(tmpint==0xB0)  
-//      {
-//         datalogonly = false;
-//         if(GL_DO_REDENA and (pattype!=OTPTYPE))  
-//            special_opt = 3;
-//         else
-//            special_opt = 0;
-//      }
-//      else
-//      {
-//         special_opt = 0;
-//         datalogonly = false;
-//      } 
-//
-//      if(TI_FlashESDAEna)  
-//      {
-//         FLEsda.Tnum = start_testnum;
-//         FLEsda.Pattype  = pattype;
-//      } 
-//
-//      
-//      if(pattype == MODTYPE)  
-//      {
-//          /*+++ Module operation +++*/
-//         final_results = false;
-//         if(tistdscreenprint)  
-//            cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
-//      }
-//      else
-//      {
-//          /*++++++++ Bank operation ++++++++*/
-//
-//         maxtime = GL_F021_MAXTIME;
-//
-//         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//         {
-//            if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//            {
-//               blkstart = bankcount;
-//               blkstop  = bankcount;
-//            }
-//            else if(pattype==BLOCKTYPE)  
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXBLOCK[bankcount];
-//            }
-//            else
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXSECT[bankcount];
-//            } 
-//
-//            testnum  = start_testnum+(bankcount<<4);
-//
-//            for (count = blkstart;count <= blkstop;count++)
-//            {
-//               faildetect = false;
-//               logsites = v_dev_active;
-//
-//                /*log to TW*/
-//               writestring(tmpstr2,bankcount:1);
-//               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-//               
-//               if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
-//               {
-//                  writestring(tmpstr3,count:1);
-//                  if(pattype==BLOCKTYPE)  
-//                     tmpstr3 = "BLK" + tmpstr3;
-//                  else
-//                     tmpstr3 = "S" + tmpstr3;
-//                  tmpstr2 = tmpstr2 + tmpstr3;
-//               } 
-//               
-//               tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
-//
-//               if(special_opt==3)  
-//               {
-//                  redtnum = testnum+TNUM_REDUNDENA;
-//                  F021_RunTestNumber(redtnum,maxtime,tt_timer,red_results);
-//                  PrintResultBool(tmpstr3,redtnum,red_results,GL_PLELL_FORMAT);
-//               } 
-//                  
-//               F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
+       /*check bank/sector bits*/
+      if((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0))  
+      {
+         if(tistdscreenprint)  
+            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
+                    "  Please double check!!! ***" << endl;
+         if(not tistdscreenprint)  
+            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
+                    "  Please double check!!! ***" << endl;
+         pattype = MODTYPE;
+      } 
+
+       /*check if deplete tnum 0x43...*/
+      tmpint = ((testnum&IntS(0xff000000)) >>24) & 0xff;
+      if(tmpint==0x43)  
+      {
+         if(pattype==BANKTYPE)  
+            special_opt = 1;
+         else
+            special_opt = 2;
+         datalogonly = true;
+      }
+      else if(tmpint==0xB0)  
+      {
+         datalogonly = false;
+         if(GL_DO_REDENA and (pattype!=OTPTYPE))  
+            special_opt = 3;
+         else
+            special_opt = 0;
+      }
+      else
+      {
+         special_opt = 0;
+         datalogonly = false;
+      } 
+
+      if(TI_FlashESDAEna)  
+      {
+         FLEsda.Tnum = start_testnum;
+         FLEsda.Pattype  = pattype;
+      } 
+
+      
+      if(pattype == MODTYPE)  
+      {
+          /*+++ Module operation +++*/
+         final_results = TM_FAIL;
+         if(tistdscreenprint)  
+            cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
+      }
+      else
+      {
+          /*++++++++ Bank operation ++++++++*/
+
+         maxtime = GL_F021_MAXTIME;
+
+         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
+         {
+            if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
+            {
+               blkstart = bankcount;
+               blkstop  = bankcount;
+            }
+            else if(pattype==BLOCKTYPE)  
+            {
+               blkstart = 0;
+               blkstop  = F021_Flash.MAXBLOCK[bankcount];
+            }
+            else
+            {
+               blkstart = 0;
+               blkstop  = F021_Flash.MAXSECT[bankcount];
+            } 
+
+            testnum  = start_testnum+(bankcount<<4);
+
+            for (count = blkstart;count <= blkstop;count++)
+            {
+               faildetect = false;
+               //logsites = v_dev_active;
+               logsites = ActiveSites;
+
+                /*log to TW*/
+               //writestring(tmpstr2,bankcount:1);
+               if (bankcount ==0) tmpstr2 = "0";
+               else tmpstr2 = CONV.IntToString(bankcount);
+               
+               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
+               
+               if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
+               {
+                  //writestring(tmpstr3,count:1);
+                  if (count == 0) tmpstr3 = "0";
+                  else tmpstr3 = CONV.IntToString(count);
+                  
+                  if(pattype==BLOCKTYPE)  
+                     tmpstr3 = "BLK" + tmpstr3;
+                  else
+                     tmpstr3 = "S" + tmpstr3;
+                  tmpstr2 = tmpstr2 + tmpstr3;
+               } 
+               
+               tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
+
+               if(special_opt==3)  
+               {
+                  redtnum = testnum+TNUM_REDUNDENA;
+                  red_results = F021_RunTestNumber(redtnum,maxtime,tt_timer);
+                  //PrintResultBool(tmpstr3,redtnum,red_results,GL_PLELL_FORMAT); //Not yet implemented
+               } 
+                  
+               tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
 //               if(tistdscreenprint)  
-//                  PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT);
-//
-//               if(special_opt==3)  
+//                  PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT); //Not yet implemented
+
+               if(special_opt==3)  
 //                  ArrayAndBoolean(tmp_results,tmp_results,red_results,v_sites);
-//
+                  tmp_results = tmp_results & red_results;
+
 //               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               
-//               tmpstr4 = tmpstr3 + "_TT";
-//               TWTRealToRealMS(tt_timer,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//                /*log RTI timer (internal vclock cycle value) to tw*/
-//               rti_timer = 0;
+               final_results = final_results & tmp_results;               
+               tmpstr4 = tmpstr3 + "_TT";
+//               TWTRealToRealMS(tt_timer,realval,unitval); //don't need to sens tt_timer to realval in Unison
+               TWPDLDataLogRealVariable(tmpstr4, tt_timer.GetUnits(),tt_timer,TWMinimumData);
+
+                /*log RTI timer (internal vclock cycle value) to tw*/
+               rti_timer = 0;
 //               GetRTIValue(rti_timer);
-//               tmpstr4 = tmpstr3 + "_RTI_TT";
-//               TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
+               tmpstr4 = tmpstr3 + "_RTI_TT";
+               TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
 //               
-//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//               {
-//                  if(not datalogonly)  
-//                  {
-//                     faildetect = true;
+//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))
+               if(!(ActiveSites == logsites))  
+               {
+                  if(not datalogonly)  
+                  {
+                     faildetect = true;
 //                     F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
 //                     
-//                     if(TI_FlashCOFEna)  
-//                        F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-//                     
-//                     if(TI_FlashESDAEna)  
-//                        if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//                           SetFlashESDAVars(tmp_results,bankcount,bankcount);
-//                        else
-//                           SetFlashESDAVars(tmp_results,bankcount,count);
-//                  } 
-//               } 
-//
-//               testnum = testnum+1;
-//
-//               if(faildetect and (not datalogonly))  
-//                  if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                     Devsetholdstates(final_results);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for count*/
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for bankcount*/
-//      }    /*+++ End of Bank operation +++*/
-//
+                     if(TI_FlashCOFEna)  
+                        //F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+                        if (tmp_results == TM_FAIL)
+                           site_cof_inst_str = site_cof_inst_str + tmpstr2;
+                     
+                     if(TI_FlashESDAEna)  
+                        if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
+                           SetFlashESDAVars(tmp_results,bankcount,bankcount);
+                        else
+                           SetFlashESDAVars(tmp_results,bankcount,count);
+                  } 
+               } 
+
+               testnum = testnum+1;
+
+               if(faildetect and (not datalogonly))  
+//                  if((not TIIgnoreFail) and (not TI_FlashCOFEna))  //Not sure why TIIgnoreFail doesn't come through
+                  if(not TI_FlashCOFEna)
+                     //Devsetholdstates(final_results);
+                     ActiveSites.DisableFailingSites(final_results==TM_FAIL);
+               
+               //if(not v_any_dev_active)  
+               if(!ActiveSites.GetPassingSites().AnyEqual(true))
+                  break;
+            }   /*for count*/
+            //if(not v_any_dev_active) 
+            if(!ActiveSites.GetPassingSites().AnyEqual(true))
+               break;
+         }   /*for bankcount*/
+      }    /*+++ End of Bank operation +++*/
+
 //       /*restore all active sites*/
 //      Devsetholdstates(savesites);
+      v_any_dev_active = SetActiveSites(savesites);    
 //
 //      if(not datalogonly)  
 //         ResultsRecordActive(final_results, S_NULL);
 //      else
 //         ResultsRecordActive(savesites, S_NULL);
 //      TestClose;
-//
+
 //      test_results = final_results;
-//
-//      if(TI_FlashCOFEna)  
+
+      if(TI_FlashCOFEna)  
 //         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//      {
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      }   /*if tistdscreenprint*/
-//
-//      if(datalogonly and ((special_opt==1) or (special_opt==2)))  
-//      {
-//         if(special_opt==1)  
-//         {
-//            str1 = "DEPLT_BANK_FAIL_";
-//            str2 = "DEPLT_BANK_PASS_";
-//         }
-//         else
-//         {
-//            str1 = "DEPLT_SECT_FAIL";
-//            str2 = "DEPLT_SECT_PASS";
-//         } 
-//         
+      
+      ttimer1 = TIME.GetTimer(); //timernread(ttimer1);
+      tt_timer = ttimer1;
+
+      tmpstr4 = tmpstr1 + "_TTT";
+//      TWTRealToRealMS(tt_timer,realval,unitval); //don't need to do this in Unison
+      TWPDLDataLogRealVariable(tmpstr4, tt_timer.GetUnits(),tt_timer,TWMinimumData);
+
+      if(tistdscreenprint)  
+      {
+          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
+         //PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT); //not yet declared
+         cout << "   TT " << ttimer1 << endl;
+         cout << endl;
+      }   /*if tistdscreenprint*/
+
+      if(datalogonly and ((special_opt==1) or (special_opt==2)))  
+      {
+         if(special_opt==1)  
+         {
+            str1 = "DEPLT_BANK_FAIL_";
+            str2 = "DEPLT_BANK_PASS_";
+         }
+         else
+         {
+            str1 = "DEPLT_SECT_FAIL";
+            str2 = "DEPLT_SECT_PASS";
+         } 
+         
 //         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //            if(v_dev_active[site])  
 //            {
-//               if(not final_results[site])  
-//                  GL_F021_LOG_SOFTBIN_STAT[site] = GL_F021_LOG_SOFTBIN_STAT[site] + str1;
-//               else
-//                  GL_F021_LOG_SOFTBIN_STAT[site] = GL_F021_LOG_SOFTBIN_STAT[site] + str2;
+//               if(not final_results[site])
+               if (final_results == TM_FAIL)  
+                  GL_F021_LOG_SOFTBIN_STAT = GL_F021_LOG_SOFTBIN_STAT + str1;
+               else
+                  GL_F021_LOG_SOFTBIN_STAT = GL_F021_LOG_SOFTBIN_STAT + str2;
 //            } 
-//         
-//         TWPDLDataLogText("FL_SOFTBIN_STAT",GL_F021_LOG_SOFTBIN_STAT,TWMinimumData);
-//      }   /*if datalogonly*/
+         
+         TWPDLDataLogText("FL_SOFTBIN_STAT",GL_F021_LOG_SOFTBIN_STAT,TWMinimumData);
+      }   /*if datalogonly*/
 //      
 //      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not datalogonly))  
 //         DevSetHoldStates(final_results);
 //            
-//   }   /*if v_any_dev_active*/
+   }   /*if v_any_dev_active*/
 //
 //   F021_Read_func = V_any_dev_active;
-//}   /*F021_Read_func*/
+    return (final_results);
+}   /*F021_Read_func*/
 //   
 //
 // /*Fletcher checksum: 16-bit data chunk, return 32-bit checksum*/

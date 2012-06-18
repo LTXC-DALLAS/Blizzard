@@ -35,7 +35,8 @@ __OperatorVariable TIFocusCal {
 /***************************/
 __OperatorVariable TIAdapterBoard {
     __Comment = "An expression that will select the AdapterBoard based on TITestType, TIDeviceType, etc";
-    __Expression = __Expression { __String = "select(TIDeviceType, 'Blizard_HybridEVA_DmdX_x1_AdapterBoard_VIS16')"; }
+//    __Expression = __Expression { __String = "select(TIDeviceType, 'Blizard_HybridEVA_DmdX_x1_AdapterBoard_VIS16')"; }
+    __Expression = __Expression { __String = "select(TIDeviceType, 'Blizard_HybridEVA_DmdX_x1_AdapterBoard')"; }
     __UserMode = Production;
 }
 

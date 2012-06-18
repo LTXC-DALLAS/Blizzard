@@ -463,6 +463,13 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                                  TPModeType TCRMode,
 //                                  BoolM test_results);
 //
+TMResultM F021_Flash_Leak_func(    IntS start_testnum,
+                                  StringS tname,
+                                  prepostcorner prepost_type,
+                                  VCornerType vcorner,
+                                  IntS TCRnum,
+                                  TPModeType TCRMode);
+                                  //BoolM test_results);
 
 TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode);
 
@@ -523,16 +530,16 @@ TMResultM TL_Run_BCCVT(StringS       tname,
 //                                BoolM test_results,
 //                                BoolS dlogonly);
 //
-//BoolS F021_Program_func(    IntS start_testnum,
-//                               StringS tname,
-//                               BoolM test_results);
+TMResultM F021_Program_func(    IntS start_testnum,
+                               StringS tname);
+//if function returns TMResultM no need for argument test_results BoolM test_results);
 
 TMResultM F021_Erase_func( IntS start_testnum, StringS tname);
 
-//BoolS F021_Read_func(    IntS start_testnum,
-//                            StringS tname,
+TMResultM F021_Read_func(    IntS start_testnum,
+                            StringS tname);
 //                            BoolM test_results);
-//
+
 //BoolS CalcChksum_FlashEfuse_func(    StringM efbinstring,
 //                                        IntM chksum1,
 //                                        IntM chksum2);
