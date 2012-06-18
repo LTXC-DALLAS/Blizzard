@@ -109,9 +109,9 @@ struct F021_FlashRec {
  /*         pstdrl mp1->mp2 vt value after srch stores as (chkvt0drl,post) */
  /*         predrl mp2->mp3 vt value after srch stores as (chkvt0,pre) */
 enum vttype {CHKVT0,CHKVT1,CHKVT0Max,CHKVT0DRL,CHKVT1DRL,CHKVT0MaxDRL,
-          REVTUNVT1,PGMFFVT1,PUNTHRUVT1,FGWLVT1,TUNOXTSMCVT1,TUNOXVT1,THINOXVT1,
-          ONOVT0,CSFGVT0,EGFG1VT0,EGFG2VT0,EGFG3VT0,EGFG4VT0,EGFG5VT0,RDDISTBVT0,RDDISTB2VT0,
-          RCODEVT0,RCODEVT1,ERSSTRVT0 };
+             REVTUNVT1,PGMFFVT1,PUNTHRUVT1,FGWLVT1,TUNOXTSMCVT1,TUNOXVT1,THINOXVT1,
+             ONOVT0,CSFGVT0,EGFG1VT0,EGFG2VT0,EGFG3VT0,EGFG4VT0,EGFG5VT0,RDDISTBVT0,RDDISTB2VT0,
+             RCODEVT0,RCODEVT1,ERSSTRVT0 };
 
 enum prepostcorner {pre,post};
 enum OtpOper {OtpRD,OtpWR,OtpRW};
@@ -128,6 +128,12 @@ enum TPModeType {ReadMode,ProgMode,PvfyMode,ErsMode,EvfyMode,CvfyMode};
 
  /*vmin,nom,max,mineven,minodd,...*/
 enum VCornerType {VMN,VNM,VMX,VMNE,VMNO,VNME,VNMO,VMXE,VMXO};
+
+enum OperatorType { OPER_TCR5 = 0x0, OPER_TCR6 = 0x1, OPER_TCR39 = 0x2, OPER_TCR38 = 0x3 };
+enum TargetType { TARGET_BANK = 0x0, TARGET_SECT, TARGET_LOGSECT, TARGET_OTP = 0x4,
+                  TARGET_SEMIOTP, TARGET_DATAOTP, TARGET_ARB = 0xA };
+enum OptionType { TOPT_WO_PREC = 0, TOPT_W_PREC };
+enum StressType { STRESS_WLS = 0x0, STRESS_BLS, STRESS_SLS };
 
 struct F021_RunCodeRec {
   /*+++ info for program & execute +++*/

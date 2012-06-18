@@ -1018,14 +1018,14 @@ FloatM RED_VT_VALUE[8][16][25][2];
 // make bank_vt_delta_value a local array
 //FloatM BANK_VT_DELTA_VALUE[8][16][25]; 
 FloatM OTP_VT_VALUE[8][25][2]; 
-//FloatM2D OTP_VT_DELTA_VALUE(8,25); 
+FloatM2D OTP_VT_DELTA_VALUE(8,25);
 
 FloatM BANK_BCC_VALUE[8][16][25][2];
 FloatM RED_BCC_VALUE[8][16][25][2];
 // make bank_bcc_delta_value a local array
 //FloatM BANK_BCC_DELTA_VALUE[8][16][25];
 FloatM OTP_BCC_VALUE[8][25][2];
-//FloatM2D OTP_BCC_DELTA_VALUE(8,25);
+FloatM2D OTP_BCC_DELTA_VALUE(8,25);
 
 BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;
 

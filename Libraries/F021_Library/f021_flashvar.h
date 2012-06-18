@@ -51,7 +51,8 @@ extern      IntM GL_SHELL_CONFIGREV;
 extern      IntM GL_SHELL_SUPPORTREV;
 
 extern      BoolS GL_USE_RAMPMT_X64;
-// extern      BoolS GL_DO_ESDA_WITH_SCRAM,  GL_DO_SOURCE_WITH_SCRAM;
+//SCRAM -> Serial Capture RAM.  We don't have an analog so this will always be false in our code
+//extern      BoolS GL_DO_ESDA_WITH_SCRAM,  GL_DO_SOURCE_WITH_SCRAM; 
 extern      BoolS GL_DUMP_RAWESDA_TOFILE;
 extern      BoolM GL_SITE_TO_ESDA;
 extern      BoolM2D GL_BANK_TO_ESDA; /* array dimensions were : 0..7,0..15 */
@@ -1003,14 +1004,14 @@ extern    FloatM RED_VT_VALUE[8][16][25][2];
 // make bank_vt_delta_value a local array
 //extern    FloatM BANK_VT_DELTA_VALUE[8][16][25]; 
 extern    FloatM OTP_VT_VALUE[8][25][2]; 
-//extern    FloatM2D OTP_VT_DELTA_VALUE; 
+extern    FloatM2D OTP_VT_DELTA_VALUE;
 
 extern    FloatM BANK_BCC_VALUE[8][16][25][2];
 extern    FloatM RED_BCC_VALUE[8][16][25][2];
 // make bank_vt_delta_value a local array
 //extern    FloatM BANK_BCC_DELTA_VALUE[8][16][25];
 extern    FloatM OTP_BCC_VALUE[8][25][2]; 
-//extern    FloatM2D OTP_BCC_DELTA_VALUE; 
+extern    FloatM2D OTP_BCC_DELTA_VALUE; 
 
 extern     BoolM GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, GL_BCC1DRL_RESULT;
 
