@@ -6140,7 +6140,7 @@ __Test Pbist_Logout_Debug_T {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "ALLPINS"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'pb_pb_fail_insert'"; }
+            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "TRUE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }

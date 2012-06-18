@@ -318,43 +318,6 @@ __FunctionCall CurveTrace {
 /**********************************************************************/
 
 
-/***************/
-/*** Trigger ***/
-/***************/
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-
-
-/***************************/
-/*** CaptureTool Objects ***/
-/***************************/
-
-__WaveformCapture ALLPINS_Capture {
-  __ReferenceSegment "";
-  __Start "7945";
-  __Stop "50";
-  __Resolution "1.5nS";
-  __Pins "ALLPINS-FLTP2-AIN04_193" {
-	__Merge EVW_Merge_All;
-	__DriveEnable __True;
-	__ScopeEnable __True;
-	__ScopeHi "3.3V";
-	__ScopeLo "0V";
-  }
-  __Pins "RST_n_122+TCK_152+TDI_150+TDO_149+TMS_151+o_cpu_done_46+o_cpu_fail_47+OSC0_124+PA3_49+PA4_50+AIN10_183+PB6_10+PB0_129+ScanHeader2_PL" {
-	__Enable __True;
-	__Merge EVW_Merge_All;
-	__DriveEnable __True;
-	__DriveSize "7";
-	__ResponseEnable __True;
-	__ResponseSize "7";
-	__ScopeDriveSize "7";
-	__ScopeHi "3.3V";
-	__ScopeLo "0V";
-  }
-}
-
-
 /************************************************************/
 /*** Various microflows for easier debug with breakpoints ***/
 /***   - Presented at 2001 LTX User's Conference          ***/
