@@ -6961,89 +6961,92 @@ TMResultM EGCG_Leak_Vmax_func()
 //   
 //   Charz_EraseRefArray_Main = v_any_dev_active;
 //}  /* Charz_EraseRefArray_Main */
-//
-// /*do erase refarray 1st then boost refarray on retest sites if any*/
-//BoolS EraseRefArray_func()
-//{
-//   const IntS TESTID = 41; 
-//
+#if 0
+ /*do erase refarray 1st then boost refarray on retest sites if any*/
+TMResultM EraseRefArray_func()
+{
+   const IntS TESTID = 41; 
+
+   Sites savesites, virgin_sites;
+   BoolM virgin_device, boost_device;
+   bool any_site_active;
 //   BoolM final_results,alldisable,activesites;
 //   BoolM savesites,virginsites,boostsites;
 //   StringS current_shell;
 //   BoolS adaptena,boostena;
 //   IntS site;
-//
+
+//  :TODO: come back and implement Char stuff...for now, unimportant
 //   if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR and (GL_CHARZ_ERSREFARR_COUNT>0))  
 //   {
 //      Charz_EraseRefArray_Main;
 //   }
 //   else
 //   {
-//      PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//           v[vih_loose_osc_vnom],v[vil_loose]);
-//      clockpinset(s_clk_1a,s_clock);
-//      TIME.Wait(2ms);
-//      F021_LoadFlashShell_func;
-//
-//      RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
-//              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 09/10/10*/
-//      RAM_Clear_MailBox_Key;
-//      
-//      GL_FLTESTID = TESTID;
-//      boostena = false;
-//
-//      savesites = v_dev_active;
-//      alldisable = false;
-//      ArrayXorBoolean(virginsites,savesites,SITE_IPMOS_TRIMMED,v_sites);
-//      ArrayAndBoolean(virginsites,virginsites,savesites,v_sites);
-//      ArrayAndBoolean(boostsites,savesites,SITE_IPMOS_TRIMMED,v_sites);
-//
-//      if(not arraycompareboolean(boostsites,alldisable,v_sites))  
-//      {
-//         devsetholdstates(virginsites);
-//         boostena = true;
-//      } 
-//     
-//      if(v_any_dev_active)  
-//      {
-//         adaptena = GL_DO_REFARR_ERS_ADAPTIVE;
-//         final_results = v_dev_active;
-//         F021_RefArr_Erase_func(RefArr_Ers_Test,adaptena,final_results);
-//         arrayandboolean(virginsites,virginsites,v_dev_active,v_sites);
-//            
-//         if(GL_DO_CHARZ_ERSREFARR)  
-//         {
-//            GL_CHARZ_ERSREFARR_SAVECOUNT = 0;
-//            GL_CHARZ_ERSREFARR_COUNT = 1;
-//            GL_CHARZ_BCC_COUNT = 0;
-//         } 
-//      } 
-//
-//      if(boostena)  
-//      {
-//         devsetholdstates(boostsites);
-//         if(GL_DO_IREF_PMOS_TRIM and GL_DO_BOOST_REFARR)  
-//         {
-//            GetTrimCode_On_EFStr;
-//            RAM_Upload_PMOS_TrimCode;
-//            TL_Boost_RefArray;
-//            RAM_Clear_PMOS_SoftTrim;
-//         } 
-//         ArrayOrBoolean(activesites,boostsites,virginsites,v_sites);
-//         ArrayAndboolean(activesites,activesites,savesites,v_sites);
-//         devsetholdstates(activesites);
-//      } 
-//
+
+      F021_LoadFlashShell_func();
+
+      RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
+              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 09/10/10*/
+      RAM_Clear_MailBox_Key();
+      
+      GL_FLTESTID = TESTID;
+      boostena = false;
+      savesites = ActiveSites;
+      any_site_active = true;
+      
+      // only works on active sites
+      virgin_device = !SITE_IPMOS_TRIMMED; 
+      boost_device = SITE_IPMOS_TRIMMED;
+
+      if (boost_device.AnyEqual(true))
+      {
+         boostena = true;
+         virgin_sites = ActiveSites;
+         virgin_sites.DisableFailingSites(virgin_device);
+         any_site_active = SetActiveSites(virgin_sites);
+      }
+     
+      if(any_site_active)  
+      {
+         adaptena = GL_DO_REFARR_ERS_ADAPTIVE;
+         final_results = TM_NOTEST;
+      // :HERE:
+         F021_RefArr_Erase_func(RefArr_Ers_Test,adaptena,final_results);
+         arrayandboolean(virginsites,virginsites,v_dev_active,v_sites);
+            
+         if(GL_DO_CHARZ_ERSREFARR)  
+         {
+            GL_CHARZ_ERSREFARR_SAVECOUNT = 0;
+            GL_CHARZ_ERSREFARR_COUNT = 1;
+            GL_CHARZ_BCC_COUNT = 0;
+         } 
+      } 
+
+      if(boostena)  
+      {
+         devsetholdstates(boostsites);
+         if(GL_DO_IREF_PMOS_TRIM and GL_DO_BOOST_REFARR)  
+         {
+            GetTrimCode_On_EFStr;
+            RAM_Upload_PMOS_TrimCode;
+            TL_Boost_RefArray;
+            RAM_Clear_PMOS_SoftTrim;
+         } 
+         ArrayOrBoolean(activesites,boostsites,virginsites,v_sites);
+         ArrayAndboolean(activesites,activesites,savesites,v_sites);
+         devsetholdstates(activesites);
+      } 
+
 //   }   /*non-charz*/
-//
-//    /*enable W8/W9 template override in RAM*/
-//   if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR)  
-//      GL_DO_CHARZ_OVRTEMPL_W89 = true;
-//   
-//   EraseRefArray_func = v_any_dev_active;
-//}   /* EraseRefArray_func */
-//
+
+    /*enable W8/W9 template override in RAM*/
+   if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR)  
+      GL_DO_CHARZ_OVRTEMPL_W89 = true;
+   
+   EraseRefArray_func = v_any_dev_active;
+}   /* EraseRefArray_func */
+#endif
 //BoolS VHV_Stress_Prog_func()
 //{
 //   BoolM final_results;
@@ -7422,52 +7425,6 @@ TMResultM ThinOxide_Stress_func()
 //
 //   FlowCheck_func = v_any_dev_active;
 //}   /* FlowCheck_func */
-//   
-//
-//
-//
-//BoolS MainBG_PreTrim_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   MainBG_PreTrim_Sort_func = v_any_dev_active;
-//} 
-//
-//BoolS MainIref_PreTrim_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   MainIref_PreTrim_Sort_func = v_any_dev_active;
-//} 
-//
-//BoolS FOSC_PreTrim_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   FOSC_PreTrim_Sort_func = v_any_dev_active;
-//} 
-//
-//BoolS Flash_Fuse_Write_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   Flash_Fuse_Write_Sort_func = v_any_dev_active;
-//} 
-//
-//BoolS Flash_Fuse_Vfy_Norm_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   Flash_Fuse_Vfy_Norm_Sort_func = v_any_dev_active;
-//} 
-//
-//BoolS Flash_Fuse_Vfy_Margin_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   Flash_Fuse_Vfy_Margin_Sort_func = v_any_dev_active;
-//} 
-//
 //
 //BoolS FOSC_VCO_Vmin_func()
 //{
@@ -7827,13 +7784,6 @@ TMResultM ThinOxide_Stress_func()
 //   GL_PREVIOUS_SHELL = "";
 //
 //   IrefPMOS_Trim_func = v_any_dev_active;
-//} 
-//
-//BoolS IrefPMOS_PreTrim_Sort_func()
-//{
-//   BoolM final_results;
-//
-//   IrefPMOS_PreTrim_Sort_func = v_any_dev_active;
 //} 
 //
 //BoolS BLCharge_Signal_func()
