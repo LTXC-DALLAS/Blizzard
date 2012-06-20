@@ -32899,3 +32899,30 @@ TMResultM F021_FOSC_SoftTrim_External_func()
    return (final_results);
 }   /* F021_FOSC_SoftTrim_External_func */
 #endif
+
+void PbistFailLogout() {
+   BoolS doneAsserted = false;
+   PinM capPin = "PB2_131";
+   StringS capName = "pbistData";
+   IntS maxCapCnt = 16384;
+   UnsignedM1D capArray(109);
+   UnsignedM1D simArray(109,1);
+   UnsignedM1D retArray(109);
+   UnsignedM1D tmpArray(109);
+   TMResultM currResult = TM_NOTEST;
+   
+   TIME.Wait(0.0s);
+   
+   if ( currResult != TM_PASS ) {
+      if (SYS.TesterSimulated()) retArray = simArray;
+      else {
+         do {
+            PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
+            tmpArray = capArray;
+         
+//            retArray = ProcessFailData();
+            doneAsserted = 1;
+         } while (!doneAsserted);
+      }
+   }
+}

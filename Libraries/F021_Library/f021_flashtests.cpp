@@ -7876,11 +7876,10 @@ TMResultM PreconOTP_func() {
 
    tname = "PreconOTP_Test";
    
-//   final_results = F021_Program_func(testnum,tname);
+   final_results = F021_Program_func(testnum,tname);
 
    return(final_results);
 
-// PreconOTP_func = v_any_dev_active;
 }   /* PreconOTP_func */
    
 
@@ -7903,10 +7902,10 @@ TMResultM RdM0OTP_func() {
       testnum = TNUM_OTP_RDM0S;
 
    tname = "RdM0OTP_Test";
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
 
    return(final_results);
-// RdM0OTP_func = v_any_dev_active;
+
 }   // RdM0OTP_func
    
 
@@ -7929,7 +7928,7 @@ TMResultM EraseOTP_func() {
    final_results = F021_Erase_func(testnum,tname);
    
    return(final_results);
-// EraseOTP_func = v_any_dev_active;
+
 }   // EraseOTP_func
    
 
@@ -7952,11 +7951,10 @@ TMResultM RdM1OTP_func() {
       testnum = TNUM_OTP_RDM1S;
 
    tname = "RdM1OTP_Test";
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    
    return(final_results);
 
-// RdM1OTP_func = v_any_dev_active;
 }   // RdM1OTP_func
    
 
@@ -7994,7 +7992,7 @@ TMResultM PgmOTPTemplate_func() {
       }
       else {
          testnum = TNUM_OTP_PROG_TEMPLATE;
-//         final_results = F021_Program_func(testnum,tname);
+         final_results = F021_Program_func(testnum,tname);
       } 
       if (GL_DO_IREF_PMOS_TRIM)
          ;
@@ -8030,10 +8028,10 @@ TMResultM RdM1OTPTemplate_func() {
    GL_FLTESTID = TESTID;
    testnum = TNUM_OTP_RDM1S_TEMPLATE;
    tname = "RdM1OTPTmplt_Test";
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    
    return(final_results);
-// RdM1OTPTemplate_func = v_any_dev_active;
+
 } 
 
 TMResultM RdM0OTPTemplate_func() {
@@ -8051,11 +8049,10 @@ TMResultM RdM0OTPTemplate_func() {
    GL_FLTESTID = TESTID;
    testnum = TNUM_OTP_RDM0S_TEMPLATE;
    tname = "RdM0OTPTmplt_Test";
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
 
    return(final_results);
    
-// RdM0OTPTemplate_func = v_any_dev_active;
 } 
 
 //
@@ -8171,7 +8168,7 @@ TMResultM Flash_Cycle9X_func() {
 //          TestClose;
          }
          else {
-//            final_results = F021_Program_func(testnum,tname);
+            final_results = F021_Program_func(testnum,tname);
          } 
          
 //          if(not arraycompareboolean(logsites,final_results,v_sites))  
@@ -8898,7 +8895,6 @@ TMResultM RdM1_PstCycle9X_func() {
 #endif
    return(final_results);
    
-// RdM1_PstCycle9X_func = v_any_dev_active;
 }   /* RdM1_PstCycle9X_func */
 
 // /*dummy empty function to separate binning for 1X pgm fail*/
@@ -9754,7 +9750,7 @@ TMResultM BankErs_PrePgmFF_func() {
       }
    } 
    return(final_results);
-//   BankErs_PrePgmFF_func = v_any_dev_active;
+
 }  //  BankErs_PrePgmFF_func
    
 
@@ -10634,7 +10630,6 @@ TMResultM PstFGWLVT1OTP_func() {
    }
    return(final_results);
    
-// PstFGWLVT1OTP_func = v_any_dev_active;
 }   // PstFGWLVT1OTP_func
    
 
@@ -10756,7 +10751,7 @@ TMResultM BankErs_PreTunOxide_func() {
    }
    
    return (final_results);
-}   /* BankErs_PreTunOxide_func */
+}   // BankErs_PreTunOxide_func
    
 
 TMResultM PreTunOxideVT1_func() {
@@ -10912,7 +10907,7 @@ TMResultM PstTunOxideVT1_func() {
    } 
    
    return(final_results);
-// PstTunOxideVT1_func = v_any_dev_active;
+
 }   /* PstTunOxideVT1_func */
    
 
@@ -10955,7 +10950,7 @@ TMResultM PstTunOxideVT1OTP_func() {
       } 
    } 
    return(final_results);
-//   PstTunOxideVT1OTP_func = v_any_dev_active;
+
 }   // PstTunOxideVT1OTP_func
    
 
@@ -10991,7 +10986,7 @@ TMResultM TunOxideVT1Delta_func() {
       }
    } 
    return(final_results);
-   //TunOxideVT1Delta_func = v_any_dev_active;
+
 }  // TunOxideVT1Delta_func
    
 
@@ -11016,7 +11011,7 @@ TMResultM TunOxideVT1DeltaOTP_func() {
    }
    return(final_results);
    
-//   TunOxideVT1DeltaOTP_func = v_any_dev_active;
+
 }  // TunOxideVT1DeltaOTP_func
    
 //
@@ -16034,7 +16029,7 @@ TMResultM RdM1_func() {
             testnum = testnum+TNUM_REDUNDENA;
       }
 
-//      final_results = F021_Read_func(testnum,tname);
+      final_results = F021_Read_func(testnum,tname);
    } 
    GL_DO_REDENA = savebool;
    
@@ -16392,10 +16387,9 @@ TMResultM PgmChkboard_func() {
      default:   testnum = TNUM_BANK_PROG_OCHK_DISTURB; break; 
    }   // case
 
-//   final_results = F021_Program_func(testnum,tname);
+   final_results = F021_Program_func(testnum,tname);
    return(final_results);
 
-// PgmChkboard_func = v_any_dev_active;
 }   // PgmChkboard_func
    
 
@@ -16442,7 +16436,6 @@ TMResultM RdM0Chkboard_func() {
    }
    return(final_results);
    
-// RdM0Chkboard_func = v_any_dev_active;
 }   // RdM0Chkboard_func
    
 
@@ -16528,7 +16521,7 @@ TMResultM PgmChkboardOTP_func() {
         case MP2: testnum = TNUM_OTP_PROG_OCHK_DISTURB_SEMI; break; 
       }   // case
 
-//      final_results = F021_Program_func(testnum,tname);
+      final_results = F021_Program_func(testnum,tname);
    }
    return(final_results);
    
@@ -16689,7 +16682,7 @@ TMResultM RdNormSCyc_Vmin_func() {
    testnum = TNUM_BANK_RDOCHK + i;
 #endif
 
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    return(final_results);
 
 }   // RdNormSCyc_Vmin_func
@@ -16731,7 +16724,7 @@ TMResultM RdNormSCyc_Vmax_func() {
    testnum = TNUM_BANK_RDOCHK + i;
 #endif
 
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    return(final_results);
 
 }   // RdNormSCyc_Vmax_func
@@ -16773,7 +16766,7 @@ TMResultM RdPipe_Vmin_func() {
    testnum = TNUM_BANK_RDOCHK + i;
 #endif
    
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    return(final_results);
 
 }   // RdPipe_Vmin_func
@@ -16815,7 +16808,7 @@ TMResultM RdPipe_Vmax_func() {
    testnum = TNUM_BANK_RDOCHK + i;
 #endif
    
-//   final_results = F021_Read_func(testnum,tname);
+   final_results = F021_Read_func(testnum,tname);
    return(final_results);
    
 }   // RdPipe_Vmax_func
