@@ -32910,18 +32910,32 @@ void PbistFailLogout() {
    UnsignedM1D retArray(109);
    UnsignedM1D tmpArray(109);
    TMResultM currResult = TM_NOTEST;
+   TMResultM lastResult = TM_NOTEST;
+   IntM failCnt = 0;
    
    TIME.Wait(0.0s);
    
-   if ( currResult != TM_PASS ) {
+   if ( lastResult != TM_PASS ) {
       if (SYS.TesterSimulated()) retArray = simArray;
       else {
          do {
-            PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
+            if (failCnt != 0 ) {
+               // Test "FAIL" pin for assertion
+               currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
+               // FAIL asserted collect one fail frame
+               if ( currResult == TM_FAIL ) {
+                  PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
+                  ++failCnt;
+               }
+               
+               // Test "DONE" pin for assertion
+               currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
+               if ( currResult == TM_FAIL ) {
+                  ;
+               }
+            }
             tmpArray = capArray;
-         
 //            retArray = ProcessFailData();
-            doneAsserted = 1;
          } while (!doneAsserted);
       }
    }
