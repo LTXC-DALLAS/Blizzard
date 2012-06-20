@@ -1111,3 +1111,7 @@ __FunctionCall PowerCycleVmask_FC {
     powerUpLevels1 = __Expression { __String = "&PowerUpAtVmask"; }
     powerUpLevels2 = __Expression { __String = "&DCsetup_LooseVmask"; }
 }
+__FunctionCall Pbist_Fail_Logout {
+    __WrapCells = __True;
+    __Function = PbistFailLogout;
+}

@@ -751,3 +751,5 @@ TMResultM F021_FOSC_SoftTrim_External_func();
 
 #endif
 
+void PbistFailLogut_func();
+
