@@ -311,10 +311,18 @@ __PatternMap DefaultPatternMap {
         __Path "./Patterns/Ascii";
     }
 /*****************************************************************/
-/**   Hand-generated logout pattern for frame collection  - cjp **/
+/**   Hand-generated patterns for pbist frame collection  - cjp **/
 /*****************************************************************/
     __Pattern pb_pb_fail_logout {
         __File "pb_pb_fail_logout";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_test_fail_pin {
+        __File "pb_pb_test_fail_pin";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_test_done_pin {
+        __File "pb_pb_test_done_pin";
         __Path "./Patterns/Ascii";
     }
 
