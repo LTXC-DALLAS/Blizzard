@@ -4772,11 +4772,6 @@ __Test F021_InitFLGlobalVars {
         }
     }
 }
-__Test FlashEfuse_func {
-    __Entry[0] = DCsetup_Loose;
-    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
-    __PortExpression[1] = __Expression { __String = "TRUE"; }
-}
 __Test F021_FlashConfig_test {
     __Mask[0] = PSSpecsMask;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
@@ -4789,6 +4784,7 @@ __Test F021_FlashConfig_test {
     }
 }
 __Test Pump_Iref_Vnom {
+    __Entry[0] = PowerCycleVmask_FC;
     __Entry[1] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
@@ -6153,7 +6149,8 @@ __Test Pbist_Logout_Debug_T {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "ALLPINS"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'pb_pb_fail_insert'"; }
+            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_Thrd'"; }
+            CallAtEnd = __Expression { __String = "&Pbist_Fail_Logout"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "TRUE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -7573,7 +7570,6 @@ __Test a_iddq_T {
             EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
             TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
             PresetTestPins = __Expression { __String = "DSH_PL"; }
-            PresetPatterns = __Expression { }
             OverridePatternFails = __Expression { __String = "FALSE"; }
             SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
             LowLimit = __Expression { __String = "IDDQ_MIN_VBAT_VBOXLO"; }
@@ -7608,7 +7604,6 @@ __Test a_iddq_T {
             EdgeType = __Expression { __String = "EDGE_TYPE:EDGE_RISING"; }
             TriggerMode = __Expression { __String = "DIGITAL_TRIGGER_MODE:DIGITAL_TRIGGER_PULSE"; }
             PresetTestPins = __Expression { __String = "DSH_PL"; }
-            PresetPatterns = __Expression { }
             OverridePatternFails = __Expression { __String = "FALSE"; }
             SetupRangeAfterPreset = __Expression { __String = "FALSE"; }
             LowLimit = __Expression { __String = "IDDQ_MIN_VDDA_VBOXLO"; }
@@ -8465,36 +8460,60 @@ __Test pb_iddq_ret_zeroes_T {
         }
     }
 }
-
-__Test Pump_Leak_Vmax_func_T {
-    __Mask[0] = ACSpecsMask;
-    __Mask[1] = DCSpecsMask;
-    __Mask[2] = PSSpecsMask;
-    __Entry[0] = FlashTestNum_SEQ;
+__Test FlashEfuse_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = Pump_Leak_Vmax;
+        __Title = Block1;
         __TestMethod {
-            __Name = Pump_Leak_Vmax_func;
+            __Name = FlashEfuse_func;
+        }
+    }
+}
+__Test MainBG_Trim_T {
+    __Entry[0] = PowerCycleVmask_FC;
+    __Entry[1] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = jtag_reset_1;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'jtag_reset_init_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
         }
     }
     __Block[1] = {
-        __Title = EGCG_Leak_Vmax;
+        __Title = ldo_bypass_1;
+        __EnableExpression = __Expression { __String = "TRUE"; }
         __TestMethod {
-            __Name = EGCG_Leak_Vmax_func;
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ldo_bypass_init_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
         }
     }
     __Block[2] = {
-        __Title = CGS_Leak_Vmax;
+        __Title = Block3;
         __TestMethod {
-            __Name = CGS_Leak_Vmax_func;
-        }
-    }
-    __Block[3] = {
-        __Title = Block4;
-        __TestMethod {
-            __Name = EGCG_Leak_Vmax_func;
+            __Name = MainBG_Trim_func;
         }
     }
 }

@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U1.0d:S5.3;
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
 /*                                                                            */
@@ -92,6 +92,11 @@ __ExternalRef {
    __File = "Probe_flow.uno";
 }
 
+// Added 18jun12 cjp
+__ExternalRef {
+   __File = "toolkit.uno";
+}
+
 //Only interested in probe --BJP
 //__ExternalRef  {   __File = "Final_Flow.uno";   }
 
@@ -117,7 +122,6 @@ __ExternalRef {
 /***********************************************************************/
 __ExternalRef {
    __Path = "/u/TI_apps/enVision/stdprogram";
-//   __Path = "/u/bplatt/MCU/Blizzard/UNISON/BlizzProgTemp/Blizzard/ccook/gitRepo/Customers/TI/stdprogramP";
    __File = "TIexterns.uno";
 }
 
@@ -134,7 +138,6 @@ __ApplicationLibrary TestWare_Library {
    __Source = "./Libraries/TestWare_Library/TestwareSupport.cpp";
    __IncludePath = "./Libraries/TestWare_Library";
    __IncludePath = "/u/TI_apps/enVision/stdprogram";
-//   __IncludePath = "/u/bplatt/MCU/Blizzard/UNISON/BlizzProgTemp/Blizzard/ccook/gitRepo/Customers/TI/stdprogramP";
    __Include = "TestwareSupport.h";
    __DependsOnLibrary = TIDependsLib;
 }
@@ -149,6 +152,7 @@ __ApplicationLibrary Blizzard_Library {
    __Source = "./Libraries/Blizzard_Library/TI_DC.cpp";
    __Source = "./Libraries/Blizzard_Library/TWFuncTest.cpp";
    __Source = "./Libraries/Blizzard_Library/SearchUtilities.cpp";
+   __Source = "./Libraries/Blizzard_Library/efuse.cpp";
    __IncludePath = "./Libraries/Blizzard_Library";
    __IncludePath = "./Libraries/TestWare_Library";
    __Include = "CbitCtrl.h";
@@ -157,9 +161,11 @@ __ApplicationLibrary Blizzard_Library {
    __Include = "TI_DC.h";
    __Include = "TWFuncTest.h";
    __Include = "SearchUtilities.h";
+   __Include = "efuse.h";
    __CompilerFlags = "-g";
    __DependsOnLibrary = TIDependsLib;
    __DependsOnLibrary = TestWare_Library;
+   __DependsOnLibrary = STD_Library;
 }
 
 /* The F021_Library being converted is the F021 code 
@@ -185,6 +191,7 @@ __ApplicationLibrary F021_Library {
    __DependsOnLibrary = TIDependsLib;
    __DependsOnLibrary = TestWare_Library;
    __DependsOnLibrary = STD_Library;
+   __DependsOnLibrary = Blizzard_Library;
 }
 
 __ApplicationLibrary STD_Library {

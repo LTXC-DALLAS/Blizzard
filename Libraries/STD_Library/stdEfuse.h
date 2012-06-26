@@ -1,4 +1,4 @@
-BoolM STDReadFuseROM(StringS codeOption,
+TMResultM STDReadFuseROM(StringS codeOption,
 //                    FuseROMCtlr STDFuseFarmRec,
                      IntS ctlrNum, IntS blkNum,
                      IntM rowStart, IntM rowStop,

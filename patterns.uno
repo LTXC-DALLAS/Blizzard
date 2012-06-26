@@ -310,6 +310,21 @@ __PatternMap DefaultPatternMap {
         __File "pb_pb_fail_insert";
         __Path "./Patterns/Ascii";
     }
+/*****************************************************************/
+/**   Hand-generated patterns for pbist frame collection  - cjp **/
+/*****************************************************************/
+    __Pattern pb_pb_fail_logout {
+        __File "pb_pb_fail_logout";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_test_fail_pin {
+        __File "pb_pb_test_fail_pin";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_pb_test_done_pin {
+        __File "pb_pb_test_done_pin";
+        __Path "./Patterns/Ascii";
+    }
 
 /*****************************************************/
 /**   Trevor's v4p0 flash patterns emailed 18may12  **/

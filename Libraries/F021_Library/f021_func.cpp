@@ -289,7 +289,6 @@
 
 
 #include <f021_func.h>
-#include <f021_flashvar.h>
 #include <string_utils.h>
 #include <iomanip>
 using namespace std; 
@@ -1567,7 +1566,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 //         {
 //            maxcapcount = 8;
 //            istep = 8;
-//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)   //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                      PMT_RAMBUS,S_binary,
 //                                      Mid(addr_str,13-(4*offsetcyc),4));
@@ -1723,7 +1722,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 //         IntToBinStr(curraddr>>2,addr_str);
 //         if(GL_USE_RAMPMT_X64)  
 //         {
-//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//            for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                      PMT_RAMBUS,S_binary,
 //                                      Mid(addr_str,13-(4*offsetcyc),4));
@@ -2204,7 +2203,7 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //         for (counter = 2;counter <= maxcapcount;counter++)
 //            data_cycle[counter] = data_cycle[1]+counter;
 //      } 
-//      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                data_pins,S_binary,
 //                                Mid(addr_str,13-(4*offsetcyc),4));
@@ -2964,7 +2963,7 @@ void GetRamContent_SCRAM(IntS start_addr,
 //      }
 //      else
 //      {
-//         for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
+//         for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++) //:NOTE: THIS SHOULD BE offsetcyc = 0 downto 3?? how is it downto 3???
 //            Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
 //                                   data_pins,S_binary,
 //                                   Mid(addr_str,13-(4*offsetcyc),4));
@@ -6613,7 +6612,7 @@ void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ov
 //      if(dbit != 0)  
 //      {
 //         wdindex = i;  /*as appears in esda word index*/
-//         for (j = 15;j <= 0;j++)
+//         for (j = 15;j >= 0;--j)
 //         {
 //            k = (dbit & (1<<j)) >>j;
 //            if(k==1)  
@@ -14850,16 +14849,15 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    return(final_results);
 }   // F021_Stress_func
 
-//   
-//BoolS F021_RefArr_Erase_func(    StringS tname,
-//                                    BoolS adaptiveEna,
-//                                    BoolM test_results)
-//{
-//   const IntS TCR56 = 56; 
-//   const IntS TCR40 = 40; 
-//   const IntS EVENNUM = 0; 
-//   const IntS ODDNUM = 1; 
-//
+#if 0
+TMResultM F021_RefArr_Erase_func(    StringS tname,
+                                     BoolS adaptiveEna)
+{
+   const IntS TCR56 = 56; 
+   const IntS TCR40 = 40; 
+   const IntS EVENNUM = 0; 
+   const IntS ODDNUM = 1; 
+
 //   FloatS tdelay,maxtime;
 //   BoolM savesites,logsites,rtest_results;
 //   BoolM tmp_results,final_results;
@@ -14896,478 +14894,453 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 //   BoolS bool1,bool2;
 //   BoolM1D bankdone(8);
 //   IntS minloop,maxloop;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_RefArr_Erase_func +++++" << endl;
-//      
-//      maxtime = GL_F021_BANK_MAXTIME;
-//      tdelay  = 10ms;
-//
-//      tcrnum_ipmos  = TCR40;
-//      tcrmode_ipmos = EvfyMode;
-//      tnum_ipmos[0] = TNUM_BANK_IPMOS_READ_EVEN;
-//      tnum_ipmos[1] = TNUM_BANK_IPMOS_READ_ODD;
-//      testpad = FLTP2;
-//       /*pre-ers*/
-//      tcrmode_ipmos_pre = ProgMode;  /*actual mode is evfy*/
-//      llim_pre = TCR.TP2_LLim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*-135ua*/
-//      ulim_pre = TCR.TP2_ULim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*5ua*/
-//
-//      ers_cntmin = 1;
-//      tcrnum_refarr  = TCR56;
-//      tnum_refarr    = TNUM_BANK_REFARR_ERS;
-//
-//       /*post-ers*/
-//      if(not adaptiveEna)  
-//      {
-//         llim = Bank_IPMOS_ErsPst_LLim;   /*-126ua*/
-//         ulim = Bank_IPMOS_ErsPst_ULim;   /*-85ua*/
-//         ers_pwmax  = Bank_RefArr_VEG_Ers_PWidth;
-//         ers_pwidth = ers_pwmax;
-//         ers_cntmax = ers_cntmin;
-//         vstart     = Bank_RefArr_VEG_Ers;
-//         vstop      = vstart;
-//         vinc       = 1V;
-//         tcrmode_refarr = ErsMode;
-//      }
-//      else
-//      {
-//         iavg_toler = 10uA;
-//         llim = Bank_IPMOS_ErsPst_LLim;   /*-126ua*/
-//         ulim = IPMOS_Adaptive_Target+iavg_toler;    /*-46ua=-56ua+10ua*/
-//         ers_pwidth = RefArr_Ers_Adaptive_RESOL;  /*per step resol*/
-//         ers_pwmax  = RefArr_Ers_Adaptive_PWIDTH;
-//         ers_cntmax = trunc(ers_pwmax/ers_pwidth);
-//         vstart     = RefArr_Ers_Adaptive_Vstart;
-//         vstop      = RefArr_Ers_Adaptive_Vstop;
-//         vinc       = 1V;
-//         tcrmode_refarr = EvfyMode;
-//      } 
-//      
-//      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//         bankdone[bankcount] = true;
-//
-//      minloop = EVENNUM;
-//      if(GL_BANKTYPE==FLEPBANK)  
-//         maxloop = ODDNUM;
-//      else
-//         maxloop = EVENNUM;
-//
-//      timernstart(ttimer1);      
-//
-//      savesites = V_dev_active;
-//      final_results = V_dev_active;
-//      retestsites = V_dev_active;
-//      allsitefalse = false;
-//
-//      fl_testname = tname;
-//      writestring(tmpstr1,fl_testname);
-//      writestring(tmpstr1,mid(tmpstr1,2,(len(tmpstr1)-6)));
-//      
-//      TestOpen(fl_testname);
-//      
-//      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      
-//       /*--- read ipmos evfy even/odd Pre ers ---*/
-//      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//      {
-//         logsites = v_dev_active;     
-//         rtest_results = V_dev_active;
-//         meas_results = V_dev_active; 
-//         tmp_results = V_dev_active;
-//
-//         ieven_pre[bankcount] = 0uA;
-//         iodd_pre[bankcount] = 0uA;
-//
-//         writestring(tmpstr2,bankcount:1);
-//         tmpstr2 = "_B" + tmpstr2;
-//         tmpstr4 = "IPMOS_Rd";
-//         for (loop = minloop;loop <= maxloop;loop++)
-//         {
-//            testnum = tnum_ipmos[loop]+(bankcount<<4);
-//            F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos_pre);
-//            F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//            TIME.Wait(tdelay);
-//            discard(F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos_pre,
-//                    llim_pre,ulim_pre,meas_value,meas_results));
-//            F021_TurnOff_AllTPADS;
-//            Disable(s_pmexit);
-//
-//             /*bin out if pattern/tnum fail exec or out of limits*/
-//            ArrayAndBoolean(tmp_results,meas_results,rtest_results,v_sites);
-//            ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//            
-//            if(loop==0)  
-//            {
-//               tmpstr3 = tmpstr4 + "_NME_Pre";
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                     ieven_pre[bankcount][site] = meas_value[site];
-//            }
-//            else
-//            {
-//               tmpstr3 = tmpstr4 + "_NMO_Pre";
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                     iodd_pre[bankcount][site] = meas_value[site];
-//            } 
-//
-//            tmpstr3 = tmpstr3 + tmpstr2;
-//            TWTRealToRealMS(meas_value,realval,unitval);
-//            TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
-//            
-//            PrintResultParam(tmpstr3,testnum,tmp_results,llim_pre,ulim_pre,meas_value,GL_PLELL_FORMAT);
-//
-//            if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//            {
-//               F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
-//               if(TI_FlashCOFEna)  
-//                  F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,tmp_results);
-//            } 
-//         }   /*for loop*/
-//
-//          /*check if already erased w/in limits, i.e. retested unit*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if(adaptiveEna)  
-//               {
-//                  if(GL_BANKTYPE==FLEPBANK)  
-//                     ieven_odd_avg[site] = (ieven_pre[bankcount][site]+iodd_pre[bankcount][site])*0.5;
-//                  else
-//                     ieven_odd_avg[site] = ieven_pre[bankcount][site];
-//                  if(ieven_odd_avg[site]<==ulim)  
-//                     bool1 = true;
-//                  else
-//                     bool1 = false;
-//                  bankdone[bankcount][site] = bool1;
-//               }
-//               else
-//               {
-//                   /*apply pulse regardless*/
-//                  bankdone[bankcount][site] = false;
-//               } 
-//               
-//               retestsites[site] = retestsites[site] and bankdone[bankcount][site];
-//            } 
-//
-//          /*disable site failing tnum exec*/
-//         if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//            Devsetholdstates(final_results);
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*for bankcount*/
-//
-//       /*disable retested site*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and retestsites[site])  
-//         {
-//            devsetholdstate(site,false);
-//            if(tistdscreenprint)  
-//               cout << "Site" << site:-4 << " RefArray Already Erased w/in limit " << ulim:-6:3 << "  So Disable" << endl;
-//         } 
-//
-//      
-//       /*+++ start erase pulse*/
-//      if(v_any_dev_active)  
-//      {
-//          /*log target to tw*/
-//         if(adaptiveEna)  
-//            meas_value = IPMOS_Adaptive_Target;
-//         else
-//            meas_value = Bank_IPMOS_Prog_Target;
-//         tmpstr3 = tmpstr1 + "_TGET";
-//         TWTRealToRealMS(meas_value,realval,unitval);
-//         TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
-//
-//         sitetorestore = v_dev_active;
-//
-//         if(tistdscreenprint)  
-//         {
-//            cout << endl;
-//            cout << tmpstr1:-20 << " PWidth == " << ers_pwidth << "  max Pulse == " << ers_cntmax:-5 << 
-//                    " StartV == " << vstart:-5:3 << " StopV == " << vstop:-5:3 << endl;
-//            cout << endl;
-//         } 
-//         PrintHeaderParam(GL_PLELL_FORMAT);
-//         
-//         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//         {
-//            timernstart(ttimer2);
-//
-//            writestring(tmpstr2,bankcount:1);
-//            tmpstr2 = "_B" + tmpstr2;
-//
-//            tmp_results = bankdone[bankcount];
-//            ArrayInvertBoolean(tmp_results);
-//            ArrayAndBoolean(activestates,tmp_results,sitetorestore,v_sites);   /*use to dis-able site done erasing*/
-//
-//            devsetholdstates(activestates);
-//
-//             /*+++++ ERS +++++*/
-//            if(v_any_dev_active)  
-//            {
-//               logsites = v_dev_active;       /*use for re-enable site & log if anyfail*/
-//               ers_pwtotal = 0ms;
-//
-//               if(adaptiveEna)  
-//                  CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
-//
-//               for vProg = vstart to vstop by vinc do
-//               {
-//                  TRealToStr(vProg,vstr);
-//                  vstr = "_" + vstr;
-//
-//                  if(adaptiveEna)  
-//                     TCR.TP1_VRange[tcrnum_refarr][tcrmode_refarr] = vProg;
-//
-//                  for (ers_loop = ers_cntmin;ers_loop <= ers_cntmax;ers_loop++)
-//                  {
-//                     
-//                      /*--- apply ers pulse ---*/
-//                     testnum = tnum_refarr+(bankcount<<4);
-//                     F021_TurnOff_AllTpads;
-//                     F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//                     F021_Set_TPADS(tcrnum_refarr,tcrmode_refarr);
-//                     TIME.Wait(ers_pwidth);
-//                     F021_TurnOff_AllTpads;
-//                     Disable(s_pmexit);
-//                     Check_RAM_TNUM(testnum,tmp_results);
-//
-//                      /*tally up total applied pwidth*/
-//                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                        if(v_dev_active[site])  
-//                        {
-//                           ers_pwtotal[site] = ers_pwtotal[site] + ers_pwidth;
-//                           if((not rtest_results[site]) or (not tmp_results[site]))  
-//                              final_results[site] = false;
-//                        } 
-//                     
-//                      /*--- read ipmos evfy even/odd ---*/
-//                     writestring(tmpstr4,ers_loop:1);
-//                     tmpstr4 = "_PLS" + tmpstr4;
-//                     tmpstr4 = tmpstr2 + tmpstr4;   /*_B#_PLS#*/
-//                     tmpstr4 = tmpstr4 + vstr;
-//                     
-//                     for (loop = minloop;loop <= maxloop;loop++)
-//                     {
-//                        testnum = tnum_ipmos[loop]+(bankcount<<4);
-//                        F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos);
-//                        F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//                        TIME.Wait(tdelay);
-//                        discard(F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos,
-//                                llim,ulim,meas_value,meas_results));  /*note: don"t want to fail meas_value here*/
-//                        F021_TurnOff_AllTpads;
-//                        Disable(s_pmexit);
-//                        Check_RAM_TNUM(testnum,tmp_results);
-//
-//                        for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                           if(v_dev_active[site])  
-//                              if((not rtest_results[site]) or (not tmp_results[site]))  
-//                                 final_results[site] = false;
-//                        
-//                        if(loop==0)  
-//                        {
-//                           ipmos_even = meas_value;
-//                           tmpstr3 = tmpstr1 + "_IEVEN";
-//                        }
-//                        else
-//                        {
-//                           ipmos_odd = meas_value;
-//                           tmpstr3 = tmpstr1 + "_IODD";
-//                        } 
-//                        
-//                         /*tw log ipmos value*/
-//                        tmpstr3 = tmpstr3 + tmpstr4;
-//                        TWTRealToRealMS(meas_value,realval,unitval);
-//                        TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
-//                        
-//                        PrintResultParam(tmpstr3,testnum,meas_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
-//                     }   /*for loop*/
-//                     
-//                      /*--- check even/odd against target/limits ---*/
-//                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                        if(v_dev_active[site])  
-//                        {
-//                           if(adaptiveEna)  
-//                           {
-//                              if(GL_BANKTYPE==FLEPBANK)  
-//                                 ieven_odd_avg[site] = (ipmos_even[site]+ipmos_odd[site])*0.5;
-//                              else
-//                                 ieven_odd_avg[site] = ipmos_even[site];
-//                              if(ieven_odd_avg[site]<==ulim)  
-//                              {
-//                                 bool1 = true;
-//                                 bool2 = true;
-//                              }
-//                              else
-//                              {
-//                                 bool1 = false;
-//                                 bool2 = false;
-//                              } 
-//                           }
-//                           else
-//                           {
-//                              if(ipmos_even[site] <== ulim)  
-//                                 bool1 = true;
-//                              else
-//                                 bool1 = false;
-//
-//                              if(GL_BANKTYPE==FLEPBANK)  
-//                              {
-//                                 if(ipmos_odd[site] <== ulim)  
-//                                    bool2 = true;
-//                                 else
-//                                    bool2 = false;
-//                              }
-//                              else
-//                              {
-//                                 bool2 = true;
-//                                 ipmos_odd[site] = ipmos_even[site];
-//                              } 
-//                           } 
-//                           
-//                           if(bool1 and bool2)  
-//                           {
-//                              activestates[site] = false;  /*done erasing*/
-//                              ieven_fn[site] = ipmos_even[site];
-//                              iodd_fn[site]  = ipmos_odd[site];
-//                              tt_timer[site] = timernread(ttimer2);
-//                              if(tistdscreenprint)  
-//                                 cout << "Site " << site:-5 << " Done Erasing so dis-able" << endl;
-//                           } 
-//                     
-//                            /*reached max ers but failed iref*/
-//                           if((ers_loop==ers_cntmax) and (vProg==vstop))  
-//                              if(activestates[site])  
-//                              {
-//                                 final_results[site] = false;
-//                                 activestates[site] = false;
-//                                 ieven_fn[site] = ipmos_even[site];
-//                                 iodd_fn[site]  = ipmos_odd[site];
-//                                 tt_timer[site] = timernread(ttimer2);
-//                                 if(tistdscreenprint)  
-//                                    cout << "Site " << site:-5 << " Reached Max pulse but Failed Erasing" << endl;
-//                              } 
-//                        }   /*if v_dev_active*/
-//               
-//                      /*disable site done erasing*/
-//                     devsetholdstates(activestates);
-//                     
-//                     if(not v_any_dev_active)  
-//                        break;
-//                  }   /*for ers_loop*/
-//
-//                  if(not v_any_dev_active)  
-//                     break;
-//               }   /*for vProg*/
-//               
-//               if(adaptiveEna)  
-//                  RestoreTCR_Fr_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
-//               
-//               devsetholdstates(logsites);
-//                  
-//                /*tw log total ers pulsewidth applied*/
-//               tmpstr3 = tmpstr1 + "_TOTPW";
-//               tmpstr3 = tmpstr3 + tmpstr2;
-//               TWTRealToRealMS(ers_pwtotal,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
-//               
-//               tmpstr3 = tmpstr1 + tmpstr2;
-//               tmpstr3 = tmpstr3 + "_TT";
-//               TWTRealToRealMS(tt_timer,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
-//               
-//               tmpstr3 = tmpstr1 + tmpstr2;
-//               tmpstr3 = tmpstr3 + "_IEVEN";
-//               TWTRealToRealMS(ieven_fn,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
-//
-//               if(GL_BANKTYPE==FLEPBANK)  
-//               {
-//                  tmpstr3 = tmpstr1 + tmpstr2;
-//                  tmpstr3 = tmpstr3 + "_IODD";
-//                  TWTRealToRealMS(iodd_fn,realval,unitval);
-//                  TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
-//               } 
-//               
-//                /*store/copy to global var*/
-//                /*if(ers_loop = ers_cntmax) then
-//                 for site := 1 to v_sites do
-//                 if(v_dev_active[site]) then
-//                 BANK_IREFARR_VALUE[bankcount,loop,tcrmode_ipmos,prepost,vcorner,site] := meas_value[site];
-//                 */
-//         
-//               if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-//               {
-//                  tmpstr3 = tmpstr1 + tmpstr2;
-//                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
-//                  if(TI_FlashCOFEna)  
-//                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
-//               } 
-//
-//                /*update so won"t re-enable or continue testing next bank if failed*/
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site] and (not final_results[site]))  
-//                     if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                        sitetorestore[site] = false;
-//               
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                  Devsetholdstates(final_results);
-//
-//            }   /*if v_any_dev_active*/
-//             /*+++++ ERS +++++*/
-//               
-//            if(ArrayCompareBoolean(sitetorestore,allsitefalse,v_sites))  
-//               break;
-//            
-//         }   /*for bankcount*/
-//      }   /*if v_any_dev_active*/
-//      
-//       /*restore all active sites*/
-//      Devsetholdstates(savesites);
-//
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//
-//      Disable(s_pmexit);
-//               
-//      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info("",site_cof_inst_str,final_results);
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//      
-//      tmpstr4 = tmpstr1 + "_TT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//      F021_TurnOff_AllTpads;
-//      
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr1,tnum_refarr,final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//      
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         DevSetHoldStates(final_results);
-//      
-//      test_results = final_results;
-//   }   /*if v_any_dev_active*/
-//   
-//   F021_RefArr_Erase_func = V_any_dev_active;
-//}   /* F021_RefArr_Erase_func */
-//
 
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_RefArr_Erase_func +++++" << endl;
+   
+   maxtime = GL_F021_BANK_MAXTIME;
+   tdelay  = 10ms;
+   any_site_active = true;
+   retest = true; // will be and-ed later
+
+   tcrnum_ipmos  = TCR40;
+   tcrmode_ipmos = EvfyMode;
+   tnum_ipmos[0] = TNUM_BANK_IPMOS_READ_EVEN;
+   tnum_ipmos[1] = TNUM_BANK_IPMOS_READ_ODD;
+   testpad = FLTP2;
+    /*pre-ers*/
+   tcrmode_ipmos_pre = ProgMode;  /*actual mode is evfy*/
+   llim_pre = TCR.TP2_LLim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*-135ua*/
+   ulim_pre = TCR.TP2_ULim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*5ua*/
+
+   ers_cntmin = 1;
+   tcrnum_refarr  = TCR56;
+   tnum_refarr    = TNUM_BANK_REFARR_ERS;
+
+    /*post-ers*/
+   if(not adaptiveEna)  
+   {
+      llim = Bank_IPMOS_ErsPst_LLim;   /*-126ua*/
+      ulim = Bank_IPMOS_ErsPst_ULim;   /*-85ua*/
+      ers_pwmax  = Bank_RefArr_VEG_Ers_PWidth;
+      ers_pwidth = ers_pwmax;
+      ers_cntmax = ers_cntmin;
+      vstart     = Bank_RefArr_VEG_Ers;
+      vstop      = vstart;
+      vinc       = 1V;
+      tcrmode_refarr = ErsMode;
+   }
+   else
+   {
+      iavg_toler = 10uA;
+      llim = Bank_IPMOS_ErsPst_LLim;   /*-126ua*/
+      ulim = IPMOS_Adaptive_Target+iavg_toler;    /*-46ua=-56ua+10ua*/
+      ers_pwidth = RefArr_Ers_Adaptive_RESOL;  /*per step resol*/
+      ers_pwmax  = RefArr_Ers_Adaptive_PWIDTH;
+      ers_cntmax = trunc(ers_pwmax/ers_pwidth);
+      vstart     = RefArr_Ers_Adaptive_Vstart;
+      vstop      = RefArr_Ers_Adaptive_Vstop;
+      vinc       = 1V;
+      tcrmode_refarr = EvfyMode;
+   } 
+   
+   for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;++bankcount)
+      bankdone[bankcount] = true;
+
+   minloop = EVENNUM;
+   if(GL_BANKTYPE==FLEPBANK)  
+      maxloop = ODDNUM;
+   else
+      maxloop = EVENNUM;
+
+   TIME.StartTimer();      
+
+   savesites = ActiveSites;
+   final_results = TM_NOTEST;
+   allsitefalse = false;
+
+   fl_testname = tname;
+   tmpstr1 = fl_testname.Substring(1, fl_testname.Length()-6);
+
+// :TODO: Implement below   
+//   if(TI_FlashCOFEna)  
+//      F021_Init_COF_Inst_Str(site_cof_inst_str);
+   
+    /*--- read ipmos evfy even/odd Pre ers ---*/
+   for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;++bankcount)
+   {
+      logsites = ActiveSites;     
+      rtest_results = TM_NOTEST;
+      meas_results = TM_NOTEST; 
+      tmp_results = TM_NOTEST;
+
+      ieven_pre[bankcount] = 0uA;
+      iodd_pre[bankcount] = 0uA;
+
+      tmpstr2 = "_B" + bankcount;
+      tmpstr4 = "IPMOS_Rd";
+      for (loop = minloop;loop <= maxloop;++loop)
+      {
+         testnum = tnum_ipmos[loop]+(bankcount<<4);
+         F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos_pre);
+         rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+         TIME.Wait(tdelay);
+         meas_value = F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos_pre);
+         F021_TurnOff_AllTPADS();
+
+         if(loop==0)  
+         {
+            tmpstr3 = tmpstr4 + "_NME_Pre";
+            ieven_pre[bankcount] = meas_value;
+         }
+         else
+         {
+            tmpstr3 = tmpstr4 + "_NMO_Pre";
+            iodd_pre[bankcount] = meas_value;
+         } 
+         
+         tmpstr3 = tmpstr3 + tmpstr2;
+         meas_results = TIDlog.Value(meas_value, testpad, llim_pre, ulim_pre, meas_value.GetUnits(), 
+                      tmpstr3, UTL_VOID, UTL_VOID, true, TWMinimumData);
+         
+         /*bin out if pattern/tnum fail exec or out of limits*/
+         tmp_results = DLOG.AccumulateResults(meas_results, rtest_results);
+         final_results = tmp_results;
+      
+// :TODO: Need to implement fail logging
+//         if(tmp_results.AnyEqual(TM_FAIL))  
+//         {
+//            F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+//            if(TI_FlashCOFEna)  
+//               F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,tmp_results);
+//         } 
+      }   /*for loop*/
+
+       /*check if already erased w/in limits, i.e. retested unit*/
+      if(adaptiveEna)  
+      {
+         if(GL_BANKTYPE==FLEPBANK)  
+            ieven_odd_avg = (ieven_pre[bankcount]+iodd_pre[bankcount])*0.5;
+         else
+            ieven_odd_avg = ieven_pre[bankcount];
+         bankdone[bankcount] = ieven_odd_avg.LessOrEqual(ulim);
+      }
+      else
+      {
+          /*apply pulse regardless*/
+         bankdone[bankcount] = false;
+      } 
+      retest &= bankdone[bankcount];
+
+       /*disable site failing tnum exec*/
+      if((!RunAllTests) and (!TI_FlashCOFEna))  
+      {
+         new_active_sites = ActiveSites;
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if (!(any_site_active = SetActiveSites(new_active_sites)))
+            break;
+      }
+   }   /*for bankcount*/
+
+   // make sure we have a passing site
+   if (any_site_active)
+   {
+       /*disable retested site*/
+      new_active_sites = ActiveSites;
+      new_active_sites.DisableFailingSites(!retest);
+      if (tistdscreenprint)
+      {
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            cout << "Site " << *si << " RefArray Already Erased w/in limit " << ulim << "  So Disable" << endl;
+      }
+      any_site_active = SetActiveSites(new_active_sites);
+   
+       /*+++ start erase pulse*/
+      if(any_site_active)  
+      {
+          /*log target to tw*/
+         if(adaptiveEna)  
+            meas_value = IPMOS_Adaptive_Target;
+         else
+            meas_value = Bank_IPMOS_Prog_Target;
+            
+         tmpstr3 = tmpstr1 + "_TGET";
+         TWPDLDataLogRealVariable(tmpstr3,meas_value.GetUnits(),meas_value,TWMinimumData);
+
+         erase_sites = ActiveSites;
+
+         if(tistdscreenprint)  
+         {
+            cout << endl;
+            cout << tmpstr1 << " PWidth == " << ers_pwidth << "  max Pulse == " << ers_cntmax << 
+                    " StartV == " << vstart << " StopV == " << vstop << endl;
+            cout << endl;
+         } 
+         
+         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;++bankcount)
+         {
+            start_time2 = TIME.GetTimer();
+
+            tmpstr2 = "_B" + bankcount;
+
+            new_active_sites = ActiveSites;
+            new_active_sites.DisableFailingSites(!bankdone[bankcount]);
+
+             /*+++++ ERS +++++*/
+            if(SetActiveSites(new_active_sites))  
+            {
+               logsites = ActiveSites;       /*use for re-enable site & log if anyfail*/
+               ers_pwtotal = 0ms;
+
+               if(adaptiveEna)  
+                  CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
+
+               for (FloatS vProg = vstart; vProg <= vstop; VProg += vinc)
+               {
+                  vstr = "_" + vProg;
+
+                  if(adaptiveEna)  
+                     TCR.TP1_VRange[tcrnum_refarr][tcrmode_refarr] = vProg;
+
+                  for (ers_loop = ers_cntmin; ers_loop <= ers_cntmax; ++ers_loop)
+                  {
+                      /*--- apply ers pulse ---*/
+                     testnum = tnum_refarr+(bankcount<<4);
+                     F021_TurnOff_AllTpads();
+                     rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+                     F021_Set_TPADS(tcrnum_refarr,tcrmode_refarr);
+                     TIME.Wait(ers_pwidth);
+                     F021_TurnOff_AllTpads();
+                     tmp_results = Check_RAM_TNUM(testnum);
+
+//:HERE:
+                      /*tally up total applied pwidth*/
+                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                        if(v_dev_active[site])  
+                        {
+                           ers_pwtotal[site] = ers_pwtotal[site] + ers_pwidth;
+                           if((not rtest_results[site]) or (not tmp_results[site]))  
+                              final_results[site] = false;
+                        } 
+                     
+                      /*--- read ipmos evfy even/odd ---*/
+                     writestring(tmpstr4,ers_loop:1);
+                     tmpstr4 = "_PLS" + tmpstr4;
+                     tmpstr4 = tmpstr2 + tmpstr4;   /*_B#_PLS#*/
+                     tmpstr4 = tmpstr4 + vstr;
+                     
+                     for (loop = minloop;loop <= maxloop;loop++)
+                     {
+                        testnum = tnum_ipmos[loop]+(bankcount<<4);
+                        F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos);
+                        F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
+                        TIME.Wait(tdelay);
+                        discard(F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos,
+                                llim,ulim,meas_value,meas_results));  /*note: don"t want to fail meas_value here*/
+                        F021_TurnOff_AllTpads;
+                        Disable(s_pmexit);
+                        Check_RAM_TNUM(testnum,tmp_results);
+
+                        for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                           if(v_dev_active[site])  
+                              if((not rtest_results[site]) or (not tmp_results[site]))  
+                                 final_results[site] = false;
+                        
+                        if(loop==0)  
+                        {
+                           ipmos_even = meas_value;
+                           tmpstr3 = tmpstr1 + "_IEVEN";
+                        }
+                        else
+                        {
+                           ipmos_odd = meas_value;
+                           tmpstr3 = tmpstr1 + "_IODD";
+                        } 
+                        
+                         /*tw log ipmos value*/
+                        tmpstr3 = tmpstr3 + tmpstr4;
+                        TWTRealToRealMS(meas_value,realval,unitval);
+                        TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
+                        
+                        PrintResultParam(tmpstr3,testnum,meas_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
+                     }   /*for loop*/
+                     
+                      /*--- check even/odd against target/limits ---*/
+                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                        if(v_dev_active[site])  
+                        {
+                           if(adaptiveEna)  
+                           {
+                              if(GL_BANKTYPE==FLEPBANK)  
+                                 ieven_odd_avg[site] = (ipmos_even[site]+ipmos_odd[site])*0.5;
+                              else
+                                 ieven_odd_avg[site] = ipmos_even[site];
+                              if(ieven_odd_avg[site]<==ulim)  
+                              {
+                                 bool1 = true;
+                                 bool2 = true;
+                              }
+                              else
+                              {
+                                 bool1 = false;
+                                 bool2 = false;
+                              } 
+                           }
+                           else
+                           {
+                              if(ipmos_even[site] <== ulim)  
+                                 bool1 = true;
+                              else
+                                 bool1 = false;
+
+                              if(GL_BANKTYPE==FLEPBANK)  
+                              {
+                                 if(ipmos_odd[site] <== ulim)  
+                                    bool2 = true;
+                                 else
+                                    bool2 = false;
+                              }
+                              else
+                              {
+                                 bool2 = true;
+                                 ipmos_odd[site] = ipmos_even[site];
+                              } 
+                           } 
+                           
+                           if(bool1 and bool2)  
+                           {
+                              activestates[site] = false;  /*done erasing*/
+                              ieven_fn[site] = ipmos_even[site];
+                              iodd_fn[site]  = ipmos_odd[site];
+                              tt_timer[site] = timernread(ttimer2);
+                              if(tistdscreenprint)  
+                                 cout << "Site " << site:-5 << " Done Erasing so dis-able" << endl;
+                           } 
+                     
+                            /*reached max ers but failed iref*/
+                           if((ers_loop==ers_cntmax) and (vProg==vstop))  
+                              if(activestates[site])  
+                              {
+                                 final_results[site] = false;
+                                 activestates[site] = false;
+                                 ieven_fn[site] = ipmos_even[site];
+                                 iodd_fn[site]  = ipmos_odd[site];
+                                 tt_timer[site] = timernread(ttimer2);
+                                 if(tistdscreenprint)  
+                                    cout << "Site " << site:-5 << " Reached Max pulse but Failed Erasing" << endl;
+                              } 
+                        }   /*if v_dev_active*/
+               
+                      /*disable site done erasing*/
+                     devsetholdstates(activestates);
+                     
+                     if(not v_any_dev_active)  
+                        break;
+                  }   /*for ers_loop*/
+
+                  if(not v_any_dev_active)  
+                     break;
+               }   /*for vProg*/
+               
+               if(adaptiveEna)  
+                  RestoreTCR_Fr_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
+               
+               devsetholdstates(logsites);
+                  
+                /*tw log total ers pulsewidth applied*/
+               tmpstr3 = tmpstr1 + "_TOTPW";
+               tmpstr3 = tmpstr3 + tmpstr2;
+               TWTRealToRealMS(ers_pwtotal,realval,unitval);
+               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               
+               tmpstr3 = tmpstr1 + tmpstr2;
+               tmpstr3 = tmpstr3 + "_TT";
+               TWTRealToRealMS(tt_timer,realval,unitval);
+               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               
+               tmpstr3 = tmpstr1 + tmpstr2;
+               tmpstr3 = tmpstr3 + "_IEVEN";
+               TWTRealToRealMS(ieven_fn,realval,unitval);
+               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+
+               if(GL_BANKTYPE==FLEPBANK)  
+               {
+                  tmpstr3 = tmpstr1 + tmpstr2;
+                  tmpstr3 = tmpstr3 + "_IODD";
+                  TWTRealToRealMS(iodd_fn,realval,unitval);
+                  TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               } 
+               
+                /*store/copy to global var*/
+                /*if(ers_loop = ers_cntmax) then
+                 for site := 1 to v_sites do
+                 if(v_dev_active[site]) then
+                 BANK_IREFARR_VALUE[bankcount,loop,tcrmode_ipmos,prepost,vcorner,site] := meas_value[site];
+                 */
+         
+               if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
+               {
+                  tmpstr3 = tmpstr1 + tmpstr2;
+                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
+                  if(TI_FlashCOFEna)  
+                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
+               } 
+
+                /*update so won"t re-enable or continue testing next bank if failed*/
+               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                  if(v_dev_active[site] and (not final_results[site]))  
+                     if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+                        sitetorestore[site] = false;
+               
+               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+                  Devsetholdstates(final_results);
+
+            }   /*if v_any_dev_active*/
+             /*+++++ ERS +++++*/            
+            if(ArrayCompareBoolean(sitetorestore,allsitefalse,v_sites))  
+               break;
+               
+            RunTime.SetActiveSites(erase_sites); // need to reactivate sites before loop since disabling on done of bankcount
+         }   /*for bankcount*/
+      }   /*if v_any_dev_active*/ // retest sites
+   } /* if any_site_active -- for if we had a passing site */
+   
+    /*restore all active sites*/
+   // we know there will be sites, so can use the RunTime version
+   RunTime.SetActiveSites(savesites);
+
+   ResultsRecordActive(final_results, S_NULL);
+   TestClose;
+
+   Disable(s_pmexit);
+            
+   if(TI_FlashCOFEna)  
+      F021_Save_COF_Info("",site_cof_inst_str,final_results);
+   
+   tt_timer = TIME.StopTimer();
+   
+   tmpstr4 = tmpstr1 + "_TT";
+   TWTRealToRealMS(tt_timer,realval,unitval);
+   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+
+   F021_TurnOff_AllTpads;
+   
+   if(tistdscreenprint)  
+   {
+      PrintHeaderBool(GL_PLELL_FORMAT);
+      PrintResultBool(tmpstr1,tnum_refarr,final_results,GL_PLELL_FORMAT);
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   } 
+   
+   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+      DevSetHoldStates(final_results);
+   
+   test_results = final_results;
+   
+   return (final_results);
+}   /* F021_RefArr_Erase_func */
+#endif
 void MeasInternalVT(    IntS       testnum,
                         FloatS     test_llim,
                         FloatS     test_ulim,
@@ -25210,53 +25183,44 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //} 
 //   
 //
-// /*init global var BAK_EFSTR,MAIN_EFSTR*/
-//void F021_InitFLEfuseStr()
-//{
-//   IntS site,maxbank;
-//   StringS tmpstr1,hdpstr;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//
-//       /*build individual string from LSB-MSB*/
-//       /*bank str*/
-//      tmpstr1 = "00000000000000000000000000000000";
-//
-//       /*HDPUMP -- efuse bit vbgsten=0, vbgtrim[5]=1, vbgtrim[0]=6, vosc[5]=8, vosc[0]=13*/
-//       /*ireftrim[4]=15, ireftrim[0]=19, ireftrim[5]=21, vhvslopect[3]=22, vhvslopect[0]=25*/
-//       /*vsa5ct[3]=26, vsa5ct[0]=29*/
-//      hdpstr = "000000000000000000000000000000";
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//         cout << "INIT FLASH EFUSE STRING LSB-MSB : MAIN/BANK" << endl;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         if(v_dev_active[site])  
-//         {
-//            BANK_EFSTR[site] = "";
-//             /*lsb-msb*/
-//            for (maxbank = 0;maxbank <= F021_Flash.MAXBANK;maxbank++)
-//               BANK_EFSTR[site] = BANK_EFSTR[site] + tmpstr1;
-//
-//             /*--- HDPUMP ---*/
-//            MAINBG_EFSTR[site] = "";
-//            MAINBG_EFSTR[site] = MAINBG_EFSTR[site] + hdpstr;
-//            MAINBG_EFSTR_SHORT[site] = "000000";
-//            
-//            if(tistdscreenprint and debugprint)  
-//            {
-//               cout << "Site : " << site:3 << endl;
-//               cout << BANK_EFSTR[site] << endl;
-//               cout << MAINBG_EFSTR[site] << endl;
-//            } 
-//     }   /*if v_dev_active*/
-//      }   /*for site*/
-//   }   /*if v_any_dev*/
-//}   /* F021_InitFLEfuseStr */
+ /*init global var BAK_EFSTR,MAIN_EFSTR*/
+void F021_InitFLEfuseStr()
+{
+   IntS maxbank;
+   StringM tmpstr1,hdpstr;
+   BoolS debugprint;
+
+    /*build individual string from LSB-MSB*/
+    /*bank str*/
+   tmpstr1 = "00000000000000000000000000000000";
+
+    /*HDPUMP -- efuse bit vbgsten=0, vbgtrim[5]=1, vbgtrim[0]=6, vosc[5]=8, vosc[0]=13*/
+    /*ireftrim[4]=15, ireftrim[0]=19, ireftrim[5]=21, vhvslopect[3]=22, vhvslopect[0]=25*/
+    /*vsa5ct[3]=26, vsa5ct[0]=29*/
+   hdpstr = "000000000000000000000000000000";
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+      cout << "INIT FLASH EFUSE STRING LSB-MSB : MAIN/BANK" << endl;
+      
+   BANK_EFSTR = "";
+    /*lsb-msb*/
+   for (maxbank = 0;maxbank <= F021_Flash.MAXBANK;++maxbank)
+      BANK_EFSTR = BANK_EFSTR + tmpstr1;
+
+    /*--- HDPUMP ---*/
+   MAINBG_EFSTR = hdpstr;
+   
+   if(tistdscreenprint and debugprint)  
+   {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         cout << "Site : " << *si << endl;
+         cout << BANK_EFSTR[*si] << endl;
+         cout << MAINBG_EFSTR[*si] << endl;
+      } 
+   }
+}   /* F021_InitFLEfuseStr */
 
 void SaveMbgEfuseTrimString(IntS trimValue, SITE whichSite)
 {
@@ -29862,7 +29826,7 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
 //                              {
 //                                 dbit= FL_WORSTBIT_FDATA[i+1][site];
 //                                  /*writeln(tiwindow,"i=",i:-5,"dbit=",dbit:s_hex);*/
-//                                 for (j = 15;j <= 0;j++)
+//                                 for (j = 15;j >= 0;--j)
 //                                 {
 //                                    k = (dbit & (1<<j)) >>j;
 //                                     /*writeln(tiwindow,"j=",j:-5," k=",k:-5);*/
@@ -32640,7 +32604,7 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 //         else
 //            tnum = 0x41000100+tnumdata+(bank<<4);  /*s0*/
 //         
-//         for (i= = downto;i= <= do;i=++)
+//         for (i = maxratio; i >= minratio; --i)
 //         {
 //            if(ovrideEF)  
 //               TL_EngOvride_RDM0_NMOS_EF_PVCT(i,ovrideEF_Index,ovrideEF_Val,0);
@@ -32917,3 +32881,44 @@ TMResultM F021_FOSC_SoftTrim_External_func()
    return (final_results);
 }   /* F021_FOSC_SoftTrim_External_func */
 #endif
+
+void PbistFailLogout() {
+   BoolS doneAsserted = false;
+   PinM capPin = "PB2_131";
+   StringS capName = "pbistData";
+   IntS maxCapCnt = 16384;
+   UnsignedM1D capArray(109);
+   UnsignedM1D simArray(109,1);
+   UnsignedM1D retArray(109);
+   UnsignedM1D tmpArray(109);
+   TMResultM currResult = TM_NOTEST;
+   TMResultM lastResult = TM_NOTEST;
+   IntM failCnt = 0;
+   
+   TIME.Wait(0.0s);
+   
+   if ( lastResult != TM_PASS ) {
+      if (SYS.TesterSimulated()) retArray = simArray;
+      else {
+         do {
+            if (failCnt != 0 ) {
+               // Test "FAIL" pin for assertion
+               currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
+               // FAIL asserted collect one fail frame
+               if ( currResult == TM_FAIL ) {
+                  PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
+                  ++failCnt;
+               }
+               
+               // Test "DONE" pin for assertion
+               currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
+               if ( currResult == TM_FAIL ) {
+                  ;
+               }
+            }
+            tmpArray = capArray;
+//            retArray = ProcessFailData();
+         } while (!doneAsserted);
+      }
+   }
+}

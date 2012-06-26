@@ -1800,6 +1800,9 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[15] = jtag_reset_init_Thrd;
     __Thread[16] = ldo_bypass_init_Thrd;
     __Thread[17] = pb_pb_fail_insert_Thrd;
+    __Thread[18] = pb_pb_fail_logout_Thrd;
+    __Thread[19] = pb_pb_test_fail_pin_Thrd;
+    __Thread[20] = pb_pb_test_done_pin_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
@@ -2779,5 +2782,23 @@ __Thread pb_pb_fail_insert_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = pb_pb_fail_insert;
+    }
+}
+__Thread pb_pb_fail_logout_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_fail_logout;
+    }
+}
+__Thread pb_pb_test_fail_pin_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_test_fail_pin;
+    }
+}
+__Thread pb_pb_test_done_pin_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_test_done_pin;
     }
 }

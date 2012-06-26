@@ -594,9 +594,9 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //BoolS GetShellInfo_func();
 //
 //BoolS F021_FlowCheck_func(    BoolM test_results);
-//
-//void F021_InitFLEfuseStr();
-//
+
+void F021_InitFLEfuseStr();
+
 //void RAM_Upload_SoftTrim_All(IntS BGapVal,
 //                                  IntS IRefVal,
 //                                  IntS FOSCVal,
@@ -750,4 +750,6 @@ TMResultM F021_FOSC_SoftTrim_External_func();
 #endif
 
 #endif
+
+void PbistFailLogut_func();
 

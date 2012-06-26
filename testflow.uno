@@ -1266,7 +1266,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node F021_Pump_347 {
-        __XCoord = (340,62);
+        __XCoord = (455,60);
         __Port[0] {
             __PortPosition = 93;
         }
@@ -1275,7 +1275,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_Pump;
     }
     __Node Pbist_Logout_Debug_T_350 {
-        __XCoord = (500,50);
+        __XCoord = (614,21);
         __Port[0] {
             __PortPosition = 90;
         }
@@ -1386,6 +1386,40 @@ __SubFlow F021FlashFlow_S {
         __TestID = "\'SubFlow\'";
         __Exec = F021_ISleep;
     }
+    __Node FlashEfuse_T_462 {
+        __XCoord = (186,21);
+        __Port[0] {
+            __PortPosition = 87;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 274;
+        __SpecPairs {
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_VEfuseR"; __Type = INTEGER; }
+        }
+        __TestID = "99000000";
+        __Exec = FlashEfuse_T;
+    }
+    __Node MainBG_Trim_T_465 {
+        __XCoord = (305,23);
+        __Port[0] {
+            __PortPosition = 84;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 277;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+        }
+        __TestID = "100000000";
+        __Exec = MainBG_Trim_T;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
@@ -1399,6 +1433,7 @@ __SubFlow F021FlashFlow_S {
         F021_Misc_420 __Port[0] = F021_PreDRL_430;
         F021_PreDRL_430 __Port[0] = F021_Read_440;
         F021_Read_440 __Port[0] = F021_ISleep_450;
+        FlashEfuse_T_462 __Port[0] = MainBG_Trim_T_465;
     }
 }
 
