@@ -418,7 +418,7 @@ void F021_CollectESDA(IntS imagenum);
 //                          BoolS logena,
 //                          StringS logstr);
 //
-//void TL_Boost_RefArray();
+void TL_Boost_RefArray();
 //
 //BoolS F021_RestoreOTPInfo_func(    StringS tname,
 //                                      BoolM test_results,
@@ -473,9 +473,8 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 
 TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode);
 
-//BoolS F021_RefArr_Erase_func(    StringS tname,
-//                                    BoolS adaptiveEna,
-//                                    BoolM test_results);
+TMResultM F021_RefArr_Erase_func(const StringS &tname,
+                                 const BoolS &adaptiveEna);
 
 TMResultM F021_InitFLGlobalvars_func();
 
@@ -633,8 +632,8 @@ TMResultM F021_VHV_SLOPECT_SoftTrim_func(IntM &ret_ctval);
 //                                        IntM msw_val,
 //                                        IntM lsw_val);
 //void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
-//void RAM_Clear_PMOS_SoftTrim();
-//void GetTrimCode_On_EFStr();
+void RAM_Clear_PMOS_SoftTrim();
+void GetTrimCode_On_EFStr();
 void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
 //BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);

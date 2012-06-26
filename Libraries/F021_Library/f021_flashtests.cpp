@@ -6961,20 +6961,17 @@ TMResultM EGCG_Leak_Vmax_func()
 //   
 //   Charz_EraseRefArray_Main = v_any_dev_active;
 //}  /* Charz_EraseRefArray_Main */
-#if 0
+
  /*do erase refarray 1st then boost refarray on retest sites if any*/
 TMResultM EraseRefArray_func()
 {
    const IntS TESTID = 41; 
 
-   Sites savesites, virgin_sites;
+   Sites savesites, virgin_sites, boost_sites;
    BoolM virgin_device, boost_device;
    bool any_site_active;
-//   BoolM final_results,alldisable,activesites;
-//   BoolM savesites,virginsites,boostsites;
-//   StringS current_shell;
-//   BoolS adaptena,boostena;
-//   IntS site;
+   TMResultM final_results = TM_PASS;
+   BoolS adaptena,boostena;
 
 //  :TODO: come back and implement Char stuff...for now, unimportant
 //   if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR and (GL_CHARZ_ERSREFARR_COUNT>0))  
@@ -7010,10 +7007,7 @@ TMResultM EraseRefArray_func()
       if(any_site_active)  
       {
          adaptena = GL_DO_REFARR_ERS_ADAPTIVE;
-         final_results = TM_NOTEST;
-      // :HERE:
-         F021_RefArr_Erase_func(RefArr_Ers_Test,adaptena,final_results);
-         arrayandboolean(virginsites,virginsites,v_dev_active,v_sites);
+         final_results = F021_RefArr_Erase_func("RefArr_Ers_Test",adaptena);
             
          if(GL_DO_CHARZ_ERSREFARR)  
          {
@@ -7025,28 +7019,30 @@ TMResultM EraseRefArray_func()
 
       if(boostena)  
       {
-         devsetholdstates(boostsites);
-         if(GL_DO_IREF_PMOS_TRIM and GL_DO_BOOST_REFARR)  
+         boost_sites = savesites;
+         boost_sites.DisableFailingSites(boost_device);
+         any_site_active = SetActiveSites(boost_sites);
+         if(any_site_active && GL_DO_IREF_PMOS_TRIM && GL_DO_BOOST_REFARR)  
          {
-            GetTrimCode_On_EFStr;
-            RAM_Upload_PMOS_TrimCode;
-            TL_Boost_RefArray;
-            RAM_Clear_PMOS_SoftTrim;
+            GetTrimCode_On_EFStr();
+            RAM_Upload_PMOS_TrimCode();
+            TL_Boost_RefArray();
+            //:HERE:
+            RAM_Clear_PMOS_SoftTrim();
          } 
-         ArrayOrBoolean(activesites,boostsites,virginsites,v_sites);
-         ArrayAndboolean(activesites,activesites,savesites,v_sites);
-         devsetholdstates(activesites);
       } 
 
 //   }   /*non-charz*/
+
+   RunTime.SetActiveSites(savesites);
 
     /*enable W8/W9 template override in RAM*/
    if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR)  
       GL_DO_CHARZ_OVRTEMPL_W89 = true;
    
-   EraseRefArray_func = v_any_dev_active;
+   return (final_results);
 }   /* EraseRefArray_func */
-#endif
+
 //BoolS VHV_Stress_Prog_func()
 //{
 //   BoolM final_results;
