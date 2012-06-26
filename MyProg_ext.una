@@ -67,7 +67,7 @@ __TestProg BllizarA0 {
         __OperatorVariable[39] = EnaSolnDlog;
         __OperatorVariable[40] = EnaReadOnly;
         __OperatorVariable[41] = EnaEfuseDlog;
-        __AdapterBoard = Blizard_HybridEVA_DmdX_x1_AdapterBoard;
+        __AdapterBoard = Blizard_HybridEVA_DmdX_x1_Tempest_VIS16;
         __Flow = Probe_FLOW;
     	__PatternMap = DefaultPatternMap;
         __BinMap = ATSite_BinMap_Probe;

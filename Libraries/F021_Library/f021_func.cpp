@@ -11044,7 +11044,7 @@ void F021_CollectESDA(IntS imagenum) {
 //   BoolS sbool1,sbool2,pbistena,redena,do_ena;
 //
 //   savesites = v_dev_active;
-//   failsites = GL_SITE_TO_ESDA;
+//   failsites = GL_SITE_TO_ESDA; //multi site boolean set to false in F021_InitGlobalvars_func.  Set to true by site in SetFlashESDAVars
 //   allfalse = false;
 //   sbool1 = false;
 //   sbool2 = false;
@@ -11053,16 +11053,24 @@ void F021_CollectESDA(IntS imagenum) {
 //   do_ena = false;
 //
 //   if(TIIgnoreFail or TI_FlashCOFEna) {
+//      if any site has GL_SITE_TO_ESDA set to true...
 //      if(not ArrayCompareBoolean(failsites,allfalse,v_sites))  
 //         do_ena = true;
 //   }
-//   else {
+//   else { //if not ignoring failes or FlashCOF enabled...
+//      -GL_VT0DRL_RESULT (BoolM) is set to true in F021_InitGlobalvars_func.  Conditionally set to false in F021_VT_Delta_func & TL_RUN_DCCVT
+//      -GL_VT1DRL_RESULT (BoolM) is set to true in F021_InitGlobalvars_func.  Conditionally set to false in F021_VT_Delta_func & TL_RUN_DCCVT
 //      arrayandboolean(drlsites,GL_VT0DRL_RESULT,GL_VT1DRL_RESULT,v_sites);
+//      -GL_BCC0DRL_RESULT (BoolM) is set to true in F021_InitGlobalvars_func.  Conditionally set to false in TL_Run_DCCVT and F021_BCC_Delta_func
 //      arrayandboolean(drlsites,drlsites,GL_BCC0DRL_RESULT,v_sites);
+//      -GL_BCC1DRL_RESULT (BoolM) is set to true in F021_InitGlobalvars_func.  Conditionally set to false in TL_Run_DCCVT and F021_BCC_Delta_func
 //      arrayandboolean(drlsites,drlsites,GL_BCC1DRL_RESULT,v_sites);
+//      -drlsites = all sites that are 'true' in each of GL_VT0DRL_RESULT, GL_VT1DRL_RESULT, GL_BCC0DRL_RESULT, & GL_BCC1DRL_RESULT.
 //      
+//      -GL_FLASH_SAVESITES (BoolM) set to true in F021_InitGlobalvars_func.  Doesn't look like it ever gets set to anything else.   
 //      if((not ArrayCompareBoolean(GL_FLASH_SAVESITES,savesites,v_sites)) or
 //         (not ArrayCompareBoolean(GL_FLASH_SAVESITES,drlsites,v_sites)))  
+//      -if active sites or drlsites is different than GL_FLASH_SAVESITES (which is probably always set to true)
 //         if(not ArrayCompareBoolean(failsites,allfalse,v_sites))  
 //            do_ena = true;
 //   } 
@@ -11129,12 +11137,12 @@ void F021_CollectESDA(IntS imagenum) {
 //                  DevSetHoldStates(logsites);
 //                  imgesda  = imagenum+bank;
 //                  if(sbool2)  
-//          {
-//             if((FLEsda.Pattype==BANKTYPE) or (FLEsda.Pattype==OTPTYPE))  
-//            F021_Set_TPADS_ESDA(bank,0);
-//             else
-//            F021_Set_TPADS_ESDA(bank,sect);
-//          } 
+//                  {
+//                     if((FLEsda.Pattype==BANKTYPE) or (FLEsda.Pattype==OTPTYPE))  
+//                        F021_Set_TPADS_ESDA(bank,0);
+//                     else
+//                        F021_Set_TPADS_ESDA(bank,sect);
+//                  } 
 //                  
 //                  if(not pbistena)  
 //                  {
@@ -11162,8 +11170,8 @@ void F021_CollectESDA(IntS imagenum) {
 //                           F021_GetESDA_NonSCRAM(1000+imgesda,bank);
 //                           TL_SaveESDAImage(1000+imgesda,bank);
 //                        }                            
-//                     } 
-//                  } 
+//                     } /*if redena*/
+//                  } /*else*/
 //                  
 //                  ClearFlashEsdaVars(bank,sect);
 //               } 

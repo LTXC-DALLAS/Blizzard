@@ -655,6 +655,38 @@ __PatternMap DefaultPatternMap {
         __File "a_iddq_ORIG";
         __Path "./Patterns/Ascii";
     }
+    __Pattern pb_iddq_ret_chkr {
+        __File "pb_iddq_ret_chkr";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_chkr_NoPM {
+        __File "pb_iddq_ret_chkr_NoPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_invchkr {
+        __File "pb_iddq_ret_invchkr";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_invchkr_NoPM {
+        __File "pb_iddq_ret_invchkr_NoPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_ones {
+        __File "pb_iddq_ret_ones";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_ones_NoPM {
+        __File "pb_iddq_ret_ones_NoPM";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_zeroes {
+        __File "pb_iddq_ret_zeroes";
+        __Path "./Patterns/Ascii";
+    }
+    __Pattern pb_iddq_ret_zeroes_NoPM {
+        __File "pb_iddq_ret_zeroes_NoPM";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern FF_CheckROM_Mg0_NoEd {
         __File "FF_CheckROM_Mg0_NoEd";
         __Path "./Patterns/Ascii";

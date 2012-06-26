@@ -521,6 +521,10 @@ IntS ClearCPUFlag()
    DIGITAL.SetFlag(DIGITAL_FLAG_CPU, false);
     return 0;
 }
+void connectOpenPinList(PinML pins)
+{
+   DIGITAL.Connect(pins, DIGITAL_DCL_TO_DUT);
+}
 void CyclePower(Levels powerDownLevels1, Levels powerDownLevels2, FloatS powerDownDelay,
                 Levels powerUpLevels1, Levels powerUpLevels2)
 {

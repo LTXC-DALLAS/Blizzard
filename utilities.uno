@@ -1,4 +1,4 @@
-Unison:U1.0d:S5.3;
+Unison:U3.0:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -331,24 +331,120 @@ __FunctionCall CurveTrace {
 
 __WaveformCapture ALLPINS_Capture {
   __ReferenceSegment "";
-  __Start "7945";
-  __Stop "50";
+  __Start "7980";
+  __Stop "10";
   __Resolution "1.5nS";
   __Pins "ALLPINS-FLTP2-AIN04_193" {
 	__Merge EVW_Merge_All;
-	__DriveEnable __True;
-	__ScopeEnable __True;
 	__ScopeHi "3.3V";
 	__ScopeLo "0V";
   }
   __Pins "RST_n_122+TCK_152+TDI_150+TDO_149+TMS_151+o_cpu_done_46+o_cpu_fail_47+OSC0_124+PA3_49+PA4_50+AIN10_183+PB6_10+PB0_129+ScanHeader2_PL" {
-	__Enable __True;
-	__Merge EVW_Merge_All;
-	__DriveEnable __True;
+	__Merge EVW_Merge_Unmerged;
 	__DriveSize "7";
-	__ResponseEnable __True;
 	__ResponseSize "7";
 	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "PF3_91" {
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "TRD0_90" {
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "TRD1_89" {
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "TRD2_88" {
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "TRD3_87" {
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "C0_n_42" {
+	__Enable __True;
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "C0_p_43" {
+	__Enable __True;
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "C1_p_44" {
+	__Enable __True;
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+  __Pins "C1_n_45" {
+	__Enable __True;
+	__Bus __True;
+	__Merge EVW_Merge_Unmerged;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
 	__ScopeHi "3.3V";
 	__ScopeLo "0V";
   }
@@ -1137,14 +1233,36 @@ __Test SCAN_PATHDELAY_1_DBG_PG {
         }
     }
 }
-__FunctionCall DisconnectOpenPinList {
-    __Function = disconnect_digital_pins;
-    disconnect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
-}
+//__FunctionCall DisconnectOpenPinList {
+//    __Function = disconnect_digital_pins;
+//    disconnect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
+//}
 __FunctionCall PowerCycleVmask_FC {
     __Function = CyclePower;
     powerDownLevels1 = __Expression { __String = "&DCsetup_ZeroPins_ZeroSupplies_RampDown"; }
     powerDownDelay = __Expression { __String = "5ms"; }
     powerUpLevels1 = __Expression { __String = "&PowerUpAtVmask"; }
     powerUpLevels2 = __Expression { __String = "&DCsetup_LooseVmask"; }
+}
+__FunctionCall ConnectOpenPinList {
+    __Function = connect_digital_pins;
+    connect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
+}
+__FunctionCall DisconnectOpenPinList {
+    __Function = disconnect_digital_pins;
+    disconnect_pins = __Expression { __String = "IDDQ_a_iddq_PM1"; }
+}
+__FunctionCall CGS_Leak_Vmax_Fn {
+    __Function = CGS_Leak_Vmax_func;
+}
+__FunctionCall EGCG_Leak_Vmax_Fn {
+}
+__FunctionCall EGCSS_Leak_Vmax_Fn {
+    __Function = EGCSS_Leak_Vmax_func;
+}
+__FunctionCall EGS_Leak_Vmax_Fn {
+    __Function = EGS_Leak_Vmax_func;
+}
+__FunctionCall Pump_Leak_Vmax_Fn {
+    __Function = Pump_Leak_Vmax_func;
 }

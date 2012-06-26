@@ -1139,37 +1139,117 @@ __SubFlow SrchFrq_Vmin_Pre_S {
 
 __SubFlow Iddq0_VboxLO_S {
     __Node FlowNode_1767 {
-        __XCoord = (13,12);
-        __InputPosition = 0;
+        __XCoord = (739,52);
+        __InputPosition = 274;
         __TestID = "";
         __PortSelect = "0";
         __PortNumber = 0;
     }
     __Node F_FUNC_IDDQ_1819 {
-        __XCoord = (36,119);
+        __XCoord = (411,225);
         __InputPosition = 0;
         __TestID = "";
         __Exec = F_FUNC_IDDQ;
     }
     __Node a_iddq_T_382 {
-        __XCoord = (185,40);
+        __XCoord = (197,43);
         __Port[0] {
-            __PortPosition = 160;
+            __PortPosition = 90;
         }
         __Port[1] {
             __PortPosition = 180;
         }
         __InputPosition = 0;
         __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_10"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            PSSpecs = __Expression { __String = "PSSpecs.PS_Vboxlo"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.SlowScan"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
         }
         __TestID = "98000000";
         __Exec = a_iddq_T;
     }
+    __Node pb_iddq_ret_chkr_T_466 {
+        __XCoord = (304,43);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 277;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.SlowScan"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
+        __TestID = "99000000";
+        __Exec = pb_iddq_ret_chkr_T;
+    }
+    __Node pb_iddq_ret_invchkr_T_469 {
+        __XCoord = (413,43);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 275;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.SlowScan"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
+        __TestID = "100000000";
+        __Exec = pb_iddq_ret_invchkr_T;
+    }
+    __Node pb_iddq_ret_ones_T_472 {
+        __XCoord = (519,43);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 275;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.SlowScan"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
+        __TestID = "101000000";
+        __Exec = pb_iddq_ret_ones_T;
+    }
+    __Node pb_iddq_ret_zeroes_T_475 {
+        __XCoord = (622,43);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 277;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.SlowScan"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
+        }
+        __TestID = "102000000";
+        __Exec = pb_iddq_ret_zeroes_T;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = a_iddq_T_382;
+    __PortConnections {
+        a_iddq_T_382 __Port[0] = pb_iddq_ret_chkr_T_466;
+        a_iddq_T_382 __Port[1] = F_FUNC_IDDQ_1819;
+        pb_iddq_ret_chkr_T_466 __Port[0] = pb_iddq_ret_invchkr_T_469;
+        pb_iddq_ret_chkr_T_466 __Port[1] = F_FUNC_IDDQ_1819;
+        pb_iddq_ret_invchkr_T_469 __Port[0] = pb_iddq_ret_ones_T_472;
+        pb_iddq_ret_invchkr_T_469 __Port[1] = F_FUNC_IDDQ_1819;
+        pb_iddq_ret_ones_T_472 __Port[0] = pb_iddq_ret_zeroes_T_475;
+        pb_iddq_ret_ones_T_472 __Port[1] = F_FUNC_IDDQ_1819;
+        pb_iddq_ret_zeroes_T_475 __Port[0] = FlowNode_1767;
+        pb_iddq_ret_zeroes_T_475 __Port[1] = F_FUNC_IDDQ_1819;
+    }
 }
 
 __SubFlow F021FlashFlow_S {

@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U3.0:S5.3;
 
 /************************/
 /***  Pattern Groups  ***/
@@ -1630,6 +1630,15 @@ __Thread Iddq_PM02_pb_iddq_ret_zeroes_v23_Thrd {
 __PatternSequence Iddq_SEQ {
     __Thread[0] = a_iddq_Thrd;
     __Thread[1] = a_iddq_NoPM_Thrd;
+    __Thread[2] = pb_iddq_ret_chkr_Thrd;
+    __Thread[3] = pb_iddq_ret_chkr_NoPM_Thrd;
+    __Thread[4] = pb_iddq_ret_invchkr_Thrd;
+    __Thread[5] = pb_iddq_ret_invchkr_NoPM_Thrd;
+    __Thread[6] = pb_iddq_ret_ones_Thrd;
+    __Thread[7] = pb_iddq_ret_ones_NoPM_Thrd;
+    __Thread[8] = pb_iddq_ret_zeroes_Thrd;
+    __Thread[9] = pb_iddq_ret_zeroes_NoPM_Thrd;
+    __Thread[10] = ldo_bypass_JTAG_reset_DSH_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
@@ -1637,6 +1646,54 @@ __PatternSequence Iddq_SEQ {
     __AutoBasePeriod = __True;
 }
 
+__Thread pb_iddq_ret_chkr_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_chkr.pb_iddq_ret_chkr_st"; }
+    }
+}
+__Thread pb_iddq_ret_chkr_NoPM_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_chkr_NoPM.pb_iddq_ret_chkr_st"; }
+    }
+}
+__Thread pb_iddq_ret_invchkr_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_invchkr.pb_iddq_ret_invchkr_st"; }
+    }
+}
+__Thread pb_iddq_ret_invchkr_NoPM_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_invchkr_NoPM.pb_iddq_ret_invchkr_st"; }
+    }
+}
+__Thread pb_iddq_ret_ones_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_ones.pb_iddq_ret_ones_st"; }
+    }
+}
+__Thread pb_iddq_ret_ones_NoPM_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_ones_NoPM.pb_iddq_ret_ones_st"; }
+    }
+}
+__Thread pb_iddq_ret_zeroes_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_zeroes.pb_iddq_ret_zeroes_st"; }
+    }
+}
+__Thread pb_iddq_ret_zeroes_NoPM_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __PatternLabel = __Expression { __String = "pb_iddq_ret_zeroes_NoPM.pb_iddq_ret_zeroes_st"; }
+    }
+}
 __PatternSequence LeakIO_SEQ {
     __AutoBasePeriod = __True;
 }
@@ -2696,23 +2753,22 @@ __Thread pb_pb_down2_2p_Thrd {
 __Thread a_iddq_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = ldo_bypass_JTAG_reset_DSH;
+        __Pattern = a_iddq;
     }
+}
+__Thread ldo_bypass_JTAG_reset_DSH_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = a_iddq;
+        __Pattern = ldo_bypass_JTAG_reset_DSH;
     }
 }
 __Thread a_iddq_NoPM_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
-        __Pattern = ldo_bypass_JTAG_reset_DSH;
-    }
-    __Row {
-        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = a_iddq_NoPM;
     }
 }
+
 __Thread FF_CheckROM_Mg0_NoEd_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
