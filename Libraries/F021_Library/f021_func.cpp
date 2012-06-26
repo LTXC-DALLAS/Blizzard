@@ -22,7 +22,7 @@
  /*            ISA_NLD config variables.                                       */
  /*                                                                            */
  /*  A1.3 : Released with new OTP format with 8us ppw.          KChau 11/30/09 */
- /*                                          MeasPinTMU_func                                  */
+ /*                                                                            */
  /* 12/09/09  KChau                                                            */
  /*           -Removed tpad ramping in F021_Flash_Leak_func, F021_Stress_func  */
  /*            as o"scope show not needed. Also set tpad prior entering tcrnum */
@@ -293,7 +293,6 @@
 #include <iomanip>
 using namespace std; 
 
-
 void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
                                                    VIMeasureTypeS &vimeas_type)
 {
@@ -353,36 +352,17 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
    }
 }
 
-// /*ElimSpace remove space from string until encounter alpha-numeric*/
-//void ElimSpaceStr(    StringS inputstr)
-//{
-//   IntS length,spaceidx;
-//   char achar;
-//   BoolS firsttime;
-//
-//   spaceidx = instr(inputstr," ");
-//   firsttime = true;
-//   
-//   while(spaceidx!=0) do
-//   {
-//      length = len(inputstr);
-//      if((length>0) and firsttime)  
-//      {
-//         inputstr = mid(inputstr,spaceidx+1,(length-spaceidx));
-//         firsttime = false;
-//      }
-//      else if(length>0)  
-//         inputstr = mid(inputstr,spaceidx+1,(length-1));
-//      
-//      achar = inputstr[1];
-//      if(((achar >== chr(ord("A"))) and (achar <== chr(ord("z")))) or
-//         ((inputstr[1] >== "0") and (inputstr[1] <== "9")))  
-//         spaceidx = 0
-//      else
-//         spaceidx = instr(inputstr," ");
-//   } 
-//}   /* ElimSpaceStr */
-//      
+void DatalogTMResultM(const TMResultM &results, const StringS &comment, 
+                      const PinML &testPins = UTL_VOID, const bool &useTestware = false)
+{
+   IntM int_results;
+   
+   // convert TMResultM to IntM 
+   int_results = IntM(results);
+   TIDlog.Value(int_results, testPins, TM_PASS, TM_PASS, "", comment, UTL_VOID, UTL_VOID, 
+                useTestware, TWMinimumData);
+}
+
 //void PrintDUTSetup()
 //{
 //   DCSetup twDCSetup;
@@ -11731,215 +11711,206 @@ void F021_CollectESDA(IntS imagenum) {
 //      }   /*if tistdscreenprint*/
 //   }   /*if v_any_dev_active*/
 //}   /* TL_BitHistogram*/
-//      
-// /*boost refarray to iref rd ~target*/
-//void TL_Boost_RefArray()
-//{
-//   const IntS EVENNUM = 0; 
-//   const IntS ODDNUM = 1; 
-//   const IntS MAXCOUNT = 50; 
-//
-//   FloatS tdelay,tdelay2,maxtime,ttimer1,ttimer2;
-//   BoolM savesites,logsites,activesites;
-//   BoolM tmp_results,final_results,meas_results;
-//   IntS site,bank,count,loop,testnum,minloop,maxloop;
-//   IntS1D tnum_ipmos(2),tnum_ird(2);
-//   IntS tnum_refarr;
-//   IntS tcrnum,tcrnum_ipmos,tcrnum_ird,tcrnum_refarr;
-//   TPModeType tcrmode,tcrmode_ipmos,tcrmode_ird,tcrmode_refarr;
-//   FloatM meas_value,ers_pwtotal,iodd,ieven;
-//   FloatS llim,ulim,llim_ird,ulim_ird;
-//   FloatS ers_vstart,ers_vstop,ers_vinc,ers_volt,ers_pwidth;
-//   FloatM ers_veg,tt_timer;
-//   StringS str1,str2,str3,str4,str5;
-//   PinM testpad;
-//   BoolS done;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//    /*++++++++++++++++*/
-//   procedure DoIMeas; /* didn"t match any chunk types, FIX */
-//   
-//      if(v_any_dev_active)  
-//      {
-//         F021_Set_TPADS(tcrnum,tcrmode);
-//         F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//         TIME.Wait(tdelay);
-//         F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_value,tmp_results);
-//         F021_TurnOff_AllTPADS;
-//         Disable(s_pmexit);
-//      } 
-//   } 
-//    /*++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay  = 10ms;
-//      tdelay2 = 2ms;
-//
-//      tcrnum_ird = 25;
-//      tcrmode_ird = ReadMode;
-//      tnum_ird[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
-//      tnum_ird[ODDNUM]  = TNUM_BANK_IREF_READ_ODD;
-//      llim_ird = Bank_Iref_Read_LLim+0.25uA;  /*Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.01);*/
-//      ulim_ird = Bank_Iref_Read_ULim;  /*TCR.TP2_ULim[tcrnum_ird,tcrmode_ird];*/
-//
-//      tcrnum_refarr = 56;
-//      tcrmode_refarr = ErsMode;
-//      tnum_refarr = TNUM_BANK_REFARR_ERS;
-//      ers_pwidth  = 50ms;
-//      ers_vinc = 0.5V;
-//      if(GL_DO_REFARR_ERS_ADAPTIVE)  
-//      {
-//         ers_vstart = RefArr_Ers_Adaptive_VStart;
-//         ers_vstop  = RefArr_Ers_Adaptive_VStop;
-//      }
-//      else
-//      {
-//         ers_vstart = Bank_RefArr_VEG_Ers-(2*ers_vinc);
-//         ers_vstop  = Bank_RefArr_VEG_Ers-ers_vinc;
-//      } 
-//
-//      minloop = EVENNUM;
-//      if(GL_BANKTYPE==FLEPBANK)  
-//         maxloop = ODDNUM;
-//      else
-//         maxloop = EVENNUM;
-//
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      timernstart(ttimer1);
-//
-//      str1 = "RefBoost";
-//      
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         logsites = v_dev_active;
-//         activesites = v_dev_active;
-//         meas_results = v_dev_active;
-//         ers_pwtotal = 0ms;
-//         ers_veg = 0V;
-//
-//         writestring(str2,bank:1);
-//         str2 = "_B" + str2;
-//         count = 0;
-//         done = false;
-//
-//         ers_volt = ers_vstart;
-//
-//         while(not done) do
-//         {
-//            for (loop = minloop;loop <= maxloop;loop++)
-//            {
-//               tcrnum = tcrnum_ird;
-//               tcrmode = tcrmode_ird;
-//               llim = llim_ird;
-//               ulim = ulim_ird;
-//               testnum = tnum_ird[loop]+(bank<<4);
-//               testpad = FLTP2;
-//               DoIMeas;
-//               writestring(str3,count:1);
-//               if(loop==minloop)  
-//               {
-//                  str3 = "_Even_" + str3;
-//                  ieven = meas_value;
-//               }
-//               else
-//               {
-//                  str3 = "_Odd_" + str3;
-//                  iodd = meas_value;
-//               } 
-//               str4 = str1 + "_Ird";
-//               str4 = str4 + str2;
-//               str4 = str4 + str3;
-//               PrintResultParam(str4,testnum,tmp_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
-//            }   /*for loop*/
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  if(GL_BANKTYPE==FLEPBANK)  
-//                  {
-//                     if((ieven[site]>llim) and (iodd[site]>llim))  
-//                        activesites[site] = false;
-//                  }
-//                  else
-//                  {
-//                     if(ieven[site]>llim)  
-//                        activesites[site] = false;
-//                  } 
-//               } 
-//            
-//            devsetholdstates(activesites);
-//
-//             /*apply ers pulse*/
-//            if(v_any_dev_active)  
-//            {
-//               tcrnum = 128;
-//               tcrmode = tcrmode_refarr;
-//               CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
-//               TCR.TP1_VRange[tcrnum][tcrmode] = ers_volt;
-//               testnum = tnum_refarr+(bank<<4);
-//               F021_TurnOff_AllTpads;
-//               F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//               F021_Set_TPADS(tcrnum,tcrmode);
-//               TIME.Wait(ers_pwidth);
-//               F021_TurnOff_AllTpads;
-//               Disable(s_pmexit);
-//               count = count+1;
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     ers_pwtotal[site] = ers_pwtotal[site]+ers_pwidth;
-//                     ers_veg[site] = ers_volt;
-//                  } 
-//
-//               if(ers_volt<ers_vstop)  
-//                  ers_volt = ers_volt+ers_vinc;
-//
-//               str5 = str1 + str2;
-//               str5 = str5 + "_VEG";
-//               PrintResultParam(str5,testnum,tmp_results,10v,13v,ers_veg,GL_PLELL_FORMAT);
-//               str5 = str1 + str2;
-//               str5 = str5 + "_PW";
-//               PrintResultParam(str5,testnum,tmp_results,0ms,1s,ers_pwtotal,GL_PLELL_FORMAT);
-//            }   /*ers*/
-//
-//            if((not v_any_dev_active) or (count>MAXCOUNT))  
-//               done = true;
-//         }   /*while*/
-//
-//         devsetholdstates(savesites);
-//
-//         str4 = str1 + str2;
-//         str5 = str4 + "_TOTPW";
-//         TWTRealToRealMS(ers_pwtotal,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//         
-//         str5 = str4 + "_VEG";
-//         TWTRealToRealMS(ers_veg,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//         
-//      }   /*bank*/
-//
-//      devsetholdstates(savesites);
-//
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//      
-//      str5 = str1 + "_TT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//         cout << "TL_Boost_RefArr_TTT == " << ttimer1 << endl;
-//   } 
-//}   /* TL_Boost_RefArray */
-//
-//
+
+FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
+                const TPModeType &tcrmode, const IntS &testnum, 
+                const FloatS &maxtime, const FloatS &tdelay) 
+{
+   FloatM meas_val;
+   
+   F021_Set_TPADS(tcrnum,tcrmode);
+#if $TP3_TO_TP5_PRESENT  
+   STDDisconnect(FLTP3);
+#endif
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   return (meas_val);
+}   /* DoIMeasure */
+
+ /*boost refarray to iref rd ~target*/
+void TL_Boost_RefArray()
+{
+   const IntS EVENNUM = 0; 
+   const IntS ODDNUM = 1; 
+   const IntS MAXCOUNT = 50; 
+
+   FloatS tdelay,tdelay2,maxtime;
+   Sites savesites, new_active_sites;
+   TMResultM tmp_results;
+   IntS bank,count,loop,testnum,minloop,maxloop;
+   IntS1D tnum_ird(2);
+   IntS tnum_refarr;
+   IntS tcrnum,tcrnum_ird,tcrnum_refarr;
+   TPModeType tcrmode,tcrmode_ird,tcrmode_refarr;
+   FloatM meas_value,iodd,ieven;
+   FloatS llim,ulim,llim_ird,ulim_ird;
+   FloatS ers_vstart,ers_vstop,ers_vinc,ers_volt,ers_pwidth;
+   FloatM ers_veg, ers_pwtotal;
+   FloatS tt_timer;
+   StringS str1,str2,str3,str4,str5, str6;
+   PinM testpad;
+   BoolS done;
+
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay  = 10ms;
+   tdelay2 = 2ms;
+
+   tcrnum_ird = 25;
+   tcrmode_ird = ReadMode;
+   tnum_ird[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
+   tnum_ird[ODDNUM]  = TNUM_BANK_IREF_READ_ODD;
+   llim_ird = Bank_Iref_Read_LLim+0.25uA;  /*Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.01);*/
+   ulim_ird = Bank_Iref_Read_ULim;  /*TCR.TP2_ULim[tcrnum_ird,tcrmode_ird];*/
+
+   tcrnum_refarr = 56;
+   tcrmode_refarr = ErsMode;
+   tnum_refarr = TNUM_BANK_REFARR_ERS;
+   ers_pwidth  = 50ms;
+   ers_vinc = 0.5V;
+   if(GL_DO_REFARR_ERS_ADAPTIVE)  
+   {
+      ers_vstart = RefArr_Ers_Adaptive_VStart;
+      ers_vstop  = RefArr_Ers_Adaptive_VStop;
+   }
+   else
+   {
+      ers_vstart = Bank_RefArr_VEG_Ers-(2*ers_vinc);
+      ers_vstop  = Bank_RefArr_VEG_Ers-ers_vinc;
+   } 
+
+   minloop = EVENNUM;
+   if(GL_BANKTYPE==FLEPBANK)  
+      maxloop = ODDNUM;
+   else
+      maxloop = EVENNUM;
+
+   savesites = ActiveSites;
+   
+   TIME.StartTimer();
+
+   str1 = "RefBoost";
+   
+   for (bank = 0;bank <= F021_Flash.MAXBANK;++bank)
+   {
+      new_active_sites = ActiveSites;
+      ers_pwtotal = 0ms;
+      ers_veg = 0V;
+
+      str2 = "_B" + bank;
+      count = 0;
+      done = false;
+
+      ers_volt = ers_vstart;
+
+      while(!done)
+      {
+         for (loop = minloop;loop <= maxloop;++loop)
+         {
+            tcrnum = tcrnum_ird;
+            tcrmode = tcrmode_ird;
+            llim = llim_ird;
+            ulim = ulim_ird;
+            testnum = tnum_ird[loop]+(bank<<4);
+            testpad = FLTP2;
+            meas_value = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+            if(loop==minloop)  
+            {
+               str3 = "_Even_" + count;
+               ieven = meas_value;
+            }
+            else
+            {
+               str3 = "_Odd_" + count;
+               iodd = meas_value;
+            } 
+            str4 = str1 + "_Ird";
+            str4 = str4 + str2;
+            str4 = str4 + str3;
+            tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
+                                       str4, UTL_VOID, UTL_VOID, true, TWMinimumData);
+         }   /*for loop*/
+
+         if(GL_BANKTYPE==FLEPBANK)  
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if((ieven[*si]>llim) and (iodd[*si]>llim))  
+                  new_active_sites -= *si;
+         }
+         else
+         {
+            // if ieven is greater than llim, then disable the site
+            new_active_sites.DisableFailingSites(ieven.LessOrEqual(llim));
+         } 
+         
+          /*apply ers pulse*/
+         if(SetActiveSites(new_active_sites))  
+         {
+            tcrnum = 128;
+            tcrmode = tcrmode_refarr;
+            CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
+            TCR.TP1_VRange[tcrnum][tcrmode] = ers_volt;
+            testnum = tnum_refarr+(bank<<4);
+            F021_TurnOff_AllTPADS();
+            tmp_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+            F021_Set_TPADS(tcrnum,tcrmode);
+            TIME.Wait(ers_pwidth);
+            F021_TurnOff_AllTPADS();
+            ++count;
+            
+            ers_pwtotal += ers_pwidth;
+            ers_veg = ers_volt;
+
+            if(ers_volt<ers_vstop)  
+               ers_volt = ers_volt+ers_vinc;
+
+            if (tistdscreenprint)
+            {
+               // all active sites at this point will have the same ers_veg & PW
+               // so append first active site value to string for dlogging.
+               str5 = str1 + str2;
+               str5 = str5 + "_VEG_" + ers_veg[ActiveSites.Begin().GetValue()];
+               str6 = str1 + str2 + "_PW_" + ers_pwtotal[ActiveSites.Begin().GetValue()];
+               // just do a datalog to show tmp_results
+               DatalogTMResultM(tmp_results, str5);
+               DatalogTMResultM(tmp_results, str6);
+            }
+         } else {
+            done = true; // only get here if there should be no active sites
+         }
+
+         if(count>MAXCOUNT)
+            done = true;
+      }   /*while*/
+
+      RunTime.SetActiveSites(savesites);
+
+      str4 = str1 + str2;
+      str5 = str4 + "_TOTPW";
+      TIDlog.Value(ers_pwtotal, UTL_VOID, 0s, 1s, "s", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+      
+      str5 = str4 + "_VEG";
+      TIDlog.Value(ers_veg, UTL_VOID, 10V, 13V, "V", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+      
+   }   /*bank*/
+
+   RunTime.SetActiveSites(savesites);
+
+   tt_timer = TIME.StopTimer();
+   
+   str5 = str1 + "_TT";
+   TIDlog.Value(tt_timer, UTL_VOID, 0s, UTL_VOID, "s", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+
+   if(tistdscreenprint)  
+      cout << "TL_Boost_RefArr_TTT == " << tt_timer << endl;
+}   /* TL_Boost_RefArray */
+
+
  /*++++++++++ Flash Tools ++++++++++*/
    
 void RAM_Clear_MailBox_Key()
@@ -11959,25 +11930,6 @@ void RAM_Clear_MailBox_Key()
    lsw_data = 0;  /*lsword*/
    WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 }   /* RAM_Clear_MailBox_Key */
-
-
-FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
-                const TPModeType &tcrmode, const IntS &testnum, 
-                const FloatS &maxtime, const FloatS &tdelay) 
-{
-   FloatM meas_val;
-   
-   F021_Set_TPADS(tcrnum,tcrmode);
-#if $TP3_TO_TP5_PRESENT  
-   STDDisconnect(FLTP3);
-#endif
-   F021_RunTestNumber_PMEX(testnum,maxtime);
-   TIME.Wait(tdelay);
-   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
-   F021_TurnOff_AllTPADS();
-   
-   return (meas_val);
-}   /* DoIMeasure */
 
 TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
 {
@@ -12833,177 +12785,160 @@ void RAM_Upload_VHV_PMOS_EngOvride(IntS bank)
 //      } 
 //   } 
 //}   /* RAM_Clear_PMOS_SoftTrim_Bank */
-//
-//
-//void RAM_Clear_PMOS_SoftTrim()
-//{
-//   IntS site,addr_loc,trimenakey,i,j;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Clear_PMOS_SoftTrim +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0x0000;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//
-//      for (i = 1;i <= 5;i++)
-//      {
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//      } 
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Clear_PMOS_SoftTrim */
-//
-//void GetTrimCode_On_EFStr()
-//{
-//   const IntS BANK_EF_LEN = 32; 
-//   const IntS PUMP_EF_LEN = 30; 
-//   const IntS EVN0INDX = 23; 
-//   const IntS ODD0INDX = 4; 
-//   const IntS IND_VBG_MSB = 2; 
-//   const IntS IND_VBG_LSB = 7; 
-//   const IntS IND_FOSC_MSB = 9; 
-//   const IntS IND_FOSC_LSB = 14; 
-//   const IntS IND_IREF_USB = 16; 
-//   const IntS IND_IREF_LSB = 20; 
-//   const IntS IND_IREF_MSB = 22; 
-//   const IntS IND_VHVSLCT_MSB = 23; 
-//   const IntS IND_VHVSLCT_LSB = 26; 
-//   const IntS IND_VSA5CT_MSB = 27; 
-//   const IntS IND_VSA5CT_LSB = 30; 
-//
-//   IntS site,count,length,i;
-//   IntS trimdata,lowerbank;
-//   IntM bankena;
-//   StringS dummstr1,dummstr2,pumpstr;
-//   StringS bit5_9_str,bit24_28_str;
-//   BoolS highbank;
-//   StringS str1,str2;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ GetTrimcode_On_EFStr +++++" << endl;
-//
-//      bankena = 0;
-//
-//      if(F021_Flash.MAXBANK>3)  
-//      {
-//         lowerbank = F021_Flash.MAXBANK mod 4;
-//         highbank = true;
-//      }
-//      else
-//      {
-//         lowerbank = F021_Flash.MAXBANK;
-//         highbank = false;
-//      } 
-//
-//       /*retrieve trim code*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//               bankena[site] = bankena[site] + (0x1<<count);
-//
-//            dummstr1 = SaveFlashProgString[site];
-//            length = len(dummstr1);
-//
-//             /*extract pump trim for espump*/
-//            if((TITestType!=MP1) and (GL_PUMPTYPE==ESPUMP))  
-//            {
-//               pumpstr = mid(dummstr1,1,PUMP_EF_LEN);
-//               str1 = mid(pumpstr,IND_VBG_MSB,(IND_VBG_LSB-IND_VBG_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               MAINBG_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_FOSC_MSB,(IND_FOSC_LSB-IND_FOSC_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               FOSC_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_IREF_USB,(IND_IREF_LSB-IND_IREF_USB)+1);
-//               str2 = mid(pumpstr,IND_IREF_MSB,1);
-//               str1 = str2 + str1;
-//               readstring("0b" + str1) + i;
-//               MAINIREF_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_VHVSLCT_MSB,(IND_VHVSLCT_LSB-IND_VHVSLCT_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               VHV_SLPCT_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_VSA5CT_MSB,(IND_VSA5CT_LSB-IND_VSA5CT_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               VSA5CT_TRIMSAVED[site] = i;
-//               if(tistdscreenprint)  
-//                  cout << "Site" << site:-5 << " MAINBG_TRIMSAVED == " << MAINBG_TRIMSAVED[site]:-5 << 
-//                          " MAINIREF_TRIMSAVED == " << MAINIREF_TRIMSAVED[site]:-5 << 
-//                          " FOSC_TRIMSAVED == " << FOSC_TRIMSAVED[site]:-5 << 
-//                          " VHVSLPCT_TRIMSAVED == " << VHV_SLPCT_TRIMSAVED[site]:-5 << 
-//                          " VSA5CT_TRIMSAVED == " << VSA5CT_TRIMSAVED[site]:-5 << endl;               
-//            } 
-//            
-//             /*remove pump*/
-//            dummstr1 = mid(dummstr1,(PUMP_EF_LEN+1),(length-PUMP_EF_LEN));
-//
-//            for (count = 0;count <= lowerbank;count++)
-//            {
-//               writestring(bit5_9_str,mid(dummstr1,(EVN0INDX+(count*BANK_EF_LEN)),5));
-//               dummstr2 = (bit5_9_str); /*stringreverse*/
-//               readstring("0b" + dummstr2) + trimdata;
-//               IPMOS_TRIMCODE_VAL[count][0][site] = trimdata;  /*even*/
-//               
-//               writestring(bit24_28_str,mid(dummstr1,(ODD0INDX+(count*BANK_EF_LEN)),5));
-//               dummstr2 = (bit24_28_str); /*stringreverse*/
-//               readstring("0b" + dummstr2) + trimdata;
-//               IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
-//
-//               if(tistdscreenprint and TI_FlashDebug)  
-//                  cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
-//                          " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
-//            }   /*for count*/
-//
-//            if(highbank)  
-//               for (count = 4;count <= F021_Flash.MAXBANK;count++)
-//               {
-//                  writestring(bit5_9_str,mid(dummstr1,(EVN0INDX+(count*BANK_EF_LEN)),5));
-//                  dummstr2 = (bit5_9_str); /*stringreverse*/
-//                  readstring("0b" + dummstr2) + trimdata;
-//                  IPMOS_TRIMCODE_VAL[count][0][site] = trimdata;  /*even*/
-//                  
-//                  writestring(bit24_28_str,mid(dummstr1,(ODD0INDX+(count*BANK_EF_LEN)),5));
-//                  dummstr2 = (bit24_28_str); /*stringreverse*/
-//                  readstring("0b" + dummstr2) + trimdata;
-//                  IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
-//
-//                  if(tistdscreenprint and TI_FlashDebug)  
-//                     cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
-//                             " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
-//               }   /*for count*/
-//
-//         }   /*if v_dev_active*/
-//
-//       /*store to global vars*/
-//      IPMOS_BANKENA_MSW = bankena;
-//      IPMOS_BANKENA_LSW = bankena;
-//      
-//   }   /*if v_any_dev_active*/
-//
-//}   /* GetTrimCode_On_EFStr */
-//
-//
+
+
+void RAM_Clear_PMOS_SoftTrim()
+{
+   IntS addr_loc,trimenakey,i;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Clear_PMOS_SoftTrim +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0x0000;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = 0;  /*lsword*/
+
+   for (i = 1;i <= 5;++i)
+   {
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      addr_loc = addr_loc+ADDR_RAM_INC;
+   } 
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+      ReadRamAddress(addr_loc, addr_loc + (6 * ADDR_RAM_INC));
+   } 
+}   /* RAM_Clear_PMOS_SoftTrim */
+
+void GetTrimCode_On_EFStr()
+{
+   const IntS BANK_EF_LEN = 32; 
+   const IntS PUMP_EF_LEN = 30; 
+   // all consts below reduced by 1 from VLCT since they are string indexes
+   
+   const IntS EVN0INDX = 22; 
+   const IntS ODD0INDX = 3; 
+   const IntS IND_VBG_MSB = 1; 
+   const IntS IND_VBG_LSB = 6; 
+   const IntS IND_FOSC_MSB = 8; 
+   const IntS IND_FOSC_LSB = 13; 
+   const IntS IND_IREF_USB = 15; 
+   const IntS IND_IREF_LSB = 19; 
+   const IntS IND_IREF_MSB = 21; 
+   const IntS IND_VHVSLCT_MSB = 22; 
+   const IntS IND_VHVSLCT_LSB = 25; 
+   const IntS IND_VSA5CT_MSB = 26; 
+   const IntS IND_VSA5CT_LSB = 29; 
+
+   IntS count,length;
+   IntS lowerbank;
+   IntM bankena;
+   StringS dummstr1,dummstr2,pumpstr;
+   StringS bit5_9_str,bit24_28_str;
+   BoolS highbank;
+   StringS str1,str2;
+
+   if(tistdscreenprint)  
+      cout << "+++++ GetTrimcode_On_EFStr +++++" << endl;
+
+   bankena = 0;
+
+   if(F021_Flash.MAXBANK>3)  
+   {
+      lowerbank = F021_Flash.MAXBANK % 4;
+      highbank = true;
+   }
+   else
+   {
+      lowerbank = F021_Flash.MAXBANK;
+      highbank = false;
+   } 
+      
+    /*retrieve trim code*/
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      SITE site = *si;
+      for (count = 0;count <= F021_Flash.MAXBANK;count++)
+         bankena[site] = bankena[site] + (0x1<<count);
+
+      dummstr1 = SaveFlashProgString[site];
+      length = dummstr1.Length();
+
+       /*extract pump trim for espump*/
+      if((SelectedTITestType!=MP1) and (GL_PUMPTYPE==ESPUMP))  
+      {
+         pumpstr = dummstr1.Substring(0,PUMP_EF_LEN);
+         str1 = pumpstr.Substring(IND_VBG_MSB,(IND_VBG_LSB-IND_VBG_MSB)+1);
+         MAINBG_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_FOSC_MSB,(IND_FOSC_LSB-IND_FOSC_MSB)+1);
+         FOSC_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_IREF_USB,(IND_IREF_LSB-IND_IREF_USB)+1);
+         str2 = pumpstr.Substring(IND_IREF_MSB,1) + str1;
+         MAINIREF_TRIMSAVED[site] = int(BinStringToUnsigned(str2, true));
+         str1 = pumpstr.Substring(IND_VHVSLCT_MSB,(IND_VHVSLCT_LSB-IND_VHVSLCT_MSB)+1);
+         VHV_SLPCT_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_VSA5CT_MSB,(IND_VSA5CT_LSB-IND_VSA5CT_MSB)+1);
+         VSA5CT_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         if(tistdscreenprint)  
+            cout << "Site" << setw(5) << site << " MAINBG_TRIMSAVED = " << setw(5) << MAINBG_TRIMSAVED[site] << 
+                    " MAINIREF_TRIMSAVED = " << setw(5) << MAINIREF_TRIMSAVED[site] << 
+                    " FOSC_TRIMSAVED = " << setw(5) << FOSC_TRIMSAVED[site] << 
+                    " VHVSLPCT_TRIMSAVED = " << setw(5) << VHV_SLPCT_TRIMSAVED[site] << 
+                    " VSA5CT_TRIMSAVED = " << setw(5) << VSA5CT_TRIMSAVED[site] << endl;               
+      } 
+       /*remove pump*/
+      dummstr1 = dummstr1.Substring(PUMP_EF_LEN,(length-PUMP_EF_LEN));
+
+      for (count = 0;count <= lowerbank;++count)
+      {
+         bit5_9_str = dummstr1.Substring(EVN0INDX + (count*BANK_EF_LEN), 5);
+         dummstr2 = (bit5_9_str); /*stringreverse*/
+         IPMOS_TRIMCODE_VAL[site][count][0] = int(BinStringToUnsigned(dummstr2, true));  /*even*/
+         
+         bit24_28_str = dummstr1.Substring(ODD0INDX+(count*BANK_EF_LEN),5);
+         dummstr2 = (bit24_28_str); /*stringreverse*/
+         IPMOS_TRIMCODE_VAL[site][count][1] = int(BinStringToUnsigned(dummstr2, true));  /*odd*/
+
+         if(tistdscreenprint and TI_FlashDebug)  
+            cout << "Site" << setw(5) << site << " Bank" << setw(5) << count << hex <<
+                    " TrimCode Even== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][0] << 
+                    " Odd== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][1] << dec << endl;
+      }   /*for count*/
+
+      if(highbank)  
+         for (count = 4;count <= F021_Flash.MAXBANK;++count)
+         {  
+            bit5_9_str = dummstr1.Substring(EVN0INDX+(count*BANK_EF_LEN),5);
+            dummstr2 = (bit5_9_str); /*stringreverse*/
+            IPMOS_TRIMCODE_VAL[site][count][0] = int(BinStringToUnsigned(dummstr2, true));  /*even*/
+            
+            bit24_28_str = dummstr1.Substring(ODD0INDX+(count*BANK_EF_LEN),5);
+            dummstr2 = (bit24_28_str); /*stringreverse*/
+            IPMOS_TRIMCODE_VAL[site][count][1] = int(BinStringToUnsigned(dummstr2, true));  /*odd*/
+
+            if(tistdscreenprint and TI_FlashDebug)  
+               cout << "Site" << setw(5) << site << " Bank" << setw(5) << count << " TrimCode Even== " << 
+                    hex << setw(6) << IPMOS_TRIMCODE_VAL[site][count][0] << 
+                    " Odd== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][1] << dec << endl;
+         }   /*for count*/
+   }   /* end site loop */
+
+    /*store to global vars*/
+   IPMOS_BANKENA_MSW = bankena;
+   IPMOS_BANKENA_LSW = bankena;
+      
+}   /* GetTrimCode_On_EFStr */
+
+
 void RAM_Upload_PMOS_TrimCode() {
    IntS    site,addr_loc,trimenakey,bank,maxbk,i;
    IntM    msw_data,lsw_data,edata,odata;
@@ -14849,51 +14784,41 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    return(final_results);
 }   // F021_Stress_func
 
-#if 0
-TMResultM F021_RefArr_Erase_func(    StringS tname,
-                                     BoolS adaptiveEna)
+
+TMResultM F021_RefArr_Erase_func(const StringS &tname,
+                                 const BoolS &adaptiveEna)
 {
    const IntS TCR56 = 56; 
    const IntS TCR40 = 40; 
    const IntS EVENNUM = 0; 
    const IntS ODDNUM = 1; 
 
-//   FloatS tdelay,maxtime;
-//   BoolM savesites,logsites,rtest_results;
-//   BoolM tmp_results,final_results;
-//   BoolM meas_results,activestates,sitetorestore;
-//   IntS site,bankcount;
-//   IntS pattype,testnum;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4,vstr;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   prepostcorner prepost;
-//   BoolS parmena,done,once,ovride_lim;
-//   FloatS ovride_llim,ovride_ulim;
-//   PinM testpad,cntrlpad;
-//   FloatS tpad_force,cntrlpad_force;
-//   BoolS x64soft;
-//   StringM site_cof_inst_str;
-//   TPModeType tcrmode_refarr,tcrmode_ipmos;
-//   TPModeType tcrmode_ipmos_pre;
-//   IntS tnum_refarr,tcrnum_refarr;
-//   IntS tcrnum_ipmos,loop;
-//   IntS1D tnum_ipmos(2);
-//   FloatS llim,ulim,llim_pre,ulim_pre;
-//   FloatM meas_value,ipmos_even,ipmos_odd;
-//   FloatM ieven_fn,iodd_fn,ieven_odd_avg;
-//   FloatM1D ieven_pre(8),iodd_pre(8);
-//   FloatS ers_pwmax,ers_pwidth;
-//   FloatS vstart,vstop,vinc,vProg,iavg_toler;
-//   FloatM ers_pwtotal;
-//   IntS ers_cntmin,ers_cntmax,ers_loop;
-//   BoolM retestsites,allsitefalse;
-//   BoolS bool1,bool2;
-//   BoolM1D bankdone(8);
-//   IntS minloop,maxloop;
+   FloatS tdelay,maxtime;
+   Sites savesites,logsites,erase_sites, new_active_sites;
+   TMResultM tmp_results,final_results,rtest_results,meas_results;
+   IntS bankcount;
+   IntS testnum;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4,vstr;
+   PinM testpad; 
+   TPModeType tcrmode_refarr,tcrmode_ipmos;
+   TPModeType tcrmode_ipmos_pre;
+   IntS tnum_refarr,tcrnum_refarr;
+   IntS tcrnum_ipmos,loop;
+   IntS1D tnum_ipmos(2);
+   FloatS llim,ulim,llim_pre,ulim_pre;
+   FloatM meas_value,ipmos_even,ipmos_odd;
+   FloatM ieven_fn,iodd_fn,ieven_odd_avg;
+   FloatM1D ieven_pre(8),iodd_pre(8);
+   FloatS ers_pwmax,ers_pwidth;
+   FloatS vstart,vstop,vProg,vinc,iavg_toler;
+   FloatM ers_pwtotal;
+   IntS ers_cntmin,ers_cntmax,ers_loop;
+   BoolM bool1,bool2, retest;
+   BoolM1D bankdone(8);
+   IntS minloop,maxloop;
+   bool any_site_active;
+   FloatS start_time2;
 
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ F021_RefArr_Erase_func +++++" << endl;
@@ -14910,8 +14835,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
    testpad = FLTP2;
     /*pre-ers*/
    tcrmode_ipmos_pre = ProgMode;  /*actual mode is evfy*/
-   llim_pre = TCR.TP2_LLim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*-135ua*/
-   ulim_pre = TCR.TP2_ULim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*5ua*/
+   llim_pre = TCR.TP2_LLim[tcrnum_ipmos][tcrmode_ipmos_pre];   /*-135ua*/
+   ulim_pre = TCR.TP2_ULim[tcrnum_ipmos][tcrmode_ipmos_pre];   /*5ua*/
 
    ers_cntmin = 1;
    tcrnum_refarr  = TCR56;
@@ -14937,15 +14862,15 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
       ulim = IPMOS_Adaptive_Target+iavg_toler;    /*-46ua=-56ua+10ua*/
       ers_pwidth = RefArr_Ers_Adaptive_RESOL;  /*per step resol*/
       ers_pwmax  = RefArr_Ers_Adaptive_PWIDTH;
-      ers_cntmax = trunc(ers_pwmax/ers_pwidth);
-      vstart     = RefArr_Ers_Adaptive_Vstart;
-      vstop      = RefArr_Ers_Adaptive_Vstop;
+      ers_cntmax = int(ers_pwmax/ers_pwidth);
+      vstart     = RefArr_Ers_Adaptive_VStart;
+      vstop      = RefArr_Ers_Adaptive_VStop;
       vinc       = 1V;
       tcrmode_refarr = EvfyMode;
    } 
    
    for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;++bankcount)
-      bankdone[bankcount] = true;
+      bankdone.SetValue(bankcount,true);
 
    minloop = EVENNUM;
    if(GL_BANKTYPE==FLEPBANK)  
@@ -14957,10 +14882,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
 
    savesites = ActiveSites;
    final_results = TM_NOTEST;
-   allsitefalse = false;
 
-   fl_testname = tname;
-   tmpstr1 = fl_testname.Substring(1, fl_testname.Length()-6);
+   tmpstr1 = tname.Substring(1, tname.Length()-6);
 
 // :TODO: Implement below   
 //   if(TI_FlashCOFEna)  
@@ -14974,8 +14897,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
       meas_results = TM_NOTEST; 
       tmp_results = TM_NOTEST;
 
-      ieven_pre[bankcount] = 0uA;
-      iodd_pre[bankcount] = 0uA;
+      ieven_pre.SetValue(bankcount, 0uA);
+      iodd_pre.SetValue(bankcount, 0uA);
 
       tmpstr2 = "_B" + bankcount;
       tmpstr4 = "IPMOS_Rd";
@@ -14991,12 +14914,12 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
          if(loop==0)  
          {
             tmpstr3 = tmpstr4 + "_NME_Pre";
-            ieven_pre[bankcount] = meas_value;
+            ieven_pre.SetValue(bankcount, meas_value);
          }
          else
          {
             tmpstr3 = tmpstr4 + "_NMO_Pre";
-            iodd_pre[bankcount] = meas_value;
+            iodd_pre.SetValue(bankcount, meas_value);
          } 
          
          tmpstr3 = tmpstr3 + tmpstr2;
@@ -15023,12 +14946,12 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
             ieven_odd_avg = (ieven_pre[bankcount]+iodd_pre[bankcount])*0.5;
          else
             ieven_odd_avg = ieven_pre[bankcount];
-         bankdone[bankcount] = ieven_odd_avg.LessOrEqual(ulim);
+         bankdone.SetValue(bankcount, ieven_odd_avg.LessOrEqual(ulim));
       }
       else
       {
           /*apply pulse regardless*/
-         bankdone[bankcount] = false;
+         bankdone.SetValue(bankcount,false);
       } 
       retest &= bankdone[bankcount];
 
@@ -15095,7 +15018,7 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                if(adaptiveEna)  
                   CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
 
-               for (FloatS vProg = vstart; vProg <= vstop; VProg += vinc)
+               for (FloatS vProg = vstart; vProg <= vstop; vProg += vinc)
                {
                   vstr = "_" + vProg;
 
@@ -15106,45 +15029,33 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                   {
                       /*--- apply ers pulse ---*/
                      testnum = tnum_refarr+(bankcount<<4);
-                     F021_TurnOff_AllTpads();
+                     F021_TurnOff_AllTPADS();
                      rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
                      F021_Set_TPADS(tcrnum_refarr,tcrmode_refarr);
                      TIME.Wait(ers_pwidth);
-                     F021_TurnOff_AllTpads();
+                     F021_TurnOff_AllTPADS();
                      tmp_results = Check_RAM_TNUM(testnum);
 
-//:HERE:
                       /*tally up total applied pwidth*/
-                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                        if(v_dev_active[site])  
-                        {
-                           ers_pwtotal[site] = ers_pwtotal[site] + ers_pwidth;
-                           if((not rtest_results[site]) or (not tmp_results[site]))  
-                              final_results[site] = false;
-                        } 
+                     ers_pwtotal += ers_pwidth;
+                     final_results = DLOG.AccumulateResults(final_results, rtest_results);
+                     final_results = DLOG.AccumulateResults(final_results, tmp_results);
                      
                       /*--- read ipmos evfy even/odd ---*/
-                     writestring(tmpstr4,ers_loop:1);
-                     tmpstr4 = "_PLS" + tmpstr4;
-                     tmpstr4 = tmpstr2 + tmpstr4;   /*_B#_PLS#*/
-                     tmpstr4 = tmpstr4 + vstr;
+                     tmpstr4 = tmpstr2 + "_PLS" + ers_loop + vstr;
                      
-                     for (loop = minloop;loop <= maxloop;loop++)
+                     for (loop = minloop;loop <= maxloop;++loop)
                      {
                         testnum = tnum_ipmos[loop]+(bankcount<<4);
                         F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos);
-                        F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
+                        rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
                         TIME.Wait(tdelay);
-                        discard(F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos,
-                                llim,ulim,meas_value,meas_results));  /*note: don"t want to fail meas_value here*/
-                        F021_TurnOff_AllTpads;
-                        Disable(s_pmexit);
-                        Check_RAM_TNUM(testnum,tmp_results);
+                        meas_value = F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos);
+                        F021_TurnOff_AllTPADS();
+                        tmp_results = Check_RAM_TNUM(testnum);
 
-                        for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                           if(v_dev_active[site])  
-                              if((not rtest_results[site]) or (not tmp_results[site]))  
-                                 final_results[site] = false;
+                        final_results = DLOG.AccumulateResults(final_results, rtest_results);
+                        final_results = DLOG.AccumulateResults(final_results, tmp_results);
                         
                         if(loop==0)  
                         {
@@ -15159,116 +15070,99 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                         
                          /*tw log ipmos value*/
                         tmpstr3 = tmpstr3 + tmpstr4;
-                        TWTRealToRealMS(meas_value,realval,unitval);
-                        TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
-                        
-                        PrintResultParam(tmpstr3,testnum,meas_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
+                        meas_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(), 
+                                                    tmpstr3, UTL_VOID, UTL_VOID, true, TWMinimumData);
                      }   /*for loop*/
                      
                       /*--- check even/odd against target/limits ---*/
-                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                        if(v_dev_active[site])  
-                        {
-                           if(adaptiveEna)  
-                           {
-                              if(GL_BANKTYPE==FLEPBANK)  
-                                 ieven_odd_avg[site] = (ipmos_even[site]+ipmos_odd[site])*0.5;
-                              else
-                                 ieven_odd_avg[site] = ipmos_even[site];
-                              if(ieven_odd_avg[site]<==ulim)  
-                              {
-                                 bool1 = true;
-                                 bool2 = true;
-                              }
-                              else
-                              {
-                                 bool1 = false;
-                                 bool2 = false;
-                              } 
-                           }
-                           else
-                           {
-                              if(ipmos_even[site] <== ulim)  
-                                 bool1 = true;
-                              else
-                                 bool1 = false;
-
-                              if(GL_BANKTYPE==FLEPBANK)  
-                              {
-                                 if(ipmos_odd[site] <== ulim)  
-                                    bool2 = true;
-                                 else
-                                    bool2 = false;
-                              }
-                              else
-                              {
-                                 bool2 = true;
-                                 ipmos_odd[site] = ipmos_even[site];
-                              } 
-                           } 
+                     if (adaptiveEna)
+                     {
+                        if (GL_BANKTYPE==FLEPBANK)
+                           ieven_odd_avg = (ipmos_even + ipmos_odd) * 0.5;
+                        else
+                           ieven_odd_avg = ipmos_even;
                            
-                           if(bool1 and bool2)  
-                           {
-                              activestates[site] = false;  /*done erasing*/
-                              ieven_fn[site] = ipmos_even[site];
-                              iodd_fn[site]  = ipmos_odd[site];
-                              tt_timer[site] = timernread(ttimer2);
-                              if(tistdscreenprint)  
-                                 cout << "Site " << site:-5 << " Done Erasing so dis-able" << endl;
-                           } 
+                        bool1 = ieven_odd_avg.LessOrEqual(ulim);
+                        bool2 = bool1;
+                     }
+                     else
+                     {
+                        bool1 = ipmos_even.LessOrEqual(ulim);
+                        
+                        if (GL_BANKTYPE==FLEPBANK)
+                        {
+                           bool2 = ipmos_odd.LessOrEqual(ulim);
+                        }
+                        else
+                        {
+                           bool2 = true;
+                           ipmos_odd = ipmos_even;
+                        }
+                     }
+                     new_active_sites = ActiveSites;
+                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                     {  
+                        SITE site = *si;
+                        if(bool1[site] && bool2[site])  
+                        {
+                           new_active_sites -= site; /*done erasing*/
+                           ieven_fn[site] = ipmos_even[site];
+                           iodd_fn[site]  = ipmos_odd[site];
+                           tt_timer[site] = TIME.GetTimer() - start_time2;
+                           if(tistdscreenprint)  
+                              cout << "Site " << site << " Done Erasing so dis-able" << endl;
+                        } 
+                     }
                      
-                            /*reached max ers but failed iref*/
-                           if((ers_loop==ers_cntmax) and (vProg==vstop))  
-                              if(activestates[site])  
-                              {
-                                 final_results[site] = false;
-                                 activestates[site] = false;
-                                 ieven_fn[site] = ipmos_even[site];
-                                 iodd_fn[site]  = ipmos_odd[site];
-                                 tt_timer[site] = timernread(ttimer2);
-                                 if(tistdscreenprint)  
-                                    cout << "Site " << site:-5 << " Reached Max pulse but Failed Erasing" << endl;
-                              } 
-                        }   /*if v_dev_active*/
+                     /*reached max ers but failed iref*/
+                     if((ers_loop==ers_cntmax) and (vProg==vstop))  
+                     {
+                        // loop through new_active_sites because it will have removed sites 
+                        // that finally passed, but they won't be deactivated yet so can't use
+                        // ActiveSites.
+                        for (SiteIter si = new_active_sites.Begin(); !si.End(); ++si)
+                        {
+                           final_results[*si] = TM_FAIL;
+                           ieven_fn[*si] = ipmos_even[*si];
+                           iodd_fn[*si]  = ipmos_odd[*si];
+                           tt_timer[*si] = TIME.GetTimer() - start_time2;
+                           if(tistdscreenprint)  
+                              cout << "Site " << *si << " Reached Max pulse but Failed Erasing" << endl;
+                        } 
+                        // all sites left active will have hit the max, so all sites are done 
+                        new_active_sites = NO_SITES;
+                     } // end site loop
                
-                      /*disable site done erasing*/
-                     devsetholdstates(activestates);
+                      /*disable site done erasing*/         
+                     any_site_active = SetActiveSites(new_active_sites);
                      
-                     if(not v_any_dev_active)  
+                     if(!any_site_active)  
                         break;
                   }   /*for ers_loop*/
 
-                  if(not v_any_dev_active)  
+                  if(!any_site_active)  
                      break;
                }   /*for vProg*/
                
                if(adaptiveEna)  
                   RestoreTCR_Fr_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
                
-               devsetholdstates(logsites);
+               SetActiveSites(logsites);
                   
                 /*tw log total ers pulsewidth applied*/
-               tmpstr3 = tmpstr1 + "_TOTPW";
-               tmpstr3 = tmpstr3 + tmpstr2;
-               TWTRealToRealMS(ers_pwtotal,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + "_TOTPW" + tmpstr2;
+               TWPDLDataLogRealVariable(tmpstr3, "s",ers_pwtotal,TWMinimumData);
                
-               tmpstr3 = tmpstr1 + tmpstr2;
-               tmpstr3 = tmpstr3 + "_TT";
-               TWTRealToRealMS(tt_timer,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + tmpstr2 + "TT";
+               TWPDLDataLogRealVariable(tmpstr3, "s",tt_timer,TWMinimumData);
                
-               tmpstr3 = tmpstr1 + tmpstr2;
-               tmpstr3 = tmpstr3 + "_IEVEN";
-               TWTRealToRealMS(ieven_fn,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + tmpstr2 + "_IEVEN";
+               TWPDLDataLogRealVariable(tmpstr3, ieven_fn.GetUnits(),ieven_fn,TWMinimumData);
 
                if(GL_BANKTYPE==FLEPBANK)  
                {
-                  tmpstr3 = tmpstr1 + tmpstr2;
-                  tmpstr3 = tmpstr3 + "_IODD";
-                  TWTRealToRealMS(iodd_fn,realval,unitval);
-                  TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+                  tmpstr3 = tmpstr1 + tmpstr2 + "_IODD";
+                  TWPDLDataLogRealVariable(tmpstr3, iodd_fn.GetUnits(),iodd_fn,TWMinimumData);
                } 
                
                 /*store/copy to global var*/
@@ -15278,69 +15172,44 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                  BANK_IREFARR_VALUE[bankcount,loop,tcrmode_ipmos,prepost,vcorner,site] := meas_value[site];
                  */
          
-               if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-               {
-                  tmpstr3 = tmpstr1 + tmpstr2;
-                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
-                  if(TI_FlashCOFEna)  
-                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
-               } 
+// :TODO: Implement Log_FailPat, etc, below
+//               if(!(final_results==TM_PASS)) // if all sites are not equal to PASS
+//               {
+//                  tmpstr3 = tmpstr1 + tmpstr2;
+//                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
+//                  if(TI_FlashCOFEna)  
+//                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
+//               } 
 
                 /*update so won"t re-enable or continue testing next bank if failed*/
-               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                  if(v_dev_active[site] and (not final_results[site]))  
-                     if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-                        sitetorestore[site] = false;
-               
-               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-                  Devsetholdstates(final_results);
-
+               if ((!RunAllTests) && (!TI_FlashCOFEna))
+                  erase_sites.DisableFailingSites(final_results.Equal(TM_PASS));
             }   /*if v_any_dev_active*/
              /*+++++ ERS +++++*/            
-            if(ArrayCompareBoolean(sitetorestore,allsitefalse,v_sites))  
+            if(!SetActiveSites(erase_sites))  // need to reactivate sites before loop since disabling on bankcount done
                break;
-               
-            RunTime.SetActiveSites(erase_sites); // need to reactivate sites before loop since disabling on done of bankcount
          }   /*for bankcount*/
       }   /*if v_any_dev_active*/ // retest sites
    } /* if any_site_active -- for if we had a passing site */
    
     /*restore all active sites*/
-   // we know there will be sites, so can use the RunTime version
+   // we know there will be sites because this is from when we started the test, so can use the RunTime version
    RunTime.SetActiveSites(savesites);
 
-   ResultsRecordActive(final_results, S_NULL);
-   TestClose;
-
-   Disable(s_pmexit);
-            
-   if(TI_FlashCOFEna)  
-      F021_Save_COF_Info("",site_cof_inst_str,final_results);
+// :TODO: Implement below
+//   if(TI_FlashCOFEna)  
+//      F021_Save_COF_Info("",site_cof_inst_str,final_results);
    
    tt_timer = TIME.StopTimer();
    
    tmpstr4 = tmpstr1 + "_TT";
-   TWTRealToRealMS(tt_timer,realval,unitval);
-   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+   TIDlog.Value(tt_timer, UTL_VOID, 0., UTL_VOID, "s", tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);
 
-   F021_TurnOff_AllTpads;
-   
-   if(tistdscreenprint)  
-   {
-      PrintHeaderBool(GL_PLELL_FORMAT);
-      PrintResultBool(tmpstr1,tnum_refarr,final_results,GL_PLELL_FORMAT);
-      cout << "   TT " << ttimer1 << endl;
-      cout << endl;
-   } 
-   
-   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-      DevSetHoldStates(final_results);
-   
-   test_results = final_results;
-   
+   F021_TurnOff_AllTPADS();
+      
    return (final_results);
 }   /* F021_RefArr_Erase_func */
-#endif
+
 void MeasInternalVT(    IntS       testnum,
                         FloatS     test_llim,
                         FloatS     test_ulim,

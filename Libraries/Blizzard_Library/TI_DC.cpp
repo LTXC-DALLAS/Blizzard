@@ -166,13 +166,6 @@ void TI_DC::ResetResourceConnections (IntS row) {
                 VI.Disconnect (connection_list[i]); // vmax 0.0V;          }
             }
         }
-        else if (connection_table1[i] == "VI16"
-              || connection_table1[i] == "VI16B"
-              || connection_table1[i] == "OVI") {
-          VI.Gate (connection_list[i], VI_GATE_OFF_LOZ);
-          VI.Disconnect (connection_list[i]);
-          //VI.ForceI (connection_list[i], 0uA clamp vmax 5V vmin - 4V);
-        }
         else if (connection_table1[i] == "HCOVI") {
             VI.Gate (connection_list[i], VI_GATE_OFF_HIZ);
             VI.Disconnect (connection_list[i]);
@@ -181,6 +174,11 @@ void TI_DC::ResetResourceConnections (IntS row) {
             //Regex_Escape:gate qfvi connection_list[i] off;
             //Regex_Escape:disconnect qfvi connection_list[i];
             //Regex_Escape:set qfvi connection_list[i] to fv 0V;
+        }
+        else {
+            VI.Gate (connection_list[i], VI_GATE_OFF_LOZ);
+            VI.Disconnect (connection_list[i]);
+            //VI.ForceI (connection_list[i], 0uA clamp vmax 5V vmin - 4V);
         }
     }
     connection_counter = start_index;
