@@ -36,8 +36,82 @@ StringS debug2 = "This is a debug pattern name";
 
 void F021_FlashConfigInclude(); // prototype to link in the include function
                                 // I didn't want to make a header file for 1 prototype
-//#include "$TYPES"
-//#include "var.h" 
+
+void LoadSendFlashTestNum (IntS testnum)
+{
+   PinML data_pins;
+   // create unique name per test number
+   StringS send_name = "F021_Tnum_" + testnum;
+   // This must match the SendRef in the pattern
+   StringS tnum_sref = "tnum_sref";
+   UnsignedS maskbit;
+
+
+#if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
+#if $GL_USE_JTAG_RAMPMT  
+    /*lsb 1st - msb last*/
+   data_pins = "JTAG_DIN";
+   int word_size = 16;
+   int num_words = 2;
+   UnsignedM1D send_data(num_words);
+   send_data.SetValue(0, unsigned(testnum) & 0x0000FFFF);
+   send_data.SetValue(1, (unsigned(testnum) & 0xFFFF0000) >> unsigned(word_size));   
+   
+   DIGITAL.DefineSerialSend(data_pins, send_name, tnum_sref, num_words, word_size, WORD_LSB_FIRST);
+   DIGITAL.LoadSend(send_name, send_data);
+
+#else
+   data_pins = "DMLED_INBUS";
+   int num_words = 8;
+   maskbit = 0xF;
+   int length = 4;
+   
+   UnsignedM1D send_data(num_words);
+   for (int i = 0; i < num_words; ++i)
+   {
+      send_data.SetValue(i, unsigned(testnum) & maskbit);
+      testnum >>= length; // shift off bits we just used
+   }
+   
+   DIGITAL.DefineParallelSend(data_pins, send_name, tnum_sref, num_words);
+   DIGITAL.LoadSend(send_name, send_data);
+   
+#endif
+
+#else
+   int num_words;
+   int length; 
+   
+   data_pins = "PMT_RAMBUS";
+   if(GL_USE_RAMPMT_X64)  
+   {
+      num_words = 8;
+      length = 4;
+      word_length = data_pins.GetNumPins();
+      maskbit = 0xF;
+      
+      UnsignedM1D send_data(num_words);
+      for (int i = 0; i < num_words; ++i)
+      {
+         send_data.SetValue(i, unsigned(testnum) & maskbit);
+         maskbit <<= length;
+      }
+      
+      DIGITAL.DefineParallelSend(data_pins, send_name, tnum_sref, num_words);
+      DIGITAL.LoadSend(send_name, send_data);
+   }
+   else
+   {
+      num_words = 2;
+    
+      UnsignedM1D send_data(num_words);
+      send_data.SetValue(0, unsigned(testnum) & 0x0000FFFF);
+      send_data.SetValue(1, (unsigned(testnum) & 0xFFFF0000) >> 16);
+      DIGITAL.DefineParallelSend(data_pins, send_name, tnum_sref, num_words);
+      DIGITAL.LoadSend(send_name, send_data);
+   } 
+#endif
+}  /* LoadSendFlashTestNum */
 
 void F021_FlashConfig()
 {
@@ -50,33 +124,6 @@ void F021_FlashConfig()
    SelectedTITestType = IntS(MP1); //test_type[ActiveSites.Begin().GetValue()];
    SelectedTITestTemp = IntS(TEMP_30_DEG); //test_temp[ActiveSites.Begin().GetValue()];
    
-    /*Device Specific*/
-
-   ///////////////////////////////////////////////////////////////////////////////////////////
-   //                                                                                       //
-   // Important! If using the HVFEM on any of the below, you must assign the correct CBIT   //
-   // pin to these. If HVFEM is not used (because the voltage doesn't go above 7V range)    //
-   // then ensure these are UTL_VOID, or the provided CBITs will be closed and any voltages //
-   // will be subject to a 3x software divider.                                             //
-   //                                                                                       //
-   ///////////////////////////////////////////////////////////////////////////////////////////
-   
-//   FLTP1_HVFEM_RLY = UTL_VOID;
-//   FLTP2_HVFEM_RLY = UTL_VOID;
-//#if $TP3_TO_TP5_PRESENT
-//   FLTP3_HVFEM_RLY = UTL_VOID;
-//   FLTP4_HVFEM_RLY = UTL_VOID;
-//   FLTP5_HVFEM_RLY = UTL_VOID;
-//#endif
-//#if $TADC_PRESENT
-//   T_PADC_HVFEM_RLY = UTL_VOID;
-//#endif
-   
-   // HVFEM has a gain of 3. on force voltage and a divider of 3. on measure voltage
-   // Do not change this unless you are using custom hardware similar to the HVFEM with 
-   // a different factor.
-//   HVFEM_FACTOR = 3.0;
-
     /*+++ Bank/Sector info +++*/
    F021_Flash.MAXBANK     =  1;  /*base 0 so total 3 banks} {blizzard has 2 banks 0 & 1 JRR*/
    F021_Flash.MAXBLOCK[0] =  3;
@@ -342,6 +389,285 @@ void F021_FlashConfig()
    
    F021_FlashConfigInclude();
 
+   //Create DSPSend segments for all F021 test numbers
+   LoadSendFlashTestNum (TNUM_LPO_AUTOTRIM);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_LPO_CAL);
+   LoadSendFlashTestNum (TNUM_PUMP_MAINBG);
+   LoadSendFlashTestNum (TNUM_PUMP_MAINIREF);
+   LoadSendFlashTestNum (TNUM_PUMP_MAINICMP10U);
+   LoadSendFlashTestNum (TNUM_PUMP_MAINOSC);
+   LoadSendFlashTestNum (TNUM_PUMP_VHV_FORCE_ERS);
+   LoadSendFlashTestNum (TNUM_PUMP_VHVPROG);
+   LoadSendFlashTestNum (TNUM_PUMP_VHVPVFY);
+   LoadSendFlashTestNum (TNUM_PUMP_VHVERS);
+   LoadSendFlashTestNum (TNUM_PUMP_VSL);
+   LoadSendFlashTestNum (TNUM_PUMP_VREAD);
+   LoadSendFlashTestNum (TNUM_PUMP_VSA5_READ);
+   LoadSendFlashTestNum (TNUM_PUMP_VWL_READ);
+   LoadSendFlashTestNum (TNUM_PUMP_VCG2P5_READ);
+   LoadSendFlashTestNum (TNUM_PUMP_VINH_READ);
+   LoadSendFlashTestNum (TNUM_PUMP_VHV2X_PROG);
+   LoadSendFlashTestNum (TNUM_BANK_VRDBUF);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_READ_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_PVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_PVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_EVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_EVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_CVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_CVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_RDM0_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_RDM0_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_RDM1_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IREF_RDM1_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_READ_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_PVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_PVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_EVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_EVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_CVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_IPMOS_CVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_REFARR_ERS);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_READ_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_PVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_PVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_EVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_EVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_CVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_CVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_RDM0_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_RDM0_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_RDM1_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IREF_RDM1_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_READ_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_PVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_PVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_EVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_EVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_CVFY_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_CVFY_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_RDM0_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_RDM0_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_RDM1_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_INTERNAL_IPMOS_RDM1_ODD);
+   LoadSendFlashTestNum (TNUM_IWLDRV_PROG_EVEN);
+   LoadSendFlashTestNum (TNUM_SA_IREF_LOAD_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_SA_IREF_NOLOAD_READ_EVEN);
+   LoadSendFlashTestNum (TNUM_MAINBG_FORCE_MEASVRD0);
+   LoadSendFlashTestNum (TNUM_MAINBG_MEASVRD0);
+   LoadSendFlashTestNum (TNUM_MAINBG_MEAS);
+   LoadSendFlashTestNum (TNUM_MAINIREF_MEAS);
+   LoadSendFlashTestNum (TNUM_MAINICMP10U_MEAS);
+   LoadSendFlashTestNum (TNUM_ALWAYS_PASS);
+   LoadSendFlashTestNum (TNUM_SHELL_INFO);
+   LoadSendFlashTestNum (TNUM_IBIT_LEFT);
+   LoadSendFlashTestNum (TNUM_IBIT_RIGHT);
+   LoadSendFlashTestNum (TNUM_IREFPMOS_RD);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MISCLOC1);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MISCLOC2);
+   LoadSendFlashTestNum (TNUM_BANK_RDSUPERM1S);
+   LoadSendFlashTestNum (TNUM_BANK_BLV_RD);
+   LoadSendFlashTestNum (TNUM_BANK_WLV_CVFY);
+   LoadSendFlashTestNum (TNUM_BANK_SLV_CMPT);
+   LoadSendFlashTestNum (TNUM_BITLINE_ACCESS);
+   LoadSendFlashTestNum (TNUM_BANK_RD0S);
+   LoadSendFlashTestNum (TNUM_BANK_RDM0S);
+   LoadSendFlashTestNum (TNUM_BANK_RD1S);
+   LoadSendFlashTestNum (TNUM_BANK_RDM1S);
+   LoadSendFlashTestNum (TNUM_BANK_RD1S_PIPE);
+   LoadSendFlashTestNum (TNUM_BANK_RDM1S_PIPE);
+   LoadSendFlashTestNum (TNUM_BANK_RDECHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDMECHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDOCHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDMOCHK);
+   LoadSendFlashTestNum (TNUM_BANK_RD0S_RED);
+   LoadSendFlashTestNum (TNUM_BANK_RDM0S_RED);
+   LoadSendFlashTestNum (TNUM_BANK_CVFY_RED);
+   LoadSendFlashTestNum (TNUM_BANK_CVFY);
+   LoadSendFlashTestNum (TNUM_BANK_RD_ARB_PSA);
+   LoadSendFlashTestNum (TNUM_BANK_RDM0ECHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDM1ECHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDM0OCHK);
+   LoadSendFlashTestNum (TNUM_BANK_RDM1OCHK);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_0S);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_1S);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_ECHK);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_OCHK);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_TCR6);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_TCR38);
+   LoadSendFlashTestNum (TNUM_BANK_BCC_TCR39);
+   LoadSendFlashTestNum (TNUM_BANK_VT_TCR5);
+   LoadSendFlashTestNum (TNUM_BANK_VT_TCR6);
+   LoadSendFlashTestNum (TNUM_BANK_VT_TCR39);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_RED);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_INTER_1S_RED);
+   LoadSendFlashTestNum (TNUM_SECT_VTMAX_RED);
+   LoadSendFlashTestNum (TNUM_SECT_VTMAX_INTER_1S_RED);
+   LoadSendFlashTestNum (TNUM_BANK_VTMIN);
+   LoadSendFlashTestNum (TNUM_SECT_VTMIN_NO_ESDA);
+   LoadSendFlashTestNum (TNUM_BANK_VTMIN_RED);
+   LoadSendFlashTestNum (TNUM_BANK_VTMIN_INTER_0S_RED);
+   LoadSendFlashTestNum (TNUM_SECT_VTMIN_RED);
+   LoadSendFlashTestNum (TNUM_SECT_VTMIN_INTER_0S_RED);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_INTER_1S);
+   LoadSendFlashTestNum (TNUM_SECT_VTMAX_NO_ESDA);
+   LoadSendFlashTestNum (TNUM_SECT_VTMAX_INTER_1S);
+   LoadSendFlashTestNum (TNUM_BANK_VTECHK);
+   LoadSendFlashTestNum (TNUM_SECT_VT_ECHK);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_INTER_1S_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTECHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_INTER_ECHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTMIN_INTER_ECHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTOCHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTMIN_INTER_OCHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_INTER_OCHK_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_VT_ARB_PSA);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_LOGICSECT_RED);
+   LoadSendFlashTestNum (TNUM_BANK_VTMAX_SCRN_LOGICSECT);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_SM);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_ECHK_CSW);
+   LoadSendFlashTestNum (TNUM_SECT_PROG_ECHK_CSW);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_OCHK_CSW);
+   LoadSendFlashTestNum (TNUM_SECT_PROG_OCHK_CSW);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_OCHK);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_ECHK);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_OCHK_DISTURB);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_ECHK_DISTURB);
+   LoadSendFlashTestNum (TNUM_BANK_PRECON);
+   LoadSendFlashTestNum (TNUM_SECT_PRECON);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_ONEPLS);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_LOWVT);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_RESTORE);
+   LoadSendFlashTestNum (TNUM_BANK_PROG_ITERSECTOR);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_PRECON);
+   LoadSendFlashTestNum (TNUM_SECT_ERS_PRECON_SM);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_NOPRECON);
+   LoadSendFlashTestNum (TNUM_SECT_ERS_NOPRECON_SM);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_PRECON_SW);
+   LoadSendFlashTestNum (TNUM_SECT_ERS_PRECON);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_ITERSECTOR);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_ITERSECTOR_PRECON);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_STRESS_FAST);
+   LoadSendFlashTestNum (TNUM_BANK_REPAIR_CALC_SOLUTION_VT0S);
+   LoadSendFlashTestNum (TNUM_BANK_REPAIR_UPDATE_SOLUTION);
+   LoadSendFlashTestNum (TNUM_BANK_REPAIR_PROG_SOLUTION);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_STRESS_SLOW);
+   LoadSendFlashTestNum (TNUM_BANK_REPAIR_CALC_SOLUTION_VT1S);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_SW_SCREEN);
+   LoadSendFlashTestNum (TNUM_OTP_RESET_BANK);
+   LoadSendFlashTestNum (TNUM_BANK_ERS_WEAK);
+   LoadSendFlashTestNum (TNUM_BANK_WLS_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_WLS_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_WLS);
+   LoadSendFlashTestNum (TNUM_SECT_WLS);
+   LoadSendFlashTestNum (TNUM_BANK_BLS_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_BLS_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_BLS);
+   LoadSendFlashTestNum (TNUM_BANK_CGS_ODD);
+   LoadSendFlashTestNum (TNUM_BANK_CGS_EVEN);
+   LoadSendFlashTestNum (TNUM_BANK_CGS);
+   LoadSendFlashTestNum (TNUM_BANK_EGCSS);
+   LoadSendFlashTestNum (TNUM_BANK_EGS);
+   LoadSendFlashTestNum (TNUM_BANK_REVTUNN_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_PTHRU_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_THINOX_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_PGMFF_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_TUNOX_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_ONO_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_CSFG_STRESS);
+   LoadSendFlashTestNum (TNUM_BANK_RDDIST_STRESS);
+   LoadSendFlashTestNum (TNUM_PROG_RANDCODE);
+   LoadSendFlashTestNum (TNUM_EXEC_RANDCODE);
+   LoadSendFlashTestNum (TNUM_OTP_RD0S);
+   LoadSendFlashTestNum (TNUM_OTP_RDM0S);
+   LoadSendFlashTestNum (TNUM_OTP_RD1S);
+   LoadSendFlashTestNum (TNUM_OTP_RDM1S);
+   LoadSendFlashTestNum (TNUM_OTP_RDECHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_RDOCHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_RDM0S_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_RDM0S_TEMPLATE);
+   LoadSendFlashTestNum (TNUM_OTP_RDM1S_TEMPLATE);
+   LoadSendFlashTestNum (TNUM_OTP_CHKSUM);
+   LoadSendFlashTestNum (TNUM_OTP_VTMIN);
+   LoadSendFlashTestNum (TNUM_OTP_VTMIN_INTER_0S);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX_INTER_1S);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX_SEMI_INTER_1S);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_VTMIN_SEMI_INTER_ECHK);
+   LoadSendFlashTestNum (TNUM_OTP_VTECHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX_SEMI_INTER_ECHK);
+   LoadSendFlashTestNum (TNUM_OTP_VTMIN_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_VTMIN_SEMI_INTER_OCHK);
+   LoadSendFlashTestNum (TNUM_OTP_VTOCHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_VTMAX_SEMI_INTER_OCHK);
+   LoadSendFlashTestNum (TNUM_OTP_ERS_PRECON);
+   LoadSendFlashTestNum (TNUM_OTP_ERS_NOPRECON);
+   LoadSendFlashTestNum (TNUM_OTP_ERS_PRECON_SW);
+   LoadSendFlashTestNum (TNUM_OTP_ERS_PRECON_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_WLS);
+   LoadSendFlashTestNum (TNUM_OTP_PRECON);
+   LoadSendFlashTestNum (TNUM_OTP_PROG);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_ECHK_SEMI_CSW);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_SEMI_SW);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_OCHK_SEMI_CSW);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_ECHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_OCHK_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_ECHK_DISTURB_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_OCHK_DISTURB_SEMI);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_TEMPLATE);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_TEMPLATE_ENGOVRD);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_ONEPLS);
+   LoadSendFlashTestNum (TNUM_OTP_REFRESH);
+   LoadSendFlashTestNum (TNUM_OTP_REFRESH_VT);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_AVNV_SETTING);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_PMOS_SETTING);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_EFCHKSUM);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_EFCHKSUM_PUMP_TRIM);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP2_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP3_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FT1_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FT3_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FUNC1_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FUNC2_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_DRL_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP3DRL_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FUNC3_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_EXEC_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BURNIN_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_CUST_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_REPAIR_FLWBYTE);
+   LoadSendFlashTestNum (TNUM_OTP_WR_DIEID_FBYTE_MP1_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_PKG_MEMSIZE_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_CHKSUM_CBITS);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_ECC_BITS);
+   LoadSendFlashTestNum (TNUM_OTP_PROG_FSPEED_BITS);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BLK_PREDRL_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BLK_PREDRL_VT1_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BLK_POSTDRL1_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BLK_POSTDRL1_VT1_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BANK_POSTDRL2_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_PREDRL_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_BANK_PREDRL_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_RD_ID_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_RD_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_RD_LOG1_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_RD_LOG3_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_PGMREV_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FLWBYTE_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_VT_MBOX);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP1_REV);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP2_REV);
+   LoadSendFlashTestNum (TNUM_OTP_WR_MP3_REV);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FT1_REV);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FT2_REV);
+   LoadSendFlashTestNum (TNUM_OTP_WR_FT3_REV);
 
 }   /* F021_FlashConfig */
 

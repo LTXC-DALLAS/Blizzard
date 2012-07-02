@@ -4774,6 +4774,7 @@ __Test F021_InitFLGlobalVars {
 }
 __Test F021_FlashConfig_test {
     __Mask[0] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {

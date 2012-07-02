@@ -4988,8 +4988,6 @@ TMResultM Pump_Iref_Vnom_func()
    Sites new_active_sites(ActiveSites);
    FloatM temp_floatm;
 
-   // PowerUpDn(PWRUP_VNOM);
-
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
    TIME.Wait(tdelay);
@@ -5010,13 +5008,14 @@ TMResultM Pump_Iref_Vnom_func()
    final_results = F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode);
 
    // disable failing sites (disables sites w/ false).
-//   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//   if(SetActiveSites(new_active_sites))  
-//   {
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   if(SetActiveSites(new_active_sites))  
+   {
       tcrnum = 125;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
-//   }    
+   }    
    
    // re-enable any sites we've messed around with 
    // to report the results properly

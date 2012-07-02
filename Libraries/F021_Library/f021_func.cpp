@@ -290,6 +290,7 @@
 
 #include <f021_func.h>
 #include <string_utils.h>
+#include <DspSendUtils.h>
 #include <iomanip>
 using namespace std; 
 
@@ -1328,24 +1329,18 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
    StringS datastr;
    StringS cap_name, label;
    StringS addr_str,s,str1,str2;
-   IntS curraddr,offsetcyc;
+   IntS curraddr;
    IntS maxcapcount;
    UnsignedM1D CaptureArr(33);
    UnsignedM1D sim_value(33,0);  // return all 0s to sim
    StringML captured_data;
    IntSL address_list;
-   StringML SourceArr;
    UnsignedM msw_val,lsw_val;
    PinML data_pins,data_in;
    IntS evenodd, halfcapcount;
    int i;
    IntS physaddr;
    UnsignedS shiftbit;
-
-//   Clockstopfreerun(s_clock1a);
-// ????   
-//   SetupGet(prevDCSU);
-//   SetupSelect(prevDCSU,norm_fmsu);
 
    TIME.StartTimer();
 
@@ -1475,39 +1470,33 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 //    /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
-   data_in   = "DMLED_INBUS";
+   PinML data_bus   = "DMLED_INBUS";
+   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
    cap_name = "CapRam32";
+   StringS send_name = "ReadRamAddrSend";
+   StringS sendref_name = "ReadRamAddr_sref";
+   IntS maxsrccount = 17;
    maxcapcount = 8;
-//   maxsrccount = 17;
    halfcapcount = maxcapcount / 2;
-//   istep = 8;
+   UnsignedM1D send_data(1);
    
    curraddr = startaddr;
    
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
    while(curraddr <= stopaddr)
    {         
-      offsetcyc = 0;
-
-      physaddr = curraddr>>3;
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
+      physaddr = (curraddr>>3) & 0xFFFF;
       evenodd = (curraddr>>2) & 0x1;
+      physaddr += (evenodd << 16);  //evenodd is last bit in send, so must be MSB
+      send_data.SetValue(0, unsigned(physaddr));
 
-      SourceArr.Erase();
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-      {
-         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str2;
-      } 
-      
-      label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
-
-      SourceArr.Erase();
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-      SourceArr += str1;
-
-      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
 
       PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
 
@@ -1925,7 +1914,6 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    UnsignedM1D CaptureArr(18);
    UnsignedM1D sim_cap_arr(18, 0);
    UnsignedS shiftbit, count, maxcapcount;
-   StringML SourceArr; 
    PinML data_pins,data_in;
    IntS maxsrccount;
    IntS evenodd,physaddr;
@@ -2045,121 +2033,38 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //    /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
-   data_in   = "DMLED_INBUS";
+   PinML data_bus = "DMLED_INBUS";
+   data_in = data_bus[3];
    data_pins = "DMLED_OUTBUS";
    cap_name = "CapRam4";
+   StringS send_name = "GetRam16bitSend";
+   StringS sendref_name;
+   sendref_name = (tpatt.Find("lsw") < 0) ? "ramread_msw_sref" : "ramread_lsw_sref";
    maxcapcount = 4;
    maxsrccount = 17;
-//   istep = 4;
 
-   physaddr = addr_loc>>3;
+   physaddr = (addr_loc>>3) & 0xFFFF;
    evenodd = (addr_loc>>2) & 0x1;
+   physaddr += (evenodd << 16); //evenodd is last bit in send, so must be MSB
    
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-//         {
-//            SourceArr[site][offsetcyc+1] = ((physaddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*if(tistdscreenprint and TI_FlashDebug) then
-//                 writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
-//             */
-//         } 
-//         SourceArr[site][maxsrccount] = evenodd;
-//         break;
-//      } 
-//   }
-//   else
-//   {
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-      {
-         SourceArr += "LLL" + addr_str.Substring(15-offsetcyc, 1); 
-      } 
-      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, SourceArr);      
-      
-       /*control word*/
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-//      Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_in,S_binary,str1);
-      SourceArr.Erase();
-      SourceArr += str1;
-      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, 36, SourceArr, "L");
-//   } 
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   UnsignedM1D send_data(1);
+   send_data.SetValue(0, unsigned(physaddr));
+   
+   DIGITAL.LoadSend(send_name, send_data);
+   DIGITAL.StartSend(send_name);
 
-//   if(GL_DO_ESDA_WITH_SCRAM)  
-//   {
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,false,SourceArr,CaptureArr);
-//      else
-      PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
+   PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
 
-      for (count = 0;count < maxcapcount;count++)
-      {
-         shiftbit = 4*(count);
-         temp_value += (CaptureArr[count] << shiftbit);
-// Remove below 2 lines if the above works
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            temp_value[*si] += (CaptureArr[*si][count]<<shiftbit);
-      } 
-//   }
-//   else
-//   {
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//      lsw_cycle = data_cycle[1];
-//      for (counter = 2;counter <= maxcapcount;counter++)
-//         data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//      failsetmax(maxcapcount,tpatt);
-//      Enable(S_Fail_Memory);
-//      tmpbool = PatternExecute(tmpint, tpatt);
-//
-//      if(not tmpbool)  
-//      {
-//         failcount = failgetcount;
-//         failindex = 1;
-//         PinlistGet(data_pins,pl_arr,pl_len);
-//
-//         for (tmpint = 1;tmpint <= failcount;tmpint++)
-//         {
-//            FailGetInfo(failindex,pm_addr,rpt_count,loop_count,scan_block, cycles, src_line );
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
-//               {
-//                  FailGetSitePinList(site, failindex, pl_failarr,pl_faillen);
-//                  fail_cycle = v_cycle[site];
-//                  for (counter = 1;counter <= fails;counter++)
-//                     if(data_cycle[counter]=fail_cycle)  
-//                        data_nib = counter;
-//                  for (counter = 1;counter <= pl_faillen;counter++)
-//                  {
-//                     for (plindex = 1;plindex <= pl_len;plindex++)
-//                        if(pl_failarr[counter] = pl_arr[plindex])  
-//                           tmpArray[site][17-((data_nib-1)*4)-plindex] = "1";
-//                  } 
-//               } 
-//            failindex = failindex+1;
-//         }   /*for tmpint*/
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               Readstring("0b" + tmpArray[site]) + temp_value[site];
-//                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
-//                 */
-//            } 
-//      }   /*tmpbool*/
-//
-//      failresetmax;
-//      Disable(S_Fail_Memory);
-//   }    
+   for (count = 0;count < maxcapcount;count++)
+   {
+      shiftbit = 4*(count);
+      temp_value += (CaptureArr[count] << shiftbit);
+   } 
       
    ret_val =  temp_value;
     /*-------- end of DMLED --------*/
@@ -2336,10 +2241,6 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //   } 
 #endif
 
-// ????
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//      SetupSelect(prevDCSU,norm_fmsu);
-
    if(tistdscreenprint and debugprint)  
       IO.Print(IO.Stdout," GetRamContentDec_16bit TT : %e",TIME.StopTimer());
 }    /*GetRamContentDec_16bit*/
@@ -2431,24 +2332,14 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
                                    BoolS data2_hexvalue,
                                    BoolS bcd_format)
 {
-   IntS offsetcyc;
-   StringS addr_str;
    StringS tpatt = "ramwrite_burst_addr_v4p0_Thrd"; //"ramwrite_burst_addr_Thrd";
-   StringM bcd_vlsi_str1,bcd_vlsi_str2;
-   StringM bin_vlsi_str1,bin_vlsi_str2;
    PinML data_pins;
-   StringML SourceArr, SourceArrLo, SourceArrHi;
-   IntS maxiter, length;
-   IntS eindex, evenodd;
-   IntS shiftbit,physaddr;
-   StringS str1;
-   StringM mstr;
-
+   IntS evenodd;
+   IntS physaddr;
+   
    if(tistdscreenprint and TI_FlashDebug)  
       TIME.StartTimer();
    
-   offsetcyc = 0;
-
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
 // :TODO: Fix this. Unneeded for Blizzard
@@ -2537,51 +2428,54 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 #else
     /*-------- use DMLED --------*/
    data_pins = "DMLED_INBUS";
-   maxiter = 3;
-   eindex = 12;
-   length = 4;
+   StringS send_name = "AddrPlus32bitData";
+   StringS send_ref = "WriteRam32bit";
+   IntS num_address = 17;
+   IntS num_data = 8;
+   IntS num_words = num_address + num_data; 
+   UnsignedM src1_word, src2_word, nibble_lo, nibble_hi;
+   UnsignedM1D send_data(num_words);
+   int i;
 
    if(bcd_format)  
    {
-      IntMToBcdBinVlsiStrM(src_data1, bcd_vlsi_str1, bin_vlsi_str1, data1_hexvalue);
-      IntMToBcdBinVlsiStrM(src_data2, bcd_vlsi_str2, bin_vlsi_str2, data2_hexvalue);
-
-      physaddr = addr_loc>>3;
-   
+      if (!IsDspSendDefined(send_name))
+      {
+         DIGITAL.DefineParallelSend(data_pins, send_name, send_ref, num_words);
+      }
+      
+      physaddr = (addr_loc>>3) & 0xFFFF;
        /*control word*/
       evenodd = (addr_loc>>2) & 0x1;  /*0=even or ram1, 1=odd or ram2*/
 
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-       /*address*/
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+      // cast IntM to UnsignedM
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       {
-         str1 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str1;
-      } 
-      StringS patname = PatternBurst(tpatt).GetPattern(0).GetName();
-      StringS label = patname + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
-      
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-      SourceArr.Erase();
-      SourceArr += str1;
-       /*control word*/
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, 36, SourceArr, "L");
-
-       /*data*/
-      for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-      {
-         shiftbit = length*offsetcyc;
-         mstr = bin_vlsi_str1.Substring(eindex-shiftbit, length);
-         SourceArrLo += mstr;
-         mstr = bin_vlsi_str2.Substring(eindex-shiftbit, length);
-         SourceArrHi += mstr;
+         src1_word[*si] = unsigned(src_data1[*si]);
+         src2_word[*si] = unsigned(src_data2[*si]);
       }
-      SourceArr = SourceArrLo;
-      SourceArr += SourceArrHi;
-      
-      label = patname + ".MOD_DATA";
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
+
+      // Calculate Send bits for address
+      for (i = 0;i < num_address-1; ++i) 
+      {
+         send_data.SetValue(i, unsigned(physaddr & 0x1));
+         physaddr >>= 1;
+      } 
+      send_data.SetValue(num_address-1, unsigned(evenodd));
+
+      // Calculate Send bits for data
+      for (i = 0; i < num_data/2; ++i)
+      {
+         nibble_lo = src1_word & 0xF;
+         nibble_hi = src2_word & 0xF;
+         src1_word >>= 4;
+         src2_word >>= 4;
+         send_data.SetValue(num_address + i, nibble_lo);
+         send_data.SetValue(num_address + num_data/2 + i, nibble_hi);
+      }
+
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
       
       DIGITAL.ExecutePattern(tpatt);
       
@@ -2687,9 +2581,6 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      PatternExecute(tmpint,tpatt);
 //   } 
 #endif
-
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//      SetupSelect(prevDCSU,norm_fmsu);
    
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "WriteRamContentDec_32bit TT " << TIME.StopTimer() << endl;
@@ -2731,7 +2622,6 @@ void GetRamContent_SCRAM(IntS start_addr,
 //   IntM1D SourceArr(16); 
 //   IntM1D CaptureArr(JTAGMAXCNT_MBOX); 
 #else
-   StringML SourceArr; 
    UnsignedM1D EvenCaptureArr(X64MAXCNT_MBOX),OddCaptureArr(X64MAXCNT_MBOX); 
    UnsignedM1D sim_value(X64MAXCNT_MBOX, 0);
    IntS physaddr, curraddr;
@@ -2818,9 +2708,19 @@ void GetRamContent_SCRAM(IntS start_addr,
 // /*-------- end of JTAG --------*/
 #else
  /*-------- use DMLED --------*/
+   PinML data_bus   = "DMLED_INBUS";
+   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
-   data_in   = "DMLED_INBUS";
+   StringS send_name = "RamReadMboxSend";
+   StringS sendref_name = "RamReadMbox_sref";
+   UnsignedM1D send_data(1);
+   UnsignedS send_word;
    istep = 8;   /*8 nibbles or 2 16bit word*/
+   
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, 17, WORD_LSB_FIRST);
+   }
    
    if(store_option < (int(MBOXLOG_ARR)))  
       maxcapcount = X64MAXCNT;
@@ -2843,26 +2743,15 @@ void GetRamContent_SCRAM(IntS start_addr,
    } 
 
     /*dmled physical addr*/
-   physaddr = curraddr>>1;
+   physaddr = (curraddr>>1) & 0xFFFF;
 
-
-   StringS label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
     /*read even/odd*/
    for (int i = 1;i <= 2;++i)
    {
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      StringML SourceArr;
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-      {
-         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str2;
-      } 
-      DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
-      
-      str2 = IntToVLSIDriveStr(evenodd[i], 4, true);
-      SourceArr.Erase();
-      SourceArr += str2;
-      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+      send_word = unsigned(physaddr) + unsigned(evenodd[i] << 16);
+      send_data.SetValue(0, send_word);
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
       
       if(i==1)  
          PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,EvenCaptureArr,sim_value);
@@ -7047,92 +6936,21 @@ void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ov
  /*Set flash test number via RAM PMT*/
 void F021_SetTestNum(IntS testnum)
 {
-   StringS bitlabel;
-   StringS strhi,strlo;
-   IntS offsetcyc,length;
-   IntS tnumhi,tnumlo;
-   IntS strlength;
-   PinML data_pins;
-   StringS tpatt;
+   StringS send_name = "F021_Tnum_" + testnum;
    
-#if ($GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT)
-   IntS maxsrccount,maskbit,maxiter;
-   IntS eindex,mindex,hindex,shiftbit;
-   BoolS SaveMemSetBistData;
-#endif
-
-   strlength = 16;  /*16-bit length data string*/
-   offsetcyc = 0;
-//   bitlabel = f021_shell_exepat_name + ".MOD_TESTNUM";
-   bitlabel = PatternBurst(f021_shell_exepat).GetPattern(0).GetName() + ".MOD_TESTNUM";
-
-   tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
-   tnumlo = testnum & 0x0000ffff;
-   
-   strhi = IntToVLSIDriveStr(tnumhi, strlength, true); //nibbles are msb to lsb w/ pin ordering
-   strlo = IntToVLSIDriveStr(tnumlo, strlength, true); //nibbles are msb to lsb w/ pin ordering
-
-#if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
-#if $GL_USE_JTAG_RAMPMT  
-    /*lsb 1st - msb last*/
-   data_pins = "JTAG_DIN";
-   maxiter = 15;
-   maskbit = 0x1;
-   maxsrccount = 32;
-   eindex = 15;
-   length = 1;
-   hindex = 17;
-#else
-   data_pins = "DMLED_INBUS";
-   maxiter = 3;
-   maskbit = 0xF;
-   maxsrccount = 8;
-   eindex = 12;
-   length = 4;
-   hindex = 5;
-#endif
-
-   tpatt = f021_shell_exepat;
-   
-   StringML SourceArrLo, SourceArrHi, SourceArr;
-   StringS vector_data;
-   for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
+   if (!IsDspSendDefined(send_name))
    {
-      shiftbit = length*offsetcyc;
-      vector_data = strlo.Substring(eindex-shiftbit, length); 
-      SourceArrLo += vector_data;
-      vector_data = strhi.Substring(eindex-shiftbit, length);
-      SourceArrHi += vector_data;
+      StringS test_number_string;
+      IO.Print(test_number_string, "%x", testnum);
+
+      StringS error_msg = "This DSPSend has not been defined. Please go into F021_FlashConfig and call";
+      error_msg += " LoadSendFlashTestNum with the test number 0x";
+      error_msg += test_number_string;
+      error_msg += " and then re-run OnLoad";      
+      ERR.ReportError(ERR_INVALID_NAME, error_msg, testnum, NO_SITES, UTL_VOID);
+   } else {
+      DIGITAL.StartSend(send_name);
    }
-   SourceArr = SourceArrLo + SourceArrHi;
-   DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
-
-#else
-   StringML SourceArrLo, SourceArrHi, SourceArr;
-   StringS vector_data;
-   data_pins = "PMT_RAMBUS";
-   tpatt = f021_shell_exepat;
-   if(GL_USE_RAMPMT_X64)  
-   {
-      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
-      {
-         vector_data = strlo.Substring(12-(4*offsetcyc), 4);
-         SourceArrLo += vector_data;
-         vector_data = strhi.Substring(12-(4*offsetcyc), 4);
-         SourceArrHi += vector_data;
-      } 
-      SourceArr = SourceArrLo + SourceArrHi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr); 
-
-   }
-   else
-   {
-      SourceArr += strlo;
-      SourceArr += strhi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
-   } 
-#endif
-
 }  /*F021_SetTestNum*/
 
 TMResultM Check_RAM_TNUM(IntS expTnum) {
@@ -7219,7 +7037,6 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
     /*this is to preventing running previous testnumber due to problem*/
     /*during updating new testnumber which can cause false pass*/
 
-
    Get_Flash_TestLogSpace_SCRAM();
 
    Get_TLogSpace_TNUM(value2,value1);
@@ -7277,7 +7094,6 @@ TMResultM F021_LoadFlashShell_func()
    ttimer = TIME.StopTimer();
    tw_name = tw_prefix + "_TT";
    unitval = "s";
-   //TWTRealToRealMS(tt_timer,realval,unitval);
    TWPDLDataLogRealVariable(tw_name, unitval, ttimer, TWMinimumData);
    
    // very temporary debug stuff
@@ -7309,11 +7125,6 @@ TMResultM F021_LoadFlashShell_func()
    
     /*updated shell loaded*/
    GL_PREVIOUS_SHELL = "FlashShell";
-
-// do we need to worry about the TI_FlashCOFEna here?
-// or is this a flow-issue??
-//   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//      Devsetholdstates(final_results);
 
    return pat_results;
 }   /* F021_LoadFlashShell_func */

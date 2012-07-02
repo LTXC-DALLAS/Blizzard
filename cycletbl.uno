@@ -119,6 +119,18 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
             __Waveform { __DriveOn; __DriveHigh; __DriveLow; __DriveOff; }
         }
     }
+    __Cell "DMLED_INBUS" t/T SendData {
+        __Data 6/7 __DSPSend;
+        __Drive {
+            __Waveform { __DriveOn; __DriveData; }
+        }
+    }
+    __Cell "PA2_48" e/E SendDataEfuse {
+        __Data 6/7 __DSPSend;
+        __Drive {
+            __Waveform { __DriveOn; __DriveData; }
+        }
+    }
 }
 __PatternSequence FUNC_BIST_PG_PS {
     __Thread[0] = FUNC_BIST_PG_Thrd;

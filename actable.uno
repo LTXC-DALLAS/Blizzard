@@ -1,4 +1,4 @@
-Unison:U1.0d:S5.3;
+Unison:U3.0:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -517,6 +517,12 @@ __WaveformTable WFT11 {
             __Waveform { }
         }
     }
+    __Cell "DMLED_INBUS" t/T Send {
+        __Data 6/7 __DSPSend;
+        __Drive {
+            __Waveform { __DriveOn @ "tref + 0ps"; __DriveData @ "tref +0ps + 1.6ns"; }
+        }
+    }
 }
 
 /*******************************************************************************
@@ -687,6 +693,12 @@ __WaveformTable WFT12 {
             __Waveform { }
         }
     }
+    __Cell "PA2_48" e/E Send {
+        __Data 6/7 __DSPSend;
+        __Drive {
+            __Waveform { __DriveOn @ "tref + 0ps"; __DriveData @ "tref + 0ps"; }
+        }
+    }
 }
 
 __WaveformTable WFT12_eng {
@@ -744,6 +756,12 @@ __WaveformTable WFT12_eng {
         __Color 7;
         __Drive {
             __Waveform { }
+        }
+    }
+    __Cell "PA2_48" e/E Send_12e {
+        __Data 6/7 __DSPSend;
+        __Drive {
+            __Waveform { __DriveOn @ "tref + 0ps"; __DriveData @ "tref + 0ps + 1.5ns"; }
         }
     }
 }
