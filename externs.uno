@@ -203,10 +203,12 @@ __ApplicationLibrary STD_Library {
    __Source = "./Libraries/STD_Library/stdEfuse.cpp";
    __Source = "./Libraries/STD_Library/string_utils.cpp";
    __Source = "./Libraries/STD_Library/MultisiteUtils.cpp";
+   __Source = "./Libraries/STD_Library/DspSendUtils.cpp";
    __IncludePath = "./Libraries/STD_Library";
    __Include = "std_vi.h";
    __Include = "SearchMod.h";
    __Include = "stdEfuse.h";
    __Include = "string_utils.h";
    __Include = "MultisiteUtils.h";
+   __Include = "DspSendUtils.h";
 }
