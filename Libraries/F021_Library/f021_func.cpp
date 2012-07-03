@@ -32573,32 +32573,34 @@ void PbistFailLogout() {
    UnsignedM1D tmpArray(109);
    TMResultM currResult = TM_NOTEST;
    TMResultM lastResult = TM_NOTEST;
-   IntM failCnt = 0;
+   Sites new_active_sites, savesites;
    
    TIME.Wait(0.0s);
    
+// RunTime.SetActiveSites(savesites);
+// new_active_sites.DisableFailingSites(ieven.LessOrEqual(llim));
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   
    if ( lastResult != TM_PASS ) {
-      if (SYS.TesterSimulated()) retArray = simArray;
-      else {
-         do {
-            if (failCnt != 0 ) {
-               // Test "FAIL" pin for assertion
-               currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
-               // FAIL asserted collect one fail frame
-               if ( currResult == TM_FAIL ) {
-                  PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
-                  ++failCnt;
-               }
-               
-               // Test "DONE" pin for assertion
-               currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
-               if ( currResult == TM_FAIL ) {
-                  ;
-               }
-            }
-            tmpArray = capArray;
+      do {
+         // Test "FAIL" pin for assertion
+         currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
+         // FAIL asserted collect one fail frame
+         if ( currResult == TM_FAIL ) {
+            PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
+         }
+         
+         // Test "DONE" pin for assertion
+         currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
+         if ( currResult == TM_FAIL ) {
+            ;
+         }
+         tmpArray = capArray;
 //            retArray = ProcessFailData();
-         } while (!doneAsserted);
-      }
+      } while (!doneAsserted);
    }
+   
+   RunTime.SetActiveSites(savesites);
 }
