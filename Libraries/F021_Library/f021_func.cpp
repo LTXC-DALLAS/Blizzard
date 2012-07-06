@@ -7542,17 +7542,17 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
         break;   // case 23
      case 52: case 107: case 108:
         switch(TCRMode) {
-           case CvfyMode : stresstype = TUNOXTSMCVT1;
-           case EvfyMode : stresstype = TUNOXVT1;
-           case ProgMode : stresstype = PGMFFVT1;
-           case PvfyMode : stresstype = FGWLVT1;
+           case CvfyMode : stresstype = TUNOXTSMCVT1; break;
+           case EvfyMode : stresstype = TUNOXVT1;     break;
+           case ProgMode : stresstype = PGMFFVT1;     break;
+           case PvfyMode : stresstype = FGWLVT1;      break;
            default:  
               stresstype = TUNOXVT1;
               if (tistdscreenprint)  
                  cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
               break; 
         }
-        break;   // case 52
+        break;   // case 52, 107, 108
      case 53:
         stresstype = ONOVT0;
         break;
@@ -7718,7 +7718,7 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
          
          if (suppena) {
 //            STDSetVRange(tsupply,vRange);
-//            STDSetVI(tsupply,vProg,iProg);
+            STDSetVI(tsupply,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
             if (tistdscreenprint and TI_FlashDebug) {
                cout << "Setting TPADs --  TCR " << TCRnum << endl;
                cout << str1 << " Vprog == " << vProg;
@@ -7774,7 +7774,7 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
          }   // switch(tpnum)
 
          if (suppena)  {
-//          STDSetVI(tsupply,vProg,iProg);
+            STDSetVI(tsupply,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
             if (tistdscreenprint and TI_FlashDebug) {
                cout << " TPADs --  TCR " << TCRnum << endl;
                cout << str1 << " Vprog == " << vProg << " Iprog == " << iProg << endl;
@@ -14310,12 +14310,12 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    rampup = true;
 
    switch (TCRnum) {
-     case 23  : special_opt = 1;
-     case 52  : special_opt = 3;
-     case 58  : special_opt = 2;
-     case 86  : special_opt = 5;   // vhv stress
-     case 128 : special_opt = 4;   // external ers using tcr23
-     default  : special_opt = 0;
+     case 23  : special_opt = 1; break;
+     case 52  : special_opt = 3; break;
+     case 58  : special_opt = 2; break;
+     case 86  : special_opt = 5; break;   // vhv stress
+     case 128 : special_opt = 4; break;   // external ers using tcr23
+     default  : special_opt = 0; break;
    }
              
    if (special_opt!=0) {
@@ -14358,10 +14358,10 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    stress_bits = (testnum & 0x00f00000) >>20;
 
    switch(target_bits) {
-     case TARGET_BANK : pattype = BANKTYPE;
-     case TARGET_SECT : pattype = SECTTYPE;
-     case TARGET_OTP  : pattype = OTPTYPE;
-     default:     pattype = MODTYPE;
+     case TARGET_BANK : pattype = BANKTYPE; break;
+     case TARGET_SECT : pattype = SECTTYPE; break;
+     case TARGET_OTP  : pattype = OTPTYPE;  break;
+     default:           pattype = MODTYPE;  break;
    } 
 
    stresstime = 0s;
@@ -14472,9 +14472,9 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
                // KChau 04/21/10 - using 12.5v as default
                vProg = VHV_Ers_Target - 500mV;
 //               STDSetVRange(testpad,vRange);
-//               STDSetVI(testpad,vProg,iProg);
+               STDSetVI(testpad,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
                TIME.Wait(stresstime);
-//               STDSetVI(testpad,0V,iProg);
+               STDSetVI(testpad,0V,iProg,VI_FORCE_V,VI_MEASURE_I,0V);
                if (tistdscreenprint and TI_FlashDebug)  
                   cout << " EG @ " << vProg << endl;
             }
@@ -14490,7 +14490,8 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 
             F021_TurnOff_AllTPADS();
 
-            if ((special_opt==2) and ramp3vfl)  
+            if ((special_opt==2) and ramp3vfl)
+               ;
 //               STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
 
 //          Disable(s_pmexit);
@@ -15042,9 +15043,10 @@ void MeasInternalVT(    IntS       testnum,
    BoolS do_bcc;
    StringS str1,str2;
 
-   str1 = CONV.FloatToString(test_ulim);
-   
-   if (str1.Find("A") >= 0) {
+//   str1 = CONV.FloatToString(test_ulim);
+//   if (units.Find("A") >= 0) {
+   // All currents are in uA so I hope this will always choose correctly
+   if ( test_ulim < 1.0 ) {
       str2 = "MeasInternalBCC";
       do_bcc = true;
    }
@@ -15052,7 +15054,7 @@ void MeasInternalVT(    IntS       testnum,
       str2 = "MeasInternalVT";
       do_bcc = false;
    } 
-   
+
    if (tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ " << str2 << " +++++" << endl;
    

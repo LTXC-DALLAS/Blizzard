@@ -668,6 +668,15 @@ void F021_FlashConfig()
    LoadSendFlashTestNum (TNUM_OTP_WR_FT1_REV);
    LoadSendFlashTestNum (TNUM_OTP_WR_FT2_REV);
    LoadSendFlashTestNum (TNUM_OTP_WR_FT3_REV);
-
+   // 05jul12  cjp  added test nums below
+   LoadSendFlashTestNum (0x30000010);
+   LoadSendFlashTestNum (0x30000410);
+   LoadSendFlashTestNum (0x52101000);
+   LoadSendFlashTestNum (0x52101010);
+   LoadSendFlashTestNum (0x52101400);
+   LoadSendFlashTestNum (0x52101410);
+   LoadSendFlashTestNum (0x60800010);
+   LoadSendFlashTestNum (0x60500010);
+   
 }   /* F021_FlashConfig */
 

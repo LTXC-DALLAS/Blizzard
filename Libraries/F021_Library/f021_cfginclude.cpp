@@ -606,7 +606,6 @@ void F021_FlashConfigInclude()
 
     /*+++ Global VT search range/resol +++*/
 
-
     /*---- pre ----*/
 #if $FL_USE_AUTO_FLOW  
    MainBCC.ENA[REVTUNVT1][pre]             = false;

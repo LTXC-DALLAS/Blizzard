@@ -8036,7 +8036,7 @@ TMResultM RdM0OTPTemplate_func() {
 TMResultM Flash_Cycle9X_Pgm_func() {
    TMResultM dummy_results;
 
-   dummy_results = TM_NOTEST;
+   dummy_results = TM_PASS;
    return(dummy_results);
 // Flash_Cycle9X_Pgm_func = v_any_dev_active;
 }   // Flash_Cycle9X_Pgm_func
