@@ -1,7 +1,7 @@
 Unison:U1.0d:S5.3;
 
 /******************************************************************************/
-/* Jazz Integrated Program : Bllizar                                          */
+/* Jazz Integrated Program : Bllizard                                         */
 /*                                                                            */
 /* Program Module : FusionProg/toolkit.uno                                    */
 /* Creation Date  : Mon Jun 18 08:08:22 2012                                  */
@@ -56,6 +56,7 @@ __WaveformCapture PBIST_Logout_Capture {
   __Stop "100";
   __Resolution "1.5nS";
   __Pins "OSC0_124+o_cpu_done_46+o_cpu_fail_47+PB2_131+TCK_152" {
+	__Enable __True;
 	__Merge EVW_Merge_All;
 	__DriveEnable __True;
 	__DriveSize "7";

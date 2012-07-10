@@ -313,6 +313,10 @@ __PatternMap DefaultPatternMap {
 /*****************************************************************/
 /**   Hand-generated patterns for pbist frame collection  - cjp **/
 /*****************************************************************/
+    __Pattern pb_pb_fail_insert_fail {
+        __File "pb_pb_fail_insert_fail";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern pb_pb_fail_logout {
         __File "pb_pb_fail_logout";
         __Path "./Patterns/Ascii";

@@ -323,8 +323,8 @@ void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type,
 }
 
 void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
-                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
-                           WordOrientationS wordOrientation = WORD_MSB_FIRST)
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize, 
+                           WordOrientationS wordOrientation)
 {
    BoolM timed_out;
    
@@ -32564,45 +32564,3 @@ TMResultM F021_FOSC_SoftTrim_External_func()
 }   /* F021_FOSC_SoftTrim_External_func */
 #endif
 
-void PbistFailLogout() {
-   BoolS doneAsserted = false;
-   PinM capPin = "PB2_131";
-   StringS capName = "pbistData";
-   IntS maxCapCnt = 16384;
-   UnsignedM1D capArray(109);
-   UnsignedM1D simArray(109,1);
-   UnsignedM1D retArray(109);
-   UnsignedM1D tmpArray(109);
-   TMResultM currResult = TM_NOTEST;
-   TMResultM lastResult = TM_NOTEST;
-   Sites new_active_sites, savesites;
-   
-   TIME.Wait(0.0s);
-   
-// RunTime.SetActiveSites(savesites);
-// new_active_sites.DisableFailingSites(ieven.LessOrEqual(llim));
-
-   savesites = ActiveSites;
-   new_active_sites = ActiveSites;
-   
-   if ( lastResult != TM_PASS ) {
-      do {
-         // Test "FAIL" pin for assertion
-         currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
-         // FAIL asserted collect one fail frame
-         if ( currResult == TM_FAIL ) {
-            PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
-         }
-         
-         // Test "DONE" pin for assertion
-         currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
-         if ( currResult == TM_FAIL ) {
-            ;
-         }
-         tmpArray = capArray;
-//            retArray = ProcessFailData();
-      } while (!doneAsserted);
-   }
-   
-   RunTime.SetActiveSites(savesites);
-}

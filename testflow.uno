@@ -1274,27 +1274,12 @@ __SubFlow F021FlashFlow_S {
         __TestID = "";
         __Exec = F021_Pump;
     }
-    __Node Pbist_Logout_Debug_T_350 {
-        __XCoord = (614,21);
-        __Port[0] {
-            __PortPosition = 90;
-        }
-        __Port[1] {
-            __PortPosition = 180;
-        }
+    __Node Pbist_Logout_Debug_350 {
+        __XCoord = (600,60);
+        __Port[0] { __PortPosition = 90; }
         __InputPosition = 270;
-        __SpecPairs {
-            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
-            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
-            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
-            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
-            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
-            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
-            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
-            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
-        }
-        __TestID = "89000000";
-        __Exec = Pbist_Logout_Debug_T;
+        __TestID = "\'SubFlow\'";
+        __Exec = pBist_Logout_Debug;
     }
     __Node F021_TunOxide_360 {
         __XCoord = (50,200);
@@ -2660,6 +2645,59 @@ __SubFlow F021_Pump {
     __Background {
         __String = "Needs > 7V";
         __Data = (0,0,333,74,0,0,22,0,0,6,0,0,1,0,0,0);
+    }
+}
+__SubFlow pBist_Logout_Debug {
+    __Node Pbist_Logout_Test_T_350 {
+        __XCoord = (50,50);
+        __Port[0] { __PortPosition =  90; }
+        __Port[1] { __PortPosition = 180; }
+        __InputPosition = 270;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
+        __TestID = "89000000";
+        __Exec = Pbist_Logout_Test_T;
+    }
+    __Node Pbist_Logout_Capture_T_360 {
+        __XCoord = (50,200);
+        __Port[0] { __PortPosition =  70; }
+        __Port[1] { __PortPosition = 110; }
+        __InputPosition = 0;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+        }
+        __TestID = "89000000";
+        __Exec = Pbist_Logout_Capture_T;
+    }
+    __Node Pbist_Logout_Exit_370 {
+        __XCoord = (200,60);
+        __InputPosition = 270;
+        __TestID = "\'FlowNode\'";
+        __PortSelect = "0";
+        __PortNumber = 0;
+    }
+    __NameFormat = "{Exec}_{GCounter}";
+    __StartNode = Pbist_Logout_Test_T_350;
+    __PortConnections {
+        Pbist_Logout_Test_T_350 __Port[0] = Pbist_Logout_Exit_370;
+        Pbist_Logout_Test_T_350 __Port[1] = Pbist_Logout_Capture_T_360;
+        Pbist_Logout_Capture_T_360 __Port[0] = Pbist_Logout_Exit_370;
+        Pbist_Logout_Capture_T_360 __Port[1] = Pbist_Logout_Exit_370;
     }
 }
 __SubFlow F021_TunOxide {

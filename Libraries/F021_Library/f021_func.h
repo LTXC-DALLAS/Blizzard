@@ -747,8 +747,8 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
 #if !$FL_USE_DCC_TRIM_FOSC
 TMResultM F021_FOSC_SoftTrim_External_func();
 #endif
+void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
+                           WordOrientationS wordOrientation = WORD_MSB_FIRST);
 
 #endif
-
-void PbistFailLogut_func();
-

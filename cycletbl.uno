@@ -1811,10 +1811,6 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[14] = f021_shell_exepat_vco_v4p0_Thrd;
     __Thread[15] = jtag_reset_init_Thrd;
     __Thread[16] = ldo_bypass_init_Thrd;
-    __Thread[17] = pb_pb_fail_insert_Thrd;
-    __Thread[18] = pb_pb_fail_logout_Thrd;
-    __Thread[19] = pb_pb_test_fail_pin_Thrd;
-    __Thread[20] = pb_pb_test_done_pin_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
@@ -2790,10 +2786,30 @@ __Thread FF_CheckROM_Mg0_NoEd_Thrd {
         __Pattern = FF_CheckROM_Mg0_NoEd;
     }
 }
+
+__PatternSequence pBistLogout_SEQ {
+    __Thread[0] = pb_pb_fail_insert_Thrd;
+    __Thread[1] = pb_pb_fail_insert_fail_Thrd;
+    __Thread[2] = pb_pb_fail_logout_Thrd;
+    __Thread[3] = pb_pb_test_fail_pin_Thrd;
+    __Thread[4] = pb_pb_test_done_pin_Thrd;
+    __Zipper = __Zipper {
+        __Row { TDLStdPatGrp, WFT17_log = { WFT17_log } }
+    }
+    __AutoBasePeriod = __True;
+}
+
+
 __Thread pb_pb_fail_insert_Thrd {
     __Row {
         __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
         __Pattern = pb_pb_fail_insert;
+    }
+}
+__Thread pb_pb_fail_insert_fail_Thrd {
+    __Row {
+        __ThreadAction = __Expression { __String = "Seq:EnterExit"; }
+        __Pattern = pb_pb_fail_insert_fail;
     }
 }
 __Thread pb_pb_fail_logout_Thrd {

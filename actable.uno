@@ -1560,6 +1560,89 @@ __WaveformTable WFT17_DC {
 }
 
 /*******************************************************************************
+WFT:WFT17_log used in pBistLogout_SEQ which has five patterns:
+	pb_pb_fail_insert, pb_pb_fail_insert_fail, pb_pb_fail_logout,
+        pb_pb_test_done_pin, and pb_pb_test_fail_pin
+	This pattern should use WFT27 (new end-of-cycle strobe) but WFT17_eng
+        was modified to WFT17_log with end-of-cycle strobe on PB2_131.
+*******************************************************************************/
+__WaveformTable WFT17_log {
+    __Period "tper";
+    __Cell "AC1_NR+AC1_NR_STB" L/H WFT17_NR1 {
+        __Data 6/7;
+        __Color 3/6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "OSC0_124" L/C WFT17_RZ1_OSC0_124 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +16ns*(.Period/33ns) - 1.5ns"; __DriveData @ "tref +16ns*(.Period/33ns)"; __DriveLow @ "tref +33ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "AIN10_183" L/C WFT17_RZ3_AIN10_183 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +16ns*(.Period/33ns) - 1.5ns+5ns"; __DriveData @ "tref +16ns*(.Period/33ns)+5ns"; __DriveLow @ "tref +33ns*(.Period/33ns)+5ns"; }
+        }
+    }
+    __Cell "TCK_152" L/C WFT17_RZ3_TCK_152 {
+        __Data 6/7;
+        __Color 3/4;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +16ns*(.Period/33ns) - 1.5ns"; __DriveData @ "tref +16ns*(.Period/33ns)"; __DriveLow @ "tref +33ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "AIN10_183+OSC0_124+TCK_152+o_cpu_done_46" H NRZDriveClk {
+        __Data 7;
+        __Color 6;
+        __Drive {
+            __Waveform { __DriveOn @ "tref +0ps"; __DriveData @ "tref +0ps +1.5ns"; }
+        }
+    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB-PB2_131" 0/1/M WFT17_STB1 {
+        __Data 0/1/2;
+        __Color 8/10/3;
+        __Drive {
+            __Waveform { __DriveOff @ "tref +0ps"; }
+        }
+        __Compare {
+            __Waveform { __CompareData @ "tref +14ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "PB2_131" 0/1/M WFT17_STB_PB2 {
+        __Data 0/1/2;
+        __Color 8/10/3;
+        __Drive {
+            __Waveform { __DriveOff @ "tref +0ps"; }
+        }
+        __Compare {
+            __Waveform { __CompareData @ "tref +33ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "AC1_NR_STB+AC1_RZ_STB_AIN10_183+AC1_RZ_STB_TCK_152+AC1_STB" Z WFT17_STB1_Z {
+        __Data 2;
+        __Color 3;
+        __Drive {
+            __Waveform { __DriveOff @ "tref +0ps"; }
+        }
+        __Compare {
+            __Waveform { __CompareFloat @ "tref +14ns*(.Period/33ns)"; }
+        }
+    }
+    __Cell "ALLPINS" - HoldStateWF {
+        __Data 6;
+        __Color 7;
+        __Drive {
+            __Waveform { }
+        }
+    }
+}
+
+/*******************************************************************************
 WFT:WFT18 used in 7 patterns:
 	pb_pb_down2_2p	pb_pb_dtxn2_2p	pb_pb_flip10_2p
 	pb_pb_mapcol_2p	pb_pb_march13n_2p	pb_pb_pmos_open_2p

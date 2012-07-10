@@ -6135,23 +6135,22 @@ __Test Pump_VHV2X_Vmax {
     }
 }
 
-__Test Pbist_Logout_Debug_T {
+__Test Pbist_Logout_Test_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
     __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[1] = pBistLogout_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = Pbist_Logout_Debug;
+        __Title = Pbist_Logout_Test;
         __WrapCells = __True;
         __TestMethod {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "ALLPINS"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_Thrd'"; }
-            CallAtEnd = __Expression { __String = "&Pbist_Fail_Logout"; }
+            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_fail_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "TRUE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -6161,6 +6160,21 @@ __Test Pbist_Logout_Debug_T {
             FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
             use_testware = __Expression { __String = "FALSE"; }
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test Pbist_Logout_Capture_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = pBistLogout_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Pbist_Fail_Logout_F;
+        __TestMethod {
+            __Name = PbistFailLogout;
         }
     }
 }

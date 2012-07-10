@@ -180,6 +180,7 @@ __ApplicationLibrary F021_Library {
    __Source = "./Libraries/F021_Library/f021_flashtests.cpp";
    __Source = "./Libraries/F021_Library/f021_config.cpp";
    __Source = "./Libraries/F021_Library/f021_cfginclude.cpp";
+   __Source = "./Libraries/F021_Library/f021_pbist.cpp";
    __IncludePath = "./Libraries/F021_Library";
    __IncludePath = "./Libraries/TestWare_Library";
    __IncludePath = "./Libraries/STD_Library";
@@ -188,6 +189,7 @@ __ApplicationLibrary F021_Library {
    __Include = "f021_flashtests.h";
    __Include = "f021_flashvar.h";
    __Include = "f021_func.h";
+   __Include = "f021_pbist.h";
    __DependsOnLibrary = TIDependsLib;
    __DependsOnLibrary = TestWare_Library;
    __DependsOnLibrary = STD_Library;
