@@ -23,33 +23,57 @@
 #ifndef EFUSE_H
 #define EFUSE_H
 
+#include <Unison.h>
+#include <TestwareSupport.h>
+#include <DebugVars.h>
+
 #define TOTAL_EFUSE_CTLR 1
 #define TOTAL_EFUSE_BLKS 2  // Was 1 in VLCT, but they sized arrays from 0 to this, meaning 2 elements
 #define MAX_INSTANCES 146
 #define MAX_EFUSE_SEGMENTS 10
 #define MAX_EFUSE_ELEMENTS 15
 
-struct FuseInstDataRec {
-                      int rowStart[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int rowStop[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int instStart[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int instStop[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int padLSB[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int padMSB[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      int maxSeg[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS];
-                      int fuseROMCtlr;
-                      bool validCtlr[TOTAL_EFUSE_CTLR];
-                      int totalBlks[TOTAL_EFUSE_CTLR];
-                      int totalSegs[TOTAL_EFUSE_CTLR];
-                      int totalBits;
-                      bool segmentChain[TOTAL_EFUSE_CTLR];
-                      StringS nullChainStr[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
-                      StringM progChainStr;
-                      StringS progTestName;
-                      StringS readTestName;
+struct FuseInstDataRec 
+{
+   int rowStart[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int rowStop[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int instStart[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int instStop[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int padLSB[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int padMSB[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   int maxSeg[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS];
+   int fuseROMCtlr;
+   bool validCtlr[TOTAL_EFUSE_CTLR];
+   int totalBlks[TOTAL_EFUSE_CTLR];
+   int totalSegs[TOTAL_EFUSE_CTLR];
+   int totalBits;
+   bool segmentChain[TOTAL_EFUSE_CTLR];
+   StringS nullChainStr[TOTAL_EFUSE_CTLR][TOTAL_EFUSE_BLKS][MAX_EFUSE_SEGMENTS];
+   StringM progChainStr;
+   StringS progTestName;
+   StringS readTestName;
 };
 
 extern FuseInstDataRec instData[13];
+
+struct ProgDataRec 
+{
+   IntM rowStart;
+   IntM rowStop;
+   BoolM rowPreRead;
+   IntM MSBPadding;
+   StringM progChainStr;
+   StringM returnStr;
+   bool redundancy;
+   bool writeProtect;
+   bool readProtect;
+   TWDataType sendTWData;
+   IntM errorCode;
+   BoolM results;
+   StringM codeOption;
+}; 
+
+extern ProgDataRec progData; 
  
 enum FuseMargEnumType {Mg0, MgN, Mg1A, Mg1B};
 enum FuseElemEnumType {dummyElement};
@@ -60,14 +84,16 @@ enum DesignInstEnumType {FlashChain, NonMBist, MemBist, MBist, PBist, Custom,
                       TIDieID, BG_TEMP_TRIM, TS_OS_TRIM, IREF_TRIM,
                       NWELL_RTRIM,
                       /* BEK 30Jun2011 Added for precision oscillator trim */
-                      Piosc_Trim };
+                      Piosc_Trim, LastDesignInstEnum };
 
-//void InitializeFuseROMVariables();
-//
+extern bool fuseROMProgrammed;
+
+void InitializeFuseROMVariables();
+
 //void SendNumFuseROMRepairsToTW();
-//
-//void LoadEfuseCtlrData();
-//
+
+void LoadEfuseCtlrData();
+
 IntM ReadFuseROM(const StringS &code_option,
                  const DesignInstEnumType &instType,
                  const FuseMargEnumType &margType,
@@ -75,10 +101,10 @@ IntM ReadFuseROM(const StringS &code_option,
                        StringM &returnChainStr,
                        TMResultM &readResults);
 
-//void ProgramFuseROM(DesignInstEnumType instType,
-//                             StringM progChainStr,
-//                             StringM returnChainStr,
-//                             BoolM progResults);
+TMResultM ProgramFuseROM(const StringS &readCodeOption,
+                         const DesignInstEnumType &instType, 
+                         const StringM &progChainStr,
+                               StringM &returnChainStr);
 //
 //void ProgramFuseROMElement(  FuseElemEnumType LSBElemType, FuseElemEnumType 
 //                                MSBElemType,

@@ -111,7 +111,7 @@ __Test InitializeModules {
         __Title = Block1;
         __TestMethod {
             __Name = TWPDLInitialize;
-            frequency = __Expression { __String = "0"; }
+            frequency = __Expression { __String = "1"; }
             TWdatatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
@@ -119,7 +119,7 @@ __Test InitializeModules {
         __Title = Block1_3;
         __TestMethod {
             __Name = TWPDLInitialize;
-            frequency = __Expression { __String = "0"; }
+            frequency = __Expression { __String = "2"; }
             TWdatatype = __Expression { __String = "TWDataType:TWNominalData"; }
         }
     }
@@ -127,7 +127,7 @@ __Test InitializeModules {
         __Title = Block1_2;
         __TestMethod {
             __Name = TWPDLInitialize;
-            frequency = __Expression { __String = "0"; }
+            frequency = __Expression { __String = "3"; }
             TWdatatype = __Expression { __String = "TWDataType:TWExtendedData"; }
         }
     }
@@ -135,7 +135,7 @@ __Test InitializeModules {
         __Title = Block1_1;
         __TestMethod {
             __Name = TWPDLInitialize;
-            frequency = __Expression { __String = "0"; }
+            frequency = __Expression { __String = "4"; }
             TWdatatype = __Expression { __String = "TWDataType:TWExhaustiveData"; }
         }
     }
@@ -167,7 +167,7 @@ __SubFlow UserOnInitFlow {
         __Exec = ConnectDevice;
     }
     __Node TW_NewUnit_1358 {
-        __XCoord = (226,60);
+        __XCoord = (180,61);
         __Port[0] {
             __PortPosition = 97;
         }
@@ -181,16 +181,26 @@ __SubFlow UserOnInitFlow {
         __Exec = TW_NewUnit;
     }
     __Node FlowNode_1359 {
-        __XCoord = (367,76);
+        __XCoord = (415,77);
         __InputPosition = 273;
         __TestID = "2";
         __PortSelect = "0";
+    }
+    __Node InitVars_1012 {
+        __XCoord = (308,64);
+        __Port[0] {
+            __PortPosition = 92;
+        }
+        __InputPosition = 268;
+        __TestID = "103000000";
+        __Exec = InitVars;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = ConnectDevice_1357;
     __PortConnections {
         ConnectDevice_1357 __Port[0] = TW_NewUnit_1358;
-        TW_NewUnit_1358 __Port[0] = FlowNode_1359;
+        TW_NewUnit_1358 __Port[0] = InitVars_1012;
+        InitVars_1012 __Port[0] = FlowNode_1359;
     }
 }
 /**************************/
@@ -1266,7 +1276,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node F021_Pump_347 {
-        __XCoord = (455,60);
+        __XCoord = (640,64);
         __Port[0] {
             __PortPosition = 93;
         }
@@ -1372,7 +1382,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_ISleep;
     }
     __Node FlashEfuse_T_462 {
-        __XCoord = (186,21);
+        __XCoord = (149,19);
         __Port[0] {
             __PortPosition = 87;
         }
@@ -1389,7 +1399,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = FlashEfuse_T;
     }
     __Node MainBG_Trim_T_465 {
-        __XCoord = (305,23);
+        __XCoord = (268,21);
         __Port[0] {
             __PortPosition = 84;
         }
@@ -1405,6 +1415,40 @@ __SubFlow F021FlashFlow_S {
         __TestID = "100000000";
         __Exec = MainBG_Trim_T;
     }
+    __Node EraseRefArray_T_1015 {
+        __XCoord = (398,17);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 271;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+        }
+        __TestID = "104000000";
+        __Exec = EraseRefArray_T;
+    }
+    __Node IrefPMOS_Trim_T_1018 {
+        __XCoord = (521,16);
+        __Port[0] {
+            __PortPosition = 91;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 267;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+        }
+        __TestID = "105000000";
+        __Exec = IrefPMOS_Trim_T;
+    }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
@@ -1419,6 +1463,8 @@ __SubFlow F021FlashFlow_S {
         F021_PreDRL_430 __Port[0] = F021_Read_440;
         F021_Read_440 __Port[0] = F021_ISleep_450;
         FlashEfuse_T_462 __Port[0] = MainBG_Trim_T_465;
+        MainBG_Trim_T_465 __Port[0] = EraseRefArray_T_1015;
+        EraseRefArray_T_1015 __Port[0] = IrefPMOS_Trim_T_1018;
     }
 }
 

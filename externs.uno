@@ -1,4 +1,4 @@
-Unison:U1.0d:S5.3;
+Unison:U3.0:S5.3;
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
 /*                                                                            */
@@ -206,11 +206,16 @@ __ApplicationLibrary STD_Library {
    __Source = "./Libraries/STD_Library/string_utils.cpp";
    __Source = "./Libraries/STD_Library/MultisiteUtils.cpp";
    __Source = "./Libraries/STD_Library/DspSendUtils.cpp";
+   __Source = "./Libraries/STD_Library/DebugVars.cpp";
    __IncludePath = "./Libraries/STD_Library";
+   __IncludePath = "../../../../../TI_apps/enVision/stdprogram";
+   __IncludePath = "./";
    __Include = "std_vi.h";
    __Include = "SearchMod.h";
    __Include = "stdEfuse.h";
    __Include = "string_utils.h";
    __Include = "MultisiteUtils.h";
    __Include = "DspSendUtils.h";
+   __Include = "DebugVars.h";
+   __DependsOnLibrary = TIDependsLib;
 }

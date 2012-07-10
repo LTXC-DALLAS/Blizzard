@@ -4878,26 +4878,26 @@ TMResultM FlashEfuse_Trim_func()
    
    if(SetActiveSites(new_active_sites))  
    {
-      bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
-      if(GL_DO_BG_DIRECT_TRIM)  
-      {
-         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_chartrim_ena);
-         final_results = tmp_results;
-      }
-// else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
-//      else
-//         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
-
-      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-      if(SetActiveSites(new_active_sites))  
-      {
-         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
-         tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
-         final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
-         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-         if(SetActiveSites(new_active_sites) && GL_DO_FOSC_TRIM)  
-         {
+//      bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
+//      if(GL_DO_BG_DIRECT_TRIM)  
+//      {
+//         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_chartrim_ena);
+//         final_results = tmp_results;
+//      }
+//// else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
+////      else
+////         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
+//
+//      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//      if(SetActiveSites(new_active_sites))  
+//      {
+//         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+//         tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
+//         final_results = DLOG.AccumulateResults(final_results, tmp_results);
+//
+//         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//         if(SetActiveSites(new_active_sites) && GL_DO_FOSC_TRIM)  
+//         {
       #if $FL_USE_DCC_TRIM_FOSC  
       //  :TODO: Unneeded for Blizzard, fix later.
       //      F021_FOSC_SoftTrim_func(tmp_results);
@@ -4906,53 +4906,53 @@ TMResultM FlashEfuse_Trim_func()
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
       #endif
          
-            new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-            if(SetActiveSites(new_active_sites))  
-            {
-               tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
-               final_results = DLOG.AccumulateResults(final_results, tmp_results);
-            
-               new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-               if(SetActiveSites(new_active_sites)) 
-               {
-                  tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
-                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
-                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-                  if(SetActiveSites(new_active_sites) && SITE_TO_FTRIM.AnyEqual(true))  
-                  {
-                     new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
-                     if (SetActiveSites(new_active_sites)) 
-                     {
-                        FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
-
-                          /*update SaveFlashProgString for later use*/
-                        SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
-                        margFlashChainStr = FlashProgString;
-
-                        if(tistdscreenprint)  
-                        {
-                           for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                           {
-                              dummstr2 = FlashProgString[*si];
-                              ReverseStringInPlace(dummstr2);
-                              dummstr1 = StringBinToHex(FlashProgString[*si]);
-                              cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
-                              if(true)   /*ti_flashdebug*/
-                              {
-                                 cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
-                                         FlashProgString[*si] << endl;
-                                 cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
-                              } 
-                           }  
-                        }  /*ti_stdscreenprint*/
-                     } // if active sites to ftrim
-                     // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
-                  }   // if SITE_TO_FTRIM
-               } // if any_site_active VSA5CT trim
-            } // if any_site_active VHV SLOPECT trim
-         } // if any_site_active OSC trim
-      } // if any_site_active Iref trim
+//            new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//            if(SetActiveSites(new_active_sites))  
+//            {
+//               tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
+//               final_results = DLOG.AccumulateResults(final_results, tmp_results);
+//            
+//               new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//               if(SetActiveSites(new_active_sites)) 
+//               {
+//                  tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
+//                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
+//
+//                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+//                  if(SetActiveSites(new_active_sites) && SITE_TO_FTRIM.AnyEqual(true))  
+//                  {
+//                     new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
+//                     if (SetActiveSites(new_active_sites)) 
+//                     {
+//                        FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
+//
+//                          /*update SaveFlashProgString for later use*/
+//                        SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
+//                        margFlashChainStr = FlashProgString;
+//
+//                        if(tistdscreenprint)  
+//                        {
+//                           for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//                           {
+//                              dummstr2 = FlashProgString[*si];
+//                              ReverseStringInPlace(dummstr2);
+//                              dummstr1 = StringBinToHex(FlashProgString[*si]);
+//                              cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
+//                              if(true)   /*ti_flashdebug*/
+//                              {
+//                                 cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
+//                                         FlashProgString[*si] << endl;
+//                                 cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
+//                              } 
+//                           }  
+//                        }  /*ti_stdscreenprint*/
+//                     } // if active sites to ftrim
+//                     // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
+//                  }   // if SITE_TO_FTRIM
+//               } // if any_site_active VSA5CT trim
+//            } // if any_site_active VHV SLOPECT trim
+//         } // if any_site_active OSC trim
+//      } // if any_site_active Iref trim
    } // if any_site_active BG Trim
    
    /*re-activate sites*/
@@ -7026,7 +7026,6 @@ TMResultM EraseRefArray_func()
             GetTrimCode_On_EFStr();
             RAM_Upload_PMOS_TrimCode();
             TL_Boost_RefArray();
-            //:HERE:
             RAM_Clear_PMOS_SoftTrim();
          } 
       } 
@@ -7643,149 +7642,138 @@ TMResultM ThinOxide_Stress_func()
 //
 //   TP1TP2_Leak_Pre_func = v_any_dev_active;
 //}   /* TP1TP2_Leak_Pre_func */
-//
-//
-//BoolS IrefPMOS_Trim_func()
-//{
-//   const IntS TESTID = 43; 
-//   const IntS PUMP_EF_LEN = 30; 
-//   const IntS BANK_EF_LEN = 32; 
-//
-//   BoolM tmp_results,final_results;
-//   BoolM savesites,alldisable;
-//   BoolS bg_adapttrim_ena;
-//   BoolS bg_chartrim_ena;
-//   IntS site,count,totbanklen,length;
-//   FloatS ttimer1;
-//   FloatM tt_timer;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS tmpstr1,tmpstr4,current_shell,str1;
-//   StringS1D bank_str(8);
-//   StringS dummstr1,dummstr2;
-//   IntS pump_sind,pump_len,bank_sind,bank_len;
-//   StringM logstr;
-//
-//   if(v_any_dev_active and GL_DO_FLASHTRIM and GL_DO_IREF_PMOS_TRIM)  
-//   {
-//      GL_FLTESTID = TESTID;
-//      savesites = v_dev_active;
-//      alldisable = false;
-//       /*init site to flash trim to false. it gets update in *SoftTrim_func*/
-//       /*ArraySetBoolean(SITE_TO_FTRIM,false);} {KChau 01/12/11 - one pass efuse pgm*/
-//
-//       /*dis-able retest (already trimmed) site*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and GL_FLASH_RETEST[site] and SITE_IPMOS_TRIMMED[site])  
-//         {
-//            Devsetholdstate(site,false);
-//            if(tistdscreenprint)  
-//               cout << "Site : " << site:2 << "  Already PMOS Trimmed so Disable." << endl;
-//         } 
-//
-//      if(v_any_dev_active)  
-//      {
-//         pump_sind = 1;
-//         pump_len  = PUMP_EF_LEN;
-//         bank_sind = pump_len+1;
-//         bank_len  = BANK_EF_LEN;
-//         totbanklen = (F021_Flash.MAXBANK+1)*bank_len;
-//
-//         PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-//         ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                  v[vih_loose_osc_vnom],v[vil_loose]);
-//         clockpinset(s_clk_1a,s_clock);
-//         TIME.Wait(2ms);
-//         F021_LoadFlashShell_func;
-//         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
-//              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 01/12/11*/
-//         RAM_Clear_PMOS_SoftTrim;
-//
-// /*psk022411: Enabling IPMOS trim based on NMOS Read current*/
-//
-//         /* discard(F021_IPMOS_SoftTrim_func); } {old method*/
-//         
-//          /*new method nmos based - 0=ipmos, 1=nmos rd, 2=nmos ev*/
-//         
-//         F021_IPMOS_NMOS_SoftTrim_func(GL_PMOS_TRIM_COUNT);
+
+#if 0
+TMResultM IrefPMOS_Trim_func()
+{
+   const IntS TESTID = 43; 
+   const IntS PUMP_EF_LEN = 30; 
+   const IntS BANK_EF_LEN = 32; 
+
+   TMResultM final_results = TM_PASS;
+   Sites savesites,untrimmed_sites;
+   IntS count,totbanklen,length;
+   StringS1D bank_str(8);
+   StringS dummstr1,dummstr2;
+   IntS pump_sind,pump_len,bank_sind,bank_len;
+
+   if(GL_DO_FLASHTRIM and GL_DO_IREF_PMOS_TRIM)  
+   {
+      GL_FLTESTID = TESTID;
+      savesites = ActiveSites;
+      untrimmed_sites = ActiveSites;
+       /*init site to flash trim to false. it gets update in *SoftTrim_func*/
+       /*ArraySetBoolean(SITE_TO_FTRIM,false);} {KChau 01/12/11 - one pass efuse pgm*/
+
+       /*dis-able retest (already trimmed) site*/
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if(GL_FLASH_RETEST[*si] and SITE_IPMOS_TRIMMED[*si])  
+         {
+            untrimmed_sites -= *si;
+            if(tistdscreenprint)  
+               cout << "Site : " << *si << "  Already PMOS Trimmed so Disable." << endl;
+         }
+      }
+
+      if(SetActiveSites(untrimmed_sites))  
+      {
+         pump_sind = 0;  // string index
+         pump_len  = PUMP_EF_LEN;
+         bank_sind = pump_len; // string index
+         bank_len  = BANK_EF_LEN;
+         totbanklen = (F021_Flash.MAXBANK+1)*bank_len;
+
+         F021_LoadFlashShell_func();
+         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
+              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 01/12/11*/
+         RAM_Clear_PMOS_SoftTrim();
+
+ /*psk022411: Enabling IPMOS trim based on NMOS Read current*/
+
+         /* discard(F021_IPMOS_SoftTrim_func); } {old method*/
+         
+          /*new method nmos based - 0=ipmos, 1=nmos rd, 2=nmos ev*/
+         
+         F021_IPMOS_NMOS_SoftTrim_func(GL_PMOS_TRIM_COUNT);
 //         if(GL_PMOS_TRIM_COUNT==0)  
 //            str1 = "PMOS";
 //         else if(GL_PMOS_TRIM_COUNT==1)  
 //            str1 = "NMOS_RD";
 //         else
 //            str1 = "NMOS_EV";
-//         /* GL_PMOS_TRIM_COUNT := GL_PMOS_TRIM_COUNT+1;
-//          if(GL_PMOS_TRIM_COUNT>2) then
-//             GL_PMOS_TRIM_COUNT := 0;*/
-//          
-//
-//          /*determine any site need to be trimmed*/
-//         if not(ArrayCompareBoolean(SITE_TO_FTRIM,alldisable,v_sites))  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and SITE_TO_FTRIM[site])  
-//               {
-//                  logstr[site] = str1;
-//                   /*update efuse string with trim code*/
-//                  dummstr1 = mid(SaveFlashProgString[site],pump_sind,pump_len);
-//                  FlashProgString[site] = dummstr1;
-//
-//                  dummstr2 = mid(SaveFlashProgString[site],bank_sind,totbanklen);
-//
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  {
-//                     if(BANK_TO_PMOS_TRIM[count][site])  
-//                        bank_str[count] = IREF_PMOSTRIMCODE_STR[count][site];
-//                     else
-//                        bank_str[count] = mid(dummstr2,1,bank_len);
-//
-//                     length = (len(dummstr2))-bank_len;
-//                     if(length>==bank_len)  
-//                        dummstr2 = mid(dummstr2,bank_len+1,length);
-//                  } 
-//
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                     FlashProgString[site] = FlashProgString[site] + bank_str[count];
-//
-//                   /*save for later use*/
-//                  SaveFlashProgString[site] = FlashProgString[site];  /*lsb-msb*/
-//
-//                  if(tistdscreenprint)  
-//                  {
-//                     dummstr1 = flashprogstring[site];
-//                     dummstr2 = stringreverse(dummstr1);
-//                     dummstr1 = stringbintohex(dummstr1,s_pad_msb);
-//                     cout << "Site " << site:3 << 
-//                             "  MSB-LSB : " << dummstr1 << endl;
-//                     if(ti_flashdebug)  
-//                     {
-//                        cout << "Site " << site:3 << 
-//                                "  To Be Trimmed (MSB-LSB) : " << 
-//                                FlashProgString[site] << endl;
-//                        cout << "Site " << site:3 << 
-//                                "  LSB-MSB : " << dummstr2 << endl;
-//                     } 
-//                  }   /*tistdscreenprint*/
-//               }   /*if v_dev_active*/
-//
-//             /*TWPDLDatalogTextMS("TRIM_PMOS_BY",logstr,twminimumdata);*/
-//            
-//            ProgramFlashTrim(FTrimProg3_st,FTrimPstRd3_st,FTrimPstRdMg3_st,
-//                             FlashProgString,MargFlashChainStr);
-//         }            /*if not(arraycompare)*/
-//      }   /*if v_any_active*/
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(savesites[site] and GL_FLASH_RETEST[site] and SITE_IPMOS_TRIMMED[site])  
-//            devsetholdstate(site,true);
-//   } 
-//         
-//    /*null out gl_previous_shell*/
-//   GL_PREVIOUS_SHELL = "";
-//
-//   IrefPMOS_Trim_func = v_any_dev_active;
-//} 
-//
+         /* GL_PMOS_TRIM_COUNT := GL_PMOS_TRIM_COUNT+1;
+          if(GL_PMOS_TRIM_COUNT>2) then
+             GL_PMOS_TRIM_COUNT := 0;*/
+          
+
+          /*determine any site need to be trimmed*/
+         if (SITE_TO_FTRIM.AnyEqual(true))  
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               SITE site = *si;
+               if(SITE_TO_FTRIM[site])  
+               {
+                   /*update efuse string with trim code*/
+                  dummstr1 = SaveFlashProgString[site].Substring(pump_sind,pump_len);
+                  FlashProgString[site] = dummstr1;
+
+                  dummstr2 = SaveFlashProgString[site].Substring(bank_sind,totbanklen);
+
+                  for (count = 0;count <= F021_Flash.MAXBANK;++count)
+                  {
+                     if(BANK_TO_PMOS_TRIM[count][site])  
+                        bank_str[count] = IREF_PMOSTRIMCODE_STR[count][site];
+                     else
+                        bank_str[count] = dummstr2.Substring(0,bank_len);
+
+                     length = dummstr2.Length()-bank_len;
+                     if(length>=bank_len)  
+                        dummstr2 = dummstr2.Substring(bank_len,length);
+                  } 
+
+                  for (count = 0;count <= F021_Flash.MAXBANK;++count)
+                     FlashProgString[site] = FlashProgString[site] + bank_str[count];
+
+                   /*save for later use*/
+                  SaveFlashProgString[site] = FlashProgString[site];  /*lsb-msb*/
+
+                  if(tistdscreenprint)  
+                  {
+                     dummstr1 = FlashProgString[site];
+                     dummstr2 = ReverseString(dummstr1);
+                     dummstr1 = StringBinToHex(dummstr1);
+                     cout << "Site " << site << 
+                             "  MSB-LSB : " << dummstr1 << endl;
+                     if(TI_FlashDebug)  
+                     {
+                        cout << "Site " << site << 
+                                "  To Be Trimmed (MSB-LSB) : " << 
+                                FlashProgString[site] << endl;
+                        cout << "Site " << site << 
+                                "  LSB-MSB : " << dummstr2 << endl;
+                     } 
+                  }   /*tistdscreenprint*/
+               }
+            } /* end site loop */
+
+             /*TWPDLDatalogTextMS("TRIM_PMOS_BY",logstr,twminimumdata);*/
+            
+            final_results = ProgramFlashTrim("FTrimProg3_st","FTrimPstRd3_st","FTrimPstRdMg3_st",
+                                             FlashProgString,margFlashChainStr);
+         }            /*if not(arraycompare)*/
+      }   /*if v_any_active*/
+
+      RunTime.SetActiveSites(savesites);
+   } 
+         
+    /*null out gl_previous_shell*/
+   GL_PREVIOUS_SHELL = "";
+
+   return (final_results);
+} 
+#endif 
 //BoolS BLCharge_Signal_func()
 //{
 //   BoolM final_results;
@@ -17735,38 +17723,22 @@ TMResultM ErsOTP_PreThinOxide_func()
 //   ErsOTP_PreThinOxide_func = v_any_dev_active;
    return(final_results);
 }   /* ErsOTP_PreThinOxide_func */
-//   
-//
-//BoolS IPMOS_TCode_Upload_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   powerupatvnom(dcsetup_loosevnom,norm_fmsu);
-//   clockset(s_clock1a,false,GL_F021_PLLENA_SPEED1,
-//            v[vih_loose_osc_vnom],v[vil_loose]);
-//   clockpinset(s_clk_1a,s_clock);
-//   TIME.Wait(2ms);      
-//   F021_LoadFlashShell_func;
-//   if(GL_DO_IREF_PMOS_TRIM)  
-//   {
-//      GetTrimCode_On_EFStr;
-//      RAM_Upload_PMOS_TrimCode;
-//   } 
-//
-// /*   if(GL_DO_VHV_CT_TRIM) then
-//       RAM_Upload_VHV_CT_TrimVal; } {KChau 09/10/10*/
-//   
-//   final_results = v_dev_active;
-//   tname = IPMOS_TCode_Upload_Test;
-//   TestOpen(tname);
-//   ResultsRecordActive(final_results, S_NULL);
-//   TestClose;
-//   
-//   IPMOS_TCode_Upload_func = v_any_dev_active;
-//}   /* IPMOS_TCode_Upload_func */
+   
+
+TMResultM IPMOS_TCode_Upload_func()
+{
+   F021_LoadFlashShell_func();
+   if(GL_DO_IREF_PMOS_TRIM)  
+   {
+      GetTrimCode_On_EFStr();
+      RAM_Upload_PMOS_TrimCode();
+   } 
+
+// I can't tell if there is a real test here
+
+   return (TM_PASS);
+   
+}   /* IPMOS_TCode_Upload_func */
 //   
 //BoolS IPMOS_TCode_Upload2_func()
 //{

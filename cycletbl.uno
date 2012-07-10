@@ -1743,6 +1743,7 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[1] = FF_InitCheck_NoEd_Thrd;
     __Thread[2] = FF_RunAutoload_NoEd_Thrd;
     __Thread[3] = FF_CheckROM_Mg0_NoEd_Thrd;
+    __Thread[4] = FF_Read_Mg1A_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }

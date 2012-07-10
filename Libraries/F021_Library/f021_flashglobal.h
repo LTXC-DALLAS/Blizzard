@@ -38,6 +38,7 @@
 
 #include <Unison.h>
 #include <enums.evo>
+#include <DebugVars.h>
 
  /*changed define statement below to 'TRUE' if your hardware has it*/
 #define $ADREFHI_PRESENT  false
@@ -51,10 +52,6 @@
 extern IntS SelectedTITestTemp;
 extern IntS SelectedTITestType;
 
-extern BoolS RunAllTests;
-
-extern BoolS tistdscreenprint;
-extern BoolS tiprintpass;
 extern BoolS TI_FlashDebug;
 extern BoolS TI_FlashCharEna; 
 extern BoolS TI_FlashESDAEna; 

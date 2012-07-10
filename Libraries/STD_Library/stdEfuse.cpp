@@ -1,5 +1,6 @@
 #include <Unison.h>
 #include <string_utils.h>
+#include <stdEfuse.h>
 #include <DspSendUtils.h>
 
 using namespace std;
@@ -999,19 +1000,18 @@ TMResultM STDProgramFuseRow(IntS version,
 
 
 TMResultM STDProgramFuseROM(StringS codeOption,
-//                      FuseROMCtlr STDFuseFarmRec,
+                        STDFuseFarmRec FuseROMCtlr,
                         IntS ctlrNum, IntS blkNum,
                         IntM rowAddrStart,
                         StringM initDataStr,
-//                      fusePatterns STDFuseFarmPatArr,
-                        StringS progPattern,
+                        StringS1D fusePatterns,
                         BoolS writeProtect,
                         BoolS readProtect,
                         BoolS enableRedundancy,
-//                      TWDataLevel TWDataType,
+                        TWDataType TWDataLevel,
                         IntM numRepairRows,
                         StringM &returnDataStr,
-//                      FuseROMData STDFROMDataArr,
+                        StringM1D &FuseROMData,
                         IntM &errorCode,
                         IntM MSBPadding,
                         BoolM preReadRow,
@@ -1056,7 +1056,6 @@ TMResultM STDProgramFuseROM(StringS codeOption,
   StringM mergeRowDataStr;
   StringS vecPinData;
   StringS CRAString;
-  StringML blkStr;
   StringS techName;
 // option  :  FROM_CLK_option ;
 // option  :  boardOption ;
@@ -1270,7 +1269,6 @@ TMResultM STDProgramFuseROM(StringS codeOption,
       }     
     }
       
-    blkStr += FF_DectoVecStr(blkNum, 5);  
     
     /**********************/ 
     /* Start program flow */ 
@@ -1309,7 +1307,7 @@ TMResultM STDProgramFuseROM(StringS codeOption,
                             rowAddr,
                             rowDataStr,
                             expRowDataStr,
-                            progPattern,
+                            fusePatterns[1],
                             actRowDataStr,
 //                          FuseROMData STDFROMDataArr,
                             errorCode,
@@ -1350,11 +1348,13 @@ void FF_Debug()
   StringS readPattern;
   StringM initDataStr;
   StringM returnDataStr;
-// FuseROMData STDFROMDataArr,
+  StringM1D FuseROMData(102);
   IntM errorCode;
   IntM MSBPadding;
   StringS TWVarName;  
   TMResultM results;
+  
+  StringS1D fusePatterns(4);
     
   codeOption = "F021";
   ctlrNum = 1;
@@ -1362,6 +1362,7 @@ void FF_Debug()
   rowStart = 12;
   rowStop = 15;
   readPattern = "FF_Read_Mg1A_Thrd";
+  fusePatterns[0] = readPattern;
   //                      11111111112222222222333
   //             12345678901234567890123456789012
   initDataStr = "00000000000000000000000000000000";
@@ -1423,25 +1424,28 @@ void FF_Debug()
   initDataStr = "00000000000000010000000000000000";
   MSBPadding = 0;
   progPattern = "FF_Program_Mg1A_Thrd";
+  fusePatterns[1] = progPattern;
   
   TIME.StartTimer();
   timer1 = TIME.GetTimer();
 
+  TWDataType TWDataLevel = TWMinimumData;
+  STDFuseFarmRec FuseROMCtlr;
+
   results =
       STDProgramFuseROM("F021",
-//                      FuseROMCtlr STDFuseFarmRec,
+                        FuseROMCtlr,
                         ctlrNum, blkNum,
                         rowAddrStart,
                         initDataStr,
-//                      fusePatterns STDFuseFarmPatArr,
-                        progPattern,
+                        fusePatterns,
                         writeProtect,
                         readProtect,
                         enableRedundancy,
-//                      TWDataLevel TWDataType,
+                        TWDataLevel,
                         numRepairRows,
                         returnDataStr,
-//                      FuseROMData STDFROMDataArr,
+                        FuseROMData,
                         errorCode,
                         MSBPadding,
                         preReadRow,

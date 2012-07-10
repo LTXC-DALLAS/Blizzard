@@ -621,11 +621,11 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna);
 TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval);
 TMResultM F021_VHV_SLOPECT_SoftTrim_func(IntM &ret_ctval);
 
-//void ProgramFlashTrim(      StringS tname1, StringS  tname2,
-//                                StringS tname3,
-//                                StringM progChainStr,
-//                                StringM initChainStr);
-//
+TMResultM ProgramFlashTrim(      StringS tname1, StringS  tname2,
+                                StringS tname3,
+                                StringM progChainStr,
+                                StringM initChainStr);
+
 //void RAM_Upload_PMOS_SoftTrim_Bank(IntS bank,
 //                                        BoolS bnkeven_ena,
 //                                        BoolS bnkodd_ena,
