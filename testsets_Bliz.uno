@@ -4778,6 +4778,12 @@ __Test F021_FlashConfig_test {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
+        __Title = Block2;
+        __TestMethod {
+            __Name = LoadEfuseCtlrData;
+        }
+    }
+    __Block[1] = {
         __Title = Block1;
         __TestMethod {
             __Name = F021_FlashConfig;
@@ -4827,6 +4833,12 @@ __Test Pump_Iref_Vnom {
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Iref_Vnom_func;
+        }
+    }
+    __Block[3] = {
+        __Title = Block4;
+        __TestMethod {
+            __Name = IPMOS_TCode_Upload_func;
         }
     }
 }
@@ -8517,4 +8529,33 @@ __Test MainBG_Trim_T {
             __Name = MainBG_Trim_func;
         }
     }
+}
+__Test InitVars {
+    __PortExpression[0] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = InitializeFuseROMVariables;
+        }
+    }
+}
+__Test EraseRefArray_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = EraseRefArray_func;
+        }
+    }
+}
+__Test IrefPMOS_Trim_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
 }

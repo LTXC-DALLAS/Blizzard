@@ -848,13 +848,14 @@ void    SearchMod::SearchNext           (FloatM measuredY ){
                SASkipMMSearchNext  ( measuredY );
                break;
            default:
-               cout<<left<< setw(15)<<"MOO m_searchType";
+               cout<< setw(15)<<"MOO m_searchType ";
+               cout<< m_searchType << endl;
                searchNotDone   = false ;
                break;
        }
     }
 
-    DbgPrintSrchResult  ( measuredY );
+//    DbgPrintSrchResult  ( measuredY );
 
     // RunTime.SetActiveSites does not allow you to turn off all 
     // sites. So, we use the created SetActiveSites which tells 
@@ -866,10 +867,10 @@ void    SearchMod::SearchNext           (FloatM measuredY ){
     if (!any_site_active || !searchNotDone) {
        RunTime.SetActiveSites(searchSites);
        searchNotDone = false;
-       if (m_searchDebugMode>0) {
-          // plot data at end of search
-          DbgPlotEnd         ( xForceValueMS, measuredY, dbgXMSa, dbgYMSa, dbgXYMSa); 
-       }
+//       if (m_searchDebugMode>0) {
+//          // plot data at end of search
+//          DbgPlotEnd         ( xForceValueMS, measuredY, dbgXMSa, dbgYMSa, dbgXYMSa); 
+//       }
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
