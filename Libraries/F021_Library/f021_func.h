@@ -626,17 +626,19 @@ TMResultM ProgramFlashTrim(      StringS tname1, StringS  tname2,
                                 StringM progChainStr,
                                 StringM initChainStr);
 
-//void RAM_Upload_PMOS_SoftTrim_Bank(IntS bank,
-//                                        BoolS bnkeven_ena,
-//                                        BoolS bnkodd_ena,
-//                                        IntM msw_val,
-//                                        IntM lsw_val);
-//void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
+// bnk variables below left out because they did nothing in the function
+void RAM_Upload_PMOS_SoftTrim_Bank(const IntS &bank,
+//                                   BoolS bnkeven_ena,
+//                                   BoolS bnkodd_ena,
+                                   const IntM &msw_val,
+                                   const IntM &lsw_val);
+
+void RAM_Clear_PMOS_SoftTrim_Bank(const IntS &bank);
 void RAM_Clear_PMOS_SoftTrim();
 void GetTrimCode_On_EFStr();
 void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
-//BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
+TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //void TL_Mod_OTP_PMOS_SoftTrim();
 //
 // /*added for fake repair*/
