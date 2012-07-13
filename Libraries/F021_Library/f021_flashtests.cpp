@@ -7643,7 +7643,7 @@ TMResultM ThinOxide_Stress_func()
 //   TP1TP2_Leak_Pre_func = v_any_dev_active;
 //}   /* TP1TP2_Leak_Pre_func */
 
-#if 0
+
 TMResultM IrefPMOS_Trim_func()
 {
    const IntS TESTID = 43; 
@@ -7773,7 +7773,7 @@ TMResultM IrefPMOS_Trim_func()
 
    return (final_results);
 } 
-#endif 
+
 //BoolS BLCharge_Signal_func()
 //{
 //   BoolM final_results;
