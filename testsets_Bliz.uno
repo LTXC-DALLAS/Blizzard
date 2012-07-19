@@ -4778,12 +4778,18 @@ __Test F021_FlashConfig_test {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
+        __Title = Block3;
+        __TestMethod {
+            __Name = Initialize_hardware;
+        }
+    }
+    __Block[1] = {
         __Title = Block2;
         __TestMethod {
             __Name = LoadEfuseCtlrData;
         }
     }
-    __Block[1] = {
+    __Block[2] = {
         __Title = Block1;
         __TestMethod {
             __Name = F021_FlashConfig;
@@ -4797,7 +4803,7 @@ __Test Pump_Iref_Vnom {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = jtag_reset;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "o_cpu_fail_47"; }
@@ -8507,7 +8513,7 @@ __Test MainBG_Trim_T {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = jtag_reset_1;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "o_cpu_fail_47"; }
@@ -8560,6 +8566,22 @@ __Test EraseRefArray_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
+        __Title = ldo_bypass_1_2;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ldo_bypass_init_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
         __Title = Block1;
         __TestMethod {
             __Name = EraseRefArray_func;
@@ -8572,4 +8594,10 @@ __Test IrefPMOS_Trim_T {
     __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = IrefPMOS_Trim_func;
+        }
+    }
 }

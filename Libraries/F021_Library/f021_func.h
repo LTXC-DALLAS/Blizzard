@@ -101,12 +101,12 @@ void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr,
 //                              StringM binStr,
 //                              BoolS hexvalue);
 
-void WriteRamContentDec_32Bit(IntS addr_loc,
-                                   IntM src_data1,
-                                   BoolS data1_hexvalue,
-                                   IntM src_data2,
-                                   BoolS data2_hexvalue,
-                                   BoolS bcd_format);
+void WriteRamContentDec_32Bit(const IntS &addr_loc,
+                              const IntM &src_data1,
+                              const BoolS &data1_hexvalue,
+                              const IntM &src_data2,
+                              const BoolS &data2_hexvalue,
+                              const BoolS &bcd_format);
 
 void GetRamContent_SCRAM(IntS start_addr,
                               IntS store_option);

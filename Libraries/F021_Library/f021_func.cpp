@@ -1328,10 +1328,9 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 {
    StringS tpatt = "ramread_nburst_addr_v4p0_Thrd"; //"ramread_nburst_addr_Thrd";
    StringS datastr;
-   StringS cap_name, label;
-   StringS addr_str,s,str1,str2;
+   StringS cap_name;
    IntS curraddr;
-   IntS maxcapcount;
+   IntS maxcapcount, maxsrccount;
    UnsignedM1D CaptureArr(33);
    UnsignedM1D sim_value(33,0);  // return all 0s to sim
    StringML captured_data;
@@ -1342,145 +1341,63 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
    int i;
    IntS physaddr;
    UnsignedS shiftbit;
+   UnsignedM1D send_data(1);
 
    TIME.StartTimer();
 
+   cap_name = "CapRam32";
+   StringS send_name = "ReadRamAddrSend";
+   StringS sendref_name = "ReadRamAddr_sref";
+
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix this. Unneeded for Blizzard.
-//    /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   maxcapcount = 32;
-//   istep = 1;
-//   fails = 32;
-//   dead_cyc = 0;
-//   data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//   lsw_cycle = data_cycle[1];
-//   for (counter = 2;counter <= fails;counter++)
-//      data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//   FailGetMax(save_fails, tpatt);
-//   
-//   curraddr = startaddr;
-//   linebrk = 0;
-//
-//   if(TIStdScreenPrint)  
-//   {
-//      cout << "Site " << log_site:3 << "    Reading RAM contents (Msw << Lsw)." << 
-//              "  Start Address = " << startaddr << "    Stop Address = " << stopaddr << endl;
-//      cout << "RAM byte address" << endl;
-//   } 
-//   
-//   while(curraddr <= stopaddr) do
-//   {
-//       /*abort if s key is pressed*/
-//      if(Inkey(s))   break;
-//      
-//      failstr1 = "0000";
-//      failstr2 = "0000";
-//      failindex = 1;
-//      offsetcyc = 0;
-//      
-//      IntToBinStr(curraddr,addr_str);
-//      
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                data_in,S_binary,
-//                                Mid(addr_str,16-(1*offsetcyc),1));
-//
-//       /* formatting address for print out later*/
-//      FormatAddrString;
-//      
-//      FailSetMax(fails, tpatt);
-//      Enable(S_FAIL_MEMORY);
-//      
-//      result = (PatternExecute(tmpint,tpatt));
-//      failcount = FailGetCount;
-//      
-//      if (failcount <> 0)  
-//      {
-//         while (failindex <= failcount) do
-//         {
-//            pinlistget(data_pins,pl_arr,pl_len);
-//            failstr = "00000000000000000000000000000000";
-//            
-//            for (tmpint = 1;tmpint <= failcount;tmpint++)
-//            {
-//               log_opt = FailGetInfo(failindex, pm_addr, rpt_count, loop_count,
-//                                      scan_block, cycles, src_line );
-//               if((log_site>=1) and (log_site<=V_Sites))  
-//               {
-//                  if (V_Dev_Active[log_site] and (V_Fail_Count[log_site]>=failcount))  
-//                  {
-//                     if not V_PF_Status[log_site]  
-//                     {
-//                        FailGetSitePinList(log_site, failindex, pl_failarr,pl_faillen);
-//                        fail_cycle = V_Cycle[log_site];
-//                        for (counter = 1;counter <= maxcapcount;counter++)
-//                           if((data_cycle[index] = fail_cycle) and (pl_failarr[1]=pl_arr[1]))  
-//                              failstr[(maxcapcount+1)-counter] = "1";
-//                     }   /*if not V_PF_Status*/
-//                  }   /*if V_Fail_Count*/
-//               }   /*if log_site*/
-//               failindex = failindex + 1;
-//            }   /*for tmpint*/
-//            
-//            Readstring("0b" + failstr) + temp_value;
-//            Writestring(temp_bcd,temp_value:S_hex:1);
-//            length = len(temp_bcd);
-//            Writestring(temp_bcd,mid(temp_bcd,3,length-2));
-//            
-//            switch((length-2)) {
-//              case 1 : temp_bcd = "0000000" + temp_bcd;
-//              case 2 : temp_bcd = "000000" + temp_bcd;
-//              case 3 : temp_bcd = "00000" + temp_bcd;
-//              case 4 : temp_bcd = "0000" + temp_bcd;
-//              case 5 : temp_bcd = "000" + temp_bcd;
-//              case 6 : temp_bcd = "00" + temp_bcd;
-//              case 7 : temp_bcd = "0" + temp_bcd;
-//            }   /* case */
-//                  
-//            failstr2 = Mid(temp_bcd, 1, 4);
-//            failstr1 = Mid(temp_bcd, 5, 4);
-//         }   /*while failindex*/
-//      }   /*if failcount*/
-//
-//      if(linebrk=0)  
-//      {
-//         if(TIStdScreenPrint)  
-//         {
-//            cout << endl;
-//            cout << "0x" << addr_bcd << "  ";
-//         } 
-//      } 
-//      
-//      if(TIStdScreenPrint)  
-//         cout << failstr2 << " " << failstr1 << " ";  /*msb/lsb*/
-//      failresetmax;
-//      Disable(S_FAIL_MEMORY);
-//      curraddr = curraddr+ADDR_RAM_INC;
-//      linebrk = linebrk+1;
-//      if(linebrk=4)  
-//         linebrk=0;
-//      
-//   }   /* while curraddr */
-//   
-//   Disable(S_FAIL_MEMORY);
-//   FailSetMax(save_fails, tpatt);
-//    /*-------- end of JTAG --------*/
+    /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+   maxsrccount = 16;
+   maxcapcount = 32;
+   halfcapcount = maxcapcount / 2;
+
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   while(curraddr <= stopaddr)
+   {
+      send_data.SetValue(0, unsigned(curraddr));
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
+      
+      PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
+      
+      msw_val = 0;
+      lsw_val = 0;
+      
+      for (i = 0;i < halfcapcount;++i)
+      {
+         shiftbit = data_pins.GetNumPins()*(i);
+         lsw_val = lsw_val + (CaptureArr[i]<<shiftbit);
+         msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
+      } 
+
+      IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
+      captured_data += datastr;
+      address_list += curraddr;
+      
+      curraddr = curraddr+ADDR_RAM_INC;
+      
+   }   /* while curraddr */
+
+    /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
    PinML data_bus   = "DMLED_INBUS";
    data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
-   cap_name = "CapRam32";
-   StringS send_name = "ReadRamAddrSend";
-   StringS sendref_name = "ReadRamAddr_sref";
-   IntS maxsrccount = 17;
+   maxsrccount = 17;
    maxcapcount = 8;
    halfcapcount = maxcapcount / 2;
-   UnsignedM1D send_data(1);
    
    curraddr = startaddr;
    
@@ -1506,9 +1423,9 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       
       for (i = 0;i < halfcapcount;++i)
       {
-         shiftbit = 4*(i);
+         shiftbit = data_pins.GetNumPins()*(i);
          lsw_val = lsw_val + (CaptureArr[i]<<shiftbit);
-         msw_val = msw_val + (CaptureArr[i+4]<<shiftbit);
+         msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
       } 
 
       IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
@@ -1908,9 +1825,8 @@ void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
                                      IntM &ret_val)
 {
-   IntS curraddr,offsetcyc,index;
-   StringS addr_str,str1,str2, cap_name;
-   IntM temp_value;
+   IntS curraddr,index;
+   StringS addr_str,cap_name;
    BoolS debugprint;
    UnsignedM1D CaptureArr(18);
    UnsignedM1D sim_cap_arr(18, 0);
@@ -1918,129 +1834,38 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    PinML data_pins,data_in;
    IntS maxsrccount;
    IntS evenodd,physaddr;
+   UnsignedS address;
+   StringS send_name;
+   StringS sendref_name;
+   UnsignedM1D send_data(1);
+   IntM temp_value = 0;
 
+   
    debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
    if(tistdscreenprint and debugprint)     
       TIME.StartTimer();
       
-   offsetcyc = 0;
-
-   temp_value = 0;
-
-
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-//  :TODO: come back and do the JTAG section...unneeded for Blizzard
-//    /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   maxcapcount = 16;
-//   istep = 1;
-//   
-//   //IntToBinStr(addr_loc,addr_str);
-//   addr_str = IntToVLSIDriveStr(addr_loc, 16, true);
-//   
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//      {
-//         SourceArr += addr_str[15-offsetcyc]; // makes SourceArr LSB first
-//          /*if(tistdscreenprint and TI_FlashDebug) then
-//              write(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
-//          */
-//      } 
-//          /*if(tistdscreenprint and TI_FlashDebug) then
-//             writeln(tiwindow);
-//          */
-//   }
-//   else
-//   {
-//      StringML temp_arr;
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         temp_arr += addr_str[15-offsetcyc]; // LSB first
-//      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-//      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, temp_arr);
-//   } 
-//
-//   if(GL_DO_ESDA_WITH_SCRAM)  
-//   {
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,
-//                                     false, SourceArr,CaptureArr)
-//      else
-//         PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
-//
-//      for (count = 1;count <= maxcapcount;count++)
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               temp_value[site] = temp_value[site]+(CaptureArr[site][count] << (count-1));
-//       /*
-//       if(tistdscreenprint and TI_FlashDebug) then
-//       begin
-//          for site := 1 to v_sites do
-//             if(v_dev_active[site]) then
-//                writeln(tiwindow,"Site",site:-5," addr = ",addr_loc:s_hex,"  data = ",temp_value[site]:s_hex);
-//       end;
-//       */
-//   }
-//   else
-//   {
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//      lsw_cycle = data_cycle[1];
-//      for (counter = 2;counter <= maxcapcount;counter++)
-//         data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//      failsetmax(maxcapcount,tpatt);
-//      Enable(S_Fail_Memory);
-//      tmpbool = PatternExecute(tmpint, tpatt);
-//
-//      if(not tmpbool)  
-//      {
-//         failcount = failgetcount;
-//         failindex = 1;
-//         PinlistGet(data_pins,pl_arr,pl_len);
-//
-//         for (tmpint = 1;tmpint <= failcount;tmpint++)
-//         {
-//            FailGetInfo(failindex,pm_addr,rpt_count,loop_count,scan_block, cycles, src_line );
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
-//               {
-//                  fail_cycle = v_cycle[site];
-//                  for (index = 1;index <= maxcapcount;index++)
-//                     if((data_cycle[index] = fail_cycle) and (pl_failarr[1]=pl_arr[1]))  
-//                        tmpArray[site][(maxcapcount+1)-index] = "1";
-//               } 
-//            failindex = failindex+1;
-//         }   /*for tmpint*/
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               Readstring("0b" + tmpArray[site]) + temp_value[site];
-//                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
-//                 */
-//            } 
-//      }   /*tmpbool*/
-//
-//      failresetmax;
-//      Disable(S_Fail_Memory);
-//   }    
-//      
-//   ret_val =  temp_value;
-//    /*-------- end of JTAG --------*/
+    /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+   maxcapcount = 16;
+   maxsrccount = 16;
+   cap_name = "CapRam32";
+   send_name = "GetRam16bitSend";
+   sendref_name = "ramread_16_sref";
+   
+   address = unsigned(addr_loc);
+   /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
    PinML data_bus = "DMLED_INBUS";
    data_in = data_bus[3];
    data_pins = "DMLED_OUTBUS";
    cap_name = "CapRam4";
-   StringS send_name = "GetRam16bitSend";
-   StringS sendref_name;
-   sendref_name = (tpatt.Find("lsw") < 0) ? "ramread_msw_sref" : "ramread_lsw_sref";
+   send_name = "GetRam16bitSend";
+   sendref_name = "ramread_16_sref";
    maxcapcount = 4;
    maxsrccount = 17;
 
@@ -2048,28 +1873,31 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    evenodd = (addr_loc>>2) & 0x1;
    physaddr += (evenodd << 16); //evenodd is last bit in send, so must be MSB
    
+   address = unsigned(physaddr);
+   /*-------- end of DMLED --------*/
+#endif
+   /*-------- start JTAG/DMLED common --------*/
    if (!IsDspSendDefined(send_name))
    {
       DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
    }
    
-   UnsignedM1D send_data(1);
-   send_data.SetValue(0, unsigned(physaddr));
+   send_data.SetValue(0, address);
    
    DIGITAL.LoadSend(send_name, send_data);
    DIGITAL.StartSend(send_name);
 
    PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
 
-   for (count = 0;count < maxcapcount;count++)
+   for (count = 0;count < maxcapcount;++count)
    {
-      shiftbit = 4*(count);
+      shiftbit = data_pins.GetNumPins()*(count);
       temp_value += (CaptureArr[count] << shiftbit);
    } 
       
    ret_val =  temp_value;
-    /*-------- end of DMLED --------*/
-#endif
+   
+   /*-------- end JTAG/DMLED common --------*/
 #else
 // :TODO: Fix this. Unneeded for Blizzard.
 //   data_pins = PMT_RAMBUS;
@@ -2326,115 +2154,70 @@ void GetRamContentDec_16Bit(    StringS tpatt,
  /*src_data1 is lsword, src_data2 is msword*/
  /*bcd_format=true if want to write src_data1/data2 in bcd format*/
  /*bcd_format=false then write src_data1/data2 int value in binary string format*/
-void WriteRamContentDec_32Bit(IntS addr_loc,
-                                   IntM src_data1,
-                                   BoolS data1_hexvalue,
-                                   IntM src_data2,
-                                   BoolS data2_hexvalue,
-                                   BoolS bcd_format)
+void WriteRamContentDec_32Bit(const IntS &addr_loc,
+                              const IntM &src_data1,
+                              const BoolS &data1_hexvalue,
+                              const IntM &src_data2,
+                              const BoolS &data2_hexvalue,
+                              const BoolS &bcd_format)
 {
    StringS tpatt = "ramwrite_burst_addr_v4p0_Thrd"; //"ramwrite_burst_addr_Thrd";
    PinML data_pins;
    IntS evenodd;
    IntS physaddr;
+   StringS send_name = "AddrPlus32bitData";
+   StringS send_ref = "WriteRam32bit";
+   IntS num_address;
+   IntS num_data;
+   IntS num_words; 
+   UnsignedM src1_word, src2_word;
    
    if(tistdscreenprint and TI_FlashDebug)  
       TIME.StartTimer();
    
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix this. Unneeded for Blizzard
 //    /*-------- use JTAG --------*/
 //    /*lsb 1st - msb last*/
-//   data_pins = JTAG_DIN;
-//   maxiter = 15;
-//   maskbit = 0x1;
-//   maxsrccount = 48;
-//   eindex = 16;
-//   mindex = 17;
-//   hindex = 33;
-//   length = 1;
-//
-//   IntToBinStr(addr_loc,addr_str);
-//   
-//   if(bcd_format)  
-//   {
-//      IntToBCD_BinStr(src_data1,bcdstr1,binstr1,data1_hexvalue);
-//      IntToBCD_BinStr(src_data2,bcdstr2,binstr2,data2_hexvalue);
-//
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//      {
-//         SaveMemsetBistData = V_MemSetBistData;
-//         V_MemSetBistData = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//               {
-//                  SourceArr[site][offsetcyc+1]      = (addr_loc & (maskbit << offsetcyc)) >> offsetcyc;
-//                  SourceArr[site][offsetcyc+mindex] = (src_data1[site] & (maskbit << offsetcyc)) >> offsetcyc;
-//                  SourceArr[site][offsetcyc+hindex] = (src_data2[site] & (maskbit << offsetcyc)) >> offsetcyc;
-//               } 
-//            } 
-//         PatternDigitalSource(tpatt, data_pins, maxsrccount, true, SourceArr);
-//         V_MemSetBistData = SaveMemsetBistData;
-//      }
-//      else
-//      {
-//         if(sameness)  
-//         {
-//            bcd_binstr1 = binstr1[active_site];
-//            bcd_binstr2 = binstr2[active_site];
-//
-//            for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//            {
-//               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,
-//                                      Mid(addr_str,eindex-offsetcyc,length));
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                      Mid(bcd_binstr1,eindex-offsetcyc,length));
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                      Mid(bcd_binstr2,eindex-offsetcyc,length));
-//            } 
-//            PatternExecute(tmpint,tpatt);
-//         }
-//         else   /*not same data*/
-//         {
-//            devsetholdstates(alldisable);
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            {
-//               if(savesites[site])  
-//               {
-//                  devsetholdstate(site,true);
-//                  bcd_binstr1 = binstr1[site];
-//                  bcd_binstr2 = binstr2[site];
-//                  for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//                  {
-//                     Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,
-//                                            Mid(addr_str,eindex-offsetcyc,length));
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                            Mid(bcd_binstr1,eindex-offsetcyc,length));
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                            Mid(bcd_binstr2,eindex-offsetcyc,length));
-//                  } 
-//                  PatternExecute(tmpint,tpatt);
-//                  devsetholdstate(site,false);
-//               } 
-//            }   /*for site*/
-//            devsetholdstates(savesites);
-//         }   /*not same data*/
-//      }   /*not go_do_source_with_scram*/
-//   }   /*if bcd_format*/
-//    /*-------- end of JTAG --------*/
+   data_pins = "JTAG_DIN";
+   IntS num_bits_per_word = 16;
+   num_address = 1;
+   num_data = 2;
+   num_words = num_address + num_data; 
+   UnsignedM1D send_data(num_words);
+
+   if(bcd_format)  
+   {
+      if (!IsDspSendDefined(send_name))
+      {
+         DIGITAL.DefineSerialSend(data_pins, send_name, send_ref, num_words, num_bits_per_word, WORD_LSB_FIRST);
+      }
+      
+      // cast IntM to UnsignedM
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         src1_word[*si] = unsigned(src_data1[*si]);
+         src2_word[*si] = unsigned(src_data2[*si]);
+      }
+
+      // address, then 2 data words are in the send
+      send_data.SetValue(0, unsigned(addr_loc));
+      send_data.SetValue(1, src1_word);
+      send_data.SetValue(2, src2_word);
+      
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
+
+      DIGITAL.ExecutePattern(tpatt);      
+   }   /*if bcd_format*/
+    /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
    data_pins = "DMLED_INBUS";
-   StringS send_name = "AddrPlus32bitData";
-   StringS send_ref = "WriteRam32bit";
-   IntS num_address = 17;
-   IntS num_data = 8;
-   IntS num_words = num_address + num_data; 
-   UnsignedM src1_word, src2_word, nibble_lo, nibble_hi;
+   num_address = 17;
+   num_data = 8;
+   num_words = num_address + num_data; 
+   UnsignedM nibble_lo, nibble_hi;
    UnsignedM1D send_data(num_words);
    int i;
 
@@ -2457,6 +2240,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
       }
 
       // Calculate Send bits for address
+      // first 3 MSBs are all 0, so only care about last bit
       for (i = 0;i < num_address-1; ++i) 
       {
          send_data.SetValue(i, unsigned(physaddr & 0x1));
@@ -2478,8 +2262,7 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
       DIGITAL.LoadSend(send_name, send_data);
       DIGITAL.StartSend(send_name);
       
-      DIGITAL.ExecutePattern(tpatt);
-      
+      DIGITAL.ExecutePattern(tpatt);  
    }   /*if bcd_format*/
     /*-------- end of DMLED --------*/
 #endif
@@ -2611,17 +2394,26 @@ void GetRamContent_SCRAM(IntS start_addr,
    UnsignedS halfcapcount, maxcapcount;
    UnsignedS istep, count;
    IntS offsetcyc;
-   UnsignedS index;
+   UnsignedS index, jtag_address;
    UnsignedM tnib0,tnib1,tnib2,tnib3;
    UnsignedM tnib4,tnib5,tnib6,tnib7;
    StringS tpatt, addr_str, str2;
    PinML data_pins,data_in;
+   StringS send_name = "RamReadMboxSend";
+   StringS sendref_name = "RamReadMbox_sref";
+   StringS cap_name = "CapRam32";
+   UnsignedM1D send_data(1);
+   IntS maxsrccount;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
+      TIME.StartTimer();
+
+   tpatt = "ramread_mbox_v4p0_Thrd"; //"ramread_mbox_Thrd";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT
 #if $GL_USE_JTAG_RAMPMT
-// :TODO: Fix. Unneeded for Blizzard.
-//   IntM1D SourceArr(16); 
-//   IntM1D CaptureArr(JTAGMAXCNT_MBOX); 
+   UnsignedM1D CaptureArr(JTAGMAXCNT_MBOX); 
+   UnsignedM1D sim_value(JTAGMAXCNT_MBOX, 0); 
 #else
    UnsignedM1D EvenCaptureArr(X64MAXCNT_MBOX),OddCaptureArr(X64MAXCNT_MBOX); 
    UnsignedM1D sim_value(X64MAXCNT_MBOX, 0);
@@ -2634,93 +2426,60 @@ void GetRamContent_SCRAM(IntS start_addr,
 //   IntM1D CaptureArr(X64MAXCNT_MBOX); 
 #endif
 
-   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
-      TIME.StartTimer();
 
-
-    /*if(store_option <= (ord(TESTLOG_ARR))) then
-       tpatt := ramread_tlog_scram
-    else if(store_option = (ord(MBOXOTP_ARR))) then
-       tpatt := ramread_tlog_mbox_scram
-    else}  {blizzard specific*/
-      tpatt = "ramread_mbox_v4p0_Thrd"; //"ramread_mbox_Thrd";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix. Unneeded for Blizzard.
-// /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   
-//   if(store_option < (ord(MBOXLOG_ARR)))  
-//      maxcapcount = X16MAXCNT*16;
-//   else
-//      maxcapcount = JTAGMAXCNT_MBOX;
-//   istep = 32;   /*2 16bit word*/
-//   maxsrccount = 16;
-//
-//   curraddr = start_addr;
-//   IntToBinStr(curraddr,addr_str);
-//   
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         {
-//            SourceArr[site][offsetcyc+1] = ((curraddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*
-//             if(TIStdScreenPrint and TI_FlashDebug) then
-//                writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
-//             */
-//         } 
-//         break;
-//      } 
-//      PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,maxcapcount,
-//                                  false, SourceArr,CaptureArr)
-//   }
-//   else
-//   {
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                data_in,S_binary,
-//                                Mid(addr_str,16-(1*offsetcyc),1));
-//      PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
-//   } 
-//   
-//   index = 1;
-//   for count = 1 to maxcapcount by istep do
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            tnib0 = 0;
-//            tnib1 = 0;
-//            for (i = 0;i <= 15;i++)
-//            {
-//               tnib0 = tnib0 +  (CaptureArr[site][count+i] << i);
-//               tnib1 = tnib1 +  (CaptureArr[site][count+16+i] << i);
-//            } 
-//            FL_SCRAM_CAPT_ARR[index+1][site] = tnib0;  /*lsw*/
-//            FL_SCRAM_CAPT_ARR[index][site]   = tnib1;  /*msw*/
-//         }   /*if v_dev_active*/
-//      index = index+2;
-//   }   /*for count*/
-// /*-------- end of JTAG --------*/
+ /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+
+   if(store_option < (int(MBOXLOG_ARR)))  
+      maxcapcount = X16MAXCNT*16;
+   else
+      maxcapcount = JTAGMAXCNT_MBOX;
+   istep = 32;   /*2 16bit word*/
+   maxsrccount = 16;
+
+   jtag_address = unsigned(start_addr);
+   
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   send_data.SetValue(0, jtag_address);
+   DIGITAL.LoadSend(send_name, send_data);
+   DIGITAL.StartSend(send_name);
+   
+   PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
+   
+   for (count = 0, index = 0; count < maxcapcount; count += istep, index += 2)
+   {
+      tnib0 = 0;
+      tnib1 = 0;
+      for (int i = 0;i < 16;++i)
+      {
+         tnib0 = tnib0 +  (CaptureArr[count+i] << i);
+         tnib1 = tnib1 +  (CaptureArr[count+16+i] << i);
+      } 
+      FL_SCRAM_CAPT_ARR.SetValue(index+1, tnib0);  /*lsw*/
+      FL_SCRAM_CAPT_ARR.SetValue(index, tnib1);  /*msw*/
+   }
+
+ /*-------- end of JTAG --------*/
 #else
  /*-------- use DMLED --------*/
    PinML data_bus   = "DMLED_INBUS";
    data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
-   StringS send_name = "RamReadMboxSend";
-   StringS sendref_name = "RamReadMbox_sref";
-   UnsignedM1D send_data(1);
    UnsignedS send_word;
+   maxsrccount = 17;
    istep = 8;   /*8 nibbles or 2 16bit word*/
    
    if (!IsDspSendDefined(send_name))
    {
-      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, 17, WORD_LSB_FIRST);
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
    }
    
    if(store_option < (int(MBOXLOG_ARR)))  
@@ -2755,9 +2514,9 @@ void GetRamContent_SCRAM(IntS start_addr,
       DIGITAL.StartSend(send_name);
       
       if(i==1)  
-         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,EvenCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,cap_name,halfcapcount,EvenCaptureArr,sim_value);
       else
-         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,OddCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,cap_name,halfcapcount,OddCaptureArr,sim_value);
    }   /*for i*/
    
     /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
@@ -2914,7 +2673,7 @@ void GetRamContent_SCRAM(IntS start_addr,
    if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
    {
       IntS addr = start_addr;
-      cout << "Contents from starting cpu address " << hex << addr << endl;
+      cout << "Contents from starting cpu address 0x" << hex << addr << endl;
 //      PrintHeaderBool(GL_PLELL_FORMAT);
       
       if(store_option< (int(MBOXLOG_ARR)))  
@@ -2932,6 +2691,7 @@ void GetRamContent_SCRAM(IntS start_addr,
             cout << "Address 0x" << addr << " Site " << *si << " Data 0x" << tdata[*si] << endl;
          addr = addr+ADDR_RAM_INC;
       }   /*for count*/
+      // clear hex sticky setting
       cout << dec; 
    } 
    
@@ -6944,10 +6704,10 @@ void F021_SetTestNum(IntS testnum)
       StringS test_number_string;
       IO.Print(test_number_string, "%x", testnum);
 
-      StringS error_msg = "This DSPSend has not been defined. Please go into F021_FlashConfig and call";
-      error_msg += " LoadSendFlashTestNum with the test number 0x";
+      StringS error_msg = "This DSPSend has not been defined. Please go into F021_FlashConfig and add near the end";
+      error_msg += " LoadSendFlashTestNum(0x";
       error_msg += test_number_string;
-      error_msg += " and then re-run OnLoad";      
+      error_msg += "); and then re-run OnLoad";      
       ERR.ReportError(ERR_INVALID_NAME, error_msg, testnum, NO_SITES, UTL_VOID);
    } else {
       DIGITAL.StartSend(send_name);
@@ -6969,6 +6729,13 @@ TMResultM Check_RAM_TNUM(IntS expTnum) {
 //      Get_Flash_TestLogSpace_SCRAM;
 
    Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+   
+   // 2012-07-17 jat
+   if (SYS.TesterSimulated())
+   {
+      lsw_tnum = tnumlo;
+      msw_tnum = tnumhi;
+   }
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
       if ((lsw_tnum[*si]!=tnumlo) or (msw_tnum[*si]!=tnumhi))  
@@ -11523,6 +11290,20 @@ void F021_CollectESDA(IntS imagenum) {
 //      }   /*if tistdscreenprint*/
 //   }   /*if v_any_dev_active*/
 //}   /* TL_BitHistogram*/
+FloatM DoVIMeasure(const PinM &testpad, const IntS &tcrnum, 
+                const TPModeType &tcrmode, const IntS &testnum, 
+                const FloatS &maxtime, const FloatS &tdelay) 
+{
+   FloatM meas_val;
+   
+   F021_Set_TPADS(tcrnum,tcrmode);
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   return (meas_val);
+}   /* DoVIMeasure */
 
 FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
                 const TPModeType &tcrmode, const IntS &testnum, 
@@ -14872,6 +14653,9 @@ TMResultM F021_RefArr_Erase_func(const StringS &tname,
                         } 
                         
                          /*tw log ipmos value*/
+                        if (SYS.TesterSimulated())
+                           meas_value = (ulim-llim)/2. + llim;
+                           
                         tmpstr3 = tmpstr3 + tmpstr4;
                         meas_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(), 
                                                     tmpstr3, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -14906,7 +14690,7 @@ TMResultM F021_RefArr_Erase_func(const StringS &tname,
                      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
                      {  
                         SITE site = *si;
-                        if(bool1[site] && bool2[site])  
+                        if((bool1[site] && bool2[site]) || SYS.TesterSimulated())  
                         {
                            new_active_sites -= site; /*done erasing*/
                            ieven_fn[site] = ipmos_even[site];
@@ -15009,6 +14793,10 @@ TMResultM F021_RefArr_Erase_func(const StringS &tname,
    TIDlog.Value(tt_timer, UTL_VOID, 0., UTL_VOID, "s", tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);
 
    F021_TurnOff_AllTPADS();
+      
+      
+//   if (SYS.TesterSimulated())
+//      final_results = TM_PASS;
       
    return (final_results);
 }   /* F021_RefArr_Erase_func */
@@ -24991,7 +24779,10 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    tdelay = 10ms;
 
    F021_TurnOff_AllTPADS();
-//   novride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   novride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   
+   if (SYS.TesterSimulated())
+      novride_meas_value = MainBG_Target;
    
    /*Test and TW log for non-override meas_value*/
    final_results = TIDlog.Value(novride_meas_value, testpad, llim, ulim, novride_meas_value.GetUnits(),
@@ -25076,7 +24867,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             {
                BGValue = code;
                RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
-//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay));
+               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay));
                TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
                             "MainBG_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
             }
@@ -25121,7 +24912,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
                   BGValue[*si] = lookup_table[MATH.LegacyRound(table_index[*si])];
                   
                RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
       
                loop = loop+1;
                twstr = "MBG_SOFT_" + loop;
@@ -25854,7 +25645,11 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    
    RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
    F021_TurnOff_AllTPADS();
-//   ovride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+   ovride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+
+   if (SYS.TesterSimulated())
+      ovride_meas_value = Main_Icmp10_Target;
+
     /*bin out site not passing relaxed limits*/
    final_results = TIDlog.Value(ovride_meas_value, testpad, llim, ulim, ovride_meas_value.GetUnits(),
                                 "MAINIREF_OVERRIDE", UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -25929,7 +25724,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
             {
                IRValue = code;
                RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
-//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2));
+               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2));
                TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
                             "MainIref_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
             }
@@ -25956,7 +25751,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
                IRValue = MATH.LegacyRound(float_code);
                   
                RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
       
                loop = loop+1;
                twstr = "MIREF_SOFT_" + loop;
@@ -26229,6 +26024,9 @@ STDDisconnect(FLTP3);
       meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
       F021_TurnOff_AllTPADS();
       
+      if (SYS.TesterSimulated())
+         meas_val = target;
+         
       twstr = "VHV_PG_SLPCT_SFT_" + i;
       TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
                    UTL_VOID, UTL_VOID, logena, TWMinimumData);
@@ -26260,6 +26058,9 @@ STDDisconnect(FLTP3);
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
    F021_TurnOff_AllTPADS();
+   
+   if (SYS.TesterSimulated())
+      meas_val = target;
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
@@ -26403,6 +26204,9 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
       meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
       F021_TurnOff_AllTPADS();
       
+      if (SYS.TesterSimulated())
+         meas_val = target;
+      
       twstr = "VSA5CT_SFT_" + i;
       TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
                    UTL_VOID, UTL_VOID, logena, TWMinimumData);
@@ -26430,6 +26234,9 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
    F021_TurnOff_AllTPADS();
+   
+   if (SYS.TesterSimulated())
+      meas_val = target;
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
@@ -32175,7 +31982,8 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
    // run pattern to CPU loop, then take measure since 
    // we can't trigger DPIN96 TMU.
    DIGITAL.ExecutePattern(tpattern);
-   DIGITAL.WaitForFlag(DIGITAL_FLAG_CPU, true);
+   if (!SYS.TesterSimulated())
+      DIGITAL.WaitForFlag(DIGITAL_FLAG_CPU, true);
    TIME.Wait(tdelay);
    TMU.SetTimeout(sampletime);
    

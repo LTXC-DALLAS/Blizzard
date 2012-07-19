@@ -4178,10 +4178,8 @@ TMResultM FlashEfuse_MP1_func()
 // instead of here
 //   TIME.Wait(tdelay);
 
-   // :TODO: figure out what to do about instData...efuse.p/h and var.p/h stuff....
    flnullstr = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
    
-   // :TODO: Where the heck is readData coming from?
    if(GL_EFUSE_RD_CODEOPTION != "")  
    {
       read_code_option = GL_EFUSE_RD_CODEOPTION;
@@ -4197,8 +4195,7 @@ TMResultM FlashEfuse_MP1_func()
          cout << endl;
       } 
    } 
-   //:TODO: implement ReadFuseROM
-   eferrcode = ReadFuseROM(read_code_option, NonMBist, MgN, flnullstr, margFlashChainStr, tmp_results);
+   eferrcode = ReadFuseROM(read_code_option, NonMBist, Mg1A, flnullstr, margFlashChainStr, tmp_results);
 
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       if((eferrcode[*si] == 0x15) || (eferrcode[*si] == 0x5))    /*single/double bit error*/
@@ -4878,26 +4875,26 @@ TMResultM FlashEfuse_Trim_func()
    
    if(SetActiveSites(new_active_sites))  
    {
-//      bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
-//      if(GL_DO_BG_DIRECT_TRIM)  
-//      {
-//         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_chartrim_ena);
-//         final_results = tmp_results;
-//      }
-//// else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
-////      else
-////         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
-//
-//      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//      if(SetActiveSites(new_active_sites))  
-//      {
-//         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
-//         tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
-//         final_results = DLOG.AccumulateResults(final_results, tmp_results);
-//
-//         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//         if(SetActiveSites(new_active_sites) && GL_DO_FOSC_TRIM)  
-//         {
+      bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;
+      if(GL_DO_BG_DIRECT_TRIM)  
+      {
+         tmp_results = F021_MainBG_SoftTrim_Direct_func(bg_chartrim_ena);
+         final_results = tmp_results;
+      }
+// else clause unneeded by Blizzard. :TODO: evaluate if ever needed and convert if necessary.
+//      else
+//         F021_MainBG_SoftTrim_func(bg_adapttrim_ena,bg_chartrim_ena,tmp_results);
+
+      new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+      if(SetActiveSites(new_active_sites))  
+      {
+         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+         tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
+         final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites) && GL_DO_FOSC_TRIM)  
+         {
       #if $FL_USE_DCC_TRIM_FOSC  
       //  :TODO: Unneeded for Blizzard, fix later.
       //      F021_FOSC_SoftTrim_func(tmp_results);
@@ -4906,53 +4903,53 @@ TMResultM FlashEfuse_Trim_func()
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
       #endif
          
-//            new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//            if(SetActiveSites(new_active_sites))  
-//            {
-//               tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
-//               final_results = DLOG.AccumulateResults(final_results, tmp_results);
-//            
-//               new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//               if(SetActiveSites(new_active_sites)) 
-//               {
-//                  tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
-//                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
-//
-//                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//                  if(SetActiveSites(new_active_sites) && SITE_TO_FTRIM.AnyEqual(true))  
-//                  {
-//                     new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
-//                     if (SetActiveSites(new_active_sites)) 
-//                     {
-//                        FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
-//
-//                          /*update SaveFlashProgString for later use*/
-//                        SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
-//                        margFlashChainStr = FlashProgString;
-//
-//                        if(tistdscreenprint)  
-//                        {
-//                           for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                           {
-//                              dummstr2 = FlashProgString[*si];
-//                              ReverseStringInPlace(dummstr2);
-//                              dummstr1 = StringBinToHex(FlashProgString[*si]);
-//                              cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
-//                              if(true)   /*ti_flashdebug*/
-//                              {
-//                                 cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
-//                                         FlashProgString[*si] << endl;
-//                                 cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
-//                              } 
-//                           }  
-//                        }  /*ti_stdscreenprint*/
-//                     } // if active sites to ftrim
-//                     // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
-//                  }   // if SITE_TO_FTRIM
-//               } // if any_site_active VSA5CT trim
-//            } // if any_site_active VHV SLOPECT trim
-//         } // if any_site_active OSC trim
-//      } // if any_site_active Iref trim
+            new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+            if(SetActiveSites(new_active_sites))  
+            {
+               tmp_results = F021_VHV_SLOPECT_SoftTrim_func(slpct);
+               final_results = DLOG.AccumulateResults(final_results, tmp_results);
+            
+               new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+               if(SetActiveSites(new_active_sites)) 
+               {
+                  tmp_results = F021_VSA5CT_SoftTrim_func(vsa5ct);
+                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
+                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+                  if(SetActiveSites(new_active_sites) && SITE_TO_FTRIM.AnyEqual(true))  
+                  {
+                     new_active_sites.DisableFailingSites(SITE_TO_FTRIM);
+                     if (SetActiveSites(new_active_sites)) 
+                     {
+                        FlashProgString = MAINBG_EFSTR + BANK_EFSTR;
+
+                          /*update SaveFlashProgString for later use*/
+                        SaveFlashProgString = FlashProgString;   /*MSB-LSB*/
+                        margFlashChainStr = FlashProgString;
+
+                        if(tistdscreenprint)  
+                        {
+                           for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                           {
+                              dummstr2 = FlashProgString[*si];
+                              ReverseStringInPlace(dummstr2);
+                              dummstr1 = StringBinToHex(FlashProgString[*si]);
+                              cout << "Site " << *si << "  MSB-LSB : " << dummstr1 << endl;
+                              if(true)   /*ti_flashdebug*/
+                              {
+                                 cout << "Site " << *si << "  To Be Trimmed (MSB-LSB) : " << 
+                                         FlashProgString[*si] << endl;
+                                 cout << "Site " << *si << "  LSB-MSB : " << dummstr2 << endl;
+                              } 
+                           }  
+                        }  /*ti_stdscreenprint*/
+                     } // if active sites to ftrim
+                     // NOTE: Programming the Flash trim moved to one pass efuse pgm (KChau 01/12/11)
+                  }   // if SITE_TO_FTRIM
+               } // if any_site_active VSA5CT trim
+            } // if any_site_active VHV SLOPECT trim
+         } // if any_site_active OSC trim
+      } // if any_site_active Iref trim
    } // if any_site_active BG Trim
    
    /*re-activate sites*/

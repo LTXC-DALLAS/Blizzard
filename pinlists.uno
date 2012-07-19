@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U3.0:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -44,7 +44,7 @@ __PinGroup ALLPINS {
 			      PP3_106+PP4_107+PP5_59+PP6_163+PQ0_5+PQ1_6+PQ2_16+PQ3_61+PQ4_62+PQ5_63+PQ6_64+
 			      PQ7_65+RAWPOR_N_TEST_162+RAWPOR_n_60+RST_n_122+TCK_152+TDI_150+TDO_149+TMS_151+
 			      TRD0_90+TRD1_89+TRD2_88+TRD3_87+USB0DM_127+USB0DP_128+XOSC0_100+XOSC1_102+
-			      hib_n_99+ia_ftestadc_132+o_cpu_done_46+o_cpu_fail_47+rbias_9+wake_n_98+AIN04_193+FLTP2"; }
+			      hib_n_99+ia_ftestadc_132+o_cpu_done_46+o_cpu_fail_47+rbias_9+wake_n_98+AIN04_193"; }
 }
 
 __PinGroup FUNC_IN_OSC {

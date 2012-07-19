@@ -678,5 +678,10 @@ void F021_FlashConfig()
    LoadSendFlashTestNum (0x60800010);
    LoadSendFlashTestNum (0x60500010);
    
+   // 2012-07-17 jat
+   LoadSendFlashTestNum (0x12200010);
+   LoadSendFlashTestNum (0x12800010);
+   LoadSendFlashTestNum (0x12000010);
+   
 }   /* F021_FlashConfig */
 

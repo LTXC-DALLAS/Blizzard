@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U3.0:S5.3;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /*									      */
@@ -143,7 +143,7 @@ __Spec DCSpecs {
         VDDEEPROM_Vmin = "1.08V-scf";
         VDDEEPROM_Vnom = "1.2V";
         VDDEEPROM_Vstress = "1.7V";
-        VDDPGM_VEfuseP = "1.7V";
+        VDDPGM_VEfuseP = "1.8V";
         VDDPGM_VEfuseR = "1.26V";
         VDDPGM_Vboxhi = "1.7V";
         VDDPGM_VboxhiM = "1.68V";

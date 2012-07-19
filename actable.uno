@@ -693,7 +693,7 @@ __WaveformTable WFT12 {
             __Waveform { }
         }
     }
-    __Cell "PA2_48" e/E Send {
+    __Cell "PA2_48" t/T Send {
         __Data 6/7 __DSPSend;
         __Drive {
             __Waveform { __DriveOn @ "tref + 0ps"; __DriveData @ "tref + 0ps"; }
@@ -758,7 +758,7 @@ __WaveformTable WFT12_eng {
             __Waveform { }
         }
     }
-    __Cell "PA2_48" e/E Send_12e {
+    __Cell "PA2_48" t/T Send_12e {
         __Data 6/7 __DSPSend;
         __Drive {
             __Waveform { __DriveOn @ "tref + 0ps"; __DriveData @ "tref + 0ps + 1.5ns"; }

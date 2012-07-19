@@ -119,13 +119,7 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
             __Waveform { __DriveOn; __DriveHigh; __DriveLow; __DriveOff; }
         }
     }
-    __Cell "DMLED_INBUS" t/T SendData {
-        __Data 6/7 __DSPSend;
-        __Drive {
-            __Waveform { __DriveOn; __DriveData; }
-        }
-    }
-    __Cell "PA2_48" e/E SendDataEfuse {
+    __Cell "DMLED_INBUS+PA2_48" t/T SendData {
         __Data 6/7 __DSPSend;
         __Drive {
             __Waveform { __DriveOn; __DriveData; }
@@ -1744,6 +1738,7 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[2] = FF_RunAutoload_NoEd_Thrd;
     __Thread[3] = FF_CheckROM_Mg0_NoEd_Thrd;
     __Thread[4] = FF_Read_Mg1A_Thrd;
+    __Thread[5] = FF_Program_Mg1A_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
@@ -1812,11 +1807,13 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[14] = f021_shell_exepat_vco_v4p0_Thrd;
     __Thread[15] = jtag_reset_init_Thrd;
     __Thread[16] = ldo_bypass_init_Thrd;
+    __Thread[17] = FF_Read_Mg1A_Thrd;
+    __Thread[18] = FF_Program_Mg1A_Thrd;
     __Zipper = __Zipper {
-        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
-        __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
+        __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
+        __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
     }
     __AutoBasePeriod = __True;
 }

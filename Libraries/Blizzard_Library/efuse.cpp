@@ -188,7 +188,7 @@ void InitializeFuseROMVariables()
     fuseROMProgrammed =  false;
 
     for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
-        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
         {
             fuseFarmCtlr[ctlr].blkData[blk].numRepairs =
             fuseFarmCtlr[ctlr].STPData.maxFROMRepairs[blk];
@@ -304,7 +304,7 @@ void GetEfuseInstElemData()
     BoolS blkFound;
 
 
-    for (instType = 0; instType < LastDesignInstEnum; ++instType) 
+    for (instType = 1; instType < LastDesignInstEnum; ++instType) 
     {
         instData[instType].totalBits = 0;
 
@@ -314,13 +314,15 @@ void GetEfuseInstElemData()
             instData[instType].totalSegs[ctlr] = 0;
             instData[instType].validCtlr[ctlr] = false;
 
-            for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+            for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
             {
-                seg = 0;
+                // start seg at -1 because it's used as an index
+                // and there is a pre-increment
+                seg = -1;
                 rowStopFound = false;
                 blkFound = false;
 
-                for (inst = 0;inst < fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
+                for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
                     if (fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].instType == 
                         instType)  
                     {         
@@ -342,7 +344,10 @@ void GetEfuseInstElemData()
                         {
                             seg = seg + 1;
 
-                            instData[instType].maxSeg[ctlr][blk] = seg;
+                            // for the loops using seg > maxSeg, do an increment 
+                            // here so that maxSeg is the number of segs, so > maxSeg
+                            // will work properly for 0-based indexes
+                            instData[instType].maxSeg[ctlr][blk] = seg+1;
 
                             instData[instType].rowStart[ctlr][blk][seg] =
                             fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStart;
@@ -358,7 +363,8 @@ void GetEfuseInstElemData()
                             rowStopFound = true;
                         } 
 
-                        if (seg > 0)  
+                        // 0 is a valid seg index, so use >=
+                        if (seg >= 0)  
                         {
                             instData[instType].rowStop[ctlr][blk][seg] =
                             fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStop;
@@ -384,7 +390,7 @@ void GetEfuseInstElemData()
 // :TODO: Implement this if ever needed...F021 lib and Blizzard never needed the elemData
 //
 //    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //        {
 //            for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
 //                for (elem = 1;elem <= fuseFarmCtlr[ctlr].blkData[blk].maxElements[inst];elem++)
@@ -439,10 +445,10 @@ void BuildNullStrings()
 
     elem = 0;
 
-    for (instType = 0; instType < LastDesignInstEnum; ++instType) 
+    for (instType = 1; instType < LastDesignInstEnum; ++instType) 
     {
         for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
-            for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+            for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
                 for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];seg++)
                 {
                     instData[instType].nullChainStr[ctlr][blk][seg] = "";
@@ -501,6 +507,9 @@ void BuildNullStrings()
 //
 //}   /* STDEfuseTestSetup */
 
+// forward reference
+void PrintEfuseInstData(DesignInstEnumType instType);
+
 void LoadEfuseCtlrData()
  /*****************************************************************************
   This procedure loads the FuseFarm controller data before test start.
@@ -521,7 +530,7 @@ void LoadEfuseCtlrData()
 
 
     for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
-        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
             for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
                 fuseFarmCtlr[ctlr].blkData[blk].maxElements[inst] = 0;
 
@@ -672,6 +681,21 @@ void LoadEfuseCtlrData()
 
     GetEfuseInstElemData();
     BuildNullStrings();
+    
+//    PrintEfuseInstData(FlashChain);
+//    PrintEfuseInstData(NonMBist);
+//    PrintEfuseInstData(MemBist);
+//    PrintEfuseInstData(MBist);
+//    PrintEfuseInstData(PBist);
+//    PrintEfuseInstData(Custom);
+//    PrintEfuseInstData(Flash_Test_N);
+//    PrintEfuseInstData(TIDieID);
+//    PrintEfuseInstData(BG_TEMP_TRIM);
+//    PrintEfuseInstData(TS_OS_TRIM);
+//    PrintEfuseInstData(IREF_TRIM);
+//    PrintEfuseInstData(NWELL_RTRIM);
+//    PrintEfuseInstData(Piosc_Trim);
+    
 }   /* LoadEfuseCtlrData */
 
 void PrintEfuseInstData(DesignInstEnumType instType)
@@ -728,7 +752,7 @@ void PrintEfuseInstData(DesignInstEnumType instType)
 //    cout << TIWindow <<  "+----+---+----+----+----+----+---+---+" << endl;
 //
 //    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //            for (elemType = firstElemType;elemType <= lastElemType;elemType++)
 //                if elemData[elemType].validData[ctlr][blk]  
 //                {
@@ -1103,7 +1127,7 @@ IntM ReadFuseROM(const StringS &codeOption,
         PrintEfuseInstData(instType);
 
     for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
-        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;++blk)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;++blk)
             for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];++seg)
             {
                switch(margType) {
@@ -1205,9 +1229,9 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
     if (tistdscreenprint)  
         PrintEfuseInstData(instType);
 
-    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;++ctlr)
-        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;++blk)
-            for (seg = 1;seg <= instData[instType].maxSeg[ctlr][blk];++seg)
+    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;++blk)
+            for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];++seg)
             {
                 if (instData[instType].segmentChain[ctlr])
                 {
@@ -1349,8 +1373,8 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
 //    if TIStdScreenPrint  
 //        PrintEfuseElemData(LSBElemType, MSBElemType);
 //
-//    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //        {
 //            if elemData[LSBElemType].validData[ctlr][blk] or 
 //                elemData[MSBElemType].validData[ctlr][blk]  
@@ -1456,7 +1480,7 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
 //        PrintEfuseInstData(instType);
 //
 //    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //            for (seg = 1;seg <= instData[instType].maxSeg[ctlr][blk];seg++)
 //            {
 //                BuildRepairString(instType, ctlr, blk, seg, 
@@ -1694,7 +1718,7 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
 //            } 
 //
 //            for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//                for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//                for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //                {
 //                    ArraySetInteger(readData.rowStop,
 //                                    fuseFarmCtlr[ctlr].STPData.fuseROMSize[blk] - 1);
@@ -1754,7 +1778,7 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
 //        for (site = 1;site <= V_Sites;site++)
 //            if V_Dev_Active[site]  
 //                for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//                    for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//                    for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //                        for (margin = 1;margin <= MAX_MARGINMODES;margin++)
 //                            for (voltage = 1;voltage <= MAX_VOLTAGES;voltage++)
 //                                for row = 0 to

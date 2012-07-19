@@ -78,7 +78,7 @@ extern ProgDataRec progData;
 enum FuseMargEnumType {Mg0, MgN, Mg1A, Mg1B};
 enum FuseElemEnumType {dummyElement};
 
-enum DesignInstEnumType {FlashChain, NonMBist, MemBist, MBist, PBist, Custom,
+enum DesignInstEnumType {FlashChain = 1, NonMBist, MemBist, MBist, PBist, Custom,
                       /* BEK 24May2011 Added for Flash_Test_N Efuse bit */
                       Flash_Test_N, 
                       TIDieID, BG_TEMP_TRIM, TS_OS_TRIM, IREF_TRIM,

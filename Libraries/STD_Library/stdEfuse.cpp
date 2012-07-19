@@ -756,6 +756,7 @@ TMResultM STDProgramFuseRow(IntS version,
  *****************************************************************************/
 {
    TMResultM progRowStatus = TM_PASS;
+   const int ADDR_LEN = 16;
 
    IntS dwBits;
    IntS strLen;
@@ -788,15 +789,15 @@ TMResultM STDProgramFuseRow(IntS version,
   StringS digCapRef = "CapFF";
 
   UnsignedM1D simValue(121,0);
-  IntM send_int;
+  IntM addr_intm;
   const int num_bits_per_chunk = 16;
-  // calculate number of send samples, use TechDataLen, CRALen and ProgCode length
+  // calculate number of send samples, use TechRowLen, 2 * address length and ProgCode length
   // then divide by 16-bit words and round up. Finally, add one for address.
   // This is needed because with DSP Send on a DPIN96, we are only allowed one send
   // per pattern, so we have to stuff the address, data, and codes in to one send.
   // We will pack things in so that unused space goes at the end, which the pattern
   // doesn't increment through.
-  IntS send_length = int(MATH.LegacyRound(FloatS(double(TechDataLen + CRALen + 5) / double(num_bits_per_chunk) + 0.5))) + 1;
+  IntS send_length = int(MATH.LegacyRound(FloatS(double(TechRowLen + 5 + (ADDR_LEN * 2)) / double(num_bits_per_chunk) + 0.5)));
   UnsignedM1D send_data(send_length, 0);
   int i, num_words, num_chars_left;
   StringS strProgData, strCRAData, strProgCode, strData;
@@ -807,16 +808,16 @@ TMResultM STDProgramFuseRow(IntS version,
   /*******************************/ 
   /* Build row and block address */ 
   /*******************************/   
-  send_int = ((blkNum << 11) + rowAddr) & 0xFFFF;
+  addr_intm = ((blkNum << 11) + rowAddr) & 0xFFFF;
    
   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
   {      
-    send_data[*si][0] = unsigned(send_int[*si]);
+    send_data[*si][0] = unsigned(addr_intm[*si]);
     
     /******************/ 
     /* Build row data */ 
     /******************/ 
-    strProgData = progRowStr[*si].Substring(TechDataStart-1, TechDataLen);
+    strProgData = progRowStr[*si].Substring(TechRowDataStart-1, TechRowDataLen);
           
     /******************************/ 
     /* Build CRA and program code */ 
@@ -827,7 +828,7 @@ TMResultM STDProgramFuseRow(IntS version,
              
       if (strCRAData != nullCRAStr) 
       {
-        strProgCode = "00010";
+        strProgCode = ProgramCRACode;
      
         checkCRA[*si] = true;
 
@@ -835,7 +836,7 @@ TMResultM STDProgramFuseRow(IntS version,
       }
       else
       {
-        strProgCode = "00111";
+        strProgCode = ProgramCode;
         strCRAData = "000000";       
       }
     } else {
@@ -845,7 +846,8 @@ TMResultM STDProgramFuseRow(IntS version,
     // Now build a string of all the pieces
     // To get the data stream to work out properly when sent
     // LSB-first, we have to reorder the pieces in reverse. 
-    strData = strProgCode + strCRAData + strProgData;
+    StringS addr_str = IntToBinStr(addr_intm[ActiveSites.Begin().GetValue()], ADDR_LEN, true);
+    strData = addr_str + strProgCode + strCRAData + strProgData;
     
     // Now break the string into 16-bit words.
     // Since we are sending LSB-first, start from the end of the string
@@ -861,7 +863,7 @@ TMResultM STDProgramFuseRow(IntS version,
       send_data[*si][i] = BinStringToUnsigned(strData.Substring(0, num_chars_left), true);
     }
   } 
-   
+   DIGITAL.ClearAllSends();
   if (!IsDspSendDefined(send_name))
   {
     DIGITAL.DefineSerialSend(digSrcPin, send_name, send_ref, send_length, num_bits_per_chunk, WORD_LSB_FIRST);
@@ -1396,6 +1398,7 @@ void FF_Debug()
   cout << "TT = " << timer2-timer1 << endl;
   TIME.StopTimer();
   
+
 //  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
 //  {
 //    cout << "Results[" << *si << "] = " << results[*si] << endl;
@@ -1432,6 +1435,12 @@ void FF_Debug()
   TWDataType TWDataLevel = TWMinimumData;
   STDFuseFarmRec FuseROMCtlr;
 
+   Levels prog_levels("PowerUpAtEfuseProg");
+   Levels read_levels("PowerUpAtEfuseRead2");
+   
+   prog_levels.Execute();
+   
+
   results =
       STDProgramFuseROM("F021",
                         FuseROMCtlr,
@@ -1452,9 +1461,13 @@ void FF_Debug()
 //                      FROM_CLK_Pin PinList,
                         numRepairBits);
 
+   read_levels.Execute();
+
   timer2 = TIME.GetTimer();
   cout << "TT = " << timer2-timer1 << endl;
   TIME.StopTimer();
+
+
   
 //  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
 //  {

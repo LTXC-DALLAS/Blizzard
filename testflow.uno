@@ -1264,7 +1264,7 @@ __SubFlow Iddq0_VboxLO_S {
 
 __SubFlow F021FlashFlow_S {
     __Node F021_InitFLGlobalVars_317 {
-        __XCoord = (35,65);
+        __XCoord = (17,30);
         __Port[0] {
             __PortPosition = 84;
         }
@@ -1276,7 +1276,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_InitFLGlobalVars;
     }
     __Node F021_Pump_347 {
-        __XCoord = (640,64);
+        __XCoord = (620,26);
         __Port[0] {
             __PortPosition = 93;
         }
@@ -1285,8 +1285,10 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_Pump;
     }
     __Node Pbist_Logout_Debug_350 {
-        __XCoord = (600,60);
-        __Port[0] { __PortPosition = 90; }
+        __XCoord = (764,93);
+        __Port[0] {
+            __PortPosition = 90;
+        }
         __InputPosition = 270;
         __TestID = "\'SubFlow\'";
         __Exec = pBist_Logout_Debug;
@@ -1382,7 +1384,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = F021_ISleep;
     }
     __Node FlashEfuse_T_462 {
-        __XCoord = (149,19);
+        __XCoord = (132,28);
         __Port[0] {
             __PortPosition = 87;
         }
@@ -1399,7 +1401,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = FlashEfuse_T;
     }
     __Node MainBG_Trim_T_465 {
-        __XCoord = (268,21);
+        __XCoord = (251,30);
         __Port[0] {
             __PortPosition = 84;
         }
@@ -1416,7 +1418,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = MainBG_Trim_T;
     }
     __Node EraseRefArray_T_1015 {
-        __XCoord = (398,17);
+        __XCoord = (381,26);
         __Port[0] {
             __PortPosition = 90;
         }
@@ -1433,7 +1435,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = EraseRefArray_T;
     }
     __Node IrefPMOS_Trim_T_1018 {
-        __XCoord = (521,16);
+        __XCoord = (504,25);
         __Port[0] {
             __PortPosition = 91;
         }
@@ -1452,7 +1454,7 @@ __SubFlow F021FlashFlow_S {
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
     __PortConnections {
-        F021_InitFLGlobalVars_317 __Port[0] = F021_Pump_347;
+        F021_InitFLGlobalVars_317 __Port[0] = FlashEfuse_T_462;
         F021_TunOxide_360 __Port[0] = F021_PgmFF_370;
         F021_PgmFF_370 __Port[0] = F021_FGWL_380;
         F021_FGWL_380 __Port[0] = F021_Cycle9X_390;
@@ -1465,6 +1467,7 @@ __SubFlow F021FlashFlow_S {
         FlashEfuse_T_462 __Port[0] = MainBG_Trim_T_465;
         MainBG_Trim_T_465 __Port[0] = EraseRefArray_T_1015;
         EraseRefArray_T_1015 __Port[0] = IrefPMOS_Trim_T_1018;
+        IrefPMOS_Trim_T_1018 __Port[0] = F021_Pump_347;
     }
 }
 
