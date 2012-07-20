@@ -203,7 +203,7 @@ void TI_DC::SystemUsageTracker (StringS type, PinML pins_list, IntS row) {
      || remove_connections[row] == PostAllNever) {
         return;
     }
-    connection = TIGetPinInstrument (pins_list[0]);
+    connection = TI_DC_GetPinInstrument (pins_list[0]);
     if (connection_counter < 0 || connection_counter >= MAX_CONNECTIONS) {
         connection_counter = 1;
     }
@@ -657,6 +657,22 @@ BoolM TI_DC::Initialize()
     return init_status;
 }
 
+StringS TI_DC::TI_DC_GetPinInstrument(PinM pin) {
+    StringS channel_name = pin.GetChannelName(ActiveSites.Begin().GetValue());
+    
+    if (channel_name[0] >= '0' && channel_name[0] <= '9') return ("DP");
+    else if (!strncmp ("OVI", channel_name, 3)) return ("OVI");
+    else if (!strncmp ("HDVI", channel_name, 4)) return ("HDVI");
+    else if (!strncmp ("HCOVI", channel_name, 5)) return ("HCOVI");
+    else if (!strncmp ("VI16B", channel_name, 5)) return ("VI16B");
+    else if (!strncmp ("VI16", channel_name, 4)) return ("VI16");
+    else if (!strncmp ("QFVI", channel_name, 4)) return ("QFVI");
+    else if (!strncmp ("DPS16_", channel_name, 6)) return ("DPS16");
+    else if (!strncmp ("VIS16_", channel_name, 6)) return ("VIS16");
+
+    return ("");
+}
+
 BoolS TI_DC::CommonSetup (IntS row) {
     IntS number_of_rows, i;
     StringS inst_used, LowerCaseTesterType;
@@ -674,7 +690,7 @@ BoolS TI_DC::CommonSetup (IntS row) {
     }
     number_of_rows = row_enable.GetSize();
     if (force_pins[row].GetNumPins() > 0) {
-        inst_used = TIGetPinInstrument (force_pins[row][0]);
+        inst_used = TI_DC_GetPinInstrument (force_pins[row][0]);
     }
     fi_mode[row] = false;
     fv_mode[row] = false;
