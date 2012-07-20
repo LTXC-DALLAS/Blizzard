@@ -18525,12 +18525,12 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    ersstr_ena = false;  // true = use to disable tw log, compare limits for fast/slow-ers stress
    
    tmpstr1 = tname;
-   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
+   tmpstr1.Replace(tmpstr1.Find("_Test"), 5, "");   // remove _Test
    fl_testname = tname;
    
    TIME.StartTimer();
 
-// Clear string function
+// Change of Flow
 //   if (TI_FlashCOFEna)  
 //      F021_Init_COF_Inst_Str(site_cof_inst_str);
 
@@ -18589,7 +18589,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    
    if(pattype == MODTYPE) {
       // +++ Module operation +++
-      final_results = TM_NOTEST;
+      final_results = TM_FAIL;
       if (tistdscreenprint)  
          cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
    }
