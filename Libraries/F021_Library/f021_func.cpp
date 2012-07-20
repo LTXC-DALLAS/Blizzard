@@ -19902,6 +19902,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -20759,6 +20764,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -21441,6 +21451,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -23793,6 +23808,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //

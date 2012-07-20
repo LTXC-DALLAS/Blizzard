@@ -185,9 +185,9 @@ void F021_FlashConfig()
 
    
    switch(SelectedTITestType) {
-     case MP1         : GL_PGMREV = 0x0008; break;  /*program revision*/
+     case MP1         : GL_PGMREV = 0x0010; break;  /*program revision*/
      case MP2         : GL_PGMREV = 0x0001; break;  /*program revision*/
-     case MP3         : GL_PGMREV = 0x0007; break;  /*program revision*/
+     case MP3         : GL_PGMREV = 0x0009; break;  /*program revision*/
      case PreBurnIn   : GL_PGMREV = 0x0001; break;  /*program revision*/
      case PostBurnIn1 : GL_PGMREV = 0x0001; break;  /*program revision*/
      case FT2         : GL_PGMREV = 0x0001; break;  /*program revision*/

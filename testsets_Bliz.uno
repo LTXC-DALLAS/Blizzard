@@ -4797,8 +4797,9 @@ __Test F021_FlashConfig_test {
     }
 }
 __Test Pump_Iref_Vnom {
-    __Entry[0] = PowerCycleVmask_FC;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {

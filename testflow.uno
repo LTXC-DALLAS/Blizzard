@@ -2384,7 +2384,7 @@ __SubFlow F021_Pump {
         __Exec = Pump_BGAP_Vnom;
     }
     __Node Pump_VHV_Vmin_388 {
-        __XCoord = (288,91);
+        __XCoord = (295,20);
         __Port[0] {
             __PortPosition = 88;
         }
@@ -2401,7 +2401,7 @@ __SubFlow F021_Pump {
         __Exec = Pump_VHV_Vmin;
     }
     __Node Pump_VHV_Vmax_389 {
-        __XCoord = (401,94);
+        __XCoord = (408,23);
         __Port[0] {
             __PortPosition = 85;
         }
@@ -2669,7 +2669,7 @@ __SubFlow F021_Pump {
     __StartNode = Pump_Iref_Vnom_386;
     __PortConnections {
         Pump_Iref_Vnom_386 __Port[0] = Pump_BGAP_Vnom_387;
-        Pump_BGAP_Vnom_387 __Port[0] = Pump_VSL_Vmin_390;
+        Pump_BGAP_Vnom_387 __Port[0] = Pump_VHV_Vmin_388;
         Pump_VHV_Vmin_388 __Port[0] = Pump_VHV_Vmax_389;
         Pump_VHV_Vmax_389 __Port[0] = Pump_VSL_Vmin_390;
         Pump_VSL_Vmin_390 __Port[0] = Pump_VSL_Vmax_391;
@@ -2690,10 +2690,6 @@ __SubFlow F021_Pump {
     __Background {
         __String = "skipped in f021_cfginclude options";
         __Data = (0,0,295,582,0,0,22,0,0,6,0,0,1,0,0,0);
-    }
-    __Background {
-        __String = "Needs > 7V";
-        __Data = (0,0,333,74,0,0,22,0,0,6,0,0,1,0,0,0);
     }
 }
 __SubFlow pBist_Logout_Debug {

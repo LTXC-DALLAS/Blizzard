@@ -6056,7 +6056,9 @@ if(GL_BANKTYPE==FLESBANK)
       WLS_VWL_LEAK_Prog_Target  = 60uA;
    else
       WLS_VWL_LEAK_Prog_Target  = 10uA;
-   WLS_VWL_LEAK_Prog_ULim    = WLS_VWL_LEAK_Prog_Target+(WLS_VWL_LEAK_Prog_Target*0.5);
+   // change below from Rev10 of VLCT
+//   WLS_VWL_LEAK_Prog_ULim    = WLS_VWL_LEAK_Prog_Target+(WLS_VWL_LEAK_Prog_Target*0.5);
+   WLS_VWL_LEAK_Prog_ULim    = 86uA; // Change for current range robustness 5/31/12
    WLS_VWL_LEAK_Prog_LLim    = -1.5uA;
    WLS_VWL_LEAK_TStress_Prog = 100ms;
 

@@ -4989,15 +4989,9 @@ TMResultM Pump_Iref_Vnom_func()
    tdelay = 2ms;
    TIME.Wait(tdelay);
 
-   /* dummy run for blizzard Pasa ...3/25/12 */
    F021_LoadFlashShell_func();
-   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
 
    RAM_Clear_SoftTrim_All();  /*KChau 09/10/10*/
-
-   /* dummy run for blizzard Pasa ...3/25/12 */
-   F021_LoadFlashShell_func();
-   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
    
    tcrnum = 126;
    tcrmode = ReadMode;
@@ -17054,7 +17048,7 @@ TMResultM Flash_ISleep_Pst_func() {
 //{
 //   const IntS TESTID = 300; 
 //
-//   BoolM final_results;
+//   BoolM final_results,rd_results;
 //   BoolM savesites,tmp_results;
 //   IntS site,rd_opt;
 //
@@ -17071,26 +17065,10 @@ TMResultM Flash_ISleep_Pst_func() {
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);      
-//       /*dummy run for blizzard*/
-//      /* Patternexecute(num_clks, ldo_bypass_init); */
 //      F021_LoadFlashShell_func;
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            readramaddress(site,0,0x1f);
-//       
-//           /* Pasa Temp added*/
-//      F021_LoadFlashShell_func;
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      
 //      RAM_Clear_SoftTrim_All;
 //      RAM_Clear_PMOS_SoftTrim;
 //      RAM_Clear_MailBox_Key;
-//      
-//       /*dummy run for blizzard*/
-//      /* Patternexecute(num_clks, ldo_bypass_init); */
-//      F021_LoadFlashShell_func; /* Pasa Temp added*/
 //      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
 //      GL_FLTESTID = TESTID;
 //      F021_OTP_WrEngRow_func(final_results);
@@ -17108,35 +17086,27 @@ TMResultM Flash_ISleep_Pst_func() {
 //   if(v_any_dev_active)  
 //   {
 //      savesites = v_dev_active;
-//      PowerDownWithoutRead;  /* Remove pasa pasa 2/23/12*/
+//      rd_results = v_dev_active;
+//       /*PowerDown;*/
 //      powerupatvnom(dcsetup_loosevnom,norm_fmsu);
 //      clockset(s_clock1a,false,GL_F021_PLLENA_SPEED1,
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);
-//      Patternexecute(num_clks, ldo_bypass_init);
 //      patternexecute(site,f021_shell_loadpat);
-//        /* Added for dummy run on Blizzard...pasa 2/23/12} {Need to restore RAM after corrupted */
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);     
-//      
 //      tmp_results = v_pf_status;
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      if(ti_flashdebug and tistdscreenprint)  
 //         rd_opt = 0;
 //      else
 //         rd_opt = 1;
-//
-//       /* Added for dummy run on Blizzard...pasa 2/23/12*/
-//      /* patternexecute(site,f021_shell_loadpat); 
-//      f021_runtestnumber(tnum_always_pass, 1s, spare_mstreal1, spare_msbool1); */
-//       
 //      F021_ReadLog1OTP_func(tmp_results,rd_opt);
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      F021_ReadIDOTP_func(tmp_results,false);
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      devsetholdstates(savesites);
 //      TestOpen(RdEngRow_Test);
-//      ResultsRecordActive(final_results, S_NULL);
+//      ResultsRecordActive(rd_results, S_NULL);
 //      TestClose;
 //
 //      if(tistdscreenprint and ti_flashdebug)  
@@ -17156,8 +17126,9 @@ TMResultM Flash_ISleep_Pst_func() {
 //      arrayandboolean(tmp_results,tmp_results,v_dev_active,v_sites);
 //      devsetholdstates(savesites);
 //      F021_Log_OTP_To_TW_Final;
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//      devsetholdstates(final_results);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,savesites,v_sites);
+//      devsetholdstates(rd_results);
 //   } 
 //   
 //   clockstopfreerun(s_clock1a);
