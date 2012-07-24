@@ -56,48 +56,48 @@ const 	int     NEGATIVE_SLOPE                  = false;
 }
 ///////////////////////////////////////////////////////////////////////
 
-bool    SearchMod::LinearSearchBegin    (float  startX, float  stopX, float  stepSizeX,  float  targetY, float  toleranceY , unsigned maxSteps){
-
-    SEARCH_LINEAR_MAX_STEPS = maxSteps; //maximum number of search steps
-    ResizeDebugArrays( maxSteps );
-    
-    m_lineStyle = "w l";  // "w l" , "w p", "w lp" 
-
-    // loop control
-    m_searchType            = SEARCH_LINEAR;
-    searchNotDone           = true;
-    searchDbgPrintHeader    = true;
-    m_searchIndex           = 1;
-
-    // save search X parameters
-    xMin            = startX;
-    xMax            = stopX	;
-    xForceValue	    = xMin;
-    float range     = xMax - xMin;
-
-    // save search Y parameters
-    yTarget         = targetY;
-    yTolerance	    = toleranceY;
-      
-    // find search step size ---------------------------
-    xStep = abs(stepSizeX);
-    if ( xStep == 0 )  xStep=1.0;   // guard against zero step size
-
-    if ( (int) abs( range/xStep) > (SEARCH_LINEAR_MAX_STEPS-1) ){
-        xStep           = abs((xMax-xMin)/float(SEARCH_LINEAR_MAX_STEPS-1)); // autorange step size
-        m_searchMaxIndex  = SEARCH_LINEAR_MAX_STEPS;
-    }
-    else if( abs(range) < abs(xStep) ){
-        xStep = range;                              // adjust step size to range
-    }
-    else{      
-        m_searchMaxIndex  = (int) abs(range/xStep);   // use requested step size
-    }
-
-    if ( xMin > xMax ) xStep = - xStep;             // step down
-
-    return (searchNotDone);
-}
+//bool    SearchMod::LinearSearchBegin    (float  startX, float  stopX, float  stepSizeX,  float  targetY, float  toleranceY , unsigned maxSteps){
+//
+//    SEARCH_LINEAR_MAX_STEPS = maxSteps; //maximum number of search steps
+//    ResizeDebugArrays( maxSteps );
+//    
+//    m_lineStyle = "w l";  // "w l" , "w p", "w lp" 
+//
+//    // loop control
+//    m_searchType            = SEARCH_LINEAR;
+//    searchNotDone           = true;
+//    searchDbgPrintHeader    = true;
+//    m_searchIndex           = 1;
+//
+//    // save search X parameters
+//    xMin            = startX;
+//    xMax            = stopX	;
+//    xForceValue	    = xMin;
+//    float range     = xMax - xMin;
+//
+//    // save search Y parameters
+//    yTarget         = targetY;
+//    yTolerance	    = toleranceY;
+//      
+//    // find search step size ---------------------------
+//    xStep = abs(stepSizeX);
+//    if ( xStep == 0 )  xStep=1.0;   // guard against zero step size
+//
+//    if ( (int) abs( range/xStep) > (SEARCH_LINEAR_MAX_STEPS-1) ){
+//        xStep           = abs((xMax-xMin)/float(SEARCH_LINEAR_MAX_STEPS-1)); // autorange step size
+//        m_searchMaxIndex  = SEARCH_LINEAR_MAX_STEPS;
+//    }
+//    else if( abs(range) < abs(xStep) ){
+//        xStep = range;                              // adjust step size to range
+//    }
+//    else{      
+//        m_searchMaxIndex  = (int) abs(range/xStep);   // use requested step size
+//    }
+//
+//    if ( xMin > xMax ) xStep = - xStep;             // step down
+//
+//    return (searchNotDone);
+//}
 bool    SearchMod::LinearSearchBegin    (FloatM startX, FloatM stopX, FloatM stepSizeX,  FloatM targetY, FloatM toleranceY , unsigned maxSteps){
 
     SEARCH_LINEAR_MAX_STEPS = maxSteps; //maximum number of search steps
@@ -156,42 +156,42 @@ bool    SearchMod::LinearSearchBegin    (FloatM startX, FloatM stopX, FloatM ste
 }
 
 
-bool    SearchMod::BinarySearchBegin    (float  startX, float  stopX, float  toleranceX, float  targetY,                     unsigned maxSteps){	
-/* Set up Binary search parameters
-startX      //minimum search range
-stopX			  //maximum search range
-toleranceX	//search stops when the forceX step size reaches the toleranceX
-targetY   	//search value on y axis
-*/
-    SEARCH_BIN_MAX_STEPS = maxSteps; //maximum number of search steps
-    ResizeDebugArrays( maxSteps );
-
-    m_lineStyle = "w p";  // "w l" , "w p", "w lp" 
-
-    // loop control
-    m_searchType			        = SEARCH_BIN;
-    searchNotDone           = true;
-    searchDbgPrintHeader    = true;
-    m_searchIndex			        = 0;
-    searchSkipMinMax        = false;
-    m_searchAlarm             = TARGET_FOUND;
-
-    // save search X parameters
-    xMin		        = startX;
-    xMax		        = stopX	;
-    xForceValue	    = xMin;				// start with minimum value
-    xTolerance	    = toleranceX;
-    xStep           = (xMax-xMin)/2.;	// set step size
-
-    // save search Y parameters
-    yTarget		    = targetY;
-
-//    if (search_debug_print)
-//        searchDbgPrintHeader = true;	// print header
-
-    return (searchNotDone);
-
-}
+//bool    SearchMod::BinarySearchBegin    (float  startX, float  stopX, float  toleranceX, float  targetY,                     unsigned maxSteps){	
+///* Set up Binary search parameters
+//startX      //minimum search range
+//stopX			  //maximum search range
+//toleranceX	//search stops when the forceX step size reaches the toleranceX
+//targetY   	//search value on y axis
+//*/
+//    SEARCH_BIN_MAX_STEPS = maxSteps; //maximum number of search steps
+//    ResizeDebugArrays( maxSteps );
+//
+//    m_lineStyle = "w p";  // "w l" , "w p", "w lp" 
+//
+//    // loop control
+//    m_searchType			        = SEARCH_BIN;
+//    searchNotDone           = true;
+//    searchDbgPrintHeader    = true;
+//    m_searchIndex			        = 0;
+//    searchSkipMinMax        = false;
+//    m_searchAlarm             = TARGET_FOUND;
+//
+//    // save search X parameters
+//    xMin		        = startX;
+//    xMax		        = stopX	;
+//    xForceValue	    = xMin;				// start with minimum value
+//    xTolerance	    = toleranceX;
+//    xStep           = (xMax-xMin)/2.;	// set step size
+//
+//    // save search Y parameters
+//    yTarget		    = targetY;
+//
+////    if (search_debug_print)
+////        searchDbgPrintHeader = true;	// print header
+//
+//    return (searchNotDone);
+//
+//}
 bool    SearchMod::BinarySearchBegin    (FloatM startX, FloatM stopX, FloatM toleranceX, FloatM targetY,                     unsigned maxSteps){	
 /* Set up Binary search parameters
 startX      //minimum search range
@@ -233,40 +233,40 @@ targetY   	//search value on y axis
 
 
 
-bool    SearchMod::SASearchBegin        (float  startX, float  stopX, float  toleranceY, float  targetY,                     unsigned maxSteps){	
-/* 
-Set up Sucessive Aproximation (SA) search parameters
-startX      starting value of search
-stopX			  maximum end value of search 
-toleranceY	tolerance of the target measure value
-targetY   	search will terminate once targetY+-toleranceY is reached 
-*/
-
-    SEARCH_SA_MAX_STEPS = maxSteps; //maximum number of search steps
-    ResizeDebugArrays( maxSteps );
-
-    m_lineStyle = "w p";  // "w l" , "w p", "w lp" 
-
-    // loop control
-    m_searchType			        = SEARCH_SA;
-    searchNotDone           = true;
-    searchDbgPrintHeader    = true;
-    m_searchIndex			        = 0;
-    searchSkipMinMax        = false;
-    m_searchAlarm             = TARGET_FOUND;
-
-    // save search X parameters
-    xMin		        = startX;
-    xMax		        = stopX	;
-    xForceValue	    = xMin;				// start with minimum value
-    xStep           = (xMax-xMin)/2.;	// set step size
-
-    // save search Y parameters
-    yTarget		      = targetY;
-    yTolerance	    = toleranceY;
-
-    return (searchNotDone);
-}
+//bool    SearchMod::SASearchBegin        (float  startX, float  stopX, float  toleranceY, float  targetY,                     unsigned maxSteps){	
+///* 
+//Set up Sucessive Aproximation (SA) search parameters
+//startX      starting value of search
+//stopX			  maximum end value of search 
+//toleranceY	tolerance of the target measure value
+//targetY   	search will terminate once targetY+-toleranceY is reached 
+//*/
+//
+//    SEARCH_SA_MAX_STEPS = maxSteps; //maximum number of search steps
+//    ResizeDebugArrays( maxSteps );
+//
+//    m_lineStyle = "w p";  // "w l" , "w p", "w lp" 
+//
+//    // loop control
+//    m_searchType			        = SEARCH_SA;
+//    searchNotDone           = true;
+//    searchDbgPrintHeader    = true;
+//    m_searchIndex			        = 0;
+//    searchSkipMinMax        = false;
+//    m_searchAlarm             = TARGET_FOUND;
+//
+//    // save search X parameters
+//    xMin		        = startX;
+//    xMax		        = stopX	;
+//    xForceValue	    = xMin;				// start with minimum value
+//    xStep           = (xMax-xMin)/2.;	// set step size
+//
+//    // save search Y parameters
+//    yTarget		      = targetY;
+//    yTolerance	    = toleranceY;
+//
+//    return (searchNotDone);
+//}
 bool    SearchMod::SASearchBegin        (FloatM startX, FloatM stopX, FloatM toleranceY, FloatM targetY,                     unsigned maxSteps){	
 /* 
 Set up Sucessive Aproximation (SA) search parameters
@@ -311,20 +311,21 @@ Allows skipping the min and max measurement if slope is provided.
 BinarySearchBegin must be executed before this function.
 */
 
-    if      (m_searchType == SEARCH_BIN){
-        xForceValue     = (xMax-xMin)/2. + xMin; // start with center value
-        xStep           = (xMax-xMin)/4.;        // set step size
-
-        searchPositiveSlope = slopeIsPositive;
-        if ( not (searchPositiveSlope))
-            xStep = -xStep;
-
-        searchSkipMinMax    = true;
-        m_searchIndex			    = 2;				        //skip measurement of min,max values
-
-
-    }
-    else if (m_searchType == SEARCH_BIN_MS){
+//    if      (m_searchType == SEARCH_BIN){
+//        xForceValue     = (xMax-xMin)/2. + xMin; // start with center value
+//        xStep           = (xMax-xMin)/4.;        // set step size
+//
+//        searchPositiveSlope = slopeIsPositive;
+//        if ( not (searchPositiveSlope))
+//            xStep = -xStep;
+//
+//        searchSkipMinMax    = true;
+//        m_searchIndex			    = 2;				        //skip measurement of min,max values
+//
+//
+//    }
+//    else 
+    if (m_searchType == SEARCH_BIN_MS){
         xForceValueMS   = (xMaxMS-xMinMS)/2. + xMinMS;  // start with center value
         xStepMS         = (xMaxMS-xMinMS)/4.;           // set step size
 
@@ -367,19 +368,19 @@ BinarySearchBegin must be executed before this function.
 
  
 ///////////////////////////////////////////////////////////////////////////////////////
-void    SearchMod::LinearSearchNext     (float  measuredY ){
-
-    if ( (abs) (measuredY - yTarget)  > yTolerance ){	// SET UP NEXT SEARCH POINT
-        xForceValue = xForceValue + xStep;
-        m_searchIndex = m_searchIndex + 1;
-    }
-    else{												//SEARCH IS DONE
-        searchNotDone = false ; 		//                -- exit
-        m_searchIndex = m_searchIndex + 1;
-    }
-
-    return;
-}
+//void    SearchMod::LinearSearchNext     (float  measuredY ){
+//
+//    if ( (abs) (measuredY - yTarget)  > yTolerance ){	// SET UP NEXT SEARCH POINT
+//        xForceValue = xForceValue + xStep;
+//        m_searchIndex = m_searchIndex + 1;
+//    }
+//    else{												//SEARCH IS DONE
+//        searchNotDone = false ; 		//                -- exit
+//        m_searchIndex = m_searchIndex + 1;
+//    }
+//
+//    return;
+//}
 
 void    SearchMod::LinearSearchNext     (FloatM measuredY ){
 
@@ -399,60 +400,60 @@ void    SearchMod::LinearSearchNext     (FloatM measuredY ){
 
 
 
-void    SearchMod::BinarySearchNext     (float  measuredY ){
-
-     if 			(m_searchIndex == 0 ){ 				//  min value was tested
-         // CHECK IF MIN VALUE PASSED
-         if ( measuredY < yTarget)
-             searchMinPassed = true;
-         else
-             searchMinPassed = false;
-
-         xForceValue 	= xMax;                		// set up for max value
-         m_searchIndex  	= m_searchIndex + 1;
-     }
-     else if 	(m_searchIndex == 1 ){ 				//  max value was tested
-         // CHECK IF MAX VALUE PASSED
-         if ( measuredY < yTarget)
-             searchMaxPassed = true;
-         else
-             searchMaxPassed = false;
-
-         if 		( searchMinPassed && searchMaxPassed ){ //  search failed
-             searchNotDone   = false;
-             m_searchAlarm     = MIN_AND_MAX_PASSED;
-         }
-         else if  ( not(searchMinPassed) && not(searchMaxPassed) ){ //  search failed
-             searchNotDone   = false;
-             m_searchAlarm     = MIN_AND_MAX_FAILED;
-         }
-         else if  ( searchMinPassed ){ 				//  curve slope is positive
-             xForceValue     = xForceValue-xStep;
-             xStep           = xStep/2.;
-         }
-         else{ 				                        //  curve slope is negative
-             xForceValue     = xForceValue-xStep;
-             xStep           = -xStep/2.;
-         }
-         
-         m_searchIndex = m_searchIndex + 1;
-     }
-     else if  (abs(xStep) > xTolerance) {
-         // SET UP NEXT SEARCH POINT
-         if (measuredY < yTarget)
-             xForceValue 	= xForceValue+xStep;
-         else
-             xForceValue 	= xForceValue-xStep;
-
-         xStep = xStep/2.;
-         m_searchIndex  	= m_searchIndex + 1;
-     }
-     else{												//SEARCH IS DONE
-         //m_searchAlarm     = TARGET_FOUND;     // already set thus not needed
-         searchNotDone   = false ; 						//  exit
-         m_searchIndex    += m_searchIndex ;
-     }
-}
+//void    SearchMod::BinarySearchNext     (float  measuredY ){
+//
+//     if 			(m_searchIndex == 0 ){ 				//  min value was tested
+//         // CHECK IF MIN VALUE PASSED
+//         if ( measuredY < yTarget)
+//             searchMinPassed = true;
+//         else
+//             searchMinPassed = false;
+//
+//         xForceValue 	= xMax;                		// set up for max value
+//         m_searchIndex  	= m_searchIndex + 1;
+//     }
+//     else if 	(m_searchIndex == 1 ){ 				//  max value was tested
+//         // CHECK IF MAX VALUE PASSED
+//         if ( measuredY < yTarget)
+//             searchMaxPassed = true;
+//         else
+//             searchMaxPassed = false;
+//
+//         if 		( searchMinPassed && searchMaxPassed ){ //  search failed
+//             searchNotDone   = false;
+//             m_searchAlarm     = MIN_AND_MAX_PASSED;
+//         }
+//         else if  ( not(searchMinPassed) && not(searchMaxPassed) ){ //  search failed
+//             searchNotDone   = false;
+//             m_searchAlarm     = MIN_AND_MAX_FAILED;
+//         }
+//         else if  ( searchMinPassed ){ 				//  curve slope is positive
+//             xForceValue     = xForceValue-xStep;
+//             xStep           = xStep/2.;
+//         }
+//         else{ 				                        //  curve slope is negative
+//             xForceValue     = xForceValue-xStep;
+//             xStep           = -xStep/2.;
+//         }
+//         
+//         m_searchIndex = m_searchIndex + 1;
+//     }
+//     else if  (abs(xStep) > xTolerance) {
+//         // SET UP NEXT SEARCH POINT
+//         if (measuredY < yTarget)
+//             xForceValue 	= xForceValue+xStep;
+//         else
+//             xForceValue 	= xForceValue-xStep;
+//
+//         xStep = xStep/2.;
+//         m_searchIndex  	= m_searchIndex + 1;
+//     }
+//     else{												//SEARCH IS DONE
+//         //m_searchAlarm     = TARGET_FOUND;     // already set thus not needed
+//         searchNotDone   = false ; 						//  exit
+//         m_searchIndex    += m_searchIndex ;
+//     }
+//}
 void    SearchMod::BinarySearchNext     (FloatM measuredY ){
 
     FloatM errorMS  = 0.;
@@ -515,97 +516,97 @@ void    SearchMod::BinarySearchNext     (FloatM measuredY ){
      m_searchIndex = m_searchIndex + 1;
 }
 
-void    SearchMod::SASearchNext         (float  measuredY ){
-
-    static float    x1;
-    static float    x2;
-    static float    y1;
-    static float    y2;
-           float    num;
-           float    dnum;
-           float    slope;
-           float    b;
-
-     if        (m_searchIndex == 0 ){          //  min value was tested
-         // CHECK IF MIN VALUE PASSED
-         if ( measuredY < yTarget)
-             searchMinPassed = true;
-         else
-             searchMinPassed = false;
-         
-         x1 = xForceValue;                       //save results
-         y1 = measuredY;
-         
-         xForceValue 	= xMax;                		// set up for max value
-     }
-     else if 	(m_searchIndex == 1 ){          //  max value was tested
-         // CHECK IF MAX VALUE PASSED
-         if ( measuredY < yTarget)
-             searchMaxPassed = true;
-         else
-             searchMaxPassed = false;
-
-         if (y1 < measuredY){                    //save results
-             x2 = xForceValue;
-             y2 = measuredY;
-         }
-         else{
-             x2 = x1;
-             y2 = y1;
-             x1 = xForceValue;
-             y1 = measuredY;
-         }
-
-         if 		( searchMinPassed && searchMaxPassed ){             //  search failed
-             searchNotDone   = false;
-             m_searchAlarm     = MIN_AND_MAX_PASSED;
-         }
-         else if  ( not(searchMinPassed) && not(searchMaxPassed) ){ //  search failed
-             searchNotDone   = false;
-             m_searchAlarm     = MIN_AND_MAX_FAILED;
-         }
-         else{                                              // calc next xForceValue
-             num   = y2 - y1;       
-             dnum  = x2 - x1;
-             if ((num == 0.0) || (dnum == 0.0)){
-                 searchNotDone   = false;
-                 m_searchAlarm     = SLOPE_FAILED;
-             }
-             else{
-                 slope           = num/dnum;
-                 b               = ((y2 + y1) - slope * (x2 + x1))/2.;
-                 xForceValue     = (yTarget - b)/slope;
-             }
-         }
-     }
-     else if   (abs(measuredY-yTarget)>yTolerance){ // set up next search point
-         if (measuredY > yTarget){
-             x2 = xForceValue;
-             y2 = measuredY;        
-         }
-         else{
-             x1 = xForceValue;
-             y1 = measuredY;
-         }
-         num   = y2 - y1;       
-         dnum  = x2 - x1;
-         if ((num == 0.0) || (dnum == 0.0)){
-             searchNotDone   = false;
-             m_searchAlarm     = SLOPE_FAILED;
-         }
-         else{
-             slope           = num/dnum;
-             b               = ((y2 + y1) - slope * (x2 + x1))/2.;
-             xForceValue     = (yTarget - b)/slope;
-         }
-     }
-     else{												                   //SEARCH IS DONE
-         //m_searchAlarm     = TARGET_FOUND;     // already set thus not needed
-         searchNotDone   = false ; 						//  exit
-     }
-
-     m_searchIndex  	= m_searchIndex + 1;
-}
+//void    SearchMod::SASearchNext         (float  measuredY ){
+//
+//    static float    x1;
+//    static float    x2;
+//    static float    y1;
+//    static float    y2;
+//           float    num;
+//           float    dnum;
+//           float    slope;
+//           float    b;
+//
+//     if        (m_searchIndex == 0 ){          //  min value was tested
+//         // CHECK IF MIN VALUE PASSED
+//         if ( measuredY < yTarget)
+//             searchMinPassed = true;
+//         else
+//             searchMinPassed = false;
+//         
+//         x1 = xForceValue;                       //save results
+//         y1 = measuredY;
+//         
+//         xForceValue 	= xMax;                		// set up for max value
+//     }
+//     else if 	(m_searchIndex == 1 ){          //  max value was tested
+//         // CHECK IF MAX VALUE PASSED
+//         if ( measuredY < yTarget)
+//             searchMaxPassed = true;
+//         else
+//             searchMaxPassed = false;
+//
+//         if (y1 < measuredY){                    //save results
+//             x2 = xForceValue;
+//             y2 = measuredY;
+//         }
+//         else{
+//             x2 = x1;
+//             y2 = y1;
+//             x1 = xForceValue;
+//             y1 = measuredY;
+//         }
+//
+//         if 		( searchMinPassed && searchMaxPassed ){             //  search failed
+//             searchNotDone   = false;
+//             m_searchAlarm     = MIN_AND_MAX_PASSED;
+//         }
+//         else if  ( not(searchMinPassed) && not(searchMaxPassed) ){ //  search failed
+//             searchNotDone   = false;
+//             m_searchAlarm     = MIN_AND_MAX_FAILED;
+//         }
+//         else{                                              // calc next xForceValue
+//             num   = y2 - y1;       
+//             dnum  = x2 - x1;
+//             if ((num == 0.0) || (dnum == 0.0)){
+//                 searchNotDone   = false;
+//                 m_searchAlarm     = SLOPE_FAILED;
+//             }
+//             else{
+//                 slope           = num/dnum;
+//                 b               = ((y2 + y1) - slope * (x2 + x1))/2.;
+//                 xForceValue     = (yTarget - b)/slope;
+//             }
+//         }
+//     }
+//     else if   (abs(measuredY-yTarget)>yTolerance){ // set up next search point
+//         if (measuredY > yTarget){
+//             x2 = xForceValue;
+//             y2 = measuredY;        
+//         }
+//         else{
+//             x1 = xForceValue;
+//             y1 = measuredY;
+//         }
+//         num   = y2 - y1;       
+//         dnum  = x2 - x1;
+//         if ((num == 0.0) || (dnum == 0.0)){
+//             searchNotDone   = false;
+//             m_searchAlarm     = SLOPE_FAILED;
+//         }
+//         else{
+//             slope           = num/dnum;
+//             b               = ((y2 + y1) - slope * (x2 + x1))/2.;
+//             xForceValue     = (yTarget - b)/slope;
+//         }
+//     }
+//     else{												                   //SEARCH IS DONE
+//         //m_searchAlarm     = TARGET_FOUND;     // already set thus not needed
+//         searchNotDone   = false ; 						//  exit
+//     }
+//
+//     m_searchIndex  	= m_searchIndex + 1;
+//}
 void    SearchMod::SASearchNext         (FloatM measuredY ){
 
     static FloatM    x1MS;
@@ -791,34 +792,34 @@ void    SearchMod::SASkipMMSearchNext   (FloatM measuredY ){
      m_searchIndex  	= m_searchIndex + 1;
 }
 
-void    SearchMod::SearchNext           (float  measuredY ){
-
-    if (m_searchIndex >= m_searchMaxIndex) {
-      m_searchAlarmMS = TARGET_NOT_FOUND;
-      searchNotDone = false;
-    }
-    else {
-    //SET NEXT SEARCH VALUE
-       switch (m_searchType){
-           case (SEARCH_LINEAR):
-               LinearSearchNext    ( measuredY );
-               break;
-           case (SEARCH_BIN):
-               BinarySearchNext    ( measuredY );
-               break;
-           case (SEARCH_SA):
-               SASearchNext        ( measuredY );
-               break;
-   //        case (SEARCH_SA_SMM):
-   //            SASkipMMSearchNext  ( measuredY );
-   //            break;
-           default:
-               cout<<left<< setw(15)<<"MOO m_searchType";
-               searchNotDone   = false ;
-               break;
-       }
-    }
-}
+//void    SearchMod::SearchNext           (float  measuredY ){
+//
+//    if (m_searchIndex >= m_searchMaxIndex) {
+//      m_searchAlarmMS = TARGET_NOT_FOUND;
+//      searchNotDone = false;
+//    }
+//    else {
+//    //SET NEXT SEARCH VALUE
+//       switch (m_searchType){
+//           case (SEARCH_LINEAR):
+//               LinearSearchNext    ( measuredY );
+//               break;
+//           case (SEARCH_BIN):
+//               BinarySearchNext    ( measuredY );
+//               break;
+//           case (SEARCH_SA):
+//               SASearchNext        ( measuredY );
+//               break;
+//   //        case (SEARCH_SA_SMM):
+//   //            SASkipMMSearchNext  ( measuredY );
+//   //            break;
+//           default:
+//               cout<<left<< setw(15)<<"MOO m_searchType";
+//               searchNotDone   = false ;
+//               break;
+//       }
+//    }
+//}
 void    SearchMod::SearchNext           (FloatM measuredY ){
 
     bool any_site_active = true;
@@ -1298,13 +1299,13 @@ void    SearchMod::DbgPlotEnd           (FloatM xMS, FloatM yMS, FloatM1D &xMSa,
         FloatS ul;
 
         switch (m_searchType){
-            case (SEARCH_BIN):
-                ll = yTarget;
-                plotStr += "         , ";
-                plotStr += " ll(x) =  " + ll.GetText() + " , ";
-                plotStr += " ll(x) title \"Target\"  w l   lc 1 lw 1  , " ;
-                plotStr += " \\\n";    //   \ and new line
-                break;
+//            case (SEARCH_BIN):
+//                ll = yTarget;
+//                plotStr += "         , ";
+//                plotStr += " ll(x) =  " + ll.GetText() + " , ";
+//                plotStr += " ll(x) title \"Target\"  w l   lc 1 lw 1  , " ;
+//                plotStr += " \\\n";    //   \ and new line
+//                break;
             case (SEARCH_BIN_MS):
                 ll = yTargetMS[*si] - yToleranceMS[*si];
                 plotStr += "         , ";

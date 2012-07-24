@@ -38,18 +38,18 @@ public:
     
     void    SetSearchModDebugMode   ( int    searchDebugMode_opVar);
     
-    bool    LinearSearchBegin       ( float  startX, float  stopX, float  stepSizeX , float  targetY, float  toleranceY, unsigned maxSteps=100);
+//    bool    LinearSearchBegin       ( float  startX, float  stopX, float  stepSizeX , float  targetY, float  toleranceY, unsigned maxSteps=100);
     bool    LinearSearchBegin       ( FloatM startX, FloatM stopX, FloatM stepSizeX , FloatM targetY, FloatM toleranceY, unsigned maxSteps=100);
 
-    bool    BinarySearchBegin       ( float  startX, float  stopX, float  toleranceX, float  targetY, unsigned maxSteps=20 );
+//    bool    BinarySearchBegin       ( float  startX, float  stopX, float  toleranceX, float  targetY, unsigned maxSteps=20 );
     bool    BinarySearchBegin       ( FloatM startX, FloatM stopX, FloatM toleranceX, FloatM targetY, unsigned maxSteps=20 );
 
-    bool    SASearchBegin           ( float  startX, float  stopX, float  toleranceY, float  targetY, unsigned maxSteps=30 );
+//    bool    SASearchBegin           ( float  startX, float  stopX, float  toleranceY, float  targetY, unsigned maxSteps=30 );
     bool    SASearchBegin           ( FloatM startX, FloatM stopX, FloatM toleranceY, FloatM targetY, unsigned maxSteps=30 );
 
     void    SkipMinMax              (	bool    slopeIsPositive );
 
-    void    SearchNext              ( float  measuredY );
+//    void    SearchNext              ( float  measuredY );
     void    SearchNext              ( FloatM measuredY );
 
     bool    GetSearchNotDone        ();
@@ -112,11 +112,11 @@ public:
 
 private:
 
-    void    LinearSearchNext        ( float  measuredY );
+//    void    LinearSearchNext        ( float  measuredY );
     void    LinearSearchNext        ( FloatM measuredY );
-    void    BinarySearchNext        ( float  measuredY );
+//    void    BinarySearchNext        ( float  measuredY );
     void    BinarySearchNext        ( FloatM measuredY );
-    void    SASearchNext            ( float  measuredY );  
+//    void    SASearchNext            ( float  measuredY );  
     void    SASearchNext            ( FloatM measuredY );  
     void    SASkipMMSearchNext      ( FloatM measuredY );
 
@@ -164,8 +164,8 @@ private:
     bool    search_print_alarms;              //set true to print search alarms
 
 
-    bool    searchMinPassed;
-    bool    searchMaxPassed;
+//    bool    searchMinPassed;
+//    bool    searchMaxPassed;
 
     BoolM   searchMinPassedMS;
     BoolM   searchMaxPassedMS;
@@ -173,14 +173,14 @@ private:
     bool    searchSkipMinMax;
     bool    searchPositiveSlope;
 
-    float   xMin;
-    float   xMax;
-    float   xStep;
-    float   xForceValue;
-    float   xTolerance;
-
-    float   yTarget;
-    float   yTolerance;
+//    float   xMin;
+//    float   xMax;
+//    float   xStep;
+//    float   xForceValue;
+//    float   xTolerance;
+//
+//    float   yTarget;
+//    float   yTolerance;
     
     FloatM  xMinMS;
     FloatM  xMaxMS;

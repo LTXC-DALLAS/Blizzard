@@ -4178,7 +4178,7 @@ TMResultM FlashEfuse_MP1_func()
 // instead of here
 //   TIME.Wait(tdelay);
 
-   flnullstr = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
+   flnullstr = instData[NonMBist].nullChainStr[0][0][0];  /*[ctlr,blk,seg]*/
    
    if(GL_EFUSE_RD_CODEOPTION != "")  
    {
@@ -4432,6 +4432,9 @@ TMResultM FlashEfuse_MP1_func()
          if((eferrcode[*si] == 0x15) or (eferrcode[*si] == 0x5))  
             marg_results[*si] = TM_FAIL;
 
+      // At this point, VLCT ignores previous value of final_results and 
+      // only cares about the following 3 to set pass/fail on active sites here
+      final_results = TM_NOTEST;
       final_results = DLOG.AccumulateResults(final_results, marg_results);
       final_results = DLOG.AccumulateResults(final_results, cmp_results);
       final_results = DLOG.AccumulateResults(final_results, ipmos_cmp_results);
@@ -4888,7 +4891,7 @@ TMResultM FlashEfuse_Trim_func()
       new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
       if(SetActiveSites(new_active_sites))  
       {
-         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+         iref_chartrim_ena  = true;//GL_DO_IREF_CHAR_TRIM;
          tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
          final_results = DLOG.AccumulateResults(final_results, tmp_results);
 
@@ -7415,98 +7418,71 @@ TMResultM ThinOxide_Stress_func()
 //
 //   FlowCheck_func = v_any_dev_active;
 //}   /* FlowCheck_func */
-//
-//BoolS FOSC_VCO_Vmin_func()
-//{
-//   BoolM final_results,savesites,tmp_results;
-//   StringS current_shell,str1,str2;
-//   IntS site,tnum,measopt;
-//   PinML tpin;
-//   StringS testStringS;
-//   FloatS ttimer1,llim,ulim,time_llim,time_ulim;
-//   FloatM meas_value,freq_value;
-//   IntM msw_tnum,lsw_tnum;
-//   BoolS bool1;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//
-//#if $FL_USE_DCC_TRIM_FOSC==false  
-//   if(v_any_dev_active)  
-//   {
-//       /*PwrupAtVmin_1;*/
-//       /*KChau - temp test at vnom until get proper limits*/
-//      PwrupAtVnom_1;
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//
-//      llim = FOSC_LLimit;
-//      ulim = FOSC_ULimit;
-//      time_ulim = (rcp(single(llim)))*1s;
-//      time_llim = (rcp(single(ulim)))*1s;
-//      tpin = FL_FOSC_EXTERNAL_PIN;
-//      testpattern = FL_FOSC_EXTERNAL_PATTERN;
-//      measopt = 0;  /*clkwidth*/
-//
-//      timernstart(ttimer1);
-//      TestOpen(FOSC_DCC_MN_Test);
-//
-//       /*dummy run*/
-//      MeasPinTMU_func(tpin,testpattern,measopt,time_llim,time_ulim,meas_value,tmp_results);
-//
-//      MeasPinTMU_func(tpin,testpattern,measopt,time_llim,time_ulim,meas_value,tmp_results);
-//      ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//      Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-//      bool1 = true;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(bool1)  
-//            {
-//               tnum = (msw_tnum[site]<<16)+lsw_tnum[site];
-//               bool1 = false;
-//            } 
-//            freq_value[site] = (rcp(single(meas_value[site])))*1Hz;
-//         } 
-//
-//      if(GL_DO_FOSC_TRIM)  
-//         ResultsRecordActive(final_results, S_NULL);
-//      else
-//         ResultsRecordActive(savesites, S_NULL);
-//      TestClose;
-//
-//      ttimer1 = timernread(ttimer1);
-//      
-//      str1 = "FOSC_DCC_MN";
-//      TWTRealToRealMS(freq_value,realval,unitval);
-//      TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultParam(str1,tnum,final_results,llim,ulim,freq_value,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and GL_DO_FOSC_TRIM)  
-//         DevSetHoldStates(final_results);      
-//   } 
-//#endif
-//
-//   FOSC_VCO_Vmin_func = v_any_dev_active;
-//} 
-//
+
+TMResultM FOSC_VCO_Vmin_func()
+{
+   TMResultM final_results;
+   StringS current_shell, testpattern;
+   IntS tnum;
+   PinM tpin;
+   FloatS ttimer1,llim,ulim;
+   FloatM meas_value, sim_val;
+   IntM msw_tnum,lsw_tnum;
+   UnsignedM pulse_count;
+   TMU_MEASURE_TYPE measopt;
+
+   final_results = TM_NOTEST;
+
+#if !$FL_USE_DCC_TRIM_FOSC
+
+    /*KChau - temp test at vnom until get proper limits*/
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   llim = FOSC_LLimit;
+   ulim = FOSC_ULimit;
+   sim_val = (ulim - llim) / 2. + llim;
+   tpin = FL_FOSC_EXTERNAL_PIN;
+   testpattern = FL_FOSC_EXTERNAL_PATTERN;
+   measopt = TMU_MEASURE_FREQUENCY_COUNTER;  /*clkwidth*/
+   pulse_count = 1000;
+
+   TIME.StartTimer();
+
+    /*dummy run*/
+   meas_value = MeasPinTMU_func(tpin, testpattern, measopt, ulim, sim_val, pulse_count);
+
+   meas_value = MeasPinTMU_func(tpin, testpattern, measopt, ulim, sim_val, pulse_count);
+   
+   final_results = TIDlog.Value(meas_value, tpin, llim, ulim, "MHz", 
+                   "FOSC_DCC_MN", UTL_VOID, UTL_VOID, false, TWMinimumData);
+
+   Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+
+   ttimer1 = TIME.StopTimer();
+   
+   if(tistdscreenprint)  
+   {
+      tnum = (msw_tnum[ActiveSites.Begin().GetValue()] << 16) + lsw_tnum[ActiveSites.Begin().GetValue()];
+      cout << "F021 test number 0x" << hex << tnum << endl;
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   } 
+
+#endif
+
+   return (final_results);
+} /* FOSC_VCO_Vmin_func */
+
+// dummy test...not even bothering.
 //BoolS FOSC_VCO_Vmax_func()
 //{
 //   BoolM final_results;
 //
 //   FOSC_VCO_Vmax_func = v_any_dev_active;
 //} 
-//
+
 //BoolS FOSC_DCC_Vmin_func()
 //{
 //   BoolM final_results,savesites;

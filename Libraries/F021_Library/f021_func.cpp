@@ -1328,6 +1328,7 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 {
    StringS tpatt = "ramread_nburst_addr_v4p0_Thrd"; //"ramread_nburst_addr_Thrd";
    StringS datastr;
+   StringM mstr;
    StringS cap_name;
    IntS curraddr;
    IntS maxcapcount, maxsrccount;
@@ -1381,8 +1382,12 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
          msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
       } 
 
-      IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
-      captured_data += datastr;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         IO.Print(datastr, "%04x %04x", msw_val[*si], lsw_val[*si]);
+         mstr[*si] = datastr;
+      }
+      captured_data += mstr;
       address_list += curraddr;
       
       curraddr = curraddr+ADDR_RAM_INC;
@@ -1406,6 +1411,8 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
    }
    
+   captured_data.Erase();
+   
    while(curraddr <= stopaddr)
    {         
       physaddr = (curraddr>>3) & 0xFFFF;
@@ -1428,8 +1435,12 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
          msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
       } 
 
-      IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
-      captured_data += datastr;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         IO.Print(datastr, "%04x %04x", msw_val[*si], lsw_val[*si]);
+         mstr[*si] = datastr;
+      }
+      captured_data += mstr;
       address_list += curraddr;
       
       curraddr = curraddr+ADDR_RAM_INC;
@@ -24899,7 +24910,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
                SaveMbgEfuseTrimString(TrimValue[*si], *si); 
          } else // not charTrimEna
          {
-            // The BG trim looks to use a 2s-complement number coding. This means a 
+            // The BG trim looks to use a 4-piecemeal ramp. This means a 
             // linear ramp in terms of output is not a linear ramp numerically. So, we'll
             // use a linear look-up table to make the search code much less complicated.
             int num_codes = MAX_CODE - MIN_CODE +1;
@@ -24907,11 +24918,18 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             
             int i;
             int j = 0;
-            // first section is the 'negative' numbers from half scale and up
-            for (i = num_codes/2; i <= MAX_CODE; ++i, ++j)
+            
+            // quarter to mid scale is lowest
+            for (i = num_codes/4; i < num_codes/2; ++i, ++j)
                lookup_table[j] = i;
-            // now go back and get 0 to half scale
-            for (i = 0; i < num_codes/2; ++i, ++j);
+            // now go back and get 0 to quarter scale
+            for (i = 0; i < num_codes/4; ++i, ++j)
+               lookup_table[j] = i;
+            // then 3/4 scale to full scale
+            for (i = num_codes*3/4; i < num_codes; ++i, ++j)
+               lookup_table[j] = i;
+            // now pick up mid to 3/4 scale
+            for (i = num_codes/2; i < num_codes*3/4; ++i, ++j)
                lookup_table[j] = i;
 
             SearchMod my_search;
@@ -24966,7 +24984,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             }        
             // test if we found a real trim or we had search errors
             tmp_results = TIDlog.Value(trim_alarms, testpad, 0, 0, "",
-                         "MAINBG_TRIMCODE_FOUND", UTL_VOID, UTL_VOID, true, TWMinimumData);
+                         "MAINBG_TRIM_ALARM", UTL_VOID, UTL_VOID, true, TWMinimumData);
          
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
          } // end else charTrimEna
@@ -25757,18 +25775,45 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
                
          } else // not charTrimEna
          {
+            // The Iref trim looks to use a 4-piecemeal ramp. This means a 
+            // linear ramp in terms of output is not a linear ramp numerically. So, we'll
+            // use a linear look-up table to make the search code much less complicated.
+            int num_codes = MAX_CODE - MIN_CODE +1;
+            IntS1D lookup_table(num_codes, 0);
+            
+            int i;
+            int j = 0;
+            
+            // quarter to mid scale is lowest
+            for (i = num_codes/4; i < num_codes/2; ++i, ++j)
+               lookup_table[j] = i;
+            // now go back and get 0 to quarter scale
+            for (i = 0; i < num_codes/4; ++i, ++j)
+               lookup_table[j] = i;
+            // then 3/4 scale to full scale
+            for (i = num_codes*3/4; i < num_codes; ++i, ++j)
+               lookup_table[j] = i;
+            // now pick up mid to 3/4 scale
+            for (i = num_codes/2; i < num_codes*3/4; ++i, ++j)
+               lookup_table[j] = i;
+
             SearchMod my_search;
             my_search.SASearchBegin(double(MIN_CODE), double(MAX_CODE), target_meas_delta, target_meas_value, MAXITER);
             my_search.SkipMinMax(true);            
             
             IntS loop = 0;
             FloatM meas_value;
-            FloatM float_code;
+            FloatM table_index;
             
             while (my_search.searchNotDone)
             {
-               float_code = my_search.xForceValueMS;
-               IRValue = MATH.LegacyRound(float_code);
+               table_index = my_search.xForceValueMS;
+               // The xForceValueMS is based upon a line from 0-63, so it is basically
+               // just an index in our lookup_table. We have 
+               // to look that up in the lookup table since the actual code isn't
+               // linear since it is 2s complement
+               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                  IRValue[*si] = lookup_table[MATH.LegacyRound(table_index[*si])];
                   
                RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
                meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
@@ -31981,11 +32026,12 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 //   } 
 //} 
 
-FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
-                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+FloatM MeasPinTMU_func(const PinM &tpin,                       // Pin to measure on
+                       const StringS &tpattern,                // Test pattern - func assumes CPU loop where measure to be made
                        TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
-                       FloatM maxExpFreq,               // Maximum expected frequency
-                       FloatM simResults)               // results to return in simulated mode
+                       const FloatM &maxExpFreq,               // Maximum expected frequency
+                       const FloatM &simResults,               // results to return in simulated mode
+                       const UnsignedM &pulseCount)            // Optional number of pulses for Frequency Counter mode
 {
    FloatM meas_results;
    BoolM timeout;
@@ -32013,10 +32059,10 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
          TMU.MeasurePulseWidth(tpin, TMU_RISING_EDGE, TMU_CMP_HIGH, TMU_CMP_HIGH, meas_results, simResults);
          break;
       case TMU_MEASURE_FREQUENCY:
-//         TMU.MeasureFrequency(tpin, maxExpFreq, TMU_RISING_EDGE, meas_results, simResults);
-//         cout << "MeasureFrequency " << meas_results << endl;
-         TMU.MeasureFrequencyByCount(tpin, 1000, maxExpFreq, meas_results, simResults);
-//         cout << "by count " << meas_results << endl;
+         TMU.MeasureFrequency(tpin, maxExpFreq, TMU_RISING_EDGE, meas_results, simResults);
+         break;
+      case TMU_MEASURE_FREQUENCY_COUNTER:
+         TMU.MeasureFrequencyByCount(tpin, pulseCount, maxExpFreq, meas_results, simResults);
          break;
       default:
          ERR.ReportError(ERR_GENERIC_CRITICAL, "Unsupported measure option in MeasPinTMU_func in F021_Library.", UTL_VOID, NO_SITES, tpin);

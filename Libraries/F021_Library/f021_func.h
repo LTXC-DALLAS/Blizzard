@@ -741,11 +741,12 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //                     BoolS twlogena,
 //                     StringS logstr);
 
-FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
-                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+FloatM MeasPinTMU_func(const PinM &tpin,                       // Pin to measure on
+                       const StringS &tpattern,                // Test pattern - func assumes CPU loop where measure to be made
                        TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
-                       FloatM maxExpFreq,               // Maximum expected frequency
-                       FloatM simResults);              // results to return in simulated mode
+                       const FloatM &maxExpFreq,               // Maximum expected frequency
+                       const FloatM &simResults,               // results to return in simulated mode
+                       const UnsignedM &pulseCount = 1000);    // Optional number of pulses for Frequency Counter mode
 #if !$FL_USE_DCC_TRIM_FOSC
 TMResultM F021_FOSC_SoftTrim_External_func();
 #endif

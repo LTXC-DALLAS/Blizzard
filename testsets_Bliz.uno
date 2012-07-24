@@ -8602,3 +8602,92 @@ __Test IrefPMOS_Trim_T {
         }
     }
 }
+__Test FOSC_VCO_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test VReadBuf_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test VReadBuf_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test TP1TP2_Leak_Pre_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VHV_Stress_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test TP1TP2_Leak_Pst_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Read_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Pvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Evfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Cvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Read_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Pvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Evfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Cvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test SA_Iref_NoLoad_Read_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IWLDRV_Prog_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test WLS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test BLS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGCG_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test CGS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGCSS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+

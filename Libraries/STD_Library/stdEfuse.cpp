@@ -1361,8 +1361,8 @@ void FF_Debug()
   codeOption = "F021";
   ctlrNum = 1;
   blkNum = 0;
-  rowStart = 12;
-  rowStop = 15;
+  rowStart = 5;
+  rowStop = 8;
   readPattern = "FF_Read_Mg1A_Thrd";
   fusePatterns[0] = readPattern;
   //                      11111111112222222222333
