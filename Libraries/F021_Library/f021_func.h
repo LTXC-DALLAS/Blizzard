@@ -439,13 +439,12 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
                                  IntS TCRnum,
                                  TPModeType TCRMode);
 
-//BoolS F021_Bank_Para_func(    IntS start_testnum,
-//                                 prepostcorner prepost_type,
-//                                 VCornerType vcorner_type,
-//                                 IntS TCRnum,
-//                                 TPModeType TCRMode,
-//                                 BoolM test_results);
-//
+TMResultM F021_Bank_Para_func(   IntS start_testnum,
+                                 prepostcorner prepost_type,
+                                 VCornerType vcorner,
+                                 IntS tcrnum,
+                                 TPModeType tcrmode);
+
 //BoolS F021_Bank_Para_MBox_func(    IntS start_testnum,
 //                                      prepostcorner prepost_type,
 //                                      VCornerType vcorner,

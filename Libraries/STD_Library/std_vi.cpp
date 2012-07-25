@@ -55,24 +55,24 @@ void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI,
          }
          switch (measType) 
          {
-            case VI_MEASURE_I: VI.SetMeasureIRange(viPin, setI); break;
-            case VI_MEASURE_V: VI.SetMeasureVRange(viPin, vRange); break;
-            default: VI.SetMeasureVRange(viPin, vRange); break;
+            case VI_MEASURE_I: VI.SetMeasureIRange(viPin, MATH.Abs(setI)); break;
+            case VI_MEASURE_V: VI.SetMeasureVRange(viPin, MATH.Abs(vRange)); break;
+            default: VI.SetMeasureVRange(viPin, MATH.Abs(vRange)); break;
          }
-         VI.ForceI(viPin, setI, setI);
+         VI.ForceI(viPin, setI, MATH.Abs(setI));
          break;
       case VI_FORCE_V: // force voltage
          VI.SetClampsI(viPin, setI);
          switch (measType) 
          {
-            case VI_MEASURE_I: VI.SetMeasureIRange(viPin, setI); break;
-            case VI_MEASURE_V: VI.SetMeasureVRange(viPin, vRange); break;
-            default: VI.SetMeasureIRange(viPin, setI); break; 
+            case VI_MEASURE_I: VI.SetMeasureIRange(viPin, MATH.Abs(setI)); break;
+            case VI_MEASURE_V: VI.SetMeasureVRange(viPin, MATH.Abs(vRange)); break;
+            default: VI.SetMeasureIRange(viPin, MATH.Abs(setI)); break; 
          }
          if (vRange == UTL_VOID) 
             VI.ForceV(viPin, setV);
          else
-            VI.ForceV(viPin, setV, vRange);
+            VI.ForceV(viPin, setV, MATH.Abs(vRange));
          break;
       default:
          return; // do nothing, don't gate on

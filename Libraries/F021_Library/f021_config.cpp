@@ -682,6 +682,8 @@ void F021_FlashConfig()
    LoadSendFlashTestNum (0x12200010);
    LoadSendFlashTestNum (0x12800010);
    LoadSendFlashTestNum (0x12000010);
+   LoadSendFlashTestNum (0x32000010);
+   LoadSendFlashTestNum (0x32000410);
    
 }   /* F021_FlashConfig */
 
