@@ -1,4 +1,4 @@
-Unison:U1.0c:S5.3;
+Unison:U3.0:S5.3;
 
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
@@ -1666,4 +1666,9 @@ __BinMap ATSite_BinMap_Qual {
     __Bin F_LEAK_IDDQ_Vburnin_VDDS_PM411 = 12;
     __Bin F_LEAK_IDDQ_Vboxlo_pre_VDDS_1 = 12;
     __Bin F_FUSE_DIEID_PRE_READ = 13;
+}
+__Bin F_FUNC_HI_STRESS {
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
 }

@@ -2170,15 +2170,124 @@ __SubFlow PgmAnalogTrims_S {
     __StartNode = FlowNode_400;
 }
 __SubFlow HiVoltageStress_S {
-    __Node FlowNode_401 {
-        __XCoord = (292,72);
+    __Node ATPG_CPU_T_482 {
+        __XCoord = (344,101);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 273;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_3"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vstress"; __Type = INTEGER; }
+        }
+        __TestID = "106000000";
+        __Exec = ATPG_CPU_T;
+    }
+    __Node BIST_PROD_PG_504 {
+        __XCoord = (103,101);
+        __Port[0] {
+            __PortPosition = 88;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
         __InputPosition = 0;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_11"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vstress"; __Type = INTEGER; }
+        }
+        __TestID = "104000000";
+        __Exec = BIST_PROD_PG;
+    }
+    __Node PBIST_2P_PROD_PG_505 {
+        __XCoord = (218,100);
+        __Port[0] {
+            __PortPosition = 90;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 270;
+        __SpecPairs {
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_12"; __Type = INTEGER; }
+            CTSpec = __Expression { __String = "CTSpec.CTData"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
+            Globals_Typ = __Expression { __String = "Globals_Typ.Constants"; __Type = INTEGER; }
+            TIGlobalVars = __Expression { __String = "TIGlobalVars.TIVariables"; __Type = INTEGER; }
+            TIGlobals = __Expression { __String = "TIGlobals.TIGlobalTypes"; __Type = INTEGER; }
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vstress"; __Type = INTEGER; }
+        }
+        __TestID = "105000000";
+        __Exec = PBIST_2P_PROD_PG;
+    }
+    __Node FlowNode_498 {
+        __XCoord = (603,112);
+        __InputPosition = 273;
         __TestID = "";
-        __PortSelect = "0";
+        __PortSelect = "";
         __PortNumber = 0;
     }
+    __Node VBOXLO_MEMORY_T_490 {
+        __XCoord = (470,101);
+        __Port[0] {
+            __PortPosition = 88;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 272;
+        __TestID = "107000000";
+        __Exec = VBOXLO_MEMORY_T;
+    }
+    __Node F_FUNC_HI_STRESS_494 {
+        __XCoord = (284,280);
+        __InputPosition = 0;
+        __TestID = "";
+        __Exec = F_FUNC_HI_STRESS;
+    }
     __NameFormat = "{Exec}_{GCounter}";
-    __StartNode = FlowNode_401;
+    __StartNode = ATPG_CPU_T_482;
+    __PortConnections {
+        ATPG_CPU_T_482 __Port[0] = VBOXLO_MEMORY_T_490;
+        ATPG_CPU_T_482 __Port[1] = F_FUNC_HI_STRESS_494;
+        BIST_PROD_PG_504 __Port[1] = F_FUNC_HI_STRESS_494;
+        PBIST_2P_PROD_PG_505 __Port[0] = ATPG_CPU_T_482;
+        PBIST_2P_PROD_PG_505 __Port[1] = F_FUNC_HI_STRESS_494;
+        VBOXLO_MEMORY_T_490 __Port[0] = FlowNode_498;
+        VBOXLO_MEMORY_T_490 __Port[1] = F_FUNC_HI_STRESS_494;
+    }
+    __Background {
+        __String = "BIST_PROD_PG @ VSTRESS";
+        __Data = (0,0,70,75,0,0,22,0,0,3,0,0,1,0,0,0);
+    }
+    __Background {
+        __String = "PBIST_2P_PROD_PG  @ VSTRESS";
+        __Data = (0,0,183,85,0,0,22,0,0,3,0,0,1,0,0,0);
+    }
+    __Background {
+        __String = "SCAN_SA_PG @ VSTRESS";
+        __Data = (0,0,327,74,0,0,22,0,0,3,0,0,1,0,0,0);
+    }
+    __Background {
+        __String = "VBOXLO_MEMORY_PG @ VSTRESS";
+        __Data = (0,0,447,77,0,0,22,0,0,3,0,0,1,0,0,0);
+    }
 }
 __SubFlow Iddq_Delta_S {
     __Node FlowNode_402 {

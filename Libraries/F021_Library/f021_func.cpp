@@ -328,6 +328,9 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
 {
    BoolM timed_out;
    
+   //Start by clearing all captures.  Stray captures will cause run time errors
+   DIGITAL.ClearAllCaptures();
+   
    // if no wordSize is given, then we do parallel even if that means a 1-bit parallel
    // if more than 1 capture pin, it has to be parallel
    if (wordSize == UTL_VOID || (capturePins.GetNumPins() > 1)) 
@@ -7240,7 +7243,7 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
     /*during updating new testnumber which can cause false pass*/
 
 
-   Get_Flash_TestLogSpace_SCRAM();
+   Get_Flash_TestLogSpace_SCRAM(); //Error: Attempt made to perform "StartCapture" with a capture, CapRam32, whose wordCount is not the same as the wordCount of the capture, CapRam4, that has already been started.
 
    Get_TLogSpace_TNUM(value2,value1);
    
@@ -13683,193 +13686,206 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //}   /* F021_Bank_Para_func */
 //   
 //
-//BoolS F021_Bank_Para_MBox_func(    IntS start_testnum,
-//                                      prepostcorner prepost_type,
-//                                      VCornerType vcorner,
-//                                      IntS TCRnum,
-//                                      TPModeType TCRMode,
-//                                      BoolM test_results)
-//{
-//   const IntS TCR_IPROG_DRV = 69; 
-//   const IntS TCR_ISAMP_LOAD = 70; 
-//   const IntS TCR_ISAMP_NLOAD = 71; 
-//
-//   FloatS tdelay,maxtime;
-//   BoolM savesites,logsites,rtest_results;
-//   BoolM tmp_results,final_results;
-//   IntS site,bankcount;
-//   IntS pattype,testnum;
-//   IntS tpnum,tpstart,tpstop,tpcount;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   StringS str1,str2,str3,str4;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   prepostcorner prepost;
-//   BoolS parmena,done,once,ovride_lim;
-//   FloatS ovride_llim,ovride_ulim;
-//   FloatS llim,ulim,tmpFloatS;
-//   PinM testpad,cntrlpad;
-//   FloatM meas_value;
-//   FloatS tpad_force,cntrlpad_force;
-//   BoolS x64soft;
-//   StringM site_cof_inst_str;
-//   BoolS binout_ena,logall;
-//   IntS senampnum,tmpint;
-//   IntM min_sampnum,max_sampnum;
-//   FloatM min_value,max_value;
-//   FloatS FloatSvalsite;
-//   IntS loopmin,loopmax;
-//
-//   parmena = false;
-//   binout_ena = false;
-//   prepost = prepost_type;
-//
-//   if(V_any_dev_active)  
-//   {
-//      tpstart = 0;
-//      tpstop  = 0;
-//      for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
-//         if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRmode][tpnum])  
-//         {
-//            if(not parmena)  
-//            {
-//               fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRmode][tpnum][prepost][vcorner];
-//               parmena = true;
-//            } 
-//            if(tpstart==0)  
-//               tpstart = tpnum;
-//            tpstop = tpnum;
-//         } 
-//      if(tpstart==0)  
-//         tpstop  = -1;
-//   } 
-//
+TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
+                                      prepostcorner prepost_type,
+                                      VCornerType vcorner,
+                                      IntS TCRnum,
+                                      TPModeType TCRMode)
+//                                      BoolM test_results) //return final results so don't need this
+{
+   const IntS TCR_IPROG_DRV = 69; 
+   const IntS TCR_ISAMP_LOAD = 70; 
+   const IntS TCR_ISAMP_NLOAD = 71; 
+
+   FloatS tdelay,maxtime;
+   BoolM savesites,logsites;
+   TMResultM tmp_results,final_results,rtest_results;
+   IntS site,bankcount;
+   IntS pattype,testnum;
+   IntS tpnum,tpstart,tpstop,tpcount;
+   FloatS ttimer1,ttimer2;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   StringS str1,str2,str3,str4;
+   FloatM FloatSval;
+//   TWunit unitval; use getunits instead
+   StringS fl_testname;
+   prepostcorner prepost;
+   BoolS parmena,done,once,ovride_lim;
+   FloatS ovride_llim,ovride_ulim;
+   FloatS llim,ulim,tmpFloatS;
+   PinM testpad,cntrlpad;
+   FloatM meas_value;
+   FloatS tpad_force,cntrlpad_force;
+   BoolS x64soft;
+   StringM site_cof_inst_str;
+   BoolS binout_ena,logall;
+   IntS senampnum,tmpint;
+   IntM min_sampnum,max_sampnum;
+   FloatM min_value,max_value;
+   FloatS FloatSvalsite;
+   IntS loopmin,loopmax;
+
+   parmena = false;
+   binout_ena = false;
+   prepost = prepost_type;
+
+//   if(V_any_dev_active) 
+   if (ActiveSites.GetPassingSites().AnyEqual(true)) 
+   {
+      tpstart = 0;
+      tpstop  = 0;
+      for (tpnum = GL_TPADMIN;tpnum <= GL_TPADMAX;tpnum++)
+         if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
+         {
+            if(not parmena)  
+            {
+               fl_testname = PUMP_BANK_PARA_TESTNAME[TCRnum][TCRMode][tpnum][prepost][vcorner];
+               parmena = true;
+            } 
+            if(tpstart==0)  
+               tpstart = tpnum;
+            tpstop = tpnum;
+         } 
+      if(tpstart==0)  
+         tpstop  = -1;
+   } 
+
 //   if(v_any_dev_active and parmena)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_Bank_Para_MBox_func +++++" << endl;
-//      
-//      tdelay  = 10ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//
+   if(ActiveSites.GetPassingSites().AnyEqual(true) and parmena)  
+   {
+      if(tistdscreenprint and TI_FlashDebug)  
+         cout << "+++++ F021_Bank_Para_MBox_func +++++" << endl;
+      
+      tdelay  = 10ms;
+      maxtime = GL_F021_PARAM_MAXTIME;
+
 //      timernstart(ttimer1);      
-//
+      TIME.StartTimer();
+
 //      savesites = V_dev_active;
-//      tmp_results = V_dev_active;
-//      final_results = V_dev_active;
-//
+      savesites = ActiveSites.GetPassingSites();
+//      tmp_results = V_dev_active; //tmp_results redefined as type TMResultM
+//      final_results = V_dev_active; //final_results redefined as type TMResultM
+
 //      writestring(tmpstr1,fl_testname);
 //      writestring(tmpstr1,mid(tmpstr1,2,(len(tmpstr1)-6)));
-//      
+      tmpstr1 = fl_testname.Substring(2,(fl_testname.Length()-6));
+      
 //      TestOpen(fl_testname);
-//
+
 //      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//      
-//      if(tistdscreenprint)  
-//         PrintHeaderParam(GL_PLELL_FORMAT);
-//
-//      logall = false;
-//      switch(tcrnum) {
-//        case TCR_IPROG_DRV   : logall = GL_DO_TWLOGALL_IPROG_DRV;
-//        case TCR_ISAMP_LOAD  : logall = GL_DO_TWLOGALL_ISA_LD;
-//        case TCR_ISAMP_NLOAD : logall = GL_DO_TWLOGALL_ISA_NLD;
-//      }   /* case */
-//
-//#if $FL_USE_AUTO_FLOW  
-//      loopmin = 0;
-//      loopmax = (F021_Flash.DATAWIDTH-1);
-//#else
-//      loopmin = 0;
-//      loopmax = loopmin;
-//#endif
-//      
-//      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//      {
+//         F021_Init_COF_Inst_Str(site_cof_inst_str); //This function basically sets site_cof_inst_str to ''
+      site_cof_inst_str = '';
+      
+      if(tistdscreenprint)  
+         PrintHeaderParam(GL_PLELL_FORMAT);
+
+      logall = false;
+      switch(tcrnum) {
+        case TCR_IPROG_DRV   : 
+             logall = GL_DO_TWLOGALL_IPROG_DRV;
+             break;
+        case TCR_ISAMP_LOAD  : 
+             logall = GL_DO_TWLOGALL_ISA_LD;
+             break;
+        case TCR_ISAMP_NLOAD : 
+             logall = GL_DO_TWLOGALL_ISA_NLD;
+             break;
+      }   /* case */
+
+#if $FL_USE_AUTO_FLOW  
+      loopmin = 0;
+      loopmax = (F021_Flash.DATAWIDTH-1);
+#else
+      loopmin = 0;
+      loopmax = loopmin;
+#endif
+      
+      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
+      {
 //         logsites = v_dev_active;
-//         rtest_results = V_dev_active;
-//
-//         min_value = 0uA;
-//         max_value = 0uA;
-//         min_sampnum = 0;
-//         max_sampnum = 0;
-//         once = false;
-//
-//         testnum = start_testnum+(bankcount<<4);
-//
-//         for (senampnum = loopmin;senampnum <= loopmax;senampnum++)
-//         {
-//            switch(tcrnum) {
-//              case TCR_IPROG_DRV   :  
-//                 MBox_Upload_IProg(senampnum);  /*datain mask*/
-//               break; 
-//              TCR_ISAMP_LOAD,
-//              case TCR_ISAMP_NLOAD :  
-//                 MBox_Upload_ISenAmp(senampnum);
-//               break; 
-//              default:  
-//                 if(tistdscreenprint)  
-//              case cout << "*** WARNING: Invalid TCR number entered !!!" << endl;
-//               break; 
-//            }   /* case */
-//
-//            F021_TurnOff_AllTpads;
-//            F021_Set_TPADS(tcrnum,tcrmode);
-//            F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
-//            TIME.Wait(tdelay);
-//            
-//            for (tpnum = tpstart;tpnum <= tpstop;tpnum++)
-//            {
-//               if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRmode][tpnum])  
-//               {
-//                  switch(tpnum) {
-//                    case 1 :  
-//                           testpad = FLTP1;
-//                           llim = TCR.TP1_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TP1_ULim[TCRnum][TCRMode];
-//                         break; 
-//                    case 2 :  
-//                           testpad = FLTP2;
-//                           llim = TCR.TP2_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TP2_ULim[TCRnum][TCRMode];
-//                         break; 
-//#if $TP3_TO_TP5_PRESENT  
-//                    case 3 :  
-//                           testpad = FLTP3;
-//                           llim = TCR.TP3_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TP3_ULim[TCRnum][TCRMode];
-//                         break; 
-//                    case 4 :  
-//                           testpad = FLTP4;
-//                           llim = TCR.TP4_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TP4_ULim[TCRnum][TCRMode];
-//                         break; 
-//                    case 5 :  
-//                           testpad = FLTP5;
-//                           llim = TCR.TP5_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TP5_ULim[TCRnum][TCRMode];
-//                         break; 
-//#endif
-//#if $TADC_PRESENT  
-//                    case 6 :  
-//                           testpad = P_TADC;
-//                           llim = TCR.TADC_LLim[TCRnum][TCRMode];
-//                           ulim = TCR.TADC_ULim[TCRnum][TCRMode];
-//                         break; 
-//#endif
-//                  }   /*case tpnum*/
-//            
-//                  discard(F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,
-//                          llim,ulim,meas_value,tmp_results));
-//                  
+         logsites = ActiveSites.GetPassingSites();
+//         rtest_results = V_dev_active; //redefined as type TMResultM
+
+         min_value = 0uA;
+         max_value = 0uA;
+         min_sampnum = 0;
+         max_sampnum = 0;
+         once = false;
+
+         testnum = start_testnum+(bankcount<<4);
+
+         for (senampnum = loopmin;senampnum <= loopmax;senampnum++)
+         {
+            switch(tcrnum) {
+              case TCR_IPROG_DRV   :  
+                 MBox_Upload_IProg(senampnum);  /*datain mask*/
+                 break; 
+              case TCR_ISAMP_LOAD :
+              case TCR_ISAMP_NLOAD :  
+                 MBox_Upload_ISenAmp(senampnum);
+                 break; 
+              default:  
+                 if(tistdscreenprint)  
+                   cout << "*** WARNING: Invalid TCR number entered !!!" << endl;
+                 break; 
+            }   /* case */
+
+            F021_TurnOff_AllTpads();
+            F021_Set_TPADS(TCRnum,TCRMode);
+            rtest_results=F021_RunTestNumber_PMEX(testnum,maxtime);
+            TIME.Wait(tdelay);
+            
+            for (tpnum = tpstart;tpnum <= tpstop;tpnum++)
+            {
+               if(PUMP_BANK_PARA_ENABLE[TCRnum][TCRMode][tpnum])  
+               {
+                  switch(tpnum) {
+                    case 1 :  
+                           testpad = FLTP1;
+                           llim = TCR.TP1_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TP1_ULim[TCRnum][TCRMode];
+                         break; 
+                    case 2 :  
+                           testpad = FLTP2;
+                           llim = TCR.TP2_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TP2_ULim[TCRnum][TCRMode];
+                         break; 
+#if $TP3_TO_TP5_PRESENT  
+                    case 3 :  
+                           testpad = FLTP3;
+                           llim = TCR.TP3_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TP3_ULim[TCRnum][TCRMode];
+                         break; 
+                    case 4 :  
+                           testpad = FLTP4;
+                           llim = TCR.TP4_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TP4_ULim[TCRnum][TCRMode];
+                         break; 
+                    case 5 :  
+                           testpad = FLTP5;
+                           llim = TCR.TP5_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TP5_ULim[TCRnum][TCRMode];
+                         break; 
+#endif
+#if $TADC_PRESENT  
+                    case 6 :  
+                           testpad = P_TADC;
+                           llim = TCR.TADC_LLim[TCRnum][TCRMode];
+                           ulim = TCR.TADC_ULim[TCRnum][TCRMode];
+                         break; 
+#endif
+                  }   /*case tpnum*/
+            
+                  tmp_results=F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_value);
+                  
 //                  ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-//
-//                   /*store min/max meas_value and respective senampnumber*/
-//                  if(not once)  
-//                  {
+                  tmp_results = DLOG.AccumulateResults(tmp_results,rtest_results);
+
+                   /*store min/max meas_value and respective senampnumber*/
+                  if(not once)  
+                  {
 //                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                        if(v_dev_active[site])  
 //                        {
@@ -13878,10 +13894,14 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                           min_sampnum[site] = senampnum;
 //                           max_sampnum[site] = senampnum;
 //                        } 
-//                     once = true;
-//                  }
-//                  else
-//                  {
+                     min_value = meas_value;
+                     max_value = meas_value;
+                     min_sampnum = senampnum;
+                     max_sampnum = senampnum;
+                     once = true;
+                  }
+                  else
+                  {
 //                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                        if(v_dev_active[site])  
 //                        {
@@ -13895,20 +13915,32 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //                              max_value[site] = meas_value[site];
 //                              max_sampnum[site] = senampnum;
 //                           } 
-//                        } 
-//                  } 
-//                           
-//                   /*log to TW*/
+//                        }
+                     if(min_value>meas_value)
+                     {
+                        min_value=meas_value;
+                        min_sampnum = senampnum;
+                     }
+                     if(max_value<meas_value)
+                     {
+                        max_value = meas_value;
+                        max_sampnum = senampnum;
+                     }
+                  } 
+                           
+                   /*log to TW*/
 //                  writestring(tmpstr2,bankcount:1);
-//                  tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-//                  if(tpstart==tpstop)  
-//                     tmpstr3 = tmpstr1 + tmpstr2;
-//                  else
-//                     tmpstr3 = BANK_PARA_TWSTR[TCRnum][TCRMode][tpnum][prepost][vcorner] + tmpstr2;
+                  tmpstr2 = CONV.IntToString(bankcount);
+                  tmpstr2 = "_B" + tmpstr2;  /*_B#*/
+                  if(tpstart==tpstop)  
+                     tmpstr3 = tmpstr1 + tmpstr2;
+                  else
+                     tmpstr3 = BANK_PARA_TWSTR[TCRnum][TCRMode][tpnum][prepost][vcorner] + tmpstr2;
 //                  writestring(tmpstr2,senampnum:1);
 //                  tmpstr2 = "_SA" + tmpstr2;
 //                  tmpstr3 = tmpstr3 + tmpstr2;
-//
+                  tmpstr3 = tmpstr3 + "_SA" + CONV.IntToString(senampnum);
+
 //                  if(logall)  
 //                  {
 //                     TWTRealToRealMS(meas_value,realval,unitval);
@@ -14040,9 +14072,9 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 //   }   /*if v_any_dev_active and parmena*/
 //   
 //   F021_Bank_Para_MBox_func = V_any_dev_active;
-//}   /* F021_Bank_Para_MBox_func */
-//   
-//
+}   /* F021_Bank_Para_MBox_func */
+   
+
 TMResultM Bool2TMRes ( BoolM TransThis )
 {
    TMResultM Trans(TM_NOTEST);
@@ -18425,7 +18457,8 @@ TMResultM F021_Program_func(    IntS start_testnum,
 //         F021_Init_COF_Inst_Str(site_cof_inst_str);
 //      F021_Init_COF_Inst_Str simply sets the string associated with each active site to an empty string.  Unison
 //      is sited.  Don't need a site loop for this.
-        site_cof_inst_str = "";
+      if(TI_FlashCOFEna)  
+         site_cof_inst_str = "";
 //
 //      savesites = V_dev_active;
 //      tmp_results = V_dev_active;

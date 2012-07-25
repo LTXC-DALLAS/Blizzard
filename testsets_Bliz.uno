@@ -4550,7 +4550,7 @@ __Test FUNC_BIST_FreqSearchPost_T {
     }
 }
 __Test ConnectDevice {
-    __Entry[0] = DCsetup_allZero;
+    __Entry[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -4593,7 +4593,7 @@ __Test ConnectDevice {
     }
 }
 __Test DisconnectDevice {
-    __Entry[0] = DCsetup_allZero;
+    __Entry[0] = DCsetup_ZeroPins_ZeroSupplies_RampDown;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -8514,6 +8514,63 @@ __Test MainBG_Trim_T {
         __Title = Block3;
         __TestMethod {
             __Name = MainBG_Trim_func;
+        }
+    }
+}
+__Test VBOXLO_MEMORY_PG_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = VBOXLO_MEMORY_PG_PS;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __WrapCells = __True;
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'VBOXLO_MEMORY_PG_Thrd'"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test VBOXLO_MEMORY_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = VBOXLO_MEMORY_PG_PS;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = a_st_tk_1_v22;
+        __WrapCells = __True;
+        __ContinueOnFail = __Expression { __String = "RunAllTests"; }
+        __TestMethod {
+            __Name = TWFuncTest;
+            TestPins = __Expression { __String = "DSH_PL"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'VBOXLO_MEMORY_PG_Thrd'"; }
+            MinorID = __Expression { __String = "0"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "FALSE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+            FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
+            use_testware = __Expression { __String = "TRUE"; }
+            testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
         }
     }
 }

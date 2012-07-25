@@ -128,6 +128,12 @@ __PatternSequence FUNC_BIST_PG_PS {
         __Row { TDLStdPatGrp, WFT24 = { WFT24 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread FUNC_BIST_PG_Thrd {
     __Row {
@@ -181,6 +187,12 @@ __PatternSequence FUNC_BIST_PG_1_PS {
         __Row { TDLStdPatGrp, WFT9 = { WFT9 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread FUNC_BIST_PG_1_Thrd {
     __Row {
@@ -215,15 +227,24 @@ __Thread FUNC_BIST_PG_1_Thrd {
 __PatternSequence SCAN_IDDQ_1_PG_PS {
     __Thread[0] = SCAN_IDDQ_1_PG_Thrd;
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_IDDQ_1_PG_Thrd {
 }
 __PatternSequence SCAN_IDDQ_PG_PS {
     __Thread[0] = SCAN_IDDQ_PG_Thrd;
-    __Zipper = __Zipper {
-        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
-    }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_IDDQ_PG_Thrd {
 }
@@ -280,6 +301,12 @@ __PatternSequence SCAN_PATHDELAY_1_PG_PS {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __PatternSequence SCAN_PATHDELAY_1_PG_DBG_PS {
     __Thread[0] = SCAN_PATHDELAY_1_PG_DBG_Thrd;
@@ -287,6 +314,12 @@ __PatternSequence SCAN_PATHDELAY_1_PG_DBG_PS {
         __Row { TDLStdPatGrp, WFT7 = { WFT7 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SPD_Debug_80_80_1_Thrd {
     __Row {
@@ -774,6 +807,12 @@ __PatternSequence SCAN_PATHDELAY_PG_PS {
         __Row { TDLStdPatGrp, WFT6 = { WFT6 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_PG_Thrd {
     __Row {
@@ -809,6 +848,12 @@ __PatternSequence SCAN_PATHDELAY_16_PG_PS {
         __Row { TDLStdPatGrp, WFT3 = { WFT3 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_16_2_PG_Thrd {
     __Row {
@@ -835,6 +880,12 @@ __PatternSequence SCAN_PATHDELAY_25_PG_PS {
         __Row { TDLStdPatGrp, WFT4 = { WFT4 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_25_PG_Thrd {
     __Row {
@@ -849,6 +900,12 @@ __PatternSequence SCAN_PATHDELAY_33_PG_PS {
         __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_33_2_PG_Thrd {
     __Row {
@@ -868,6 +925,12 @@ __PatternSequence SCAN_PATHDELAY_40_PG_PS {
         __Row { TDLStdPatGrp, WFT6 = { WFT6 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_40_PG_Thrd {
     __Row {
@@ -882,6 +945,12 @@ __PatternSequence SCAN_PATHDELAY_80_PG_PS {
         __Row { TDLStdPatGrp, WFT2 = { WFT2 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_PATHDELAY_80_PG_Thrd {
     __Row {
@@ -1155,6 +1224,12 @@ __PatternSequence pb_pb_mapcol_1p_PS {
         __Row { TDLStdPatGrp, WFT17_eng = { WFT17_eng } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread pb_pb_mapcol_1p_Thrd {
     __Row {
@@ -1181,6 +1256,12 @@ __PatternSequence pb_pb_mapcol_1p_SH2_PS {
         __Row { TDLStdPatGrp, WFT17_eng = { WFT17_eng } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread pb_pb_mapcol_1p_SH2_Thrd {
 }
@@ -1206,6 +1287,12 @@ __PatternSequence BIST_PROD_PG_PS {
         __Row { TDLStdPatGrp, WFT17_DC = { WFT17_DC } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread BIST_PROD_PG_Srch_Thrd {
     __Row {
@@ -1293,6 +1380,12 @@ __PatternSequence PBIST_2P_PROD_PG_PS {
         __Row { TDLStdPatGrp, WFT18_DC = { WFT18_DC } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread PBIST_2P_PROD_PG_Srch_Thrd {
     __Row {
@@ -1358,6 +1451,12 @@ __Thread PBIST_2P_PROD_PG_Thrd {
 __PatternSequence BURNIN_PG_PS {
     __Thread[0] = BURNIN_PG_Thrd;
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread BURNIN_PG_Thrd {
 }
@@ -1368,6 +1467,12 @@ __PatternSequence VBOXLO_MEMORY_PG_PS {
         __Row { TDLStdPatGrp, WFT20 = { WFT20 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread VBOXLO_MEMORY_PG_Thrd {
     __Row {
@@ -1390,18 +1495,42 @@ __Thread VBOXLO_MEMORY_PG_Thrd {
 
 __PatternSequence ANALOG_FSUSB_PUPD_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence ANALOG_TRIM_TRIM_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence ANALOG_USB_CHG_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence ANALOG_USB_OTG_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence BIST_MEMORY_VBOXLO_33_SEQ {
@@ -1411,6 +1540,10 @@ __PatternSequence BIST_MEMORY_VBOXLO_33_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1423,6 +1556,10 @@ __PatternSequence BIST_PROD_33_1_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1434,15 +1571,31 @@ __PatternSequence BIST_PROD_33_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
 __PatternSequence BURNIN_200_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence DC_PARA_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence DIAG_VHI_200_SEQ {
@@ -1452,6 +1605,10 @@ __PatternSequence DIAG_VHI_200_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1464,6 +1621,10 @@ __PatternSequence DIAG_VLO_200_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1474,6 +1635,10 @@ __PatternSequence FFDieIDProg_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1486,6 +1651,10 @@ __PatternSequence FUNC_GROS_100_1_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1496,6 +1665,10 @@ __PatternSequence FUNC_GROS_100_2_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1508,6 +1681,10 @@ __PatternSequence FUNC_GROS_100_3_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1519,15 +1696,31 @@ __PatternSequence FUNC_GROS_100_4_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
 __PatternSequence FUNC_GROS_100_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence FUNC_GROS_166p66_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence FUNC_SCAN_AC_50_1_SEQ {
@@ -1537,6 +1730,10 @@ __PatternSequence FUNC_SCAN_AC_50_1_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncFreeRun"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1549,6 +1746,10 @@ __PatternSequence FUNC_SCAN_AC_50_2_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncFreeRun"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1559,6 +1760,10 @@ __PatternSequence FUNC_SCAN_AC_50_3_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncFreeRun"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1571,6 +1776,10 @@ __PatternSequence FUNC_SCAN_AC_50_4_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncFreeRun"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
@@ -1582,15 +1791,31 @@ __PatternSequence FUNC_SCAN_AC_50_5_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncFreeRun"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
 __PatternSequence FUNC_SCAN_AC_50_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence Iddq_PM01_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 /**Used for Vmin Search**/
 __PatternSequence Iddq_PM02_SEQ {
@@ -1608,6 +1833,10 @@ __PatternSequence Iddq_PM02_SEQ {
             __Pins = __Expression { __String = "OSC0_124"; __Type = PIN; }
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
+        }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
         }
     }
 }
@@ -1644,6 +1873,12 @@ __PatternSequence Iddq_SEQ {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __Thread pb_iddq_ret_chkr_Thrd {
@@ -1696,6 +1931,12 @@ __Thread pb_iddq_ret_zeroes_NoPM_Thrd {
 }
 __PatternSequence LeakIO_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence Read_Mg0_100_SEQ {
@@ -1706,11 +1947,21 @@ __PatternSequence Read_Mg0_100_SEQ {
             __Direction = __Expression { __String = "Dir:Input"; __Type = Dir:; }
             __Drive = __Expression { __String = "Drv:SyncGated"; __Type = Drv:; }
         }
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
     }
 }
 
 __PatternSequence Vout_SEQ {
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence TestPatScan_PS {
@@ -1719,6 +1970,12 @@ __PatternSequence TestPatScan_PS {
         __Row { TDLStdPatGrp, WFT999 = { WFT999 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread TestPatScan_Thrd {
     __Row {
@@ -1733,9 +1990,14 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[3] = FF_CheckROM_Mg0_NoEd_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
-        __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 //__Thread FF_InitCheck_Thrd {
@@ -1774,6 +2036,12 @@ __PatternSequence DCPara_SEQ {
         __Row { TDLStdPatGrp, WFT10 = { WFT10 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread DC_Para_Thrd {
     __Row {
@@ -1804,12 +2072,18 @@ __PatternSequence FlashTestNum_SEQ {
     __Thread[19] = pb_pb_test_fail_pin_Thrd;
     __Thread[20] = pb_pb_test_done_pin_Thrd;
     __Zipper = __Zipper {
-        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
-        __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
         __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
+        __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
+        __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __Thread jtag_reset_init_Thrd {
@@ -2134,6 +2408,12 @@ __PatternSequence SCAN_SA_Debug_PS {
         __Row { TDLStdPatGrp, WFT1_OSC0 = { WFT1_OSC0 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 
 __PatternSequence SCAN_SA_PG_PS {
@@ -2169,6 +2449,12 @@ __PatternSequence SCAN_SA_PG_PS {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread SCAN_SA_PG_glob_Thrd {
     __Row {
@@ -2189,6 +2475,12 @@ __PatternSequence BIST_PROD_DEBUG {
         __Row { TDLStdPatGrp, WFT17_eng = { WFT17_eng } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread MapCol_Debug {
     __Row {
@@ -2334,6 +2626,12 @@ __PatternSequence DMLED_PS {
         __Row { TDLStdPatGrp, WFT26 = { WFT26 } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread candmalbtx1rx0_1beat_Thrd {
     __Row {
@@ -2634,8 +2932,15 @@ __PatternSequence debug_ps {
     __Thread[2] = gpt5_debugF;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT8 = { WFT8 } }
+        __Row { TDLStdPatGrp, WFT_MATCH = {  } }
     }
     __AutoBasePeriod = __True;
+    __PinModes {
+        __Row {
+            __Pins = __Expression { __String = "ALL_PINS"; __Type = PIN; }
+            __Term = __Expression { __String = "Term:NoLoad"; __Type = Term:; }
+        }
+    }
 }
 __Thread pwm_Thrd {
     __Row {
