@@ -105,6 +105,8 @@ class TI_DC : public TMFamily
     static TI_DC *ParamPtr;
     void   SetParamPtr() { ParamPtr = this; }
     static TMResultM Callback();
+    
+    StringS TI_DC_GetPinInstrument(PinM pin);
 };
 
 TM_RETURN TI_DC::DoAction(TM_ACTION action)

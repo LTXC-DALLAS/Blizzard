@@ -1,5 +1,7 @@
 #include <Unison.h>
 #include <string_utils.h>
+#include <stdEfuse.h>
+#include <DspSendUtils.h>
 
 using namespace std;
 
@@ -61,6 +63,7 @@ BoolS ENABLE_PROG_WAIT_OVERRIDE;
 
 FloatS timer1;
 FloatS timer2;
+
 
 /******************************************************************************/ 
 /******************************************************************************/ 
@@ -396,7 +399,6 @@ BoolM STDReadFuseRow(StringS &techName,
 //                   FuseROMCtlr STDFuseFarmRec,
                      IntS &ctlrNum,
                      IntS &blkNum,
-                     StringML &blkStr,
                      IntM rowAddr,
                      StringS &readPattern,
                      StringM &readRowStr,
@@ -405,17 +407,18 @@ BoolM STDReadFuseRow(StringS &techName,
   This function is used to read a FROM row.
  *****************************************************************************/ 
 {
-  StringML digReadRowAddr;
-  StringS rowAddrStr;
-  StringS labelReadRowAddr;
   StringS digPatName;
   PinML digSrcPin;
-  StringS digCapPin;
+  PinML digCapPin;
   UnsignedM1D digCapArr;
   IntS digCapLen;
   StringS digCapRef;
   UnsignedM1D simValue(41,0);
   BoolM readRowStatus = true;
+  UnsignedM send_uint;
+  UnsignedM1D send_data(1);
+  StringS send_name = "FF_ReadRowAddr";
+  StringS send_ref = "FF_ReadRow_sref";
   
   readError = 0;
   readRowStr = nullRowStr;
@@ -423,14 +426,21 @@ BoolM STDReadFuseRow(StringS &techName,
   /*********************************************/ 
   /* Add block and row address to source array */ 
   /*********************************************/  
-  digReadRowAddr += FF_DectoVecStr(rowAddr, 11);
-  digReadRowAddr += blkStr;
+  IntM send_int = ((blkNum << 11) + rowAddr) & 0xFFFF;
+  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+    send_uint[*si] = unsigned(send_int[*si]); 
+  send_data.SetValue(0, send_uint);
   
   digSrcPin = "PA2_48";
-  labelReadRowAddr = PatternBurst(readPattern).GetPattern(0).GetName();
-  labelReadRowAddr += ".Read_RowAddr";
   
-  DIGITAL.ModifyVectors(digSrcPin, readPattern, labelReadRowAddr, digReadRowAddr);
+  if (!IsDspSendDefined(send_name))
+  {
+    // 1 word, 16 bits per word using LSB first
+    DIGITAL.DefineSerialSend(digSrcPin, send_name, send_ref, 1, 16, WORD_LSB_FIRST);
+  }
+  
+  DIGITAL.LoadSend(send_name, send_data);
+  DIGITAL.StartSend(send_name);
   
   digCapPin = "o_cpu_fail_47";
   digCapRef = "CapFF";
@@ -507,7 +517,7 @@ TMResultM STDReadFuseROM(StringS codeOption,
   BoolM allSitesInactive;
   BoolM readRowStatus;
   StringS techName;
-  StringML blkStr;
+//  StringML blkStr;
   StringS ctlrTWStr;
   StringS blkTWStr;
   StringS rowTWStr;
@@ -579,7 +589,7 @@ TMResultM STDReadFuseROM(StringS codeOption,
   
   if (devActive != NO_SITES) // (!ActiveSites.Begin().End()) // V_Any_Dev_Active
   {
-    blkStr = FF_DectoVecStr(blkNum, 5);
+//    blkStr = FF_DectoVecStr(blkNum, 5);
     
     rowAddr = rowStart;
     currRowAddr = rowStart;
@@ -606,7 +616,7 @@ TMResultM STDReadFuseROM(StringS codeOption,
       {
         readRowStatus = 
           STDReadFuseRow(techName, // FuseROMCtlr,
-                         ctlrNum, blkNum, blkStr, currRowAddr,
+                         ctlrNum, blkNum, currRowAddr,
                          readPattern, actReadRowStr, errorCode);
       }        
 
@@ -746,27 +756,17 @@ TMResultM STDProgramFuseRow(IntS version,
  *****************************************************************************/
 {
    TMResultM progRowStatus = TM_PASS;
+   const int ADDR_LEN = 16;
 
    IntS dwBits;
    IntS strLen;
-   StringS strData;
-   StringS labelWriteRowAddr;
-   StringS labelWriteRowData;
-   StringS labelWriteCRA;
-   StringS labelProgramCode;
    IntS sourceBits;
    IntS FROM_CLK_chan;
-   StringML digVecData;
-   StringML digWriteRowAddr;
-   StringML digWriteRowData;
-   StringML digWriteCRA;
-   StringML digProgramCode;
    BoolM restoreActiveSites;
    BoolM checkCRA;
    BoolM checkWPbit;
    BoolM allSitesInactive;
 //   option  :  boardOption ;
-   StringML blkStr;
    StringM progErrorStr;
    StringM progAccumulatorStr;
 //   WPcheckError            : MSString40Array;
@@ -782,103 +782,96 @@ TMResultM STDProgramFuseRow(IntS version,
 //   ArraySetBoolean(allSitesInactive, FALSE);
 
   StringS digPatName;
-  StringS digSrcPin;
-  PinML digCapPin;
+  StringS digSrcPin = "PA2_48";
+  PinML digCapPin = "o_cpu_fail_47";
   UnsignedM1D digCapArr;
   UnsignedS digCapLen;
-  StringS digCapRef;
+  StringS digCapRef = "CapFF";
+
   UnsignedM1D simValue(121,0);
+  IntM addr_intm;
+  const int num_bits_per_chunk = 16;
+  // calculate number of send samples, use TechRowLen, 2 * address length and ProgCode length
+  // then divide by 16-bit words and round up. Finally, add one for address.
+  // This is needed because with DSP Send on a DPIN96, we are only allowed one send
+  // per pattern, so we have to stuff the address, data, and codes in to one send.
+  // We will pack things in so that unused space goes at the end, which the pattern
+  // doesn't increment through.
+  IntS send_length = int(MATH.LegacyRound(FloatS(double(TechRowLen + 5 + (ADDR_LEN * 2)) / double(num_bits_per_chunk) + 0.5)));
+  UnsignedM1D send_data(send_length, 0);
+  int i, num_words, num_chars_left;
+  StringS strProgData, strCRAData, strProgCode, strData;
+  StringS send_name = "FF_ProgramRow";
+  StringS send_ref = "FF_ProgramRow_sref";
+  
 
   /*******************************/ 
   /* Build row and block address */ 
   /*******************************/   
-  digWriteRowAddr += FF_DectoVecStr(rowAddr, 11);
-  digWriteRowAddr += FF_DectoVecStr(blkNum, 5);
+  addr_intm = ((blkNum << 11) + rowAddr) & 0xFFFF;
    
   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
   {      
+    send_data[*si][0] = unsigned(addr_intm[*si]);
+    
     /******************/ 
     /* Build row data */ 
     /******************/ 
-    strData = progRowStr[*si].Substring(TechDataStart-1, TechDataLen);
-        
-    strLen = strData.Length();
-    for (IntS bit = 0; bit < strLen; bit++)
-    {
-      if (strData.Substring(strLen-bit, 1) == "1")
-        digWriteRowData[*si] += "H";
-      else
-        digWriteRowData[*si] += "L";  
-    }
-  
+    strProgData = progRowStr[*si].Substring(TechRowDataStart-1, TechRowDataLen);
+          
     /******************************/ 
     /* Build CRA and program code */ 
     /******************************/ 
     if (CRALen > 0)
     {    
-      strData = progRowStr[*si].Substring(CRAStart-1, CRALen);
-      strLen = strData.Length();
+      strCRAData = progRowStr[*si].Substring(CRAStart-1, CRALen);
              
-      if (strData != nullCRAStr) 
+      if (strCRAData != nullCRAStr) 
       {
-        digProgramCode[*si] += "L";
-        digProgramCode[*si] += "H";
-        digProgramCode[*si] += "L";
-        digProgramCode[*si] += "L";
-        digProgramCode[*si] += "L";   
+        strProgCode = ProgramCRACode;
      
         checkCRA[*si] = true;
-        for (IntS bit = 0; bit < strLen; bit++)
-        {
-          if (strData.Substring(strLen-bit, 1) == "1")
-            digWriteCRA[*si] += "H";
-          else
-            digWriteCRA[*si] += "L";  
-        }       
-        
+
         numRepairBits[*si]++;
       }
       else
       {
-        digProgramCode[*si] += "H";
-        digProgramCode[*si] += "H";
-        digProgramCode[*si] += "H";
-        digProgramCode[*si] += "L";
-        digProgramCode[*si] += "L";  
-        
-        digWriteCRA[*si] += "L";
-        digWriteCRA[*si] += "L";
-        digWriteCRA[*si] += "L";
-        digWriteCRA[*si] += "L";
-        digWriteCRA[*si] += "L";
-        digWriteCRA[*si] += "L";        
+        strProgCode = ProgramCode;
+        strCRAData = "000000";       
       }
-    }  
+    } else {
+      strCRAData = "";
+      strProgCode = "";
+    }
+    // Now build a string of all the pieces
+    // To get the data stream to work out properly when sent
+    // LSB-first, we have to reorder the pieces in reverse. 
+    StringS addr_str = IntToBinStr(addr_intm[ActiveSites.Begin().GetValue()], ADDR_LEN, true);
+    strData = addr_str + strProgCode + strCRAData + strProgData;
+    
+    // Now break the string into 16-bit words.
+    // Since we are sending LSB-first, start from the end of the string
+    strLen = strData.Length();
+    num_words = strLen / num_bits_per_chunk;
+    num_chars_left = strLen % num_bits_per_chunk;
+    for (i = 1; i <= num_words; ++i)  // remember, word 0 was used for address
+    {
+      send_data[*si][i] = BinStringToUnsigned(strData.Substring(strLen - (num_bits_per_chunk * i), num_bits_per_chunk), true);
+    }
+    if (num_chars_left != 0) // we have unconverted bits
+    {
+      send_data[*si][i] = BinStringToUnsigned(strData.Substring(0, num_chars_left), true);
+    }
   } 
-
-  digSrcPin = "PA2_48";
-  digPatName = PatternBurst(progPattern).GetPattern(0).GetName();
-  labelWriteRowAddr += digPatName;
-  labelWriteRowAddr += ".Write_RowAddr";
-  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteRowAddr, digWriteRowAddr);
-  
-  labelWriteRowData += digPatName;
-  labelWriteRowData += ".Write_RowData";
-  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteRowData, digWriteRowData);
-  
-  if (CRALen > 0)
+   DIGITAL.ClearAllSends();
+  if (!IsDspSendDefined(send_name))
   {
-    labelWriteCRA += digPatName;
-    labelWriteCRA += ".Write_CRA";
-    DIGITAL.ModifyVectors(digSrcPin, progPattern, labelWriteCRA, digWriteCRA);
+    DIGITAL.DefineSerialSend(digSrcPin, send_name, send_ref, send_length, num_bits_per_chunk, WORD_LSB_FIRST);
   }
   
-  labelProgramCode += digPatName;
-  labelProgramCode += ".Program_Code";
-  DIGITAL.ModifyVectors(digSrcPin, progPattern, labelProgramCode, digProgramCode);
+  DIGITAL.LoadSend(send_name, send_data);
+  DIGITAL.StartSend(send_name);
  
-  digCapPin = "o_cpu_fail_47";
-  digCapRef = "CapFF";
   digCapLen = 16 + TechRowDataLen + 5 + 24 + TechRowLen; //+ CRALen;
 
   PatternDigitalCapture(progPattern, digCapPin, digCapRef, digCapLen, digCapArr, simValue); 
@@ -1009,19 +1002,18 @@ TMResultM STDProgramFuseRow(IntS version,
 
 
 TMResultM STDProgramFuseROM(StringS codeOption,
-//                      FuseROMCtlr STDFuseFarmRec,
+                        STDFuseFarmRec FuseROMCtlr,
                         IntS ctlrNum, IntS blkNum,
                         IntM rowAddrStart,
                         StringM initDataStr,
-//                      fusePatterns STDFuseFarmPatArr,
-                        StringS progPattern,
+                        StringS1D fusePatterns,
                         BoolS writeProtect,
                         BoolS readProtect,
                         BoolS enableRedundancy,
-//                      TWDataLevel TWDataType,
+                        TWDataType TWDataLevel,
                         IntM numRepairRows,
                         StringM &returnDataStr,
-//                      FuseROMData STDFROMDataArr,
+                        StringM1D &FuseROMData,
                         IntM &errorCode,
                         IntM MSBPadding,
                         BoolM preReadRow,
@@ -1066,7 +1058,6 @@ TMResultM STDProgramFuseROM(StringS codeOption,
   StringM mergeRowDataStr;
   StringS vecPinData;
   StringS CRAString;
-  StringML blkStr;
   StringS techName;
 // option  :  FROM_CLK_option ;
 // option  :  boardOption ;
@@ -1280,7 +1271,6 @@ TMResultM STDProgramFuseROM(StringS codeOption,
       }     
     }
       
-    blkStr += FF_DectoVecStr(blkNum, 5);  
     
     /**********************/ 
     /* Start program flow */ 
@@ -1319,7 +1309,7 @@ TMResultM STDProgramFuseROM(StringS codeOption,
                             rowAddr,
                             rowDataStr,
                             expRowDataStr,
-                            progPattern,
+                            fusePatterns[1],
                             actRowDataStr,
 //                          FuseROMData STDFROMDataArr,
                             errorCode,
@@ -1360,18 +1350,21 @@ void FF_Debug()
   StringS readPattern;
   StringM initDataStr;
   StringM returnDataStr;
-// FuseROMData STDFROMDataArr,
+  StringM1D FuseROMData(102);
   IntM errorCode;
   IntM MSBPadding;
   StringS TWVarName;  
   TMResultM results;
+  
+  StringS1D fusePatterns(4);
     
   codeOption = "F021";
   ctlrNum = 1;
   blkNum = 0;
-  rowStart = 12;
-  rowStop = 15;
+  rowStart = 5;
+  rowStop = 8;
   readPattern = "FF_Read_Mg1A_Thrd";
+  fusePatterns[0] = readPattern;
   //                      11111111112222222222333
   //             12345678901234567890123456789012
   initDataStr = "00000000000000000000000000000000";
@@ -1405,6 +1398,7 @@ void FF_Debug()
   cout << "TT = " << timer2-timer1 << endl;
   TIME.StopTimer();
   
+
 //  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
 //  {
 //    cout << "Results[" << *si << "] = " << results[*si] << endl;
@@ -1433,34 +1427,47 @@ void FF_Debug()
   initDataStr = "00000000000000010000000000000000";
   MSBPadding = 0;
   progPattern = "FF_Program_Mg1A_Thrd";
+  fusePatterns[1] = progPattern;
   
   TIME.StartTimer();
   timer1 = TIME.GetTimer();
 
+  TWDataType TWDataLevel = TWMinimumData;
+  STDFuseFarmRec FuseROMCtlr;
+
+   Levels prog_levels("PowerUpAtEfuseProg");
+   Levels read_levels("PowerUpAtEfuseRead2");
+   
+   prog_levels.Execute();
+   
+
   results =
       STDProgramFuseROM("F021",
-//                      FuseROMCtlr STDFuseFarmRec,
+                        FuseROMCtlr,
                         ctlrNum, blkNum,
                         rowAddrStart,
                         initDataStr,
-//                      fusePatterns STDFuseFarmPatArr,
-                        progPattern,
+                        fusePatterns,
                         writeProtect,
                         readProtect,
                         enableRedundancy,
-//                      TWDataLevel TWDataType,
+                        TWDataLevel,
                         numRepairRows,
                         returnDataStr,
-//                      FuseROMData STDFROMDataArr,
+                        FuseROMData,
                         errorCode,
                         MSBPadding,
                         preReadRow,
 //                      FROM_CLK_Pin PinList,
                         numRepairBits);
 
+   read_levels.Execute();
+
   timer2 = TIME.GetTimer();
   cout << "TT = " << timer2-timer1 << endl;
   TIME.StopTimer();
+
+
   
 //  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) 
 //  {

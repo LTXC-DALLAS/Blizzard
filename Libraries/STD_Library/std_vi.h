@@ -28,7 +28,7 @@ bool STDGetConnect (const PinM &myPin, const BoolS &checkDCL = false);
 
 void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode = VI_MODE_REMOTE, 
                const BoolS &connectDCL = false);
-               
+                  
 void STDMeasV (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 
                const FloatM &simValue);
 void STDMeasI (const PinM &myPin, const UnsignedS &averages, FloatM &measValue, 

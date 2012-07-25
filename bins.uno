@@ -330,6 +330,12 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHCYCLE1X {
+    __Number = 104;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmax_GROS_100_1_post {
     __Number = 105;
     __Result = __False;
@@ -342,8 +348,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHCYCLE9X_PGM {
+    __Number = 108;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmax_GROS_100_3_post {
     __Number = 109;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHCYCLE9X {
+    __Number = 110;   // Was 109 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -468,6 +486,12 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHISLEEP {
+    __Number = 150;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vnom_14 {
     __Number = 151;
     __Result = __False;
@@ -504,6 +528,12 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHPGMCHK {
+    __Number = 162;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vnom_13 {
     __Number = 163;
     __Result = __False;
@@ -516,14 +546,32 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHPGMOTP {
+    __Number = 166;   // Was 167 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vnom_15 {
     __Number = 167;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHPGMOTPTMPLATE {
+    __Number = 168;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_3 {
     __Number = 169;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHERSBANK {
+    __Number = 170;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -546,6 +594,12 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHERSOTP {
+    __Number = 176;   // Was 177 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_3_post {
     __Number = 177;
     __Result = __False;
@@ -558,8 +612,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHRDM0CHK {
+    __Number = 180;   // Was 181 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_166p66_post {
     __Number = 181;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHRDM1 {
+    __Number = 182;   // Was 183 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -570,8 +636,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHRDM1CHK {
+    __Number = 184;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_4 {
     __Number = 185;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHRDNORMSCYC {
+    __Number = 186;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -582,8 +660,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHRDPIPE {
+    __Number = 188;   // Was 187 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_8 {
     __Number = 189;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHRDFREQSRCH {
+    __Number = 190;   // Was 189 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -600,8 +690,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHRDM0OTP {
+    __Number = 194;   // Was 195 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_post_4 {
     __Number = 195;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHRDM1OTP {
+    __Number = 196;   // Was 197 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -612,8 +714,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHRDOTPTMPLATE {
+    __Number = 198;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_1_post_5 {
     __Number = 199;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTPRESTRESS {
+    __Number = 200;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -624,8 +738,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTPSTPGMFF {
+    __Number = 202;   // Was 203 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_2_post_6 {
     __Number = 203;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTPGMFFDELTA {
+    __Number = 204;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -636,8 +762,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTPSTFGWL {
+    __Number = 206;   // Was 207 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_3_post_7 {
     __Number = 207;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTFGWLDELTA {
+    __Number = 208;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -648,8 +786,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTPSTTUNOX {
+    __Number = 210;  //   Was 209 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUNC_Vmin_GROS_100_4_post_8 {
     __Number = 211;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTTUNOXDELTA {
+    __Number = 212;   // Was 210 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -696,6 +846,12 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHSTRESSFUNC {
+    __Number = 226;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_FUSE_ROM_READ {
     __Number = 227;
     __Result = __False;
@@ -732,8 +888,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTPRESTRESSOTP {
+    __Number = 233;   // Was 227 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_LEAK_IDDQ_Vboxlo_pre_VDDS {
     __Number = 234;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTPREDRL0OTP {
+    __Number = 235;
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -744,8 +912,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTPREDRL1OTP {
+    __Number = 237;   // Was 236 in vlct pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_LEAK_IDDQ_Vboxlo_post_VDDS {
     __Number = 238;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTPSTSTRESSOTP {
+    __Number = 239;   // Was 228 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -756,8 +936,20 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+ __Bin F_FLASHVTSTRESSDELTAOTP {
+    __Number = 241;   // Was 229 in vclt pgm
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
  __Bin F_LEAK_IDDQ_Vburnin_VDDS_PM12 {
     __Number = 242;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHVTPREDRL1 {
+    __Number = 243;   // Was 231 in vlct pgm
     __Result = __False;
     __CheckOverFlow = __True;
     __Color = 2;
@@ -1468,6 +1660,38 @@ __BinMap ATSite_BinMap_Probe {
     __Bin F_FUNC_Vmin_12 = 19;
     __Bin F_FUNC_Vmin_GROS_100_4_pre_7 = 19;
     __Bin F_FUNC_Vmin_17 = 19;
+    __Bin F_FLASHCYCLE1X = 19;
+    __Bin F_FLASHCYCLE9X_PGM = 19;
+    __Bin F_FLASHCYCLE9X = 19;
+    __Bin F_FLASHISLEEP = 19;
+    __Bin F_FLASHPGMCHK = 19;
+    __Bin F_FLASHPGMOTP = 19;
+    __Bin F_FLASHPGMOTPTMPLATE = 19;
+    __Bin F_FLASHERSBANK = 19;
+    __Bin F_FLASHERSOTP = 19;
+    __Bin F_FLASHRDM0CHK = 19;
+    __Bin F_FLASHRDM1 = 19;
+    __Bin F_FLASHRDM1CHK = 19;
+    __Bin F_FLASHRDNORMSCYC = 19;
+    __Bin F_FLASHRDPIPE = 19;
+    __Bin F_FLASHRDFREQSRCH = 19;
+    __Bin F_FLASHRDM0OTP = 19;
+    __Bin F_FLASHRDM1OTP = 19;
+    __Bin F_FLASHRDOTPTMPLATE = 19;
+    __Bin F_FLASHVTPRESTRESS = 19;
+    __Bin F_FLASHVTPSTPGMFF = 19;
+    __Bin F_FLASHVTPGMFFDELTA = 19;
+    __Bin F_FLASHVTPSTFGWL = 19;
+    __Bin F_FLASHVTFGWLDELTA = 19;
+    __Bin F_FLASHVTPSTTUNOX = 19;
+    __Bin F_FLASHVTTUNOXDELTA = 19;
+    __Bin F_FLASHSTRESSFUNC = 19;
+    __Bin F_FLASHVTPRESTRESSOTP = 19;
+    __Bin F_FLASHVTPREDRL0OTP = 19;
+    __Bin F_FLASHVTPREDRL1OTP = 19;
+    __Bin F_FLASHVTPSTSTRESSOTP = 19;
+    __Bin F_FLASHVTSTRESSDELTAOTP = 19;
+    __Bin F_FLASHVTPREDRL1 = 19;
     __Bin F_FUNC_REPAIR_ESDA = 20;
     __Bin F_FUNC_REPAIR_NONREPAIR = 21;
     __Bin F_FUNC_REPAIR_REDUNDANCY = 22;

@@ -22,7 +22,7 @@
  /*            ISA_NLD config variables.                                       */
  /*                                                                            */
  /*  A1.3 : Released with new OTP format with 8us ppw.          KChau 11/30/09 */
- /*                                          MeasPinTMU_func                                  */
+ /*                                                                            */
  /* 12/09/09  KChau                                                            */
  /*           -Removed tpad ramping in F021_Flash_Leak_func, F021_Stress_func  */
  /*            as o"scope show not needed. Also set tpad prior entering tcrnum */
@@ -290,9 +290,10 @@
 
 #include <f021_func.h>
 #include <string_utils.h>
+#include <DspSendUtils.h>
+#include <efuse.h>
 #include <iomanip>
 using namespace std; 
-
 
 void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
                                                    VIMeasureTypeS &vimeas_type)
@@ -323,8 +324,8 @@ void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type,
 }
 
 void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
-                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
-                           WordOrientationS wordOrientation = WORD_MSB_FIRST)
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize, 
+                           WordOrientationS wordOrientation)
 {
    BoolM timed_out;
    
@@ -356,36 +357,17 @@ void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capN
    }
 }
 
-// /*ElimSpace remove space from string until encounter alpha-numeric*/
-//void ElimSpaceStr(    StringS inputstr)
-//{
-//   IntS length,spaceidx;
-//   char achar;
-//   BoolS firsttime;
-//
-//   spaceidx = instr(inputstr," ");
-//   firsttime = true;
-//   
-//   while(spaceidx!=0) do
-//   {
-//      length = len(inputstr);
-//      if((length>0) and firsttime)  
-//      {
-//         inputstr = mid(inputstr,spaceidx+1,(length-spaceidx));
-//         firsttime = false;
-//      }
-//      else if(length>0)  
-//         inputstr = mid(inputstr,spaceidx+1,(length-1));
-//      
-//      achar = inputstr[1];
-//      if(((achar >== chr(ord("A"))) and (achar <== chr(ord("z")))) or
-//         ((inputstr[1] >== "0") and (inputstr[1] <== "9")))  
-//         spaceidx = 0
-//      else
-//         spaceidx = instr(inputstr," ");
-//   } 
-//}   /* ElimSpaceStr */
-//      
+void DatalogTMResultM(const TMResultM &results, const StringS &comment, 
+                      const PinML &testPins = UTL_VOID, const bool &useTestware = false)
+{
+   IntM int_results;
+   
+   // convert TMResultM to IntM 
+   int_results = IntM(results);
+   TIDlog.Value(int_results, testPins, TM_PASS, TM_PASS, "", comment, UTL_VOID, UTL_VOID, 
+                useTestware, TWMinimumData);
+}
+
 //void PrintDUTSetup()
 //{
 //   DCSetup twDCSetup;
@@ -1349,188 +1331,100 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
 {
    StringS tpatt = "ramread_nburst_addr_v4p0_Thrd"; //"ramread_nburst_addr_Thrd";
    StringS datastr;
-   StringS cap_name, label;
-   StringS addr_str,s,str1,str2;
-   IntS curraddr,offsetcyc;
-   IntS maxcapcount;
+   StringM mstr;
+   StringS cap_name;
+   IntS curraddr;
+   IntS maxcapcount, maxsrccount;
    UnsignedM1D CaptureArr(33);
    UnsignedM1D sim_value(33,0);  // return all 0s to sim
    StringML captured_data;
    IntSL address_list;
-   StringML SourceArr;
    UnsignedM msw_val,lsw_val;
    PinML data_pins,data_in;
    IntS evenodd, halfcapcount;
    int i;
    IntS physaddr;
    UnsignedS shiftbit;
-
-//   Clockstopfreerun(s_clock1a);
-// ????   
-//   SetupGet(prevDCSU);
-//   SetupSelect(prevDCSU,norm_fmsu);
+   UnsignedM1D send_data(1);
 
    TIME.StartTimer();
 
+   cap_name = "CapRam32";
+   StringS send_name = "ReadRamAddrSend";
+   StringS sendref_name = "ReadRamAddr_sref";
+
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix this. Unneeded for Blizzard.
-//    /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   maxcapcount = 32;
-//   istep = 1;
-//   fails = 32;
-//   dead_cyc = 0;
-//   data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//   lsw_cycle = data_cycle[1];
-//   for (counter = 2;counter <= fails;counter++)
-//      data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//   FailGetMax(save_fails, tpatt);
-//   
-//   curraddr = startaddr;
-//   linebrk = 0;
-//
-//   if(TIStdScreenPrint)  
-//   {
-//      cout << "Site " << log_site:3 << "    Reading RAM contents (Msw << Lsw)." << 
-//              "  Start Address = " << startaddr << "    Stop Address = " << stopaddr << endl;
-//      cout << "RAM byte address" << endl;
-//   } 
-//   
-//   while(curraddr <= stopaddr) do
-//   {
-//       /*abort if s key is pressed*/
-//      if(Inkey(s))   break;
-//      
-//      failstr1 = "0000";
-//      failstr2 = "0000";
-//      failindex = 1;
-//      offsetcyc = 0;
-//      
-//      IntToBinStr(curraddr,addr_str);
-//      
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                data_in,S_binary,
-//                                Mid(addr_str,16-(1*offsetcyc),1));
-//
-//       /* formatting address for print out later*/
-//      FormatAddrString;
-//      
-//      FailSetMax(fails, tpatt);
-//      Enable(S_FAIL_MEMORY);
-//      
-//      result = (PatternExecute(tmpint,tpatt));
-//      failcount = FailGetCount;
-//      
-//      if (failcount <> 0)  
-//      {
-//         while (failindex <= failcount) do
-//         {
-//            pinlistget(data_pins,pl_arr,pl_len);
-//            failstr = "00000000000000000000000000000000";
-//            
-//            for (tmpint = 1;tmpint <= failcount;tmpint++)
-//            {
-//               log_opt = FailGetInfo(failindex, pm_addr, rpt_count, loop_count,
-//                                      scan_block, cycles, src_line );
-//               if((log_site>=1) and (log_site<=V_Sites))  
-//               {
-//                  if (V_Dev_Active[log_site] and (V_Fail_Count[log_site]>=failcount))  
-//                  {
-//                     if not V_PF_Status[log_site]  
-//                     {
-//                        FailGetSitePinList(log_site, failindex, pl_failarr,pl_faillen);
-//                        fail_cycle = V_Cycle[log_site];
-//                        for (counter = 1;counter <= maxcapcount;counter++)
-//                           if((data_cycle[index] = fail_cycle) and (pl_failarr[1]=pl_arr[1]))  
-//                              failstr[(maxcapcount+1)-counter] = "1";
-//                     }   /*if not V_PF_Status*/
-//                  }   /*if V_Fail_Count*/
-//               }   /*if log_site*/
-//               failindex = failindex + 1;
-//            }   /*for tmpint*/
-//            
-//            Readstring("0b" + failstr) + temp_value;
-//            Writestring(temp_bcd,temp_value:S_hex:1);
-//            length = len(temp_bcd);
-//            Writestring(temp_bcd,mid(temp_bcd,3,length-2));
-//            
-//            switch((length-2)) {
-//              case 1 : temp_bcd = "0000000" + temp_bcd;
-//              case 2 : temp_bcd = "000000" + temp_bcd;
-//              case 3 : temp_bcd = "00000" + temp_bcd;
-//              case 4 : temp_bcd = "0000" + temp_bcd;
-//              case 5 : temp_bcd = "000" + temp_bcd;
-//              case 6 : temp_bcd = "00" + temp_bcd;
-//              case 7 : temp_bcd = "0" + temp_bcd;
-//            }   /* case */
-//                  
-//            failstr2 = Mid(temp_bcd, 1, 4);
-//            failstr1 = Mid(temp_bcd, 5, 4);
-//         }   /*while failindex*/
-//      }   /*if failcount*/
-//
-//      if(linebrk=0)  
-//      {
-//         if(TIStdScreenPrint)  
-//         {
-//            cout << endl;
-//            cout << "0x" << addr_bcd << "  ";
-//         } 
-//      } 
-//      
-//      if(TIStdScreenPrint)  
-//         cout << failstr2 << " " << failstr1 << " ";  /*msb/lsb*/
-//      failresetmax;
-//      Disable(S_FAIL_MEMORY);
-//      curraddr = curraddr+ADDR_RAM_INC;
-//      linebrk = linebrk+1;
-//      if(linebrk=4)  
-//         linebrk=0;
-//      
-//   }   /* while curraddr */
-//   
-//   Disable(S_FAIL_MEMORY);
-//   FailSetMax(save_fails, tpatt);
-//    /*-------- end of JTAG --------*/
+    /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+   maxsrccount = 16;
+   maxcapcount = 32;
+   halfcapcount = maxcapcount / 2;
+
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   while(curraddr <= stopaddr)
+   {
+      send_data.SetValue(0, unsigned(curraddr));
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
+      
+      PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
+      
+      msw_val = 0;
+      lsw_val = 0;
+      
+      for (i = 0;i < halfcapcount;++i)
+      {
+         shiftbit = data_pins.GetNumPins()*(i);
+         lsw_val = lsw_val + (CaptureArr[i]<<shiftbit);
+         msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
+      } 
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         IO.Print(datastr, "%04x %04x", msw_val[*si], lsw_val[*si]);
+         mstr[*si] = datastr;
+      }
+      captured_data += mstr;
+      address_list += curraddr;
+      
+      curraddr = curraddr+ADDR_RAM_INC;
+      
+   }   /* while curraddr */
+
+    /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
-   data_in   = "DMLED_INBUS";
+   PinML data_bus   = "DMLED_INBUS";
+   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
-   cap_name = "CapRam32";
+   maxsrccount = 17;
    maxcapcount = 8;
-//   maxsrccount = 17;
    halfcapcount = maxcapcount / 2;
-//   istep = 8;
    
    curraddr = startaddr;
    
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   captured_data.Erase();
+   
    while(curraddr <= stopaddr)
    {         
-      offsetcyc = 0;
-
-      physaddr = curraddr>>3;
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
+      physaddr = (curraddr>>3) & 0xFFFF;
       evenodd = (curraddr>>2) & 0x1;
+      physaddr += (evenodd << 16);  //evenodd is last bit in send, so must be MSB
+      send_data.SetValue(0, unsigned(physaddr));
 
-      SourceArr.Erase();
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-      {
-         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str2;
-      } 
-      
-      label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
-
-      SourceArr.Erase();
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-      SourceArr += str1;
-
-      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
 
       PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
 
@@ -1539,13 +1433,17 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       
       for (i = 0;i < halfcapcount;++i)
       {
-         shiftbit = 4*(i);
+         shiftbit = data_pins.GetNumPins()*(i);
          lsw_val = lsw_val + (CaptureArr[i]<<shiftbit);
-         msw_val = msw_val + (CaptureArr[i+4]<<shiftbit);
+         msw_val = msw_val + (CaptureArr[i+halfcapcount]<<shiftbit);
       } 
 
-      IO.Print(datastr, "%04x %04x", msw_val, lsw_val);
-      captured_data += datastr;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         IO.Print(datastr, "%04x %04x", msw_val[*si], lsw_val[*si]);
+         mstr[*si] = datastr;
+      }
+      captured_data += mstr;
       address_list += curraddr;
       
       curraddr = curraddr+ADDR_RAM_INC;
@@ -1941,252 +1839,79 @@ void GetRamContentDec_16Bit(    StringS tpatt,
                                      IntS addr_loc,
                                      IntM &ret_val)
 {
-   IntS curraddr,offsetcyc,index;
-   StringS addr_str,str1,str2, cap_name;
-   IntM temp_value;
+   IntS curraddr,index;
+   StringS addr_str,cap_name;
    BoolS debugprint;
    UnsignedM1D CaptureArr(18);
    UnsignedM1D sim_cap_arr(18, 0);
    UnsignedS shiftbit, count, maxcapcount;
-   StringML SourceArr; 
    PinML data_pins,data_in;
    IntS maxsrccount;
    IntS evenodd,physaddr;
+   UnsignedS address;
+   StringS send_name;
+   StringS sendref_name;
+   UnsignedM1D send_data(1);
+   IntM temp_value = 0;
 
+   
    debugprint = false;  /*TI_FlashDebug and tiignorefail;*/
    if(tistdscreenprint and debugprint)     
       TIME.StartTimer();
       
-   offsetcyc = 0;
-
-   temp_value = 0;
-
-
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-//  :TODO: come back and do the JTAG section...unneeded for Blizzard
-//    /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   maxcapcount = 16;
-//   istep = 1;
-//   
-//   //IntToBinStr(addr_loc,addr_str);
-//   addr_str = IntToVLSIDriveStr(addr_loc, 16, true);
-//   
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//      {
-//         SourceArr += addr_str[15-offsetcyc]; // makes SourceArr LSB first
-//          /*if(tistdscreenprint and TI_FlashDebug) then
-//              write(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
-//          */
-//      } 
-//          /*if(tistdscreenprint and TI_FlashDebug) then
-//             writeln(tiwindow);
-//          */
-//   }
-//   else
-//   {
-//      StringML temp_arr;
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         temp_arr += addr_str[15-offsetcyc]; // LSB first
-//      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-//      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, temp_arr);
-//   } 
-//
-//   if(GL_DO_ESDA_WITH_SCRAM)  
-//   {
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,
-//                                     false, SourceArr,CaptureArr)
-//      else
-//         PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
-//
-//      for (count = 1;count <= maxcapcount;count++)
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               temp_value[site] = temp_value[site]+(CaptureArr[site][count] << (count-1));
-//       /*
-//       if(tistdscreenprint and TI_FlashDebug) then
-//       begin
-//          for site := 1 to v_sites do
-//             if(v_dev_active[site]) then
-//                writeln(tiwindow,"Site",site:-5," addr = ",addr_loc:s_hex,"  data = ",temp_value[site]:s_hex);
-//       end;
-//       */
-//   }
-//   else
-//   {
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//      lsw_cycle = data_cycle[1];
-//      for (counter = 2;counter <= maxcapcount;counter++)
-//         data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//      failsetmax(maxcapcount,tpatt);
-//      Enable(S_Fail_Memory);
-//      tmpbool = PatternExecute(tmpint, tpatt);
-//
-//      if(not tmpbool)  
-//      {
-//         failcount = failgetcount;
-//         failindex = 1;
-//         PinlistGet(data_pins,pl_arr,pl_len);
-//
-//         for (tmpint = 1;tmpint <= failcount;tmpint++)
-//         {
-//            FailGetInfo(failindex,pm_addr,rpt_count,loop_count,scan_block, cycles, src_line );
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
-//               {
-//                  fail_cycle = v_cycle[site];
-//                  for (index = 1;index <= maxcapcount;index++)
-//                     if((data_cycle[index] = fail_cycle) and (pl_failarr[1]=pl_arr[1]))  
-//                        tmpArray[site][(maxcapcount+1)-index] = "1";
-//               } 
-//            failindex = failindex+1;
-//         }   /*for tmpint*/
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               Readstring("0b" + tmpArray[site]) + temp_value[site];
-//                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
-//                 */
-//            } 
-//      }   /*tmpbool*/
-//
-//      failresetmax;
-//      Disable(S_Fail_Memory);
-//   }    
-//      
-//   ret_val =  temp_value;
-//    /*-------- end of JTAG --------*/
+    /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+   maxcapcount = 16;
+   maxsrccount = 16;
+   cap_name = "CapRam32";
+   send_name = "GetRam16bitSend";
+   sendref_name = "ramread_16_sref";
+   
+   address = unsigned(addr_loc);
+   /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
-   data_in   = "DMLED_INBUS";
+   PinML data_bus = "DMLED_INBUS";
+   data_in = data_bus[3];
    data_pins = "DMLED_OUTBUS";
    cap_name = "CapRam4";
+   send_name = "GetRam16bitSend";
+   sendref_name = "ramread_16_sref";
    maxcapcount = 4;
    maxsrccount = 17;
-//   istep = 4;
 
-   physaddr = addr_loc>>3;
+   physaddr = (addr_loc>>3) & 0xFFFF;
    evenodd = (addr_loc>>2) & 0x1;
+   physaddr += (evenodd << 16); //evenodd is last bit in send, so must be MSB
    
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-//         {
-//            SourceArr[site][offsetcyc+1] = ((physaddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*if(tistdscreenprint and TI_FlashDebug) then
-//                 writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2," ] = ",SourceArr[site,offsetcyc+1]:-2, "  ");
-//             */
-//         } 
-//         SourceArr[site][maxsrccount] = evenodd;
-//         break;
-//      } 
-//   }
-//   else
-//   {
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      for (offsetcyc = 0;offsetcyc <= (maxsrccount-2);offsetcyc++)
-      {
-         SourceArr += "LLL" + addr_str.Substring(15-offsetcyc, 1); 
-      } 
-      StringS pat_label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, SourceArr);      
-      
-       /*control word*/
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-//      Patternlabelsetpindata(tpatt,"MOD_ADDR",36,data_in,S_binary,str1);
-      SourceArr.Erase();
-      SourceArr += str1;
-      DIGITAL.ModifyVectors(data_in, tpatt, pat_label, 36, SourceArr, "L");
-//   } 
+   address = unsigned(physaddr);
+   /*-------- end of DMLED --------*/
+#endif
+   /*-------- start JTAG/DMLED common --------*/
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   send_data.SetValue(0, address);
+   
+   DIGITAL.LoadSend(send_name, send_data);
+   DIGITAL.StartSend(send_name);
 
-//   if(GL_DO_ESDA_WITH_SCRAM)  
-//   {
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//         PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxcapcount,maxcapcount,false,SourceArr,CaptureArr);
-//      else
-      PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
+   PatternDigitalCapture(tpatt, data_pins, cap_name, maxcapcount, CaptureArr, sim_cap_arr);
 
-      for (count = 0;count < maxcapcount;count++)
-      {
-         shiftbit = 4*(count);
-         temp_value += (CaptureArr[count] << shiftbit);
-// Remove below 2 lines if the above works
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            temp_value[*si] += (CaptureArr[*si][count]<<shiftbit);
-      } 
-//   }
-//   else
-//   {
-   // :TODO: Fix. Is this needed at all? Alternate method but not sure we care
-//      data_cycle[1] = PatternLabelGetCycle(tpatt,"LSW_DATA");
-//      lsw_cycle = data_cycle[1];
-//      for (counter = 2;counter <= maxcapcount;counter++)
-//         data_cycle[counter] = data_cycle[1]+counter-1;
-//
-//      failsetmax(maxcapcount,tpatt);
-//      Enable(S_Fail_Memory);
-//      tmpbool = PatternExecute(tmpint, tpatt);
-//
-//      if(not tmpbool)  
-//      {
-//         failcount = failgetcount;
-//         failindex = 1;
-//         PinlistGet(data_pins,pl_arr,pl_len);
-//
-//         for (tmpint = 1;tmpint <= failcount;tmpint++)
-//         {
-//            FailGetInfo(failindex,pm_addr,rpt_count,loop_count,scan_block, cycles, src_line );
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (not v_pf_status[site]) and (tmpint <= v_fail_count[site]))  
-//               {
-//                  FailGetSitePinList(site, failindex, pl_failarr,pl_faillen);
-//                  fail_cycle = v_cycle[site];
-//                  for (counter = 1;counter <= fails;counter++)
-//                     if(data_cycle[counter]=fail_cycle)  
-//                        data_nib = counter;
-//                  for (counter = 1;counter <= pl_faillen;counter++)
-//                  {
-//                     for (plindex = 1;plindex <= pl_len;plindex++)
-//                        if(pl_failarr[counter] = pl_arr[plindex])  
-//                           tmpArray[site][17-((data_nib-1)*4)-plindex] = "1";
-//                  } 
-//               } 
-//            failindex = failindex+1;
-//         }   /*for tmpint*/
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               Readstring("0b" + tmpArray[site]) + temp_value[site];
-//                /*
-//                if(tistdscreenprint and TI_FlashDebug) then
-//                   writeln(tiwindow,"Site",site:-5," value = ",temp_value[site],"  ",temp_value[site]:s_hex);
-//                 */
-//            } 
-//      }   /*tmpbool*/
-//
-//      failresetmax;
-//      Disable(S_Fail_Memory);
-//   }    
+   for (count = 0;count < maxcapcount;++count)
+   {
+      shiftbit = data_pins.GetNumPins()*(count);
+      temp_value += (CaptureArr[count] << shiftbit);
+   } 
       
    ret_val =  temp_value;
-    /*-------- end of DMLED --------*/
-#endif
+   
+   /*-------- end JTAG/DMLED common --------*/
 #else
 // :TODO: Fix this. Unneeded for Blizzard.
 //   data_pins = PMT_RAMBUS;
@@ -2359,10 +2084,6 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 //   } 
 #endif
 
-// ????
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//      SetupSelect(prevDCSU,norm_fmsu);
-
    if(tistdscreenprint and debugprint)  
       IO.Print(IO.Stdout," GetRamContentDec_16bit TT : %e",TIME.StopTimer());
 }    /*GetRamContentDec_16bit*/
@@ -2447,167 +2168,115 @@ void GetRamContentDec_16Bit(    StringS tpatt,
  /*src_data1 is lsword, src_data2 is msword*/
  /*bcd_format=true if want to write src_data1/data2 in bcd format*/
  /*bcd_format=false then write src_data1/data2 int value in binary string format*/
-void WriteRamContentDec_32Bit(IntS addr_loc,
-                                   IntM src_data1,
-                                   BoolS data1_hexvalue,
-                                   IntM src_data2,
-                                   BoolS data2_hexvalue,
-                                   BoolS bcd_format)
+void WriteRamContentDec_32Bit(const IntS &addr_loc,
+                              const IntM &src_data1,
+                              const BoolS &data1_hexvalue,
+                              const IntM &src_data2,
+                              const BoolS &data2_hexvalue,
+                              const BoolS &bcd_format)
 {
-   IntS offsetcyc;
-   StringS addr_str;
    StringS tpatt = "ramwrite_burst_addr_v4p0_Thrd"; //"ramwrite_burst_addr_Thrd";
-   StringM bcd_vlsi_str1,bcd_vlsi_str2;
-   StringM bin_vlsi_str1,bin_vlsi_str2;
    PinML data_pins;
-   StringML SourceArr, SourceArrLo, SourceArrHi;
-   IntS maxiter, length;
-   IntS eindex, evenodd;
-   IntS shiftbit,physaddr;
-   StringS str1;
-   StringM mstr;
-
+   IntS evenodd;
+   IntS physaddr;
+   StringS send_name = "AddrPlus32bitData";
+   StringS send_ref = "WriteRam32bit";
+   IntS num_address;
+   IntS num_data;
+   IntS num_words; 
+   UnsignedM src1_word, src2_word;
+   
    if(tistdscreenprint and TI_FlashDebug)  
       TIME.StartTimer();
    
-   offsetcyc = 0;
-
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix this. Unneeded for Blizzard
 //    /*-------- use JTAG --------*/
 //    /*lsb 1st - msb last*/
-//   data_pins = JTAG_DIN;
-//   maxiter = 15;
-//   maskbit = 0x1;
-//   maxsrccount = 48;
-//   eindex = 16;
-//   mindex = 17;
-//   hindex = 33;
-//   length = 1;
-//
-//   IntToBinStr(addr_loc,addr_str);
-//   
-//   if(bcd_format)  
-//   {
-//      IntToBCD_BinStr(src_data1,bcdstr1,binstr1,data1_hexvalue);
-//      IntToBCD_BinStr(src_data2,bcdstr2,binstr2,data2_hexvalue);
-//
-//      if(GL_DO_SOURCE_WITH_SCRAM)  
-//      {
-//         SaveMemsetBistData = V_MemSetBistData;
-//         V_MemSetBistData = false;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//               {
-//                  SourceArr[site][offsetcyc+1]      = (addr_loc & (maskbit << offsetcyc)) >> offsetcyc;
-//                  SourceArr[site][offsetcyc+mindex] = (src_data1[site] & (maskbit << offsetcyc)) >> offsetcyc;
-//                  SourceArr[site][offsetcyc+hindex] = (src_data2[site] & (maskbit << offsetcyc)) >> offsetcyc;
-//               } 
-//            } 
-//         PatternDigitalSource(tpatt, data_pins, maxsrccount, true, SourceArr);
-//         V_MemSetBistData = SaveMemsetBistData;
-//      }
-//      else
-//      {
-//         if(sameness)  
-//         {
-//            bcd_binstr1 = binstr1[active_site];
-//            bcd_binstr2 = binstr2[active_site];
-//
-//            for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//            {
-//               Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,
-//                                      Mid(addr_str,eindex-offsetcyc,length));
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                      Mid(bcd_binstr1,eindex-offsetcyc,length));
-//               Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                      Mid(bcd_binstr2,eindex-offsetcyc,length));
-//            } 
-//            PatternExecute(tmpint,tpatt);
-//         }
-//         else   /*not same data*/
-//         {
-//            devsetholdstates(alldisable);
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            {
-//               if(savesites[site])  
-//               {
-//                  devsetholdstate(site,true);
-//                  bcd_binstr1 = binstr1[site];
-//                  bcd_binstr2 = binstr2[site];
-//                  for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-//                  {
-//                     Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,data_pins,S_binary,
-//                                            Mid(addr_str,eindex-offsetcyc,length));
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc,data_pins,S_binary,
-//                                            Mid(bcd_binstr1,eindex-offsetcyc,length));
-//                     Patternlabelsetpindata(tpatt,"MOD_DATA",offsetcyc+maxiter+1,data_pins,S_binary,
-//                                            Mid(bcd_binstr2,eindex-offsetcyc,length));
-//                  } 
-//                  PatternExecute(tmpint,tpatt);
-//                  devsetholdstate(site,false);
-//               } 
-//            }   /*for site*/
-//            devsetholdstates(savesites);
-//         }   /*not same data*/
-//      }   /*not go_do_source_with_scram*/
-//   }   /*if bcd_format*/
-//    /*-------- end of JTAG --------*/
-#else
-    /*-------- use DMLED --------*/
-   data_pins = "DMLED_INBUS";
-   maxiter = 3;
-   eindex = 12;
-   length = 4;
+   data_pins = "JTAG_DIN";
+   IntS num_bits_per_word = 16;
+   num_address = 1;
+   num_data = 2;
+   num_words = num_address + num_data; 
+   UnsignedM1D send_data(num_words);
 
    if(bcd_format)  
    {
-      IntMToBcdBinVlsiStrM(src_data1, bcd_vlsi_str1, bin_vlsi_str1, data1_hexvalue);
-      IntMToBcdBinVlsiStrM(src_data2, bcd_vlsi_str2, bin_vlsi_str2, data2_hexvalue);
+      if (!IsDspSendDefined(send_name))
+      {
+         DIGITAL.DefineSerialSend(data_pins, send_name, send_ref, num_words, num_bits_per_word, WORD_LSB_FIRST);
+      }
+      
+      // cast IntM to UnsignedM
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         src1_word[*si] = unsigned(src_data1[*si]);
+         src2_word[*si] = unsigned(src_data2[*si]);
+      }
 
-      physaddr = addr_loc>>3;
-   
+      // address, then 2 data words are in the send
+      send_data.SetValue(0, unsigned(addr_loc));
+      send_data.SetValue(1, src1_word);
+      send_data.SetValue(2, src2_word);
+      
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
+
+      DIGITAL.ExecutePattern(tpatt);      
+   }   /*if bcd_format*/
+    /*-------- end of JTAG --------*/
+#else
+    /*-------- use DMLED --------*/
+   data_pins = "DMLED_INBUS";
+   num_address = 17;
+   num_data = 8;
+   num_words = num_address + num_data; 
+   UnsignedM nibble_lo, nibble_hi;
+   UnsignedM1D send_data(num_words);
+   int i;
+
+   if(bcd_format)  
+   {
+      if (!IsDspSendDefined(send_name))
+      {
+         DIGITAL.DefineParallelSend(data_pins, send_name, send_ref, num_words);
+      }
+      
+      physaddr = (addr_loc>>3) & 0xFFFF;
        /*control word*/
       evenodd = (addr_loc>>2) & 0x1;  /*0=even or ram1, 1=odd or ram2*/
 
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-       /*address*/
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
+      // cast IntM to UnsignedM
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       {
-         str1 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str1;
-      } 
-      StringS patname = PatternBurst(tpatt).GetPattern(0).GetName();
-      StringS label = patname + ".MOD_ADDR";
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
-      
-      str1 = IntToVLSIDriveStr(evenodd, 4, true);
-      SourceArr.Erase();
-      SourceArr += str1;
-       /*control word*/
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, 36, SourceArr, "L");
-
-       /*data*/
-      for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
-      {
-         shiftbit = length*offsetcyc;
-         mstr = bin_vlsi_str1.Substring(eindex-shiftbit, length);
-         SourceArrLo += mstr;
-         mstr = bin_vlsi_str2.Substring(eindex-shiftbit, length);
-         SourceArrHi += mstr;
+         src1_word[*si] = unsigned(src_data1[*si]);
+         src2_word[*si] = unsigned(src_data2[*si]);
       }
-      SourceArr = SourceArrLo;
-      SourceArr += SourceArrHi;
+
+      // Calculate Send bits for address
+      // first 3 MSBs are all 0, so only care about last bit
+      for (i = 0;i < num_address-1; ++i) 
+      {
+         send_data.SetValue(i, unsigned(physaddr & 0x1));
+         physaddr >>= 1;
+      } 
+      send_data.SetValue(num_address-1, unsigned(evenodd));
+
+      // Calculate Send bits for data
+      for (i = 0; i < num_data/2; ++i)
+      {
+         nibble_lo = src1_word & 0xF;
+         nibble_hi = src2_word & 0xF;
+         src1_word >>= 4;
+         src2_word >>= 4;
+         send_data.SetValue(num_address + i, nibble_lo);
+         send_data.SetValue(num_address + num_data/2 + i, nibble_hi);
+      }
+
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
       
-      label = patname + ".MOD_DATA";
-      DIGITAL.ModifyVectors(data_pins, tpatt, label, SourceArr);
-      
-      DIGITAL.ExecutePattern(tpatt);
-      
+      DIGITAL.ExecutePattern(tpatt);  
    }   /*if bcd_format*/
     /*-------- end of DMLED --------*/
 #endif
@@ -2710,9 +2379,6 @@ void WriteRamContentDec_32Bit(IntS addr_loc,
 //      PatternExecute(tmpint,tpatt);
 //   } 
 #endif
-
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//      SetupSelect(prevDCSU,norm_fmsu);
    
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "WriteRamContentDec_32bit TT " << TIME.StopTimer() << endl;
@@ -2742,19 +2408,27 @@ void GetRamContent_SCRAM(IntS start_addr,
    UnsignedS halfcapcount, maxcapcount;
    UnsignedS istep, count;
    IntS offsetcyc;
-   UnsignedS index;
+   UnsignedS index, jtag_address;
    UnsignedM tnib0,tnib1,tnib2,tnib3;
    UnsignedM tnib4,tnib5,tnib6,tnib7;
    StringS tpatt, addr_str, str2;
    PinML data_pins,data_in;
+   StringS send_name = "RamReadMboxSend";
+   StringS sendref_name = "RamReadMbox_sref";
+   StringS cap_name = "CapRam32";
+   UnsignedM1D send_data(1);
+   IntS maxsrccount;
+
+   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
+      TIME.StartTimer();
+
+   tpatt = "ramread_mbox_v4p0_Thrd"; //"ramread_mbox_Thrd";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT
 #if $GL_USE_JTAG_RAMPMT
-// :TODO: Fix. Unneeded for Blizzard.
-//   IntM1D SourceArr(16); 
-//   IntM1D CaptureArr(JTAGMAXCNT_MBOX); 
+   UnsignedM1D CaptureArr(JTAGMAXCNT_MBOX); 
+   UnsignedM1D sim_value(JTAGMAXCNT_MBOX, 0); 
 #else
-   StringML SourceArr; 
    UnsignedM1D EvenCaptureArr(X64MAXCNT_MBOX),OddCaptureArr(X64MAXCNT_MBOX); 
    UnsignedM1D sim_value(X64MAXCNT_MBOX, 0);
    IntS physaddr, curraddr;
@@ -2766,84 +2440,61 @@ void GetRamContent_SCRAM(IntS start_addr,
 //   IntM1D CaptureArr(X64MAXCNT_MBOX); 
 #endif
 
-   if(tistdscreenprint and TI_FlashDebug and tiprintpass)
-      TIME.StartTimer();
 
-
-    /*if(store_option <= (ord(TESTLOG_ARR))) then
-       tpatt := ramread_tlog_scram
-    else if(store_option = (ord(MBOXOTP_ARR))) then
-       tpatt := ramread_tlog_mbox_scram
-    else}  {blizzard specific*/
-      tpatt = "ramread_mbox_v4p0_Thrd"; //"ramread_mbox_Thrd";
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
-// :TODO: Fix. Unneeded for Blizzard.
-// /*-------- use JTAG --------*/
-//   data_pins = JTAG_DOUT;
-//   data_in   = JTAG_DIN;
-//   
-//   if(store_option < (ord(MBOXLOG_ARR)))  
-//      maxcapcount = X16MAXCNT*16;
-//   else
-//      maxcapcount = JTAGMAXCNT_MBOX;
-//   istep = 32;   /*2 16bit word*/
-//   maxsrccount = 16;
-//
-//   curraddr = start_addr;
-//   IntToBinStr(curraddr,addr_str);
-//   
-//   if(GL_DO_SOURCE_WITH_SCRAM)  
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         {
-//            SourceArr[site][offsetcyc+1] = ((curraddr & (0x1<<offsetcyc)) >> offsetcyc) & 0x1;
-//             /*
-//             if(TIStdScreenPrint and TI_FlashDebug) then
-//                writeln(tiwindow,"SourceArr[ ",(offsetcyc+1):-2,"] = ",SourceArr[site,offsetcyc+1]:s_hex);
-//             */
-//         } 
-//         break;
-//      } 
-//      PatternDigitalSourceCapture(tpatt,data_in,data_pins,maxsrccount,maxcapcount,
-//                                  false, SourceArr,CaptureArr)
-//   }
-//   else
-//   {
-//      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-//         Patternlabelsetpindata(tpatt,"MOD_ADDR",offsetcyc,
-//                                data_in,S_binary,
-//                                Mid(addr_str,16-(1*offsetcyc),1));
-//      PatternDigitalCapture(tpatt,data_pins,maxcapcount, CaptureArr);
-//   } 
-//   
-//   index = 1;
-//   for count = 1 to maxcapcount by istep do
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            tnib0 = 0;
-//            tnib1 = 0;
-//            for (i = 0;i <= 15;i++)
-//            {
-//               tnib0 = tnib0 +  (CaptureArr[site][count+i] << i);
-//               tnib1 = tnib1 +  (CaptureArr[site][count+16+i] << i);
-//            } 
-//            FL_SCRAM_CAPT_ARR[index+1][site] = tnib0;  /*lsw*/
-//            FL_SCRAM_CAPT_ARR[index][site]   = tnib1;  /*msw*/
-//         }   /*if v_dev_active*/
-//      index = index+2;
-//   }   /*for count*/
-// /*-------- end of JTAG --------*/
+ /*-------- use JTAG --------*/
+   data_pins = "JTAG_DOUT";
+   data_in   = "JTAG_DIN";
+
+   if(store_option < (int(MBOXLOG_ARR)))  
+      maxcapcount = X16MAXCNT*16;
+   else
+      maxcapcount = JTAGMAXCNT_MBOX;
+   istep = 32;   /*2 16bit word*/
+   maxsrccount = 16;
+
+   jtag_address = unsigned(start_addr);
+   
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
+   
+   send_data.SetValue(0, jtag_address);
+   DIGITAL.LoadSend(send_name, send_data);
+   DIGITAL.StartSend(send_name);
+   
+   PatternDigitalCapture(tpatt,data_pins,cap_name,maxcapcount,CaptureArr,sim_value);
+   
+   for (count = 0, index = 0; count < maxcapcount; count += istep, index += 2)
+   {
+      tnib0 = 0;
+      tnib1 = 0;
+      for (int i = 0;i < 16;++i)
+      {
+         tnib0 = tnib0 +  (CaptureArr[count+i] << i);
+         tnib1 = tnib1 +  (CaptureArr[count+16+i] << i);
+      } 
+      FL_SCRAM_CAPT_ARR.SetValue(index+1, tnib0);  /*lsw*/
+      FL_SCRAM_CAPT_ARR.SetValue(index, tnib1);  /*msw*/
+   }
+
+ /*-------- end of JTAG --------*/
 #else
  /*-------- use DMLED --------*/
+   PinML data_bus   = "DMLED_INBUS";
+   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
    data_pins = "DMLED_OUTBUS";
-   data_in   = "DMLED_INBUS";
+   UnsignedS send_word;
+   maxsrccount = 17;
    istep = 8;   /*8 nibbles or 2 16bit word*/
+   
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+   }
    
    if(store_option < (int(MBOXLOG_ARR)))  
       maxcapcount = X64MAXCNT;
@@ -2866,31 +2517,20 @@ void GetRamContent_SCRAM(IntS start_addr,
    } 
 
     /*dmled physical addr*/
-   physaddr = curraddr>>1;
+   physaddr = (curraddr>>1) & 0xFFFF;
 
-
-   StringS label = PatternBurst(tpatt).GetPattern(0).GetName() + ".MOD_ADDR";
     /*read even/odd*/
    for (int i = 1;i <= 2;++i)
    {
-      addr_str = IntToVLSIDriveStr(physaddr, 16, true);
-      StringML SourceArr;
-      for (offsetcyc = 0;offsetcyc <= 15;offsetcyc++)
-      {
-         str2 = "LLL" + addr_str.Substring(15-offsetcyc, 1);
-         SourceArr += str2;
-      } 
-      DIGITAL.ModifyVectors(data_in, tpatt, label, SourceArr);
-      
-      str2 = IntToVLSIDriveStr(evenodd[i], 4, true);
-      SourceArr.Erase();
-      SourceArr += str2;
-      DIGITAL.ModifyVectors(data_in, tpatt, label, 36, SourceArr, "L");
+      send_word = unsigned(physaddr) + unsigned(evenodd[i] << 16);
+      send_data.SetValue(0, send_word);
+      DIGITAL.LoadSend(send_name, send_data);
+      DIGITAL.StartSend(send_name);
       
       if(i==1)  
-         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,EvenCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,cap_name,halfcapcount,EvenCaptureArr,sim_value);
       else
-         PatternDigitalCapture(tpatt,data_pins,"CapRam32",halfcapcount,OddCaptureArr,sim_value);
+         PatternDigitalCapture(tpatt,data_pins,cap_name,halfcapcount,OddCaptureArr,sim_value);
    }   /*for i*/
    
     /*captureArr has index as [0]=lsw,[1]=msw so need to reverse to [0]=msw,[1]=lsw*/
@@ -3047,7 +2687,7 @@ void GetRamContent_SCRAM(IntS start_addr,
    if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
    {
       IntS addr = start_addr;
-      cout << "Contents from starting cpu address " << hex << addr << endl;
+      cout << "Contents from starting cpu address 0x" << hex << addr << endl;
 //      PrintHeaderBool(GL_PLELL_FORMAT);
       
       if(store_option< (int(MBOXLOG_ARR)))  
@@ -3065,6 +2705,7 @@ void GetRamContent_SCRAM(IntS start_addr,
             cout << "Address 0x" << addr << " Site " << *si << " Data 0x" << tdata[*si] << endl;
          addr = addr+ADDR_RAM_INC;
       }   /*for count*/
+      // clear hex sticky setting
       cout << dec; 
    } 
    
@@ -7070,92 +6711,21 @@ void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ov
  /*Set flash test number via RAM PMT*/
 void F021_SetTestNum(IntS testnum)
 {
-   StringS bitlabel;
-   StringS strhi,strlo;
-   IntS offsetcyc,length;
-   IntS tnumhi,tnumlo;
-   IntS strlength;
-   PinML data_pins;
-   StringS tpatt;
+   StringS send_name = "F021_Tnum_" + testnum;
    
-#if ($GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT)
-   IntS maxsrccount,maskbit,maxiter;
-   IntS eindex,mindex,hindex,shiftbit;
-   BoolS SaveMemSetBistData;
-#endif
-
-   strlength = 16;  /*16-bit length data string*/
-   offsetcyc = 0;
-//   bitlabel = f021_shell_exepat_name + ".MOD_TESTNUM";
-   bitlabel = PatternBurst(f021_shell_exepat).GetPattern(0).GetName() + ".MOD_TESTNUM";
-
-   tnumhi = ((int(testnum) & 0xffff0000) >> 16) & 0x0000ffff;
-   tnumlo = testnum & 0x0000ffff;
-   
-   strhi = IntToVLSIDriveStr(tnumhi, strlength, true); //nibbles are msb to lsb w/ pin ordering
-   strlo = IntToVLSIDriveStr(tnumlo, strlength, true); //nibbles are msb to lsb w/ pin ordering
-
-#if $GL_USE_JTAG_RAMPMT || $GL_USE_DMLED_RAMPMT  
-#if $GL_USE_JTAG_RAMPMT  
-    /*lsb 1st - msb last*/
-   data_pins = "JTAG_DIN";
-   maxiter = 15;
-   maskbit = 0x1;
-   maxsrccount = 32;
-   eindex = 15;
-   length = 1;
-   hindex = 17;
-#else
-   data_pins = "DMLED_INBUS";
-   maxiter = 3;
-   maskbit = 0xF;
-   maxsrccount = 8;
-   eindex = 12;
-   length = 4;
-   hindex = 5;
-#endif
-
-   tpatt = f021_shell_exepat;
-   
-   StringML SourceArrLo, SourceArrHi, SourceArr;
-   StringS vector_data;
-   for (offsetcyc = 0;offsetcyc <= maxiter;offsetcyc++)
+   if (!IsDspSendDefined(send_name))
    {
-      shiftbit = length*offsetcyc;
-      vector_data = strlo.Substring(eindex-shiftbit, length); 
-      SourceArrLo += vector_data;
-      vector_data = strhi.Substring(eindex-shiftbit, length);
-      SourceArrHi += vector_data;
+      StringS test_number_string;
+      IO.Print(test_number_string, "%x", testnum);
+
+      StringS error_msg = "This DSPSend has not been defined. Please go into F021_FlashConfig and add near the end";
+      error_msg += " LoadSendFlashTestNum(0x";
+      error_msg += test_number_string;
+      error_msg += "); and then re-run OnLoad";      
+      ERR.ReportError(ERR_INVALID_NAME, error_msg, testnum, NO_SITES, UTL_VOID);
+   } else {
+      DIGITAL.StartSend(send_name);
    }
-   SourceArr = SourceArrLo + SourceArrHi;
-   DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
-
-#else
-   StringML SourceArrLo, SourceArrHi, SourceArr;
-   StringS vector_data;
-   data_pins = "PMT_RAMBUS";
-   tpatt = f021_shell_exepat;
-   if(GL_USE_RAMPMT_X64)  
-   {
-      for (offsetcyc = 0;offsetcyc <= 3;offsetcyc++)
-      {
-         vector_data = strlo.Substring(12-(4*offsetcyc), 4);
-         SourceArrLo += vector_data;
-         vector_data = strhi.Substring(12-(4*offsetcyc), 4);
-         SourceArrHi += vector_data;
-      } 
-      SourceArr = SourceArrLo + SourceArrHi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr); 
-
-   }
-   else
-   {
-      SourceArr += strlo;
-      SourceArr += strhi;
-      DIGITAL.ModifyVectors(data_pins, tpatt, bitlabel, SourceArr);
-   } 
-#endif
-
 }  /*F021_SetTestNum*/
 
 TMResultM Check_RAM_TNUM(IntS expTnum) {
@@ -7173,6 +6743,13 @@ TMResultM Check_RAM_TNUM(IntS expTnum) {
 //      Get_Flash_TestLogSpace_SCRAM;
 
    Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+   
+   // 2012-07-17 jat
+   if (SYS.TesterSimulated())
+   {
+      lsw_tnum = tnumlo;
+      msw_tnum = tnumhi;
+   }
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
       if ((lsw_tnum[*si]!=tnumlo) or (msw_tnum[*si]!=tnumhi))  
@@ -7242,8 +6819,12 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
     /*this is to preventing running previous testnumber due to problem*/
     /*during updating new testnumber which can cause false pass*/
 
+<<<<<<< HEAD
 
    Get_Flash_TestLogSpace_SCRAM(); //Error: Attempt made to perform "StartCapture" with a capture, CapRam32, whose wordCount is not the same as the wordCount of the capture, CapRam4, that has already been started.
+=======
+   Get_Flash_TestLogSpace_SCRAM();
+>>>>>>> c9d9082bf21b238c08c66204d2a8185a9bd28265
 
    Get_TLogSpace_TNUM(value2,value1);
    
@@ -7300,7 +6881,6 @@ TMResultM F021_LoadFlashShell_func()
    ttimer = TIME.StopTimer();
    tw_name = tw_prefix + "_TT";
    unitval = "s";
-   //TWTRealToRealMS(tt_timer,realval,unitval);
    TWPDLDataLogRealVariable(tw_name, unitval, ttimer, TWMinimumData);
    
    // very temporary debug stuff
@@ -7332,11 +6912,6 @@ TMResultM F021_LoadFlashShell_func()
    
     /*updated shell loaded*/
    GL_PREVIOUS_SHELL = "FlashShell";
-
-// do we need to worry about the TI_FlashCOFEna here?
-// or is this a flow-issue??
-//   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//      Devsetholdstates(final_results);
 
    return pat_results;
 }   /* F021_LoadFlashShell_func */
@@ -7754,17 +7329,17 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
         break;   // case 23
      case 52: case 107: case 108:
         switch(TCRMode) {
-           case CvfyMode : stresstype = TUNOXTSMCVT1;
-           case EvfyMode : stresstype = TUNOXVT1;
-           case ProgMode : stresstype = PGMFFVT1;
-           case PvfyMode : stresstype = FGWLVT1;
+           case CvfyMode : stresstype = TUNOXTSMCVT1; break;
+           case EvfyMode : stresstype = TUNOXVT1;     break;
+           case ProgMode : stresstype = PGMFFVT1;     break;
+           case PvfyMode : stresstype = FGWLVT1;      break;
            default:  
               stresstype = TUNOXVT1;
               if (tistdscreenprint)  
                  cout << "*** WARNING: INVALID TCRNUM/TCRMODE !!! ***" << endl;
               break; 
         }
-        break;   // case 52
+        break;   // case 52, 107, 108
      case 53:
         stresstype = ONOVT0;
         break;
@@ -7930,7 +7505,7 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
          
          if (suppena) {
 //            STDSetVRange(tsupply,vRange);
-//            STDSetVI(tsupply,vProg,iProg);
+            STDSetVI(tsupply,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
             if (tistdscreenprint and TI_FlashDebug) {
                cout << "Setting TPADs --  TCR " << TCRnum << endl;
                cout << str1 << " Vprog == " << vProg;
@@ -7986,7 +7561,7 @@ void F021_Set_TPADS_ByOrder(IntS TCRnum,
          }   // switch(tpnum)
 
          if (suppena)  {
-//          STDSetVI(tsupply,vProg,iProg);
+            STDSetVI(tsupply,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
             if (tistdscreenprint and TI_FlashDebug) {
                cout << " TPADs --  TCR " << TCRnum << endl;
                cout << str1 << " Vprog == " << vProg << " Iprog == " << iProg << endl;
@@ -11734,215 +11309,220 @@ void F021_CollectESDA(IntS imagenum) {
 //      }   /*if tistdscreenprint*/
 //   }   /*if v_any_dev_active*/
 //}   /* TL_BitHistogram*/
-//      
-// /*boost refarray to iref rd ~target*/
-//void TL_Boost_RefArray()
-//{
-//   const IntS EVENNUM = 0; 
-//   const IntS ODDNUM = 1; 
-//   const IntS MAXCOUNT = 50; 
-//
-//   FloatS tdelay,tdelay2,maxtime,ttimer1,ttimer2;
-//   BoolM savesites,logsites,activesites;
-//   BoolM tmp_results,final_results,meas_results;
-//   IntS site,bank,count,loop,testnum,minloop,maxloop;
-//   IntS1D tnum_ipmos(2),tnum_ird(2);
-//   IntS tnum_refarr;
-//   IntS tcrnum,tcrnum_ipmos,tcrnum_ird,tcrnum_refarr;
-//   TPModeType tcrmode,tcrmode_ipmos,tcrmode_ird,tcrmode_refarr;
-//   FloatM meas_value,ers_pwtotal,iodd,ieven;
-//   FloatS llim,ulim,llim_ird,ulim_ird;
-//   FloatS ers_vstart,ers_vstop,ers_vinc,ers_volt,ers_pwidth;
-//   FloatM ers_veg,tt_timer;
-//   StringS str1,str2,str3,str4,str5;
-//   PinM testpad;
-//   BoolS done;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//    /*++++++++++++++++*/
-//   procedure DoIMeas; /* didn"t match any chunk types, FIX */
-//   
-//      if(v_any_dev_active)  
-//      {
-//         F021_Set_TPADS(tcrnum,tcrmode);
-//         F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//         TIME.Wait(tdelay);
-//         F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_value,tmp_results);
-//         F021_TurnOff_AllTPADS;
-//         Disable(s_pmexit);
-//      } 
-//   } 
-//    /*++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay  = 10ms;
-//      tdelay2 = 2ms;
-//
-//      tcrnum_ird = 25;
-//      tcrmode_ird = ReadMode;
-//      tnum_ird[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
-//      tnum_ird[ODDNUM]  = TNUM_BANK_IREF_READ_ODD;
-//      llim_ird = Bank_Iref_Read_LLim+0.25uA;  /*Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.01);*/
-//      ulim_ird = Bank_Iref_Read_ULim;  /*TCR.TP2_ULim[tcrnum_ird,tcrmode_ird];*/
-//
-//      tcrnum_refarr = 56;
-//      tcrmode_refarr = ErsMode;
-//      tnum_refarr = TNUM_BANK_REFARR_ERS;
-//      ers_pwidth  = 50ms;
-//      ers_vinc = 0.5V;
-//      if(GL_DO_REFARR_ERS_ADAPTIVE)  
-//      {
-//         ers_vstart = RefArr_Ers_Adaptive_VStart;
-//         ers_vstop  = RefArr_Ers_Adaptive_VStop;
-//      }
-//      else
-//      {
-//         ers_vstart = Bank_RefArr_VEG_Ers-(2*ers_vinc);
-//         ers_vstop  = Bank_RefArr_VEG_Ers-ers_vinc;
-//      } 
-//
-//      minloop = EVENNUM;
-//      if(GL_BANKTYPE==FLEPBANK)  
-//         maxloop = ODDNUM;
-//      else
-//         maxloop = EVENNUM;
-//
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      timernstart(ttimer1);
-//
-//      str1 = "RefBoost";
-//      
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         logsites = v_dev_active;
-//         activesites = v_dev_active;
-//         meas_results = v_dev_active;
-//         ers_pwtotal = 0ms;
-//         ers_veg = 0V;
-//
-//         writestring(str2,bank:1);
-//         str2 = "_B" + str2;
-//         count = 0;
-//         done = false;
-//
-//         ers_volt = ers_vstart;
-//
-//         while(not done) do
-//         {
-//            for (loop = minloop;loop <= maxloop;loop++)
-//            {
-//               tcrnum = tcrnum_ird;
-//               tcrmode = tcrmode_ird;
-//               llim = llim_ird;
-//               ulim = ulim_ird;
-//               testnum = tnum_ird[loop]+(bank<<4);
-//               testpad = FLTP2;
-//               DoIMeas;
-//               writestring(str3,count:1);
-//               if(loop==minloop)  
-//               {
-//                  str3 = "_Even_" + str3;
-//                  ieven = meas_value;
-//               }
-//               else
-//               {
-//                  str3 = "_Odd_" + str3;
-//                  iodd = meas_value;
-//               } 
-//               str4 = str1 + "_Ird";
-//               str4 = str4 + str2;
-//               str4 = str4 + str3;
-//               PrintResultParam(str4,testnum,tmp_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
-//            }   /*for loop*/
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  if(GL_BANKTYPE==FLEPBANK)  
-//                  {
-//                     if((ieven[site]>llim) and (iodd[site]>llim))  
-//                        activesites[site] = false;
-//                  }
-//                  else
-//                  {
-//                     if(ieven[site]>llim)  
-//                        activesites[site] = false;
-//                  } 
-//               } 
-//            
-//            devsetholdstates(activesites);
-//
-//             /*apply ers pulse*/
-//            if(v_any_dev_active)  
-//            {
-//               tcrnum = 128;
-//               tcrmode = tcrmode_refarr;
-//               CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
-//               TCR.TP1_VRange[tcrnum][tcrmode] = ers_volt;
-//               testnum = tnum_refarr+(bank<<4);
-//               F021_TurnOff_AllTpads;
-//               F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//               F021_Set_TPADS(tcrnum,tcrmode);
-//               TIME.Wait(ers_pwidth);
-//               F021_TurnOff_AllTpads;
-//               Disable(s_pmexit);
-//               count = count+1;
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     ers_pwtotal[site] = ers_pwtotal[site]+ers_pwidth;
-//                     ers_veg[site] = ers_volt;
-//                  } 
-//
-//               if(ers_volt<ers_vstop)  
-//                  ers_volt = ers_volt+ers_vinc;
-//
-//               str5 = str1 + str2;
-//               str5 = str5 + "_VEG";
-//               PrintResultParam(str5,testnum,tmp_results,10v,13v,ers_veg,GL_PLELL_FORMAT);
-//               str5 = str1 + str2;
-//               str5 = str5 + "_PW";
-//               PrintResultParam(str5,testnum,tmp_results,0ms,1s,ers_pwtotal,GL_PLELL_FORMAT);
-//            }   /*ers*/
-//
-//            if((not v_any_dev_active) or (count>MAXCOUNT))  
-//               done = true;
-//         }   /*while*/
-//
-//         devsetholdstates(savesites);
-//
-//         str4 = str1 + str2;
-//         str5 = str4 + "_TOTPW";
-//         TWTRealToRealMS(ers_pwtotal,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//         
-//         str5 = str4 + "_VEG";
-//         TWTRealToRealMS(ers_veg,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//         
-//      }   /*bank*/
-//
-//      devsetholdstates(savesites);
-//
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//      
-//      str5 = str1 + "_TT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//         cout << "TL_Boost_RefArr_TTT == " << ttimer1 << endl;
-//   } 
-//}   /* TL_Boost_RefArray */
-//
-//
+FloatM DoVIMeasure(const PinM &testpad, const IntS &tcrnum, 
+                const TPModeType &tcrmode, const IntS &testnum, 
+                const FloatS &maxtime, const FloatS &tdelay) 
+{
+   FloatM meas_val;
+   
+   F021_Set_TPADS(tcrnum,tcrmode);
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   return (meas_val);
+}   /* DoVIMeasure */
+
+FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
+                const TPModeType &tcrmode, const IntS &testnum, 
+                const FloatS &maxtime, const FloatS &tdelay) 
+{
+   FloatM meas_val;
+   
+   F021_Set_TPADS(tcrnum,tcrmode);
+#if $TP3_TO_TP5_PRESENT  
+   STDDisconnect(FLTP3);
+#endif
+   F021_RunTestNumber_PMEX(testnum,maxtime);
+   TIME.Wait(tdelay);
+   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
+   F021_TurnOff_AllTPADS();
+   
+   return (meas_val);
+}   /* DoIMeasure */
+
+ /*boost refarray to iref rd ~target*/
+void TL_Boost_RefArray()
+{
+   const IntS EVENNUM = 0; 
+   const IntS ODDNUM = 1; 
+   const IntS MAXCOUNT = 50; 
+
+   FloatS tdelay,tdelay2,maxtime;
+   Sites savesites, new_active_sites;
+   TMResultM tmp_results;
+   IntS bank,count,loop,testnum,minloop,maxloop;
+   IntS1D tnum_ird(2);
+   IntS tnum_refarr;
+   IntS tcrnum,tcrnum_ird,tcrnum_refarr;
+   TPModeType tcrmode,tcrmode_ird,tcrmode_refarr;
+   FloatM meas_value,iodd,ieven;
+   FloatS llim,ulim,llim_ird,ulim_ird;
+   FloatS ers_vstart,ers_vstop,ers_vinc,ers_volt,ers_pwidth;
+   FloatM ers_veg, ers_pwtotal;
+   FloatS tt_timer;
+   StringS str1,str2,str3,str4,str5, str6;
+   PinM testpad;
+   BoolS done;
+
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay  = 10ms;
+   tdelay2 = 2ms;
+
+   tcrnum_ird = 25;
+   tcrmode_ird = ReadMode;
+   tnum_ird[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
+   tnum_ird[ODDNUM]  = TNUM_BANK_IREF_READ_ODD;
+   llim_ird = Bank_Iref_Read_LLim+0.25uA;  /*Bank_Iref_Read_Target-(Bank_Iref_Read_Target*0.01);*/
+   ulim_ird = Bank_Iref_Read_ULim;  /*TCR.TP2_ULim[tcrnum_ird,tcrmode_ird];*/
+
+   tcrnum_refarr = 56;
+   tcrmode_refarr = ErsMode;
+   tnum_refarr = TNUM_BANK_REFARR_ERS;
+   ers_pwidth  = 50ms;
+   ers_vinc = 0.5V;
+   if(GL_DO_REFARR_ERS_ADAPTIVE)  
+   {
+      ers_vstart = RefArr_Ers_Adaptive_VStart;
+      ers_vstop  = RefArr_Ers_Adaptive_VStop;
+   }
+   else
+   {
+      ers_vstart = Bank_RefArr_VEG_Ers-(2*ers_vinc);
+      ers_vstop  = Bank_RefArr_VEG_Ers-ers_vinc;
+   } 
+
+   minloop = EVENNUM;
+   if(GL_BANKTYPE==FLEPBANK)  
+      maxloop = ODDNUM;
+   else
+      maxloop = EVENNUM;
+
+   savesites = ActiveSites;
+   
+   TIME.StartTimer();
+
+   str1 = "RefBoost";
+   
+   for (bank = 0;bank <= F021_Flash.MAXBANK;++bank)
+   {
+      new_active_sites = ActiveSites;
+      ers_pwtotal = 0ms;
+      ers_veg = 0V;
+
+      str2 = "_B" + bank;
+      count = 0;
+      done = false;
+
+      ers_volt = ers_vstart;
+
+      while(!done)
+      {
+         for (loop = minloop;loop <= maxloop;++loop)
+         {
+            tcrnum = tcrnum_ird;
+            tcrmode = tcrmode_ird;
+            llim = llim_ird;
+            ulim = ulim_ird;
+            testnum = tnum_ird[loop]+(bank<<4);
+            testpad = FLTP2;
+            meas_value = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+            if(loop==minloop)  
+            {
+               str3 = "_Even_" + count;
+               ieven = meas_value;
+            }
+            else
+            {
+               str3 = "_Odd_" + count;
+               iodd = meas_value;
+            } 
+            str4 = str1 + "_Ird";
+            str4 = str4 + str2;
+            str4 = str4 + str3;
+            tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
+                                       str4, UTL_VOID, UTL_VOID, true, TWMinimumData);
+         }   /*for loop*/
+
+         if(GL_BANKTYPE==FLEPBANK)  
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+               if((ieven[*si]>llim) and (iodd[*si]>llim))  
+                  new_active_sites -= *si;
+         }
+         else
+         {
+            // if ieven is greater than llim, then disable the site
+            new_active_sites.DisableFailingSites(ieven.LessOrEqual(llim));
+         } 
+         
+          /*apply ers pulse*/
+         if(SetActiveSites(new_active_sites))  
+         {
+            tcrnum = 128;
+            tcrmode = tcrmode_refarr;
+            CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
+            TCR.TP1_VRange[tcrnum][tcrmode] = ers_volt;
+            testnum = tnum_refarr+(bank<<4);
+            F021_TurnOff_AllTPADS();
+            tmp_results = F021_RunTestNumber_PMEX(testnum,maxtime);
+            F021_Set_TPADS(tcrnum,tcrmode);
+            TIME.Wait(ers_pwidth);
+            F021_TurnOff_AllTPADS();
+            ++count;
+            
+            ers_pwtotal += ers_pwidth;
+            ers_veg = ers_volt;
+
+            if(ers_volt<ers_vstop)  
+               ers_volt = ers_volt+ers_vinc;
+
+            if (tistdscreenprint)
+            {
+               // all active sites at this point will have the same ers_veg & PW
+               // so append first active site value to string for dlogging.
+               str5 = str1 + str2;
+               str5 = str5 + "_VEG_" + ers_veg[ActiveSites.Begin().GetValue()];
+               str6 = str1 + str2 + "_PW_" + ers_pwtotal[ActiveSites.Begin().GetValue()];
+               // just do a datalog to show tmp_results
+               DatalogTMResultM(tmp_results, str5);
+               DatalogTMResultM(tmp_results, str6);
+            }
+         } else {
+            done = true; // only get here if there should be no active sites
+         }
+
+         if(count>MAXCOUNT)
+            done = true;
+      }   /*while*/
+
+      RunTime.SetActiveSites(savesites);
+
+      str4 = str1 + str2;
+      str5 = str4 + "_TOTPW";
+      TIDlog.Value(ers_pwtotal, UTL_VOID, 0s, 1s, "s", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+      
+      str5 = str4 + "_VEG";
+      TIDlog.Value(ers_veg, UTL_VOID, 10V, 13V, "V", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+      
+   }   /*bank*/
+
+   RunTime.SetActiveSites(savesites);
+
+   tt_timer = TIME.StopTimer();
+   
+   str5 = str1 + "_TT";
+   TIDlog.Value(tt_timer, UTL_VOID, 0s, UTL_VOID, "s", str5, UTL_VOID, 
+                   UTL_VOID, true, TWMinimumData);
+
+   if(tistdscreenprint)  
+      cout << "TL_Boost_RefArr_TTT == " << tt_timer << endl;
+}   /* TL_Boost_RefArray */
+
+
  /*++++++++++ Flash Tools ++++++++++*/
    
 void RAM_Clear_MailBox_Key()
@@ -11962,25 +11542,6 @@ void RAM_Clear_MailBox_Key()
    lsw_data = 0;  /*lsword*/
    WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
 }   /* RAM_Clear_MailBox_Key */
-
-
-FloatM DoIMeasure(const PinM &testpad, const IntS &tcrnum, 
-                const TPModeType &tcrmode, const IntS &testnum, 
-                const FloatS &maxtime, const FloatS &tdelay) 
-{
-   FloatM meas_val;
-   
-   F021_Set_TPADS(tcrnum,tcrmode);
-#if $TP3_TO_TP5_PRESENT  
-   STDDisconnect(FLTP3);
-#endif
-   F021_RunTestNumber_PMEX(testnum,maxtime);
-   TIME.Wait(tdelay);
-   meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
-   F021_TurnOff_AllTPADS();
-   
-   return (meas_val);
-}   /* DoIMeasure */
 
 TMResultM F021_VHV_PG_CT_Trim_func(IntM &ret_ctval)
 {
@@ -12738,275 +12299,248 @@ void RAM_Upload_VHV_PMOS_EngOvride(IntS bank)
       } 
 //   }   /*if v_any_active*/
 }   /* RAM_Upload_VHV_PMOS_EngOvride */
-//   
-// /*msw_val=even bank, lsw_val=odd bank with even/odd row already formatted*/
-//void RAM_Upload_PMOS_SoftTrim_Bank(IntS bank,
+   
+ /*msw_val=even bank, lsw_val=odd bank with even/odd row already formatted*/
+void RAM_Upload_PMOS_SoftTrim_Bank(const IntS &bank,
 //                                        BoolS bnkeven_ena,
 //                                        BoolS bnkodd_ena,
-//                                        IntM msw_val,
-//                                        IntM lsw_val)
-//{
-//   IntS site,addr_loc,trimenakey,i,j;
-//   IntM msw_data,lsw_data,evena,odena;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Upload_PMOS_SoftTrim_Bank +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0xaa55;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//
-//       /*KChau 09/01/10 - shell changes which combined "bank even row, bank odd row" field into single field*/
-//       /*so don"t care if even/odd row. therefore, input param bnkeven_ena/bnkodd_ena are ignored*/
-//      i = 1<<bank;
-//      lsw_data = i;  /*lsword*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      switch(bank) {
-//        case 0..1: addr_loc = addr_loc+ADDR_RAM_INC;
-//        case 2..3: addr_loc = addr_loc+(2*ADDR_RAM_INC);
-//        case 4..5: addr_loc = addr_loc+(3*ADDR_RAM_INC);
-//        case 6..7: addr_loc = addr_loc+(4*ADDR_RAM_INC);
-//        default:  
-//           addr_loc = addr_loc+ADDR_RAM_INC;
-//           if(tistdscreenprint)  
-//        case cout << "*** ERROR : INVALID BANK ENTERED <<  MUST BE <== 7 ***" << endl;
-//         break; 
-//      }   /* case */
-//
-//      WriteRamContentDec_32Bit(addr_loc,lsw_val,hexvalue,msw_val,hexvalue,bcd_format);
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Upload_PMOS_SoftTrim_Bank */
-//
-//
-//void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank)
-//{
-//   IntS site,addr_loc,trimenakey,i,j;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Clear_PMOS_SoftTrim_Bank +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0x0000;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      switch(bank) {
-//        case 0..1: addr_loc = addr_loc+ADDR_RAM_INC;
-//        case 2..3: addr_loc = addr_loc+(2*ADDR_RAM_INC);
-//        case 4..5: addr_loc = addr_loc+(3*ADDR_RAM_INC);
-//        case 6..7: addr_loc = addr_loc+(4*ADDR_RAM_INC);
-//        default: addr_loc = addr_loc+ADDR_RAM_INC;
-//      }   /* case */
-//
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Clear_PMOS_SoftTrim_Bank */
-//
-//
-//void RAM_Clear_PMOS_SoftTrim()
-//{
-//   IntS site,addr_loc,trimenakey,i,j;
-//   IntM msw_data,lsw_data;
-//   BoolS bcd_format,hexvalue;
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ RAM_Clear_PMOS_SoftTrim +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//      trimenakey  = 0x0000;
-//      
-//      msw_data = trimenakey;  /*msword*/
-//      lsw_data = 0;  /*lsword*/
-//
-//      for (i = 1;i <= 5;i++)
-//      {
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//      } 
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//      {
-//         addr_loc = ADDR_RAM_IPMOS_MAILBOX;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               readramaddress(site,addr_loc,addr_loc+(6*ADDR_RAM_INC));
-//      } 
-//   } 
-//}   /* RAM_Clear_PMOS_SoftTrim */
-//
-//void GetTrimCode_On_EFStr()
-//{
-//   const IntS BANK_EF_LEN = 32; 
-//   const IntS PUMP_EF_LEN = 30; 
-//   const IntS EVN0INDX = 23; 
-//   const IntS ODD0INDX = 4; 
-//   const IntS IND_VBG_MSB = 2; 
-//   const IntS IND_VBG_LSB = 7; 
-//   const IntS IND_FOSC_MSB = 9; 
-//   const IntS IND_FOSC_LSB = 14; 
-//   const IntS IND_IREF_USB = 16; 
-//   const IntS IND_IREF_LSB = 20; 
-//   const IntS IND_IREF_MSB = 22; 
-//   const IntS IND_VHVSLCT_MSB = 23; 
-//   const IntS IND_VHVSLCT_LSB = 26; 
-//   const IntS IND_VSA5CT_MSB = 27; 
-//   const IntS IND_VSA5CT_LSB = 30; 
-//
-//   IntS site,count,length,i;
-//   IntS trimdata,lowerbank;
-//   IntM bankena;
-//   StringS dummstr1,dummstr2,pumpstr;
-//   StringS bit5_9_str,bit24_28_str;
-//   BoolS highbank;
-//   StringS str1,str2;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//         cout << "+++++ GetTrimcode_On_EFStr +++++" << endl;
-//
-//      bankena = 0;
-//
-//      if(F021_Flash.MAXBANK>3)  
-//      {
-//         lowerbank = F021_Flash.MAXBANK mod 4;
-//         highbank = true;
-//      }
-//      else
-//      {
-//         lowerbank = F021_Flash.MAXBANK;
-//         highbank = false;
-//      } 
-//
-//       /*retrieve trim code*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//               bankena[site] = bankena[site] + (0x1<<count);
-//
-//            dummstr1 = SaveFlashProgString[site];
-//            length = len(dummstr1);
-//
-//             /*extract pump trim for espump*/
-//            if((TITestType!=MP1) and (GL_PUMPTYPE==ESPUMP))  
-//            {
-//               pumpstr = mid(dummstr1,1,PUMP_EF_LEN);
-//               str1 = mid(pumpstr,IND_VBG_MSB,(IND_VBG_LSB-IND_VBG_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               MAINBG_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_FOSC_MSB,(IND_FOSC_LSB-IND_FOSC_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               FOSC_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_IREF_USB,(IND_IREF_LSB-IND_IREF_USB)+1);
-//               str2 = mid(pumpstr,IND_IREF_MSB,1);
-//               str1 = str2 + str1;
-//               readstring("0b" + str1) + i;
-//               MAINIREF_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_VHVSLCT_MSB,(IND_VHVSLCT_LSB-IND_VHVSLCT_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               VHV_SLPCT_TRIMSAVED[site] = i;
-//               str1 = mid(pumpstr,IND_VSA5CT_MSB,(IND_VSA5CT_LSB-IND_VSA5CT_MSB)+1);
-//               readstring("0b" + str1) + i;
-//               VSA5CT_TRIMSAVED[site] = i;
-//               if(tistdscreenprint)  
-//                  cout << "Site" << site:-5 << " MAINBG_TRIMSAVED == " << MAINBG_TRIMSAVED[site]:-5 << 
-//                          " MAINIREF_TRIMSAVED == " << MAINIREF_TRIMSAVED[site]:-5 << 
-//                          " FOSC_TRIMSAVED == " << FOSC_TRIMSAVED[site]:-5 << 
-//                          " VHVSLPCT_TRIMSAVED == " << VHV_SLPCT_TRIMSAVED[site]:-5 << 
-//                          " VSA5CT_TRIMSAVED == " << VSA5CT_TRIMSAVED[site]:-5 << endl;               
-//            } 
-//            
-//             /*remove pump*/
-//            dummstr1 = mid(dummstr1,(PUMP_EF_LEN+1),(length-PUMP_EF_LEN));
-//
-//            for (count = 0;count <= lowerbank;count++)
-//            {
-//               writestring(bit5_9_str,mid(dummstr1,(EVN0INDX+(count*BANK_EF_LEN)),5));
-//               dummstr2 = (bit5_9_str); /*stringreverse*/
-//               readstring("0b" + dummstr2) + trimdata;
-//               IPMOS_TRIMCODE_VAL[count][0][site] = trimdata;  /*even*/
-//               
-//               writestring(bit24_28_str,mid(dummstr1,(ODD0INDX+(count*BANK_EF_LEN)),5));
-//               dummstr2 = (bit24_28_str); /*stringreverse*/
-//               readstring("0b" + dummstr2) + trimdata;
-//               IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
-//
-//               if(tistdscreenprint and TI_FlashDebug)  
-//                  cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
-//                          " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
-//            }   /*for count*/
-//
-//            if(highbank)  
-//               for (count = 4;count <= F021_Flash.MAXBANK;count++)
-//               {
-//                  writestring(bit5_9_str,mid(dummstr1,(EVN0INDX+(count*BANK_EF_LEN)),5));
-//                  dummstr2 = (bit5_9_str); /*stringreverse*/
-//                  readstring("0b" + dummstr2) + trimdata;
-//                  IPMOS_TRIMCODE_VAL[count][0][site] = trimdata;  /*even*/
-//                  
-//                  writestring(bit24_28_str,mid(dummstr1,(ODD0INDX+(count*BANK_EF_LEN)),5));
-//                  dummstr2 = (bit24_28_str); /*stringreverse*/
-//                  readstring("0b" + dummstr2) + trimdata;
-//                  IPMOS_TRIMCODE_VAL[count][1][site] = trimdata;  /*odd*/
-//
-//                  if(tistdscreenprint and TI_FlashDebug)  
-//                     cout << "Site" << site:-5 << " Bank" << count:-5 << " TrimCode Even== " << IPMOS_TRIMCODE_VAL[count][0][site]:s_hex:-6 << 
-//                             " Odd== " << IPMOS_TRIMCODE_VAL[count][1][site]:s_hex:-6 << endl;
-//               }   /*for count*/
-//
-//         }   /*if v_dev_active*/
-//
-//       /*store to global vars*/
-//      IPMOS_BANKENA_MSW = bankena;
-//      IPMOS_BANKENA_LSW = bankena;
-//      
-//   }   /*if v_any_dev_active*/
-//
-//}   /* GetTrimCode_On_EFStr */
-//
-//
+                                   const IntM &msw_val,
+                                   const IntM &lsw_val)
+{
+   IntS addr_loc,trimenakey,i;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Upload_PMOS_SoftTrim_Bank +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0xaa55;
+   
+   msw_data = trimenakey;  /*msword*/
+
+    /*KChau 09/01/10 - shell changes which combined "bank even row, bank odd row" field into single field*/
+    /*so don"t care if even/odd row. therefore, input param bnkeven_ena/bnkodd_ena are ignored*/
+   i = 1<<bank;
+   lsw_data = i;  /*lsword*/
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   switch(bank) {
+     case 0: case 1: addr_loc = addr_loc+ADDR_RAM_INC; break;
+     case 2: case 3: addr_loc = addr_loc+(2*ADDR_RAM_INC); break;
+     case 4: case 5: addr_loc = addr_loc+(3*ADDR_RAM_INC); break;
+     case 6: case 7: addr_loc = addr_loc+(4*ADDR_RAM_INC); break;
+     default:  
+        addr_loc = addr_loc+ADDR_RAM_INC;
+        if(tistdscreenprint)  
+           cout << "*** ERROR : INVALID BANK ENTERED <<  MUST BE <== 7 ***" << endl;
+      break; 
+   }   /* case */
+
+   WriteRamContentDec_32Bit(addr_loc,lsw_val,hexvalue,msw_val,hexvalue,bcd_format);
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+      ReadRamAddress(addr_loc,addr_loc+(6*ADDR_RAM_INC));
+   } 
+}   /* RAM_Upload_PMOS_SoftTrim_Bank */
+
+
+void RAM_Clear_PMOS_SoftTrim_Bank(const IntS &bank)
+{
+   IntS addr_loc,trimenakey;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Clear_PMOS_SoftTrim_Bank +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0x0000;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = 0;  /*lsword*/
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   switch(bank) {
+     case 0: case 1: addr_loc = addr_loc+ADDR_RAM_INC; break;
+     case 2: case 3: addr_loc = addr_loc+(2*ADDR_RAM_INC); break;
+     case 4: case 5: addr_loc = addr_loc+(3*ADDR_RAM_INC); break;
+     case 6: case 7: addr_loc = addr_loc+(4*ADDR_RAM_INC); break;
+     default: addr_loc = addr_loc+ADDR_RAM_INC; break;
+   }   /* case */
+
+   WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX; 
+      ReadRamAddress(addr_loc,addr_loc+(6*ADDR_RAM_INC));
+   } 
+}   /* RAM_Clear_PMOS_SoftTrim_Bank */
+
+
+void RAM_Clear_PMOS_SoftTrim()
+{
+   IntS addr_loc,trimenakey,i;
+   IntM msw_data,lsw_data;
+   BoolS bcd_format,hexvalue;
+   BoolS debugprint;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ RAM_Clear_PMOS_SoftTrim +++++" << endl;
+
+   bcd_format  = true;
+   hexvalue    = true;
+   addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+   trimenakey  = 0x0000;
+   
+   msw_data = trimenakey;  /*msword*/
+   lsw_data = 0;  /*lsword*/
+
+   for (i = 1;i <= 5;++i)
+   {
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      addr_loc = addr_loc+ADDR_RAM_INC;
+   } 
+
+   debugprint = false;
+   if(tistdscreenprint and debugprint)  
+   {
+      addr_loc = ADDR_RAM_IPMOS_MAILBOX;
+      ReadRamAddress(addr_loc, addr_loc + (6 * ADDR_RAM_INC));
+   } 
+}   /* RAM_Clear_PMOS_SoftTrim */
+
+void GetTrimCode_On_EFStr()
+{
+   const IntS BANK_EF_LEN = 32; 
+   const IntS PUMP_EF_LEN = 30; 
+   // all consts below reduced by 1 from VLCT since they are string indexes
+   
+   const IntS EVN0INDX = 22; 
+   const IntS ODD0INDX = 3; 
+   const IntS IND_VBG_MSB = 1; 
+   const IntS IND_VBG_LSB = 6; 
+   const IntS IND_FOSC_MSB = 8; 
+   const IntS IND_FOSC_LSB = 13; 
+   const IntS IND_IREF_USB = 15; 
+   const IntS IND_IREF_LSB = 19; 
+   const IntS IND_IREF_MSB = 21; 
+   const IntS IND_VHVSLCT_MSB = 22; 
+   const IntS IND_VHVSLCT_LSB = 25; 
+   const IntS IND_VSA5CT_MSB = 26; 
+   const IntS IND_VSA5CT_LSB = 29; 
+
+   IntS count,length;
+   IntS lowerbank;
+   IntM bankena;
+   StringS dummstr1,dummstr2,pumpstr;
+   StringS bit5_9_str,bit24_28_str;
+   BoolS highbank;
+   StringS str1,str2;
+
+   if(tistdscreenprint)  
+      cout << "+++++ GetTrimcode_On_EFStr +++++" << endl;
+
+   bankena = 0;
+
+   if(F021_Flash.MAXBANK>3)  
+   {
+      lowerbank = F021_Flash.MAXBANK % 4;
+      highbank = true;
+   }
+   else
+   {
+      lowerbank = F021_Flash.MAXBANK;
+      highbank = false;
+   } 
+      
+    /*retrieve trim code*/
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      SITE site = *si;
+      for (count = 0;count <= F021_Flash.MAXBANK;count++)
+         bankena[site] = bankena[site] + (0x1<<count);
+
+      dummstr1 = SaveFlashProgString[site];
+      length = dummstr1.Length();
+
+       /*extract pump trim for espump*/
+      if((SelectedTITestType!=MP1) and (GL_PUMPTYPE==ESPUMP))  
+      {
+         pumpstr = dummstr1.Substring(0,PUMP_EF_LEN);
+         str1 = pumpstr.Substring(IND_VBG_MSB,(IND_VBG_LSB-IND_VBG_MSB)+1);
+         MAINBG_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_FOSC_MSB,(IND_FOSC_LSB-IND_FOSC_MSB)+1);
+         FOSC_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_IREF_USB,(IND_IREF_LSB-IND_IREF_USB)+1);
+         str2 = pumpstr.Substring(IND_IREF_MSB,1) + str1;
+         MAINIREF_TRIMSAVED[site] = int(BinStringToUnsigned(str2, true));
+         str1 = pumpstr.Substring(IND_VHVSLCT_MSB,(IND_VHVSLCT_LSB-IND_VHVSLCT_MSB)+1);
+         VHV_SLPCT_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         str1 = pumpstr.Substring(IND_VSA5CT_MSB,(IND_VSA5CT_LSB-IND_VSA5CT_MSB)+1);
+         VSA5CT_TRIMSAVED[site] = int(BinStringToUnsigned(str1, true));
+         if(tistdscreenprint)  
+            cout << "Site" << setw(5) << site << " MAINBG_TRIMSAVED = " << setw(5) << MAINBG_TRIMSAVED[site] << 
+                    " MAINIREF_TRIMSAVED = " << setw(5) << MAINIREF_TRIMSAVED[site] << 
+                    " FOSC_TRIMSAVED = " << setw(5) << FOSC_TRIMSAVED[site] << 
+                    " VHVSLPCT_TRIMSAVED = " << setw(5) << VHV_SLPCT_TRIMSAVED[site] << 
+                    " VSA5CT_TRIMSAVED = " << setw(5) << VSA5CT_TRIMSAVED[site] << endl;               
+      } 
+       /*remove pump*/
+      dummstr1 = dummstr1.Substring(PUMP_EF_LEN,(length-PUMP_EF_LEN));
+
+      for (count = 0;count <= lowerbank;++count)
+      {
+         bit5_9_str = dummstr1.Substring(EVN0INDX + (count*BANK_EF_LEN), 5);
+         dummstr2 = (bit5_9_str); /*stringreverse*/
+         IPMOS_TRIMCODE_VAL[site][count][0] = int(BinStringToUnsigned(dummstr2, true));  /*even*/
+         
+         bit24_28_str = dummstr1.Substring(ODD0INDX+(count*BANK_EF_LEN),5);
+         dummstr2 = (bit24_28_str); /*stringreverse*/
+         IPMOS_TRIMCODE_VAL[site][count][1] = int(BinStringToUnsigned(dummstr2, true));  /*odd*/
+
+         if(tistdscreenprint and TI_FlashDebug)  
+            cout << "Site" << setw(5) << site << " Bank" << setw(5) << count << hex <<
+                    " TrimCode Even== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][0] << 
+                    " Odd== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][1] << dec << endl;
+      }   /*for count*/
+
+      if(highbank)  
+         for (count = 4;count <= F021_Flash.MAXBANK;++count)
+         {  
+            bit5_9_str = dummstr1.Substring(EVN0INDX+(count*BANK_EF_LEN),5);
+            dummstr2 = (bit5_9_str); /*stringreverse*/
+            IPMOS_TRIMCODE_VAL[site][count][0] = int(BinStringToUnsigned(dummstr2, true));  /*even*/
+            
+            bit24_28_str = dummstr1.Substring(ODD0INDX+(count*BANK_EF_LEN),5);
+            dummstr2 = (bit24_28_str); /*stringreverse*/
+            IPMOS_TRIMCODE_VAL[site][count][1] = int(BinStringToUnsigned(dummstr2, true));  /*odd*/
+
+            if(tistdscreenprint and TI_FlashDebug)  
+               cout << "Site" << setw(5) << site << " Bank" << setw(5) << count << " TrimCode Even== " << 
+                    hex << setw(6) << IPMOS_TRIMCODE_VAL[site][count][0] << 
+                    " Odd== " << setw(6) << IPMOS_TRIMCODE_VAL[site][count][1] << dec << endl;
+         }   /*for count*/
+   }   /* end site loop */
+
+    /*store to global vars*/
+   IPMOS_BANKENA_MSW = bankena;
+   IPMOS_BANKENA_LSW = bankena;
+      
+}   /* GetTrimCode_On_EFStr */
+
+
 void RAM_Upload_PMOS_TrimCode() {
    IntS    site,addr_loc,trimenakey,bank,maxbk,i;
    IntM    msw_data,lsw_data,edata,odata;
@@ -13372,7 +12906,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 
             unitval = meas_value.GetUnits(); // V or A set during F021_Meas_TPAD_PMEX
 
-            IO.Print(dlog_comment, "F021_Pump_Para_func testnum is 0x%x.\n", testnum);
+            IO.Print(dlog_comment, "F021_Pump_Para_func testnum is 0x%08x.\n", testnum);
             DLOG.Text(dlog_comment);
             
             // force a passing value in the simulator
@@ -14596,12 +14130,12 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    rampup = true;
 
    switch (TCRnum) {
-     case 23  : special_opt = 1;
-     case 52  : special_opt = 3;
-     case 58  : special_opt = 2;
-     case 86  : special_opt = 5;   // vhv stress
-     case 128 : special_opt = 4;   // external ers using tcr23
-     default  : special_opt = 0;
+     case 23  : special_opt = 1; break;
+     case 52  : special_opt = 3; break;
+     case 58  : special_opt = 2; break;
+     case 86  : special_opt = 5; break;   // vhv stress
+     case 128 : special_opt = 4; break;   // external ers using tcr23
+     default  : special_opt = 0; break;
    }
              
    if (special_opt!=0) {
@@ -14644,10 +14178,10 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    stress_bits = (testnum & 0x00f00000) >>20;
 
    switch(target_bits) {
-     case TARGET_BANK : pattype = BANKTYPE;
-     case TARGET_SECT : pattype = SECTTYPE;
-     case TARGET_OTP  : pattype = OTPTYPE;
-     default:     pattype = MODTYPE;
+     case TARGET_BANK : pattype = BANKTYPE; break;
+     case TARGET_SECT : pattype = SECTTYPE; break;
+     case TARGET_OTP  : pattype = OTPTYPE;  break;
+     default:           pattype = MODTYPE;  break;
    } 
 
    stresstime = 0s;
@@ -14758,9 +14292,9 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
                // KChau 04/21/10 - using 12.5v as default
                vProg = VHV_Ers_Target - 500mV;
 //               STDSetVRange(testpad,vRange);
-//               STDSetVI(testpad,vProg,iProg);
+               STDSetVI(testpad,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
                TIME.Wait(stresstime);
-//               STDSetVI(testpad,0V,iProg);
+               STDSetVI(testpad,0V,iProg,VI_FORCE_V,VI_MEASURE_I,0V);
                if (tistdscreenprint and TI_FlashDebug)  
                   cout << " EG @ " << vProg << endl;
             }
@@ -14776,7 +14310,8 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 
             F021_TurnOff_AllTPADS();
 
-            if ((special_opt==2) and ramp3vfl)  
+            if ((special_opt==2) and ramp3vfl)
+               ;
 //               STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
 
 //          Disable(s_pmexit);
@@ -14881,51 +14416,41 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    return(final_results);
 }   // F021_Stress_func
 
-#if 0
-TMResultM F021_RefArr_Erase_func(    StringS tname,
-                                     BoolS adaptiveEna)
+
+TMResultM F021_RefArr_Erase_func(const StringS &tname,
+                                 const BoolS &adaptiveEna)
 {
    const IntS TCR56 = 56; 
    const IntS TCR40 = 40; 
    const IntS EVENNUM = 0; 
    const IntS ODDNUM = 1; 
 
-//   FloatS tdelay,maxtime;
-//   BoolM savesites,logsites,rtest_results;
-//   BoolM tmp_results,final_results;
-//   BoolM meas_results,activestates,sitetorestore;
-//   IntS site,bankcount;
-//   IntS pattype,testnum;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4,vstr;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS fl_testname;
-//   prepostcorner prepost;
-//   BoolS parmena,done,once,ovride_lim;
-//   FloatS ovride_llim,ovride_ulim;
-//   PinM testpad,cntrlpad;
-//   FloatS tpad_force,cntrlpad_force;
-//   BoolS x64soft;
-//   StringM site_cof_inst_str;
-//   TPModeType tcrmode_refarr,tcrmode_ipmos;
-//   TPModeType tcrmode_ipmos_pre;
-//   IntS tnum_refarr,tcrnum_refarr;
-//   IntS tcrnum_ipmos,loop;
-//   IntS1D tnum_ipmos(2);
-//   FloatS llim,ulim,llim_pre,ulim_pre;
-//   FloatM meas_value,ipmos_even,ipmos_odd;
-//   FloatM ieven_fn,iodd_fn,ieven_odd_avg;
-//   FloatM1D ieven_pre(8),iodd_pre(8);
-//   FloatS ers_pwmax,ers_pwidth;
-//   FloatS vstart,vstop,vinc,vProg,iavg_toler;
-//   FloatM ers_pwtotal;
-//   IntS ers_cntmin,ers_cntmax,ers_loop;
-//   BoolM retestsites,allsitefalse;
-//   BoolS bool1,bool2;
-//   BoolM1D bankdone(8);
-//   IntS minloop,maxloop;
+   FloatS tdelay,maxtime;
+   Sites savesites,logsites,erase_sites, new_active_sites;
+   TMResultM tmp_results,final_results,rtest_results,meas_results;
+   IntS bankcount;
+   IntS testnum;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4,vstr;
+   PinM testpad; 
+   TPModeType tcrmode_refarr,tcrmode_ipmos;
+   TPModeType tcrmode_ipmos_pre;
+   IntS tnum_refarr,tcrnum_refarr;
+   IntS tcrnum_ipmos,loop;
+   IntS1D tnum_ipmos(2);
+   FloatS llim,ulim,llim_pre,ulim_pre;
+   FloatM meas_value,ipmos_even,ipmos_odd;
+   FloatM ieven_fn,iodd_fn,ieven_odd_avg;
+   FloatM1D ieven_pre(8),iodd_pre(8);
+   FloatS ers_pwmax,ers_pwidth;
+   FloatS vstart,vstop,vProg,vinc,iavg_toler;
+   FloatM ers_pwtotal;
+   IntS ers_cntmin,ers_cntmax,ers_loop;
+   BoolM bool1,bool2, retest;
+   BoolM1D bankdone(8);
+   IntS minloop,maxloop;
+   bool any_site_active;
+   FloatS start_time2;
 
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ F021_RefArr_Erase_func +++++" << endl;
@@ -14942,8 +14467,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
    testpad = FLTP2;
     /*pre-ers*/
    tcrmode_ipmos_pre = ProgMode;  /*actual mode is evfy*/
-   llim_pre = TCR.TP2_LLim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*-135ua*/
-   ulim_pre = TCR.TP2_ULim[TCRnum_ipmos][TCRMode_ipmos_pre];   /*5ua*/
+   llim_pre = TCR.TP2_LLim[tcrnum_ipmos][tcrmode_ipmos_pre];   /*-135ua*/
+   ulim_pre = TCR.TP2_ULim[tcrnum_ipmos][tcrmode_ipmos_pre];   /*5ua*/
 
    ers_cntmin = 1;
    tcrnum_refarr  = TCR56;
@@ -14969,15 +14494,15 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
       ulim = IPMOS_Adaptive_Target+iavg_toler;    /*-46ua=-56ua+10ua*/
       ers_pwidth = RefArr_Ers_Adaptive_RESOL;  /*per step resol*/
       ers_pwmax  = RefArr_Ers_Adaptive_PWIDTH;
-      ers_cntmax = trunc(ers_pwmax/ers_pwidth);
-      vstart     = RefArr_Ers_Adaptive_Vstart;
-      vstop      = RefArr_Ers_Adaptive_Vstop;
+      ers_cntmax = int(ers_pwmax/ers_pwidth);
+      vstart     = RefArr_Ers_Adaptive_VStart;
+      vstop      = RefArr_Ers_Adaptive_VStop;
       vinc       = 1V;
       tcrmode_refarr = EvfyMode;
    } 
    
    for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;++bankcount)
-      bankdone[bankcount] = true;
+      bankdone.SetValue(bankcount,true);
 
    minloop = EVENNUM;
    if(GL_BANKTYPE==FLEPBANK)  
@@ -14989,10 +14514,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
 
    savesites = ActiveSites;
    final_results = TM_NOTEST;
-   allsitefalse = false;
 
-   fl_testname = tname;
-   tmpstr1 = fl_testname.Substring(1, fl_testname.Length()-6);
+   tmpstr1 = tname.Substring(1, tname.Length()-6);
 
 // :TODO: Implement below   
 //   if(TI_FlashCOFEna)  
@@ -15006,8 +14529,8 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
       meas_results = TM_NOTEST; 
       tmp_results = TM_NOTEST;
 
-      ieven_pre[bankcount] = 0uA;
-      iodd_pre[bankcount] = 0uA;
+      ieven_pre.SetValue(bankcount, 0uA);
+      iodd_pre.SetValue(bankcount, 0uA);
 
       tmpstr2 = "_B" + bankcount;
       tmpstr4 = "IPMOS_Rd";
@@ -15023,12 +14546,12 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
          if(loop==0)  
          {
             tmpstr3 = tmpstr4 + "_NME_Pre";
-            ieven_pre[bankcount] = meas_value;
+            ieven_pre.SetValue(bankcount, meas_value);
          }
          else
          {
             tmpstr3 = tmpstr4 + "_NMO_Pre";
-            iodd_pre[bankcount] = meas_value;
+            iodd_pre.SetValue(bankcount, meas_value);
          } 
          
          tmpstr3 = tmpstr3 + tmpstr2;
@@ -15055,12 +14578,12 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
             ieven_odd_avg = (ieven_pre[bankcount]+iodd_pre[bankcount])*0.5;
          else
             ieven_odd_avg = ieven_pre[bankcount];
-         bankdone[bankcount] = ieven_odd_avg.LessOrEqual(ulim);
+         bankdone.SetValue(bankcount, ieven_odd_avg.LessOrEqual(ulim));
       }
       else
       {
           /*apply pulse regardless*/
-         bankdone[bankcount] = false;
+         bankdone.SetValue(bankcount,false);
       } 
       retest &= bankdone[bankcount];
 
@@ -15127,7 +14650,7 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                if(adaptiveEna)  
                   CloneTCR_To_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
 
-               for (FloatS vProg = vstart; vProg <= vstop; VProg += vinc)
+               for (FloatS vProg = vstart; vProg <= vstop; vProg += vinc)
                {
                   vstr = "_" + vProg;
 
@@ -15138,45 +14661,33 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                   {
                       /*--- apply ers pulse ---*/
                      testnum = tnum_refarr+(bankcount<<4);
-                     F021_TurnOff_AllTpads();
+                     F021_TurnOff_AllTPADS();
                      rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
                      F021_Set_TPADS(tcrnum_refarr,tcrmode_refarr);
                      TIME.Wait(ers_pwidth);
-                     F021_TurnOff_AllTpads();
+                     F021_TurnOff_AllTPADS();
                      tmp_results = Check_RAM_TNUM(testnum);
 
-//:HERE:
                       /*tally up total applied pwidth*/
-                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                        if(v_dev_active[site])  
-                        {
-                           ers_pwtotal[site] = ers_pwtotal[site] + ers_pwidth;
-                           if((not rtest_results[site]) or (not tmp_results[site]))  
-                              final_results[site] = false;
-                        } 
+                     ers_pwtotal += ers_pwidth;
+                     final_results = DLOG.AccumulateResults(final_results, rtest_results);
+                     final_results = DLOG.AccumulateResults(final_results, tmp_results);
                      
                       /*--- read ipmos evfy even/odd ---*/
-                     writestring(tmpstr4,ers_loop:1);
-                     tmpstr4 = "_PLS" + tmpstr4;
-                     tmpstr4 = tmpstr2 + tmpstr4;   /*_B#_PLS#*/
-                     tmpstr4 = tmpstr4 + vstr;
+                     tmpstr4 = tmpstr2 + "_PLS" + ers_loop + vstr;
                      
-                     for (loop = minloop;loop <= maxloop;loop++)
+                     for (loop = minloop;loop <= maxloop;++loop)
                      {
                         testnum = tnum_ipmos[loop]+(bankcount<<4);
                         F021_Set_TPADS(tcrnum_ipmos,tcrmode_ipmos);
-                        F021_RunTestNumber_PMEX(testnum,maxtime,rtest_results);
+                        rtest_results = F021_RunTestNumber_PMEX(testnum,maxtime);
                         TIME.Wait(tdelay);
-                        discard(F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos,
-                                llim,ulim,meas_value,meas_results));  /*note: don"t want to fail meas_value here*/
-                        F021_TurnOff_AllTpads;
-                        Disable(s_pmexit);
-                        Check_RAM_TNUM(testnum,tmp_results);
+                        meas_value = F021_Meas_TPAD_PMEX(testpad,tcrnum_ipmos,tcrmode_ipmos);
+                        F021_TurnOff_AllTPADS();
+                        tmp_results = Check_RAM_TNUM(testnum);
 
-                        for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                           if(v_dev_active[site])  
-                              if((not rtest_results[site]) or (not tmp_results[site]))  
-                                 final_results[site] = false;
+                        final_results = DLOG.AccumulateResults(final_results, rtest_results);
+                        final_results = DLOG.AccumulateResults(final_results, tmp_results);
                         
                         if(loop==0)  
                         {
@@ -15190,117 +14701,103 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                         } 
                         
                          /*tw log ipmos value*/
+                        if (SYS.TesterSimulated())
+                           meas_value = (ulim-llim)/2. + llim;
+                           
                         tmpstr3 = tmpstr3 + tmpstr4;
-                        TWTRealToRealMS(meas_value,realval,unitval);
-                        TWPDLDataLogRealVariable(tmpstr3,unitval,realval,TWMinimumData);
-                        
-                        PrintResultParam(tmpstr3,testnum,meas_results,llim,ulim,meas_value,GL_PLELL_FORMAT);
+                        meas_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(), 
+                                                    tmpstr3, UTL_VOID, UTL_VOID, true, TWMinimumData);
                      }   /*for loop*/
                      
                       /*--- check even/odd against target/limits ---*/
-                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                        if(v_dev_active[site])  
-                        {
-                           if(adaptiveEna)  
-                           {
-                              if(GL_BANKTYPE==FLEPBANK)  
-                                 ieven_odd_avg[site] = (ipmos_even[site]+ipmos_odd[site])*0.5;
-                              else
-                                 ieven_odd_avg[site] = ipmos_even[site];
-                              if(ieven_odd_avg[site]<==ulim)  
-                              {
-                                 bool1 = true;
-                                 bool2 = true;
-                              }
-                              else
-                              {
-                                 bool1 = false;
-                                 bool2 = false;
-                              } 
-                           }
-                           else
-                           {
-                              if(ipmos_even[site] <== ulim)  
-                                 bool1 = true;
-                              else
-                                 bool1 = false;
-
-                              if(GL_BANKTYPE==FLEPBANK)  
-                              {
-                                 if(ipmos_odd[site] <== ulim)  
-                                    bool2 = true;
-                                 else
-                                    bool2 = false;
-                              }
-                              else
-                              {
-                                 bool2 = true;
-                                 ipmos_odd[site] = ipmos_even[site];
-                              } 
-                           } 
+                     if (adaptiveEna)
+                     {
+                        if (GL_BANKTYPE==FLEPBANK)
+                           ieven_odd_avg = (ipmos_even + ipmos_odd) * 0.5;
+                        else
+                           ieven_odd_avg = ipmos_even;
                            
-                           if(bool1 and bool2)  
-                           {
-                              activestates[site] = false;  /*done erasing*/
-                              ieven_fn[site] = ipmos_even[site];
-                              iodd_fn[site]  = ipmos_odd[site];
-                              tt_timer[site] = timernread(ttimer2);
-                              if(tistdscreenprint)  
-                                 cout << "Site " << site:-5 << " Done Erasing so dis-able" << endl;
-                           } 
+                        bool1 = ieven_odd_avg.LessOrEqual(ulim);
+                        bool2 = bool1;
+                     }
+                     else
+                     {
+                        bool1 = ipmos_even.LessOrEqual(ulim);
+                        
+                        if (GL_BANKTYPE==FLEPBANK)
+                        {
+                           bool2 = ipmos_odd.LessOrEqual(ulim);
+                        }
+                        else
+                        {
+                           bool2 = true;
+                           ipmos_odd = ipmos_even;
+                        }
+                     }
+                     new_active_sites = ActiveSites;
+                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                     {  
+                        SITE site = *si;
+                        if((bool1[site] && bool2[site]) || SYS.TesterSimulated())  
+                        {
+                           new_active_sites -= site; /*done erasing*/
+                           ieven_fn[site] = ipmos_even[site];
+                           iodd_fn[site]  = ipmos_odd[site];
+                           tt_timer[site] = TIME.GetTimer() - start_time2;
+                           if(tistdscreenprint)  
+                              cout << "Site " << site << " Done Erasing so dis-able" << endl;
+                        } 
+                     }
                      
-                            /*reached max ers but failed iref*/
-                           if((ers_loop==ers_cntmax) and (vProg==vstop))  
-                              if(activestates[site])  
-                              {
-                                 final_results[site] = false;
-                                 activestates[site] = false;
-                                 ieven_fn[site] = ipmos_even[site];
-                                 iodd_fn[site]  = ipmos_odd[site];
-                                 tt_timer[site] = timernread(ttimer2);
-                                 if(tistdscreenprint)  
-                                    cout << "Site " << site:-5 << " Reached Max pulse but Failed Erasing" << endl;
-                              } 
-                        }   /*if v_dev_active*/
+                     /*reached max ers but failed iref*/
+                     if((ers_loop==ers_cntmax) and (vProg==vstop))  
+                     {
+                        // loop through new_active_sites because it will have removed sites 
+                        // that finally passed, but they won't be deactivated yet so can't use
+                        // ActiveSites.
+                        for (SiteIter si = new_active_sites.Begin(); !si.End(); ++si)
+                        {
+                           final_results[*si] = TM_FAIL;
+                           ieven_fn[*si] = ipmos_even[*si];
+                           iodd_fn[*si]  = ipmos_odd[*si];
+                           tt_timer[*si] = TIME.GetTimer() - start_time2;
+                           if(tistdscreenprint)  
+                              cout << "Site " << *si << " Reached Max pulse but Failed Erasing" << endl;
+                        } 
+                        // all sites left active will have hit the max, so all sites are done 
+                        new_active_sites = NO_SITES;
+                     } // end site loop
                
-                      /*disable site done erasing*/
-                     devsetholdstates(activestates);
+                      /*disable site done erasing*/         
+                     any_site_active = SetActiveSites(new_active_sites);
                      
-                     if(not v_any_dev_active)  
+                     if(!any_site_active)  
                         break;
                   }   /*for ers_loop*/
 
-                  if(not v_any_dev_active)  
+                  if(!any_site_active)  
                      break;
                }   /*for vProg*/
                
                if(adaptiveEna)  
                   RestoreTCR_Fr_TCR128(tcrmode_refarr,tcrmode_refarr,tcrnum_refarr);
                
-               devsetholdstates(logsites);
+               SetActiveSites(logsites);
                   
                 /*tw log total ers pulsewidth applied*/
-               tmpstr3 = tmpstr1 + "_TOTPW";
-               tmpstr3 = tmpstr3 + tmpstr2;
-               TWTRealToRealMS(ers_pwtotal,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + "_TOTPW" + tmpstr2;
+               TWPDLDataLogRealVariable(tmpstr3, "s",ers_pwtotal,TWMinimumData);
                
-               tmpstr3 = tmpstr1 + tmpstr2;
-               tmpstr3 = tmpstr3 + "_TT";
-               TWTRealToRealMS(tt_timer,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + tmpstr2 + "TT";
+               TWPDLDataLogRealVariable(tmpstr3, "s",tt_timer,TWMinimumData);
                
-               tmpstr3 = tmpstr1 + tmpstr2;
-               tmpstr3 = tmpstr3 + "_IEVEN";
-               TWTRealToRealMS(ieven_fn,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+               tmpstr3 = tmpstr1 + tmpstr2 + "_IEVEN";
+               TWPDLDataLogRealVariable(tmpstr3, ieven_fn.GetUnits(),ieven_fn,TWMinimumData);
 
                if(GL_BANKTYPE==FLEPBANK)  
                {
-                  tmpstr3 = tmpstr1 + tmpstr2;
-                  tmpstr3 = tmpstr3 + "_IODD";
-                  TWTRealToRealMS(iodd_fn,realval,unitval);
-                  TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
+                  tmpstr3 = tmpstr1 + tmpstr2 + "_IODD";
+                  TWPDLDataLogRealVariable(tmpstr3, iodd_fn.GetUnits(),iodd_fn,TWMinimumData);
                } 
                
                 /*store/copy to global var*/
@@ -15310,69 +14807,48 @@ TMResultM F021_RefArr_Erase_func(    StringS tname,
                  BANK_IREFARR_VALUE[bankcount,loop,tcrmode_ipmos,prepost,vcorner,site] := meas_value[site];
                  */
          
-               if(not ArrayCompareBoolean(logsites,final_results,v_sites))  
-               {
-                  tmpstr3 = tmpstr1 + tmpstr2;
-                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
-                  if(TI_FlashCOFEna)  
-                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
-               } 
+// :TODO: Implement Log_FailPat, etc, below
+//               if(!(final_results==TM_PASS)) // if all sites are not equal to PASS
+//               {
+//                  tmpstr3 = tmpstr1 + tmpstr2;
+//                  F021_Log_FailPat_To_TW(tmpstr3,final_results,fl_testname);
+//                  if(TI_FlashCOFEna)  
+//                     F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,final_results);
+//               } 
 
                 /*update so won"t re-enable or continue testing next bank if failed*/
-               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                  if(v_dev_active[site] and (not final_results[site]))  
-                     if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-                        sitetorestore[site] = false;
-               
-               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-                  Devsetholdstates(final_results);
-
+               if ((!RunAllTests) && (!TI_FlashCOFEna))
+                  erase_sites.DisableFailingSites(final_results.Equal(TM_PASS));
             }   /*if v_any_dev_active*/
              /*+++++ ERS +++++*/            
-            if(ArrayCompareBoolean(sitetorestore,allsitefalse,v_sites))  
+            if(!SetActiveSites(erase_sites))  // need to reactivate sites before loop since disabling on bankcount done
                break;
-               
-            RunTime.SetActiveSites(erase_sites); // need to reactivate sites before loop since disabling on done of bankcount
          }   /*for bankcount*/
       }   /*if v_any_dev_active*/ // retest sites
    } /* if any_site_active -- for if we had a passing site */
    
     /*restore all active sites*/
-   // we know there will be sites, so can use the RunTime version
+   // we know there will be sites because this is from when we started the test, so can use the RunTime version
    RunTime.SetActiveSites(savesites);
 
-   ResultsRecordActive(final_results, S_NULL);
-   TestClose;
-
-   Disable(s_pmexit);
-            
-   if(TI_FlashCOFEna)  
-      F021_Save_COF_Info("",site_cof_inst_str,final_results);
+// :TODO: Implement below
+//   if(TI_FlashCOFEna)  
+//      F021_Save_COF_Info("",site_cof_inst_str,final_results);
    
    tt_timer = TIME.StopTimer();
    
    tmpstr4 = tmpstr1 + "_TT";
-   TWTRealToRealMS(tt_timer,realval,unitval);
-   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+   TIDlog.Value(tt_timer, UTL_VOID, 0., UTL_VOID, "s", tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);
 
-   F021_TurnOff_AllTpads;
-   
-   if(tistdscreenprint)  
-   {
-      PrintHeaderBool(GL_PLELL_FORMAT);
-      PrintResultBool(tmpstr1,tnum_refarr,final_results,GL_PLELL_FORMAT);
-      cout << "   TT " << ttimer1 << endl;
-      cout << endl;
-   } 
-   
-   if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-      DevSetHoldStates(final_results);
-   
-   test_results = final_results;
-   
+   F021_TurnOff_AllTPADS();
+      
+      
+//   if (SYS.TesterSimulated())
+//      final_results = TM_PASS;
+      
    return (final_results);
 }   /* F021_RefArr_Erase_func */
-#endif
+
 void MeasInternalVT(    IntS       testnum,
                         FloatS     test_llim,
                         FloatS     test_ulim,
@@ -15394,9 +14870,10 @@ void MeasInternalVT(    IntS       testnum,
    BoolS do_bcc;
    StringS str1,str2;
 
-   str1 = CONV.FloatToString(test_ulim);
-   
-   if (str1.Find("A") >= 0) {
+//   str1 = CONV.FloatToString(test_ulim);
+//   if (units.Find("A") >= 0) {
+   // All currents are in uA so I hope this will always choose correctly
+   if ( test_ulim < 1.0 ) {
       str2 = "MeasInternalBCC";
       do_bcc = true;
    }
@@ -15404,7 +14881,7 @@ void MeasInternalVT(    IntS       testnum,
       str2 = "MeasInternalVT";
       do_bcc = false;
    } 
-   
+
    if (tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ " << str2 << " +++++" << endl;
    
@@ -18875,12 +18352,12 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    ersstr_ena = false;  // true = use to disable tw log, compare limits for fast/slow-ers stress
    
    tmpstr1 = tname;
-   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
+   tmpstr1.Replace(tmpstr1.Find("_Test"), 5, "");   // remove _Test
    fl_testname = tname;
    
    TIME.StartTimer();
 
-// Clear string function
+// Change of Flow
 //   if (TI_FlashCOFEna)  
 //      F021_Init_COF_Inst_Str(site_cof_inst_str);
 
@@ -18939,7 +18416,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
    
    if(pattype == MODTYPE) {
       // +++ Module operation +++
-      final_results = TM_NOTEST;
+      final_results = TM_FAIL;
       if (tistdscreenprint)  
          cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
    }
@@ -20474,6 +19951,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -21331,6 +20813,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -22013,6 +21500,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //      
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //         
@@ -24365,6 +23857,11 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //
 //      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
 //      {
+//         patternexecute(num_clks,f021_shell_loadpat); /*added for flash stability JRR */
+//         RAM_Clear_SoftTrim_All();
+//         RAM_Clear_PMOS_SoftTrim();
+//         RAM_Clear_MailBox_Key();
+//
 //         timernstart(ttimer2);
 //         faildetect = false;
 //
@@ -25351,7 +24848,10 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
    tdelay = 10ms;
 
    F021_TurnOff_AllTPADS();
-//   novride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   novride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+   
+   if (SYS.TesterSimulated())
+      novride_meas_value = MainBG_Target;
    
    /*Test and TW log for non-override meas_value*/
    final_results = TIDlog.Value(novride_meas_value, testpad, llim, ulim, novride_meas_value.GetUnits(),
@@ -25436,7 +24936,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             {
                BGValue = code;
                RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
-//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay));
+               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay));
                TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
                             "MainBG_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
             }
@@ -25448,7 +24948,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
                SaveMbgEfuseTrimString(TrimValue[*si], *si); 
          } else // not charTrimEna
          {
-            // The BG trim looks to use a 2s-complement number coding. This means a 
+            // The BG trim looks to use a 4-piecemeal ramp. This means a 
             // linear ramp in terms of output is not a linear ramp numerically. So, we'll
             // use a linear look-up table to make the search code much less complicated.
             int num_codes = MAX_CODE - MIN_CODE +1;
@@ -25456,11 +24956,18 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             
             int i;
             int j = 0;
-            // first section is the 'negative' numbers from half scale and up
-            for (i = num_codes/2; i <= MAX_CODE; ++i, ++j)
+            
+            // quarter to mid scale is lowest
+            for (i = num_codes/4; i < num_codes/2; ++i, ++j)
                lookup_table[j] = i;
-            // now go back and get 0 to half scale
-            for (i = 0; i < num_codes/2; ++i, ++j);
+            // now go back and get 0 to quarter scale
+            for (i = 0; i < num_codes/4; ++i, ++j)
+               lookup_table[j] = i;
+            // then 3/4 scale to full scale
+            for (i = num_codes*3/4; i < num_codes; ++i, ++j)
+               lookup_table[j] = i;
+            // now pick up mid to 3/4 scale
+            for (i = num_codes/2; i < num_codes*3/4; ++i, ++j)
                lookup_table[j] = i;
 
             SearchMod my_search;
@@ -25481,7 +24988,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
                   BGValue[*si] = lookup_table[MATH.LegacyRound(table_index[*si])];
                   
                RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
+               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay);
       
                loop = loop+1;
                twstr = "MBG_SOFT_" + loop;
@@ -25515,7 +25022,7 @@ TMResultM F021_MainBG_SoftTrim_Direct_func(BoolS charTrimEna)
             }        
             // test if we found a real trim or we had search errors
             tmp_results = TIDlog.Value(trim_alarms, testpad, 0, 0, "",
-                         "MAINBG_TRIMCODE_FOUND", UTL_VOID, UTL_VOID, true, TWMinimumData);
+                         "MAINBG_TRIM_ALARM", UTL_VOID, UTL_VOID, true, TWMinimumData);
          
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
          } // end else charTrimEna
@@ -26214,7 +25721,11 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
    
    RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
    F021_TurnOff_AllTPADS();
-//   ovride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+   ovride_meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+
+   if (SYS.TesterSimulated())
+      ovride_meas_value = Main_Icmp10_Target;
+
     /*bin out site not passing relaxed limits*/
    final_results = TIDlog.Value(ovride_meas_value, testpad, llim, ulim, ovride_meas_value.GetUnits(),
                                 "MAINIREF_OVERRIDE", UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -26289,7 +25800,7 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
             {
                IRValue = code;
                RAM_Upload_SoftTrim(TRIMENAKEY, BGValue, IRValue, FOSCValue, FOSCValue, FOSCValue);
-//               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2));
+               trim_curve.SetValue(code, DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2));
                TIDlog.Value(trim_curve[code], testpad, UTL_VOID, UTL_VOID, trim_curve[code].GetUnits(), 
                             "MainIref_Trim_Curve_Code_" + IntS(code), UTL_VOID, UTL_VOID, false, TWMinimumData);
             }
@@ -26302,21 +25813,48 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna)
                
          } else // not charTrimEna
          {
+            // The Iref trim looks to use a 4-piecemeal ramp. This means a 
+            // linear ramp in terms of output is not a linear ramp numerically. So, we'll
+            // use a linear look-up table to make the search code much less complicated.
+            int num_codes = MAX_CODE - MIN_CODE +1;
+            IntS1D lookup_table(num_codes, 0);
+            
+            int i;
+            int j = 0;
+            
+            // quarter to mid scale is lowest
+            for (i = num_codes/4; i < num_codes/2; ++i, ++j)
+               lookup_table[j] = i;
+            // now go back and get 0 to quarter scale
+            for (i = 0; i < num_codes/4; ++i, ++j)
+               lookup_table[j] = i;
+            // then 3/4 scale to full scale
+            for (i = num_codes*3/4; i < num_codes; ++i, ++j)
+               lookup_table[j] = i;
+            // now pick up mid to 3/4 scale
+            for (i = num_codes/2; i < num_codes*3/4; ++i, ++j)
+               lookup_table[j] = i;
+
             SearchMod my_search;
             my_search.SASearchBegin(double(MIN_CODE), double(MAX_CODE), target_meas_delta, target_meas_value, MAXITER);
             my_search.SkipMinMax(true);            
             
             IntS loop = 0;
             FloatM meas_value;
-            FloatM float_code;
+            FloatM table_index;
             
             while (my_search.searchNotDone)
             {
-               float_code = my_search.xForceValueMS;
-               IRValue = MATH.LegacyRound(float_code);
+               table_index = my_search.xForceValueMS;
+               // The xForceValueMS is based upon a line from 0-63, so it is basically
+               // just an index in our lookup_table. We have 
+               // to look that up in the lookup table since the actual code isn't
+               // linear since it is 2s complement
+               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                  IRValue[*si] = lookup_table[MATH.LegacyRound(table_index[*si])];
                   
                RAM_Upload_SoftTrim(TRIMENAKEY,BGValue,IRValue,FOSCValue,FOSCValue,FOSCValue);
-//               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
+               meas_value = DoVIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime, tdelay2);
       
                loop = loop+1;
                twstr = "MIREF_SOFT_" + loop;
@@ -26589,6 +26127,9 @@ STDDisconnect(FLTP3);
       meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
       F021_TurnOff_AllTPADS();
       
+      if (SYS.TesterSimulated())
+         meas_val = target;
+         
       twstr = "VHV_PG_SLPCT_SFT_" + i;
       TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
                    UTL_VOID, UTL_VOID, logena, TWMinimumData);
@@ -26620,6 +26161,9 @@ STDDisconnect(FLTP3);
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
    F021_TurnOff_AllTPADS();
+   
+   if (SYS.TesterSimulated())
+      meas_val = target;
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
@@ -26763,6 +26307,9 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
       meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
       F021_TurnOff_AllTPADS();
       
+      if (SYS.TesterSimulated())
+         meas_val = target;
+      
       twstr = "VSA5CT_SFT_" + i;
       TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), twstr, 
                    UTL_VOID, UTL_VOID, logena, TWMinimumData);
@@ -26790,6 +26337,9 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
    TIME.Wait(tdelay);
    meas_val = F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode);
    F021_TurnOff_AllTPADS();
+   
+   if (SYS.TesterSimulated())
+      meas_val = target;
    
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
@@ -26849,240 +26399,211 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
 }   /* F021_VSA5CT_SoftTrim_func */
 
 
-
-//void ProgramFlashTrim(      StringS tname1, StringS  tname2,
-//                                StringS tname3,
-//                                StringM progChainStr,
-//                                StringM initChainStr)
-//{
-//   IntS site;
-//   BoolM savesites;
-//   BoolM restoreDevActive;
-//   BoolM progTrimResults;
-//   BoolM progResults;
-//   BoolM readResults;
-//   BoolM margResults;
-//   BoolM postReadResults;
-//   FloatS ttimer1,ttimer2;
-//   BoolM logsites;
-//   StringS tmpstr3;
-//   StringM readChainStr;
+TMResultM ProgramFlashTrim(      StringS tname1, StringS  tname2,
+                                StringS tname3,
+                                StringM progChainStr,
+                                StringM initChainStr)
+{
+   Sites savesites, blow_efuse_sites;
+   TMResultM progTrimResults;
+   TMResultM progResults;
+   TMResultM readResults;
+   TMResultM margResults;
+   TMResultM postReadResults;
+   FloatS ttimer2_start, ttime;
+   StringM readChainStr;
+   StringS read_code_option;
 //   StringM site_cof_inst_str;
-//   BoolS save_redund,save_wrp;
-//   BoolS save_rdp;
-//   twdatatype save_sendtw;
-//   BoolM save_prerd;
-//   IntM eferrcode;
-//
-//   timernstart(ttimer1);
-//
-//    /*KChau 12/21/07 - added savesites to later use for re-activate failed*/
-//    /*sites if TIIgnoreFail is true.*/
-//   savesites =  V_Dev_Active;
-//   restoreDevActive =  V_Dev_Active;
-//   progTrimResults =  V_Dev_Active;
-//   
-//    /*disable site don"t need to blow efuse*/
-//   for (site = 1;site <= V_Sites;site++)
-//      if(V_Dev_Active[site] and (not SITE_TO_FTRIM[site]))  
-//         DevSetHoldState(site, false); 
-//   
-//   if(v_any_dev_active)  
-//   {
-//      timernstart(ttimer2);
-//      
-//      save_redund = progData.redundancy;
-//      save_wrp    = progData.writeProtect;
-//      save_rdp    = progData.readProtect;
-//      save_sendtw = progData.sendTWData;
-//      save_prerd = progData.rowPreRead;
-//
-//      if(GL_EFUSE_RD_CODEOPTION != "")  
-//      {
-//         readData.codeOption = GL_EFUSE_RD_CODEOPTION;
-//      }
-//      else
-//      {
-//         readData.codeOption = "F021";
-//         if(tistdscreenprint)  
-//         {
-//            cout << endl;
-//            cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
-//            cout << "!!! Setting it to "F021" not using SCRAM option    !!!" << endl;
-//            cout << endl;
-//         } 
-//      } 
-//         
-//      if(GL_EFUSE_PG_CODEOPTION != "")  
-//      {
-//         progData.codeOption = GL_EFUSE_PG_CODEOPTION;
-//      }
-//      else
-//      {
-//         progData.codeOption = "F021";
-//         if(tistdscreenprint)  
-//         {
-//            cout << endl;
-//            cout << "!!! WARNING: GL_EFUSE_PG_CODEOPTION is not defined !!!" << endl;
-//            cout << "!!! Setting it to "F021" no ECC & not using SCRAM option !!!" << endl;
-//            cout << endl;
-//         } 
-//      } 
-//      
-//      progData.redundancy   = true;
-//      progData.writeProtect = false;
-//      progData.readProtect  = false;
-//      progData.sendTWData   = TWExtendedData;
-//      progData.rowPreRead =  false;  /*tjt*/
-//
+   BoolS save_redund,save_wrp;
+   BoolS save_rdp;
+   TWDataType save_sendtw;
+   BoolM save_prerd;
+   IntM eferrcode;
+
+   TIME.StartTimer();
+
+    /*KChau 12/21/07 - added savesites to later use for re-activate failed*/
+    /*sites if TIIgnoreFail is true.*/
+   savesites =  ActiveSites;
+   progTrimResults = TM_PASS; // need to set to pass for sites 
+                              // that won't be blown, failures will change below
+   
+    /*disable site don"t need to blow efuse*/
+   blow_efuse_sites = ActiveSites;
+   blow_efuse_sites.DisableFailingSites(SITE_TO_FTRIM);
+   
+   if(SetActiveSites(blow_efuse_sites))  
+   {
+      ttimer2_start = TIME.GetTimer();
+      
+      save_redund = progData.redundancy;
+      save_wrp    = progData.writeProtect;
+      save_rdp    = progData.readProtect;
+      save_sendtw = progData.sendTWData;
+      save_prerd = progData.rowPreRead;
+
+      if(GL_EFUSE_RD_CODEOPTION != "")  
+      {
+         read_code_option = GL_EFUSE_RD_CODEOPTION;
+      }
+      else
+      {
+         read_code_option = "F021";
+         if(tistdscreenprint)  
+         {
+            cout << endl;
+            cout << "!!! WARNING: GL_EFUSE_RD_CODEOPTION is not defined !!!" << endl;
+            cout << "!!! Setting it to \"F021\" not using SCRAM option    !!!" << endl;
+            cout << endl;
+         } 
+      } 
+         
+      if(GL_EFUSE_PG_CODEOPTION != "")  
+      {
+         progData.codeOption = GL_EFUSE_PG_CODEOPTION;
+      }
+      else
+      {
+         progData.codeOption = "F021";
+         if(tistdscreenprint)  
+         {
+            cout << endl;
+            cout << "!!! WARNING: GL_EFUSE_PG_CODEOPTION is not defined !!!" << endl;
+            cout << "!!! Setting it to \"F021\" no ECC & not using SCRAM option !!!" << endl;
+            cout << endl;
+         } 
+      } 
+      
+      progData.redundancy   = true;
+      progData.writeProtect = false;
+      progData.readProtect  = false;
+      progData.sendTWData   = TWExtendedData;
+      progData.rowPreRead =  false;  /*tjt*/
+
+      // Why is this Read levels?! See VLCT code below. The DCSetup says EfuseP, 
+      // but that is only the digpins and the levels on digpins for read and prog are
+      // the same...only powersupplies are different and that is controlled by the 
+      // function call. I don't know how (or if) this works.
+      Levels efuse_prog_levels("PowerUpAtEfuseRead2");
+      efuse_prog_levels.Execute();
 //      PowerUpAtEfuseRead(DCsetup_LooseVEfuseP, NORM_FMSU);
 //      ClockSet(S_CLOCK1A, false, FreqArr[ DMA ],
 //                  v[vih_loose_osc_VEfuseP],v[vil_loose], s_pogopin);
-//      TIME.Wait(2ms);
-//   
+      TIME.Wait(2ms);
+   
+// :TODO: Below
 //      if(TI_FlashCOFEna)  
 //         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//      
-//      logsites = v_dev_active;
-//      
-//      TestOpen(tname1);   /*FTrimProg_st*/
-//      ProgramFuseROM(NonMBist,progChainStr,initChainStr,progResults);      
-//      ResultsRecordActive(progResults, S_NULL);
-//      TestClose;
-//
-//      writestring(tmpstr3,tname1);
+            
+      progResults = ProgramFuseROM(read_code_option, NonMBist,progChainStr,initChainStr);      
+
+// :TODO: Below
 //      if(not ArrayCompareBoolean(logsites,progResults,v_sites))  
 //      {
-//         F021_Log_FailPat_To_TW(tmpstr3,progResults,tname1);
+//         F021_Log_FailPat_To_TW(tname1,progResults,tname1);
 //         
 //         if(TI_FlashCOFEna)  
 //         {
-//            F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,progResults);
+//            F021_Update_COF_Inst_Str(tname1,site_cof_inst_str,progResults);
 //            F021_Save_COF_Info("",site_cof_inst_str,progResults);
 //         } 
 //      } 
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr3,0,progResults,GL_PLELL_FORMAT);
-//         cout << "   TT " << timernread(ttimer2) << endl;
-//      } 
-//
-//       /*+++++*/
-//      timernstart(ttimer2);
-//      
-//      TestOpen(tname2);  /*FTrimPostRead_st*/
-//      
-//      PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU);
-//      ClockSet(S_CLOCK1A, false, FreqArr[ DMA ],
-//                  v[vih_loose_osc_VEfuseR],v[vil_loose], s_pogopin);
-//      TIME.Wait(2ms);
-//      
-//      ReadFuseROM(NonMBist, MgN, progChainStr,readChainStr,readResults);
-//      
-//      eferrcode = readData.errorCode;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((eferrcode[site] == 0x15) or (eferrcode[site] == 0x5))  
-//               readResults[site] = false;
-//
-//      ResultsRecordActive(ReadResults, S_NULL);
-//      TestClose; 
-//
-//      postReadResults =  readResults;
-//      
-//      writestring(tmpstr3,tname2);
+
+      if(tistdscreenprint)  
+      {
+         DatalogTMResultM(progResults, tname1);
+         cout << "   TT " << TIME.GetTimer() - ttimer2_start << endl;
+      } 
+
+       /*+++++*/
+      ttimer2_start = TIME.GetTimer();
+
+      Levels efuse_read_levels("PowerUpAtEfuseRead2");
+      efuse_read_levels.Execute();            
+
+      TIME.Wait(2ms);
+      
+      eferrcode = ReadFuseROM(read_code_option, NonMBist, MgN, progChainStr,readChainStr,readResults);
+      
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if((eferrcode[*si] == 0x15) or (eferrcode[*si] == 0x5))  
+            readResults[*si] = TM_FAIL;
+
+      postReadResults =  readResults;
+      
+// :TODO: Below
 //      if(not ArrayCompareBoolean(logsites,readResults,v_sites))  
 //      {
-//         F021_Log_FailPat_To_TW(tmpstr3,readResults,tname2);
+//         F021_Log_FailPat_To_TW(tname2,readResults,tname2);
 //         
 //         if(TI_FlashCOFEna)  
 //         {
-//            F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,readResults);
+//            F021_Update_COF_Inst_Str(tname2,site_cof_inst_str,readResults);
 //            F021_Save_COF_Info("",site_cof_inst_str,readResults);
 //         } 
 //      }          
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr3,0,readResults,GL_PLELL_FORMAT);
-//         cout << "   TT " << timernread(ttimer2) << endl;
-//      } 
-//
-//
-//       /*+++++*/
-//      timernstart(ttimer2);
-//      
-//      TestOpen(tname3);  /*FTrimPostReadMg_st*/
-//
-//      PowerUpAtEfuseRead(DCsetup_LooseVEfuseR, NORM_FMSU);
-//      ClockSet(S_CLOCK1A, false, FreqArr[ DMA ],
-//                  v[vih_loose_osc_VEfuseR],v[vil_loose], s_pogopin);
-//      TIME.Wait(2ms);
-//
-//      ReadFuseROM(NonMBist, Mg1A, progChainStr,margFlashChainStr,margResults);
-//
-//      eferrcode = readData.errorCode;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((eferrcode[site] == 0x15) or (eferrcode[site] == 0x5))  
-//               margResults[site] = false;
-//
-//      ResultsRecordActive(margResults, S_NULL);
-//      TestClose;
-//
-//      ArrayANDBoolean(postReadResults,postReadResults,margResults,V_Sites);
-//
-//      writestring(tmpstr3,tname3);
+
+      if(tistdscreenprint)  
+      {
+         DatalogTMResultM(readResults, tname2);
+         cout << "   TT " << TIME.GetTimer() - ttimer2_start << endl;
+      } 
+
+
+       /*+++++*/
+      ttimer2_start = TIME.GetTimer();
+      
+      // Not sure why this was in there again...aren't we already at efuse read levels?
+      efuse_read_levels.Execute();
+      TIME.Wait(2ms);
+
+      eferrcode = ReadFuseROM(read_code_option, NonMBist, Mg1A, progChainStr,margFlashChainStr,margResults);
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+         if((eferrcode[*si] == 0x15) or (eferrcode[*si] == 0x5))  
+            margResults[*si] = TM_FAIL;
+
+      postReadResults = DLOG.AccumulateResults(postReadResults, margResults);
+
+// :TODO: Below
 //      if(not ArrayCompareBoolean(logsites,margResults,v_sites))  
 //      {
-//         F021_Log_FailPat_To_TW(tmpstr3,margResults,tname3);
+//         F021_Log_FailPat_To_TW(tname3,margResults,tname3);
 //         
 //         if(TI_FlashCOFEna)  
 //         {
-//            F021_Update_COF_Inst_Str(tmpstr3,site_cof_inst_str,margResults);
+//            F021_Update_COF_Inst_Str(tname3,site_cof_inst_str,margResults);
 //            F021_Save_COF_Info("",site_cof_inst_str,margResults);
 //         } 
 //      }          
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool(tmpstr3,0,margResults,GL_PLELL_FORMAT);
-//         cout << "   TT " << timernread(ttimer2) << endl;
-//      } 
-//
-//      for (site = 1;site <= V_Sites;site++)
-//         if V_Dev_Active[site]  
-//            if (not progResults[site]) or (not postReadResults[site])  
-//               progTrimResults[site] = false;
-//      
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultBool("ProgramFlashTrim",0,progTrimResults,GL_PLELL_FORMAT);
-//         cout << "   TT " << timernread(ttimer1) << endl;
-//      } 
-//
-//      ArrayANDBoolean(restoreDevActive,restoreDevActive, progTrimResults, V_Sites); 
-//      
-//      if((not tiignorefail) and (not TI_FlashCOFEna))  
-//         DevSetHoldStates(restoreDevActive);
-//      else
-//         DevSetHoldStates(savesites);   /*KChau 12/21/07 - added to re-activate*/
-//                                        /*sites that failed efuse blow/trim*/
-//
-//      progData.redundancy   = save_redund;
-//      progData.writeProtect = save_wrp;
-//      progData.readProtect  = save_rdp;
-//      progData.sendTWData   = save_sendtw;
-//      progData.rowPreRead = save_prerd;
-//   }   /*if v_any_dev_active*/
-//   
-//}   /* ProgramFlashTrim */
-//
+
+      if(tistdscreenprint)  
+      {
+         DatalogTMResultM(margResults, tname3);
+         cout << "   TT " << TIME.GetTimer() - ttimer2_start << endl;
+      } 
+
+      progTrimResults = DLOG.AccumulateResults(progResults, postReadResults);
+      
+      ttime = TIME.StopTimer();
+      if(tistdscreenprint)  
+      {
+         DatalogTMResultM(progTrimResults, "ProgramFlashTrim");
+         cout << "   TT " << ttime << endl;
+      } 
+
+      RunTime.SetActiveSites(savesites);
+
+      progData.redundancy   = save_redund;
+      progData.writeProtect = save_wrp;
+      progData.readProtect  = save_rdp;
+      progData.sendTWData   = save_sendtw;
+      progData.rowPreRead = save_prerd;
+   }   /*if v_any_dev_active*/   
+   
+   return (progTrimResults);
+}   /* ProgramFlashTrim */
+
 //BoolS F021_IPMOS_SoftTrim_func()
 //{
 //   const IntS EVENNUM = 0; 
@@ -27724,813 +27245,642 @@ TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval)
 //
 //   F021_IPMOS_SoftTrim_func = v_any_dev_active;
 //}   /* F021_IPMOS_SoftTrim_func */
-//   
-//BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt)
-//{
-//   const IntS EVENNUM = 0; 
-//   const IntS ODDNUM = 1; 
-//   const IntS MINITER = 1; 
-//   const IntS MAXITER = 6; 
-//   const IntS TRIMOPT_PMOS = 0; 
-//   const IntS TRIMOPT_IRD = 1; 
-//   const IntS TRIMOPT_IEV = 2; 
-//
-//   BoolM savesites,activesites,logsites,sitetotrim;
-//   BoolM tmp_results,final_results,meas_results;
-//   BoolM enasites,trim_valid;
-//   IntS1D tnum_ipmos,tnum_irefrd,tnum_irefev; /* :MANUAL FIX REQUIRED: array dimensions are : EVENNUM..ODDNUM */
-//   FloatM2D ival_pre,ival_pst; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,EVENNUM..ODDNUM */
-//   FloatM2D ratio_pre,ratio_pst; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,EVENNUM..ODDNUM */
-//   IntM2D tcode_pre,tcode_pst,index_pre,index_pst; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,EVENNUM..ODDNUM */
-//   StringM2D trim_code_str; /* :MANUAL FIX REQUIRED: array dimensions are : 0..7,EVENNUM..ODDNUM */
-//   FloatM calratio,tmptrimratio,ratio;
-//   IntM trimcode,index,msw_val,lsw_val;
-//   IntM tmptrimindex,tmptrimcode,orgtrimcode;
-//   IntM1D sftindex; /* :MANUAL FIX REQUIRED: array dimensions are : MINITER..MAXITER */
-//   array[0..7,EVENNUM..ODDNUM,MINITER..MAXITER] of FloatM sftival; /* No SV type for > 2 dimensional arrays :MANUAL FIX REQUIRED: */
-//   FloatM meas_val,tt_timer,delta,tmpdelta;
-//   IntS testnum,tcrnum,bank,site,loop,iteration,i,j,k;
-//   TPModeType tcrmode;
-//   FloatS maxtime,tdelay,tdelay2,ttimer1;
-//   PinM testpad;
-//   FloatS llim,ulim,Ifactor; 
-//   BoolS even_ena,odd_ena,debugprint,sbool1;
-//   StringS str1,str2,str3,str4,str5,logstr;
-//   StringS tmpefstr;
-//   StringS fl_testname;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   FloatS ITrim_target,ITrim_llim,ITrim_ulim;
-//   IntS minloop,maxloop;
-//
-//    /*++++++++++++++++*/
-//   procedure GetTrimCode_Index_On_Ratio; /* didn"t match any chunk types, FIX */
-//   var
-//      IntS i;
-//   
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
+  
+
+IntM GetTrimCode_Index_On_Ratio(const FloatM &calratio, IntM &index, TMResultM &trim_results) 
+{
+   IntS i;
+   SITE site;
+   IntM trimcode;
+   bool debugprint = false;
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      site = *si;
+      if(calratio[site]>IREF_PMOSRATIO[0])  
+      {
+         trimcode[site] = IREF_PMOSCODE[0];  /*out of range so set to code 0*/
+         index[site] = 0;
+         trim_results[site] = TM_FAIL;
+         if(tistdscreenprint)  
+            cout << "Site" << setw(8) << site << " Calculate Ratio=" << calratio[site] << " Out Of Range ***" << endl;
+      }
+      else
+      {
+         if((calratio[site]<=IREF_PMOSRATIO[0]) and (calratio[site]>IREF_PMOSRATIO[1]))  
+            i = 0;
+         else if((calratio[site]<=IREF_PMOSRATIO[1]) and (calratio[site]>IREF_PMOSRATIO[2]))  
+            i = 1            ;
+         else if((calratio[site]<=IREF_PMOSRATIO[2]) and (calratio[site]>IREF_PMOSRATIO[3]))  
+            i = 2;
+         else if((calratio[site]<=IREF_PMOSRATIO[3]) and (calratio[site]>IREF_PMOSRATIO[4]))  
+            i = 3;
+         else if((calratio[site]<=IREF_PMOSRATIO[4]) and (calratio[site]>IREF_PMOSRATIO[5]))  
+            i = 4;
+         else if((calratio[site]<=IREF_PMOSRATIO[5]) and (calratio[site]>IREF_PMOSRATIO[6]))  
+            i = 5;
+         else if((calratio[site]<=IREF_PMOSRATIO[6]) and (calratio[site]>IREF_PMOSRATIO[7]))  
+            i = 6;
+         else if((calratio[site]<=IREF_PMOSRATIO[7]) and (calratio[site]>IREF_PMOSRATIO[8]))  
+            i = 7;
+         else if((calratio[site]<=IREF_PMOSRATIO[8]) and (calratio[site]>IREF_PMOSRATIO[9]))  
+            i = 8;
+         else if((calratio[site]<=IREF_PMOSRATIO[9]) and (calratio[site]>IREF_PMOSRATIO[10]))  
+            i = 9;
+         else if((calratio[site]<=IREF_PMOSRATIO[10]) and (calratio[site]>IREF_PMOSRATIO[11]))  
+            i = 10;
+         else if((calratio[site]<=IREF_PMOSRATIO[11]) and (calratio[site]>IREF_PMOSRATIO[12]))  
+            i = 11;
+         else if((calratio[site]<=IREF_PMOSRATIO[12]) and (calratio[site]>IREF_PMOSRATIO[13]))  
+            i = 12;
+         else if((calratio[site]<=IREF_PMOSRATIO[13]) and (calratio[site]>IREF_PMOSRATIO[14]))  
+            i = 13;
+         else if((calratio[site]<=IREF_PMOSRATIO[14]) and (calratio[site]>IREF_PMOSRATIO[15]))  
+            i = 14;
+         else if((calratio[site]<=IREF_PMOSRATIO[15]) and (calratio[site]>IREF_PMOSRATIO[16]))  
+            i = 15;
+         else if((calratio[site]<=IREF_PMOSRATIO[16]) and (calratio[site]>IREF_PMOSRATIO[17]))  
+            i = 16;
+         else if((calratio[site]<=IREF_PMOSRATIO[17]) and (calratio[site]>IREF_PMOSRATIO[18]))  
+            i = 17;
+         else if((calratio[site]<=IREF_PMOSRATIO[18]) and (calratio[site]>IREF_PMOSRATIO[19]))  
+            i = 18;
+         else if((calratio[site]<=IREF_PMOSRATIO[19]) and (calratio[site]>IREF_PMOSRATIO[20]))  
+            i = 19;
+         else if((calratio[site]<=IREF_PMOSRATIO[20]) and (calratio[site]>IREF_PMOSRATIO[21]))  
+            i = 20;
+         else if((calratio[site]<=IREF_PMOSRATIO[21]) and (calratio[site]>IREF_PMOSRATIO[22]))  
+            i = 21;
+         else if((calratio[site]<=IREF_PMOSRATIO[22]) and (calratio[site]>IREF_PMOSRATIO[23]))  
+            i = 22;
+         else if((calratio[site]<=IREF_PMOSRATIO[23]) and (calratio[site]>IREF_PMOSRATIO[24]))  
+            i = 23;
+         else if((calratio[site]<=IREF_PMOSRATIO[24]) and (calratio[site]>IREF_PMOSRATIO[25]))  
+            i = 24;
+         else if((calratio[site]<=IREF_PMOSRATIO[25]) and (calratio[site]>IREF_PMOSRATIO[26]))  
+            i = 25;
+         else if((calratio[site]<=IREF_PMOSRATIO[26]) and (calratio[site]>IREF_PMOSRATIO[27]))  
+            i = 26;
+         else if((calratio[site]<=IREF_PMOSRATIO[27]) and (calratio[site]>IREF_PMOSRATIO[28]))  
+            i = 27;
+         else if((calratio[site]<=IREF_PMOSRATIO[28]) and (calratio[site]>IREF_PMOSRATIO[29]))  
+            i = 28;
+         else if((calratio[site]<=IREF_PMOSRATIO[29]) and (calratio[site]>IREF_PMOSRATIO[30]))  
+            i = 29;
+         else if((calratio[site]<=IREF_PMOSRATIO[30]) and (calratio[site]>IREF_PMOSRATIO[31]))  
+            i = 30;
+         else 
+            i = 31;
+         
+         trimcode[site] = IREF_PMOSCODE[i];
+         index[site] = i;
+      } 
+      
+      if(tistdscreenprint and debugprint)  
+         cout << "Site:" << setw(8) << site << " Calc Ratio = " << setprecision(3) << setw(5) << 
+                 calratio[site] << " Trim Code = 0x" << hex << trimcode[site] << dec << 
+                 " Index = " << setw(8) << index[site] << endl;
+   } // end site loop
+   
+   return (trimcode);
+}   /* GetTrimCode_Index_On_Ratio */
+
+IntM GetTrimCode_Ratio_On_SftIndex(const IntM1D &sftindex, const IntS &index, FloatM &ratio)
+{
+   IntS i;
+   bool debugprint = false;
+   IntM trimcode;
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+   {
+      i = sftindex[*si][index];
+      trimcode[*si] = IREF_PMOSCODE[i];
+      ratio[*si] = IREF_PMOSRATIO[i];
+      if(tistdscreenprint and debugprint)  
+         cout << "Site:" << setw(8) << *si << " Ratio = " << setprecision(3) << setw(5) << 
+                 ratio[*si] << " Trim Code = 0x" << hex << setw(5) << trimcode[*si] << 
+                 " Index = " << setw(5) << i << endl;
+   } 
+   
+   return (trimcode);
+}   /* GetTrimCode_Ratio_On_SftIndex */
+   
+TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt)
+{
+   const IntS EVENNUM = 0; 
+   const IntS ODDNUM = 1; 
+   const IntS MINITER = 0; 
+   const IntS MAXITER = 5; 
+// can't have constant IntS in a switch statement, so changed 
+// the below to #define
+#define TRIMOPT_PMOS 0 
+#define TRIMOPT_IRD 1 
+#define TRIMOPT_IEV 2 
+
+   BoolM sitetotrim;
+   Sites savesites, new_active_sites, trim_sites, passing_sites;
+   TMResultM trim_results, meas_results;
+   IntS1D tnum_ipmos(2),tnum_irefrd(2),tnum_irefev(2); 
+   FloatM2D ival_pre(8,2),ival_pst(8,2);
+   FloatM2D ratio_pre(8,2),ratio_pst(8,2); 
+   IntM2D tcode_pre(8,2),tcode_pst(8,2),index_pre(8,2),index_pst(8,2);
+   StringM2D trim_code_str(8,2);
+   FloatM calratio,tmptrimratio,ratio;
+   IntM trimcode,index,msw_val,lsw_val;
+   IntM tmptrimindex,tmptrimcode,orgtrimcode;
+   IntM1D sftindex(6); 
+   FloatM sftival[8][2][6]; 
+   FloatM meas_val,tt_timer,delta,tmpdelta;
+   IntS testnum,tcrnum,bank,loop,iteration,i,j,k;
+   TPModeType tcrmode;
+   FloatS maxtime,tdelay,tdelay2;
+   PinM testpad;
+   FloatS llim,ulim,Ifactor; 
+   BoolS even_ena,odd_ena,debugprint,sbool1;
+   StringS str1,str2,str3,str4,str5,logstr;
+   StringM tmpefstr;
+   StringS fl_testname;
+   FloatS ITrim_target,ITrim_llim,ITrim_ulim;
+   IntS minloop,maxloop;
+   bool any_site_active = true;
+
+   maxtime = GL_F021_PARAM_MAXTIME;
+   tdelay  = 10ms;
+   tdelay2 = 2ms;
+
+   testpad = FLTP2;
+   tnum_ipmos[EVENNUM] = TNUM_BANK_IPMOS_READ_EVEN;
+   tnum_ipmos[ODDNUM] = TNUM_BANK_IPMOS_READ_ODD;
+   tnum_irefrd[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
+   tnum_irefrd[ODDNUM] = TNUM_BANK_IREF_READ_ODD;
+   tnum_irefev[EVENNUM] = TNUM_BANK_IREF_EVFY_EVEN;
+   tnum_irefev[ODDNUM] = TNUM_BANK_IREF_EVFY_ODD;
+
+   Ifactor = IPMOS_Trim_Target-(IPMOS_Trim_Target*IPMOS_Trim_Toler);
+
+   TIME.StartTimer();
+
+   fl_testname = "IrefPMOS_Trim_Test";
+   
+   savesites = ActiveSites;
+   trim_results = TM_PASS;
+
+   debugprint = TI_FlashDebug;
+   iteration  = MAXITER;
+
+   minloop = EVENNUM;
+   maxloop = ODDNUM;
+
+    /*init*/
+   for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
+   {
+      for (loop = minloop;loop <= maxloop;loop++)
+      {
+         ival_pre.SetValue(bank, loop, 0.0uA);
+         ival_pst.SetValue(bank, loop, 0.0uA);
+         ratio_pre.SetValue(bank, loop, 0.0);
+         ratio_pst.SetValue(bank, loop, 0.0);
+         tcode_pre.SetValue(bank, loop, 0);
+         tcode_pst.SetValue(bank, loop, 0);
+         IPMOS_TRIMCODE_SAVED.SetValue(bank, loop, 0);
+         for (j = MINITER;j <= iteration;j++)
+            sftival[bank][loop][j] = 0.0;
+         trim_code_str.SetValue(bank, loop, "00000");
+      }   /*loop*/
+   } 
+
+   if(GL_BANKTYPE==FLESBANK)  
+      maxloop = EVENNUM;
+   
+   for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
+   {
+       /*enable site with bank to trim*/
+      sitetotrim = BANK_TO_PMOS_TRIM[bank];
+      trim_sites = ActiveSites;
+      trim_sites.DisableFailingSites(sitetotrim);
+
+       /*+++++*/
+      if(SetActiveSites(trim_sites))  
+      {
+         str1 = CONV.IntToString(bank);
+
+         for (loop = minloop;loop <= maxloop;loop++) /*even than odd*/
+         {
+            testnum = tnum_ipmos[loop]+(bank<<4);
+            if(loop==0)  
+               str3 = "_EVN";
+            else
+               str3 = "_ODD";
+
+            str2 = "IPMOS_Pre_B" + str1;
+            str4 = str2 + str3;
+            
+            if(tistdscreenprint and debugprint)  
+               cout << "Bank" << setw(5) << bank << "Loop" << setw(5) << loop << "Pre Trim" << endl;
+            
+             /*-- calculate ratio --*/
+            tcrnum  = 40;
+            tcrmode = ErsMode;  /*actual mode is rd*/
+            testpad = FLTP2;
+            llim    = TCR.TP2_LLim[tcrnum][tcrmode];
+            ulim    = TCR.TP2_ULim[tcrnum][tcrmode];
+
+            F021_TurnOff_AllTPADS(); // Was part of this routine's DoIMeasure, but reuse existing DoIMeasure
+            meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime,tdelay);
+            
+            meas_results = TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), 
+                                        str4, UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+            calratio = meas_val/Ifactor;
+
+            trimcode = GetTrimCode_Index_On_Ratio(calratio, index, trim_results);  /*store code in trimcode, look-up-table index*/
+
+             /*-- store pre info --*/
+            ival_pre.SetValue(bank, loop, meas_val);
+            ratio_pre.SetValue(bank, loop, calratio);
+            tcode_pre.SetValue(bank, loop, trimcode);
+            index_pre.SetValue(bank, loop, index);
+
+            logstr = str4 + "_CRATIO";  /*IPMOS_Pre_Bx_EVN_CRATIO*/
+            
+            TWPDLDataLogRealVariable(logstr, "",calratio,TWMinimumData);
+            
+             /*-- do soft --*/
+            sftindex.SetValue(MINITER, index);
+            for (i = MINITER+1;i <= (iteration-1);i++)
+               sftindex.SetValue(i, sftindex[i-1] + 1);
+            
+            sftindex.SetValue(iteration, sftindex[MINITER] - 1);
+
+            if(loop==0)  
+            {
+               even_ena = true;
+               odd_ena  = false;
+            }
+            else
+            {
+               even_ena = false;
+               odd_ena  = true;
+            } 
+
+//            enasites = v_dev_active;
+            
+            for (j = MINITER;j <= iteration;j++)
+            {
+               sbool1 = false;
+               any_site_active = true;
+               BoolM keep_site = ((sftindex[j].GreaterOrEqual(0)) & (sftindex[j].LessOrEqual(31)));
+               if (keep_site.AnyEqual(false))
+               {
+                  sbool1 = true;
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(keep_site);
+                  any_site_active = SetActiveSites(new_active_sites);
+               }
+
+               if(any_site_active)  
+               {
+                  if(tistdscreenprint and debugprint)  
+                     cout << "Soft Trim -- Bank" << setw(5) << bank << "Loop"
+                         << setw(5) << loop << "Iteration" << setw(5) << j << endl;
+                  
+                  trimcode = GetTrimCode_Ratio_On_SftIndex(sftindex, j, ratio);   /*store code in trimcode, ratio*/
+                  orgtrimcode = trimcode;
+
+                  if(loop==0)  
+                     trimcode <<= 8;   /*format even*/
+                  
+                  if((bank % 2) == 0)  
+                  {
+                     msw_val = trimcode;   /*bank0*/
+                     lsw_val = 0;      /*bank1*/
+                  }
+                  else
+                  {
+                     msw_val = 0;
+                     lsw_val = trimcode;
+                  } 
+
+                  RAM_Upload_PMOS_SoftTrim_Bank(bank,msw_val,lsw_val);
+                  
+                  str5 = "_" + CONV.IntToString(j);
+                  
+                  switch(trimopt) {
+                    case TRIMOPT_PMOS :  
+                       str4 = "IPMOS_SFT_B" + str1;
+                       tcrnum  = 40;
+                       tcrmode = ErsMode;  /*actual mode is rd*/
+                       testnum = tnum_ipmos[loop]+(bank<<4);
+                       ITrim_target = IPMOS_Trim_Target;
+                       ITrim_llim   = IPMOS_Trim_LLim;
+                       ITrim_ulim   = IPMOS_Trim_ULim;
+                     break; 
+                    case TRIMOPT_IRD  :  
+                       str4 = "IREFRD_SFT_B" + str1;
+                       tcrnum  = 25;
+                       tcrmode = ReadMode;
+                       testnum = tnum_irefrd[loop]+(bank<<4);
+                       ITrim_target = IrefRd_Trim_Target;
+                       ITrim_llim   = IrefRd_Trim_LLim;
+                       ITrim_ulim   = IrefRd_Trim_ULim;
+                     break; 
+                    case TRIMOPT_IEV  :  
+                       str4 = "IREFEV_SFT_B" + str1;
+                       tcrnum  = 25;
+                       tcrmode = EvfyMode;
+                       testnum = tnum_irefev[loop]+(bank<<4);
+                       ITrim_target = IrefEv_Trim_Target;
+                       ITrim_llim   = IrefEv_Trim_LLim;
+                       ITrim_ulim   = IrefEv_Trim_ULim;
+                     break; 
+                    default:  
+                       str4 = "IPMOS_SFT_B" + str1;
+                       tcrnum  = 40;
+                       tcrmode = ErsMode;  /*actual mode is rd*/
+                       testnum = tnum_ipmos[loop]+(bank<<4);
+                       ITrim_target = IPMOS_Trim_Target;
+                       ITrim_llim   = IPMOS_Trim_LLim;
+                       ITrim_ulim   = IPMOS_Trim_ULim;
+                     break; 
+                  }   /* case */
+
+                  llim    = TCR.TP2_LLim[tcrnum][tcrmode];
+                  ulim    = TCR.TP2_ULim[tcrnum][tcrmode];
+                       
+                  str4 = str4 + str3;
+                  str4 = str4 + str5;
+                  
+                  F021_TurnOff_AllTPADS();
+                  meas_val = DoIMeasure(testpad, tcrnum, tcrmode, testnum, maxtime,tdelay);
+                  
+                  meas_results = TIDlog.Value(meas_val, testpad, llim, ulim, meas_val.GetUnits(), 
+                                        str4, UTL_VOID, UTL_VOID, true, TWMinimumData);
+                                        
+                  sftival[bank][loop][j] = meas_val;
+
+                  logstr = str4 + "_RATIO";  /*IPMOS_SFT_Bx_EVN_x_RATIO*/
+                  TWPDLDataLogRealVariable(logstr, "",ratio,TWMinimumData);
+
+                  logstr = str4 + "_TC";   /*IPMOS_SFT_Bx_EVN_x_TC*/
+                  TWPDLDataLogVariable(logstr,orgtrimcode,TWMinimumData);
+
+                  tmpdelta = meas_val - ITrim_target;
+                  if (j==MINITER)
+                  {
+                     delta = tmpdelta;
+                     tmptrimindex = j;
+                     tmptrimcode = trimcode;
+                     tmptrimratio = ratio;
+                  }
+                  
+                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+                  {
+                     if(tmpdelta[*si] < delta[*si])  
+                     {
+                        delta[*si] = tmpdelta[*si];
+                        tmptrimindex[*si] = j;
+                        tmptrimcode[*si] = trimcode[*si];
+                        tmptrimratio[*si] = ratio[*si];
+                     } 
+                  } 
+
+                   /*collect data*/
+                   /*KChau 03/10/11 -- uncomment these out if want to collect data*/
+                   /* ...
+                   case trimopt of
+                     TRIMOPT_PMOS : begin
+                        {irefRd}
+                        logstr := concat("IREFRD_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 25;
+                        tcrmode := ReadMode;
+                        testnum := tnum_irefrd[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                        {irefEv}
+                        logstr := concat("IREFEV_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 25;
+                        tcrmode := EvfyMode;
+                        testnum := tnum_irefev[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                     end;
+                     TRIMOPT_IRD  : begin
+                        {ipmos}
+                        logstr := concat("IPMOS_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 40;
+                        tcrmode := ErsMode; {actual mode is rd}
+                        testnum := tnum_ipmos[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                        {irefEv}
+                        logstr := concat("IREFEV_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 25;
+                        tcrmode := EvfyMode;
+                        testnum := tnum_irefev[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                     end;
+                     TRIMOPT_IEV  : begin
+                        {ipmos}
+                        logstr := concat("IPMOS_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 40;
+                        tcrmode := ErsMode; {actual mode is rd}
+                        testnum := tnum_ipmos[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                        {irefRd}
+                        logstr := concat("IREFRD_SFT_B",str1);
+                        logstr := concat(logstr,str3); {even/odd}
+                        logstr := concat(logstr,str5); {iteration}
+                        tcrnum  := 25;
+                        tcrmode := ReadMode;
+                        testnum := tnum_irefrd[loop]+(bank<<4);
+                        llim    := TCR.TP2_LLim[TCRnum,TCRMode];
+                        ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
+                        DoIMeasure;
+                        if(TI_FlashDebug) then
+                           PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
+                        TWTRealToRealMS(meas_val,realval,unitval);
+                        TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
+                     end;
+                   end; { case } {collect data}
+
+                   ... */
+                  RAM_Clear_PMOS_SoftTrim_Bank(bank);
+               }   /*if any_site_active*/
+               
+               if(sbool1)  
+                  RunTime.SetActiveSites(trim_sites);
+            }   /*for j iteration*/
+
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               SITE site = *si;
+               j = tmptrimindex[site];
+               ival_pst[site][bank][loop]  = sftival[bank][loop][j][site];
+               tmpdelta[site] = ival_pst[site][bank][loop];
+               if(trimopt==TRIMOPT_PMOS)  
+               {
+                  if(MATH.Abs(ival_pst[bank][loop][site]) < MATH.Abs(ITrim_ulim))  
+                     trim_results[site] = TM_FAIL;
+               }
+               else
+               {
+                  if(MATH.Abs(ival_pst[bank][loop][site]) < MATH.Abs(ITrim_llim))  
+                     trim_results[site] = TM_FAIL;
+               } 
+
+               if(loop==0)  
+                  tmptrimcode[site] >>= 8;
+
+               tcode_pst[site][bank][loop] = tmptrimcode[site];
+               IPMOS_TRIMCODE_SAVED[site][bank][loop] = tmptrimcode[site];  /*save for later use*/
+               ratio_pst[site][bank][loop] = tmptrimratio[site];
+               k = sftindex[site][j];
+               index_pst[site][bank][loop] = k;  /*sftindex[j,site];*/
+               trim_code_str[site][bank][loop] = IREF_PMOSCODE_STR[k];
+
+               if(tistdscreenprint and debugprint)  
+                  cout << "Site" << setw(8) << site << "Bank" << setw(5) << bank << "Loop" 
+                       << setw(5) << loop << " Pre IVal= " << setprecision(3) << setw(6) << 
+                       ival_pre[site][bank][loop] << " CalcRatio= " << setprecision(2) <<
+                       setw(6) << ratio_pre[site][bank][loop] << " TrimCode= " << hex 
+                       << setw(5) << tcode_pre[site][bank][loop] << dec <<
+                       " --  Final Soft IVal= " << setprecision(3) << setw(6) << 
+                       ival_pst[site][bank][loop] << " Ratio= " << setprecision(2) << setw(6)
+                       << ratio_pst[site][bank][loop] << " TrimCode= " << hex << setw(5) <<
+                       tcode_pst[site][bank][loop] << dec << " ** " << trim_results[site] << " ** " << endl;
+            } 
+
+            switch(trimopt) {
+              case TRIMOPT_PMOS : str4 = "IPMOS_TRIM_B" + str1; break;
+              case TRIMOPT_IRD  : str4 = "IrefRd_TRIM_B" + str1; break;
+              case TRIMOPT_IEV  : str4 = "IrefEv_TRIM_B" + str1; break;
+              default: str4 = "IPMOS_TRIM_B" + str1; break;
+            }   /* case */
+            
+            str4 = str4 + str3;
+            logstr = str4;  /*IPMOS_TRIM_Bx_EVN*/
+            TWPDLDataLogRealVariable(logstr, "",tmpdelta,TWMinimumData);
+            
+            logstr = str4 + "_RATIO";  /*IPMOS_TRIM_Bx_EVN_RATIO*/
+            TWPDLDataLogRealVariable(logstr, "",tmptrimratio,TWMinimumData);
+
+            logstr = str4 + "_TC";   /*IPMOS_TRIM_Bx_EVN_TC*/
+            TWPDLDataLogVariable(logstr,tmptrimcode,TWMinimumData);
+
+            if(tistdscreenprint)  
+            {
+               // Log data to screen, but not testware
+               str2 = "IPMOS_TRIM_B" + str1;
+               str2 = str2 + str3;
+               logstr = str2 + "_IrefPre";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr, 
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_CalcRatio";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr,  
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_STrimRatio";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr,  
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_STrimCode";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr,  
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_IrefSoft";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr,  
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_TargetIref";
+               TIDlog.Value(ival_pre[bank][loop], UTL_VOID, UTL_VOID, UTL_VOID, "", logstr, 
+                            UTL_VOID, UTL_VOID, false, TWMinimumData);
+               logstr = str2 + "_TrimResults";
+               DatalogTMResultM(trim_results, logstr);
+            } 
+                            /*-- do soft --*/
+         }   /*for loop*/
+
+// :TODO: Deal with fail logging
+//         if(not ArrayCompareBoolean(logsites,sitetotrim,v_sites))  
 //         {
-//            if(calratio[site]>IREF_PMOSRATIO[0])  
-//            {
-//               trimcode[site] = IREF_PMOSCODE[0];  /*out of range so set to code 0*/
-//               index[site] = 0;
-//               trim_valid[site] = false;
-//               if(tistdscreenprint)  
-//                  cout << "Site" << site:-5 << " Calculate Ratio==" << calratio[site] << " Out Of Range ***" << endl;
-//            }
-//            else
-//            {
-//               if((calratio[site]<==IREF_PMOSRATIO[0]) and (calratio[site]>IREF_PMOSRATIO[1]))  
-//                  i = 0;
-//               else if((calratio[site]<==IREF_PMOSRATIO[1]) and (calratio[site]>IREF_PMOSRATIO[2]))  
-//                  i = 1            ;
-//               else if((calratio[site]<==IREF_PMOSRATIO[2]) and (calratio[site]>IREF_PMOSRATIO[3]))  
-//                  i = 2;
-//               else if((calratio[site]<==IREF_PMOSRATIO[3]) and (calratio[site]>IREF_PMOSRATIO[4]))  
-//                  i = 3;
-//               else if((calratio[site]<==IREF_PMOSRATIO[4]) and (calratio[site]>IREF_PMOSRATIO[5]))  
-//                  i = 4;
-//               else if((calratio[site]<==IREF_PMOSRATIO[5]) and (calratio[site]>IREF_PMOSRATIO[6]))  
-//                  i = 5;
-//               else if((calratio[site]<==IREF_PMOSRATIO[6]) and (calratio[site]>IREF_PMOSRATIO[7]))  
-//                  i = 6;
-//               else if((calratio[site]<==IREF_PMOSRATIO[7]) and (calratio[site]>IREF_PMOSRATIO[8]))  
-//                  i = 7;
-//               else if((calratio[site]<==IREF_PMOSRATIO[8]) and (calratio[site]>IREF_PMOSRATIO[9]))  
-//                  i = 8;
-//               else if((calratio[site]<==IREF_PMOSRATIO[9]) and (calratio[site]>IREF_PMOSRATIO[10]))  
-//                  i = 9;
-//               else if((calratio[site]<==IREF_PMOSRATIO[10]) and (calratio[site]>IREF_PMOSRATIO[11]))  
-//                  i = 10;
-//               else if((calratio[site]<==IREF_PMOSRATIO[11]) and (calratio[site]>IREF_PMOSRATIO[12]))  
-//                  i = 11;
-//               else if((calratio[site]<==IREF_PMOSRATIO[12]) and (calratio[site]>IREF_PMOSRATIO[13]))  
-//                  i = 12;
-//               else if((calratio[site]<==IREF_PMOSRATIO[13]) and (calratio[site]>IREF_PMOSRATIO[14]))  
-//                  i = 13;
-//               else if((calratio[site]<==IREF_PMOSRATIO[14]) and (calratio[site]>IREF_PMOSRATIO[15]))  
-//                  i = 14;
-//               else if((calratio[site]<==IREF_PMOSRATIO[15]) and (calratio[site]>IREF_PMOSRATIO[16]))  
-//                  i = 15;
-//               else if((calratio[site]<==IREF_PMOSRATIO[16]) and (calratio[site]>IREF_PMOSRATIO[17]))  
-//                  i = 16;
-//               else if((calratio[site]<==IREF_PMOSRATIO[17]) and (calratio[site]>IREF_PMOSRATIO[18]))  
-//                  i = 17;
-//               else if((calratio[site]<==IREF_PMOSRATIO[18]) and (calratio[site]>IREF_PMOSRATIO[19]))  
-//                  i = 18;
-//               else if((calratio[site]<==IREF_PMOSRATIO[19]) and (calratio[site]>IREF_PMOSRATIO[20]))  
-//                  i = 19;
-//               else if((calratio[site]<==IREF_PMOSRATIO[20]) and (calratio[site]>IREF_PMOSRATIO[21]))  
-//                  i = 20;
-//               else if((calratio[site]<==IREF_PMOSRATIO[21]) and (calratio[site]>IREF_PMOSRATIO[22]))  
-//                  i = 21;
-//               else if((calratio[site]<==IREF_PMOSRATIO[22]) and (calratio[site]>IREF_PMOSRATIO[23]))  
-//                  i = 22;
-//               else if((calratio[site]<==IREF_PMOSRATIO[23]) and (calratio[site]>IREF_PMOSRATIO[24]))  
-//                  i = 23;
-//               else if((calratio[site]<==IREF_PMOSRATIO[24]) and (calratio[site]>IREF_PMOSRATIO[25]))  
-//                  i = 24;
-//               else if((calratio[site]<==IREF_PMOSRATIO[25]) and (calratio[site]>IREF_PMOSRATIO[26]))  
-//                  i = 25;
-//               else if((calratio[site]<==IREF_PMOSRATIO[26]) and (calratio[site]>IREF_PMOSRATIO[27]))  
-//                  i = 26;
-//               else if((calratio[site]<==IREF_PMOSRATIO[27]) and (calratio[site]>IREF_PMOSRATIO[28]))  
-//                  i = 27;
-//               else if((calratio[site]<==IREF_PMOSRATIO[28]) and (calratio[site]>IREF_PMOSRATIO[29]))  
-//                  i = 28;
-//               else if((calratio[site]<==IREF_PMOSRATIO[29]) and (calratio[site]>IREF_PMOSRATIO[30]))  
-//                  i = 29;
-//               else if((calratio[site]<==IREF_PMOSRATIO[30]) and (calratio[site]>IREF_PMOSRATIO[31]))  
-//                  i = 30;
-//               else 
-//                  i = 31;
-//               
-//           trimcode[site] = IREF_PMOSCODE[i];
-//           index[site] = i;
-//            } 
-//            
-//            if(tistdscreenprint and debugprint)  
-//               cout << "Site:" << site:-5 << " Calc Ratio == " << calratio[site]:-5:3 << 
-//                       " Trim Code == " << trimcode[site]:s_hex:-5 << " Index == " << index[site]:-5 << endl;
-//         }   /*v_dev_active*/
-//   }   /* GetTrimCode_Index_On_Ratio */
-//    /*++++++++++++++++*/
-//   procedure GetTrimCode_Ratio_On_SftIndex; /* didn"t match any chunk types, FIX */
-//   var
-//      IntS i;
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            i = sftindex[j][site];
-//            trimcode[site] = IREF_PMOSCODE[i];
-//            ratio[site] = IREF_PMOSRATIO[i];
-//            if(tistdscreenprint and debugprint)  
-//               cout << "Site:" << site:-5 << " Ratio == " << ratio[site]:-5:3 << 
-//                       " Trim Code == " << trimcode[site]:s_hex:-5 << " Index == " << i:-5 << endl;
+//            logstr = "IPMOS_TRIM_B" + str1;
+//            F021_Log_FailPat_To_TW(logstr,tmp_results,fl_testname);
 //         } 
-//   }   /* GetTrimCode_Ratio_On_SftIndex */
-//    /*++++++++++++++++*/
-//   procedure DoIMeasure; /* didn"t match any chunk types, FIX */
-//   {
-//      F021_TurnOff_AllTPADS;
-//      F021_Set_TPADS(tcrnum,tcrmode);
-//      TIME.Wait(tdelay2);
-//      F021_RunTestNumber_PMEX(testnum,maxtime,tmp_results);
-//      TIME.Wait(tdelay);
-//      F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_val,meas_results);
-//      F021_TurnOff_AllTPADS;
-//      Disable(s_pmexit);
-//   }       
-//    /*++++++++++++++++*/
-//   Procedure PrintResultTrimCode; /* didn"t match any chunk types, FIX */
-//   var
-//      IntS fdlen1,fdlen2,fdlen3,fdlen4,decpt;
-//      StringS pstr1,pstr2,pstr3,pstr4,pstr5;
-//      StringS unitstr;
-//      IntS unitlen;
-//      FloatS FloatSvalue;
-//      FloatS FloatSvalue;
-//   {
-//      pstr1 = "------------------------------";  /*30*/
-//      pstr2 = "----------";  /*10*/
-//      pstr3 = " "; 
-//      fdlen1 = 30;
-//      fdlen2 = 10;
-//      fdlen3 = 10;
-//      fdlen4 = 8;
-//      decpt  = 2;
-//
-//      if(GL_PLELL_FORMAT)  
-//      {
-//         cout << endl;
-//         cout << str2:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         {
-//            writestring(pstr4,site:1);
-//            pstr4 = "Site" + pstr4;
-//            cout << pstr4:-fdlen2 << pstr3;
-//         } 
-//         cout << endl;
-//         
-//         cout << pstr1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            cout << pstr2 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "PMOS Iref Pre";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               trealvalue = ival_pre[bank][loop][site];
-//               GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3;
-//            }
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Calculate Ratio";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               cout << ratio_pre[bank][loop][site]:fdlen3:decpt << pstr3);
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Soft Trim Ratio";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               cout << ratio_pst[bank][loop][site]:fdlen3:decpt << pstr3);
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Soft Trim Code";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               cout << tcode_pst[bank][loop][site]:fdlen3 << pstr3);
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Iref Soft";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               trealvalue = ival_pst[bank][loop][site];
-//               GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3;
-//            }
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Target Iref";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         trealvalue = ITrim_Target;
-//         GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3);
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         pstr5 = "Trim Result";
-//         cout << pstr5:-fdlen1 << pstr3;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if(trim_valid[site])  
-//                  cout << "PASS":fdlen3 << pstr3);
-//               else
-//                  cout << "FAIL**":fdlen3 << pstr3;
-//            }
-//            else
-//               cout << "X":fdlen3 << pstr3;
-//         cout << endl;
-//
-//         cout << endl;
-//      }  /*if paral_format*/
-//      else
-//      {  /*serial_format*/
-//         cout << endl;
-//         cout << "TestName ":-fdlen1 << pstr3 << "Iref Pre":-fdlen2 << pstr3 << "Calc Ratio" << pstr3 << 
-//                 "Trim Ratio" << pstr3 << "Trim Code" << pstr3 << "Iref Pst" << pstr3 << "TargetIref" << pstr3 << "TrimResult" << endl;
-//         cout << pstr1 << pstr3 << pstr2 << pstr3 << pstr2 << pstr3 << pstr2 << pstr3 << pstr2 << pstr3 << pstr2 << pstr3 << pstr2 << pstr3 << pstr2 << endl;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               writestring(pstr4,site:1);
-//               pstr4 = "_Site" + pstr4;
-//               pstr4 = str2 + pstr4;
-//               cout << pstr4:-fdlen1 << pstr3;
-//               trealvalue = ival_pre[bank][loop][site];
-//               GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3 << 
-//                     ratio_pre[bank][loop][site]:fdlen3:decpt << pstr3 << ratio_pst[bank][loop][site]:fdlen3:decpt << pstr3 << 
-//                     tcode_pst[bank][loop][site]:fdlen3 << pstr3;
-//
-//               trealvalue = ival_pst[bank][loop][site];
-//               GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3;
-//               trealvalue = ITrim_Target;
-//               GetTreal_Unit_Info(trealvalue,realvalue,unitlen,unitstr);
-//               cout << realvalue:(fdlen3-unitlen):decpt << unitstr << pstr3;
-//
-//               if(trim_valid[site])  
-//                  cout << "PASS":fdlen3);
-//               else
-//                  cout << "FAIL**":fdlen3 << endl;
-//            } 
-//         cout << endl;
-//      } 
-//   }   /* PrintResultTrimCode */
-//       /*++++++++++++++++*/
-//{
-//   if(v_any_dev_active)  
-//   {
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      tdelay  = 10ms;
-//      tdelay2 = 2ms;
-//
-//      testpad = FLTP2;
-//      tnum_ipmos[EVENNUM] = TNUM_BANK_IPMOS_READ_EVEN;
-//      tnum_ipmos[ODDNUM] = TNUM_BANK_IPMOS_READ_ODD;
-//      tnum_irefrd[EVENNUM] = TNUM_BANK_IREF_READ_EVEN;
-//      tnum_irefrd[ODDNUM] = TNUM_BANK_IREF_READ_ODD;
-//      tnum_irefev[EVENNUM] = TNUM_BANK_IREF_EVFY_EVEN;
-//      tnum_irefev[ODDNUM] = TNUM_BANK_IREF_EVFY_ODD;
-//
-//      Ifactor = IPMOS_Trim_Target-(IPMOS_Trim_Target*IPMOS_Trim_Toler);
-//
-//      timernstart(ttimer1);
-//
-//      fl_testname = IrefPMOS_Trim_Test;
-//      TestOpen(fl_testname);
-//      
-//      savesites = V_dev_active;
-//      final_results = V_dev_active;
-//      trim_valid = V_dev_active;
-//      activesites = V_dev_active;
-//
-//      debugprint = TI_FlashDebug;
-//      iteration  = MAXITER;
-//
-//      minloop = EVENNUM;
-//      maxloop = ODDNUM;
-//
-//       /*init*/
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         for (loop = minloop;loop <= maxloop;loop++)
-//         {
-//            ival_pre[bank][loop] = 0.0uA;
-//            ival_pst[bank][loop] = 0.0uA;
-//            ratio_pre[bank][loop] = 0.0;
-//            ratio_pst[bank][loop] = 0.0;
-//            tcode_pre[bank][loop] = 0;
-//            tcode_pst[bank][loop] = 0;
-//            IPMOS_TRIMCODE_SAVED[bank][loop] = 0;
-//            for (j = MINITER;j <= iteration;j++)
-//               sftival[bank][loop][j] = 0.0;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//                  trim_code_str[bank][loop][site] = "00000";
-//         }   /*loop*/
-//      } 
-//
-//      if(GL_BANKTYPE==FLESBANK)  
-//         maxloop = EVENNUM;
-//
-//      if(TI_FlashDebug)  
-//         PrintHeaderParam(GL_PLELL_FORMAT);
-//      
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//          /*enable site with bank to trim*/
-//         sitetotrim = BANK_TO_PMOS_TRIM[bank];
-//         ArrayAndBoolean(sitetotrim,sitetotrim,activesites,v_sites);
-//         devsetholdstates(sitetotrim);
-//         logsites = v_dev_active;
-//
-//          /*+++++*/
-//         if(v_any_dev_active)  
-//         {
-//            writestring(str1,bank:1);
-//
-//            for (loop = minloop;loop <= maxloop;loop++) /*even than odd*/
-//            {
-//               testnum = tnum_ipmos[loop]+(bank<<4);
-//               if(loop==0)  
-//                  str3 = "_EVN";
-//               else
-//                  str3 = "_ODD";
-//
-//               str2 = "IPMOS_Pre_B" + str1;
-//               str4 = str2 + str3;
-//               
-//               if(tistdscreenprint and debugprint)  
-//                  cout << "Bank" << bank:-5 << "Loop" << loop:-5 << "Pre Trim" << endl;
-//               
-//                /*-- calculate ratio --*/
-//               tcrnum  = 40;
-//               tcrmode = ErsMode;  /*actual mode is rd*/
-//               testpad = FLTP2;
-//               llim    = TCR.TP2_LLim[TCRnum][TCRMode];
-//               ulim    = TCR.TP2_ULim[TCRnum][TCRMode];
-//               DoIMeasure;  /*store in meas_val*/
-//               if(TI_FlashDebug)  
-//                  PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                     calratio[site] = single(meas_val[site]/Ifactor);
-//
-//               GetTrimCode_Index_On_Ratio;  /*store code in trimcode, look-up-table index*/
-//
-//                /*-- store pre info --*/
-//               ival_pre[bank][loop] = meas_val;
-//               ratio_pre[bank][loop] = calratio;
-//               tcode_pre[bank][loop] = trimcode;
-//               index_pre[bank][loop] = index;
-//
-//               logstr = str4;  /*IPMOS_Pre_Bx_EVN*/
-//               TWTRealToRealMS(meas_val,realval,unitval);
-//               TWPDLDataLogRealVariable(logstr, unitval,realval,TWMinimumData);
-//
-//               logstr = str4 + "_CRATIO";  /*IPMOS_Pre_Bx_EVN_CRATIO*/
-//               unitval = NoUnits;
-//               TWPDLDataLogRealVariable(logstr, unitval,calratio,TWMinimumData);
-//               
-//                /*-- do soft --*/
-//               sftindex[MINITER] = index;
-//               for (i = MINITER+1;i <= (iteration-1);i++)
-//                  ArrayAddIntegerValue(sftindex[i],sftindex[i-1],1,v_sites);
-//               ArraySubIntegerValue(sftindex[iteration],sftindex[MINITER],1,v_sites);
-//
-//               if(loop==0)  
-//               {
-//                  even_ena = true;
-//                  odd_ena  = false;
-//               }
-//               else
-//               {
-//                  even_ena = false;
-//                  odd_ena  = true;
-//               } 
-//
-//               enasites = v_dev_active;
-//               
-//               for (j = MINITER;j <= iteration;j++)
-//               {
-//                  sbool1 = false;
-//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                     if(v_dev_active[site])  
-//                        if((sftindex[j][site]<0) or (sftindex[j][site]>31))  
-//                        {
-//                           sbool1 = true;
-//                           devsetholdstate(site,false);  /*skip site w/ out of bound index*/
-//                        } 
-//
-//                  if(v_any_dev_active)  
-//                  {
-//                     if(tistdscreenprint and debugprint)  
-//                        cout << "Soft Trim -- Bank" << bank:-5 << "Loop" << loop:-5 << "Iteration" << j:-5 << endl;
-//                     
-//                     GetTrimCode_Ratio_On_SftIndex;   /*store code in trimcode, ratio*/
-//                     orgtrimcode = trimcode;
-//
-//                     if(loop==0)  
-//                        for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                           if(v_dev_active[site])  
-//                              trimcode[site] = trimcode[site]<<8;   /*format even*/
-//                     
-//                     if((bank mod 2) == 0)  
-//                     {
-//                        msw_val = trimcode;   /*bank0*/
-//                        lsw_val = 0;      /*bank1*/
-//                     }
-//                     else
-//                     {
-//                        msw_val = 0;
-//                        lsw_val = trimcode;
-//                     } 
-//
-//                     RAM_Upload_PMOS_SoftTrim_Bank(bank,even_ena,odd_ena,msw_val,lsw_val);
-//                     
-//                     writestring(str5,j:1);
-//                     str5 = "_" + str5;
-//                     
-//                     switch(trimopt) {
-//                       case TRIMOPT_PMOS :  
-//                          str4 = "IPMOS_SFT_B" + str1;
-//                          tcrnum  = 40;
-//                          tcrmode = ErsMode;  /*actual mode is rd*/
-//                          testnum = tnum_ipmos[loop]+(bank<<4);
-//                          ITrim_Target = IPMOS_Trim_Target;
-//                          ITrim_LLim   = IPMOS_Trim_LLim;
-//                          ITrim_ULim   = IPMOS_Trim_ULim;
-//                        break; 
-//                       case TRIMOPT_IRD  :  
-//                          str4 = "IREFRD_SFT_B" + str1;
-//                          tcrnum  = 25;
-//                          tcrmode = ReadMode;
-//                          testnum = tnum_irefrd[loop]+(bank<<4);
-//                          ITrim_Target = IrefRd_Trim_Target;
-//                          ITrim_LLim   = IrefRd_Trim_LLim;
-//                          ITrim_ULim   = IrefRd_Trim_ULim;
-//                        break; 
-//                       case TRIMOPT_IEV  :  
-//                          str4 = "IREFEV_SFT_B" + str1;
-//                          tcrnum  = 25;
-//                          tcrmode = EvfyMode;
-//                          testnum = tnum_irefev[loop]+(bank<<4);
-//                          ITrim_Target = IrefEv_Trim_Target;
-//                          ITrim_LLim   = IrefEv_Trim_LLim;
-//                          ITrim_ULim   = IrefEv_Trim_ULim;
-//                        break; 
-//                       default:  
-//                          str4 = "IPMOS_SFT_B" + str1;
-//                          tcrnum  = 40;
-//                          tcrmode = ErsMode;  /*actual mode is rd*/
-//                          testnum = tnum_ipmos[loop]+(bank<<4);
-//                          ITrim_Target = IPMOS_Trim_Target;
-//                          ITrim_LLim   = IPMOS_Trim_LLim;
-//                          ITrim_ULim   = IPMOS_Trim_ULim;
-//                        break; 
-//                     }   /* case */
-//
-//                     llim    = TCR.TP2_LLim[TCRnum][TCRMode];
-//                     ulim    = TCR.TP2_ULim[TCRnum][TCRMode];
-//                          
-//                     str4 = str4 + str3;
-//                     str4 = str4 + str5;
-//                     
-//                     DoIMeasure;
-//                     if(TI_FlashDebug)  
-//                        PrintResultParam(str4,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                     sftival[bank][loop][j] = meas_val;
-//                     
-//                     logstr = str4;  /*IPMOS_SFT_Bx_EVN_x*/
-//                     TWTRealToRealMS(meas_val,realval,unitval);
-//                     TWPDLDataLogRealVariable(logstr, unitval,realval,TWMinimumData);
-//
-//                     logstr = str4 + "_RATIO";  /*IPMOS_SFT_Bx_EVN_x_RATIO*/
-//                     unitval = NoUnits;
-//                     TWPDLDataLogRealVariable(logstr, unitval,ratio,TWMinimumData);
-//
-//                     logstr = str4 + "_TC";   /*IPMOS_SFT_Bx_EVN_x_TC*/
-//                     TWPDLDataLogVariable(logstr,orgtrimcode,TWMinimumData);
-//
-//                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                        if(v_dev_active[site])  
-//                        {
-//                           tmpdelta[site] = abs(meas_val[site]-ITrim_Target);
-//                           if(j==MINITER)  
-//                           {
-//                              delta[site] = tmpdelta[site];
-//                              tmptrimindex[site] = j;
-//                              tmptrimcode[site] = trimcode[site];
-//                              tmptrimratio[site] = ratio[site];
-//                           } 
-//                           
-//                           if(tmpdelta[site] < delta[site])  
-//                           {
-//                              delta[site] = tmpdelta[site];
-//                              tmptrimindex[site] = j;
-//                              tmptrimcode[site] = trimcode[site];
-//                              tmptrimratio[site] = ratio[site];
-//                           } 
-//                        } 
-//
-//                      /*collect data*/
-//                      /*KChau 03/10/11 -- uncomment these out if want to collect data*/
-//                      /* ...
-//                      case trimopt of
-//                        TRIMOPT_PMOS : begin
-//                           {irefRd}
-//                           logstr := concat("IREFRD_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 25;
-//                           tcrmode := ReadMode;
-//                           testnum := tnum_irefrd[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                           {irefEv}
-//                           logstr := concat("IREFEV_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 25;
-//                           tcrmode := EvfyMode;
-//                           testnum := tnum_irefev[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                        end;
-//                        TRIMOPT_IRD  : begin
-//                           {ipmos}
-//                           logstr := concat("IPMOS_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 40;
-//                           tcrmode := ErsMode; {actual mode is rd}
-//                           testnum := tnum_ipmos[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                           {irefEv}
-//                           logstr := concat("IREFEV_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 25;
-//                           tcrmode := EvfyMode;
-//                           testnum := tnum_irefev[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                        end;
-//                        TRIMOPT_IEV  : begin
-//                           {ipmos}
-//                           logstr := concat("IPMOS_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 40;
-//                           tcrmode := ErsMode; {actual mode is rd}
-//                           testnum := tnum_ipmos[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                           {irefRd}
-//                           logstr := concat("IREFRD_SFT_B",str1);
-//                           logstr := concat(logstr,str3); {even/odd}
-//                           logstr := concat(logstr,str5); {iteration}
-//                           tcrnum  := 25;
-//                           tcrmode := ReadMode;
-//                           testnum := tnum_irefrd[loop]+(bank<<4);
-//                           llim    := TCR.TP2_LLim[TCRnum,TCRMode];
-//                           ulim    := TCR.TP2_ULim[TCRnum,TCRMode];
-//                           DoIMeasure;
-//                           if(TI_FlashDebug) then
-//                              PrintResultParam(logstr,testnum,meas_results,llim,ulim,meas_val,GL_PLELL_FORMAT);
-//                           TWTRealToRealMS(meas_val,realval,unitval);
-//                           TWPDLDatalogRealVariableMS(logstr, unitval,realval,TWMinimumData);
-//                        end;
-//                      end; { case } {collect data}
-// 
-//                      ... */
-//               
-//                     RAM_Clear_PMOS_SoftTrim_Bank(bank);
-//                  }   /*if v_any_dev_active*/
-//                  
-//                  if(sbool1)  
-//                     Devsetholdstates(enasites);
-//               }   /*for j iteration*/
-//
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     j = tmptrimindex[site];
-//                     ival_pst[bank][loop][site]  = sftival[bank][loop][j][site];
-//                     tmpdelta[site] = ival_pst[bank][loop][site];
-//                     if(trimopt==TRIMOPT_PMOS)  
-//                     {
-//                        if(abs(ival_pst[bank][loop][site]) < abs(ITrim_ULim))  
-//                           trim_valid[site] = false;
-//                     }
-//                     else
-//                     {
-//                        if(abs(ival_pst[bank][loop][site]) < abs(ITrim_LLim))  
-//                           trim_valid[site] = false;
-//                     } 
-//
-//                     if(loop==0)  
-//                        tmptrimcode[site] = tmptrimcode[site] div 256;
-//
-//                     tcode_pst[bank][loop][site] = tmptrimcode[site];
-//                     IPMOS_TRIMCODE_SAVED[bank][loop][site] = tmptrimcode[site];  /*save for later use*/
-//                     ratio_pst[bank][loop][site] = tmptrimratio[site];
-//                     k = sftindex[j][site];
-//                     index_pst[bank][loop][site] = k;  /*sftindex[j,site];*/
-//                     trim_code_str[bank][loop][site] = IREF_PMOSCODE_STR[k];
-//
-//                     if(tistdscreenprint and debugprint)  
-//                        cout << "Site" << site:-5 << "Bank" << bank:-5 << "Loop" << loop:-5 << 
-//                                " Pre IVal== " << ival_pre[bank][loop][site]:-6:3 << 
-//                                " CalcRatio== " << ratio_pre[bank][loop][site]:-6:2 << 
-//                                " TrimCode== " << tcode_pre[bank][loop][site]:s_hex:-5 << 
-//                                " --  Final Soft IVal== " << ival_pst[bank][loop][site]:-6:3 << 
-//                                " Ratio== " << ratio_pst[bank][loop][site]:-6:2 << 
-//                                " TrimCode== " << tcode_pst[bank][loop][site]:s_hex:-5 << 
-//                                " ** " << trim_valid[site] << " ** " << endl;
-//                  } 
-//
-//               switch(trimopt) {
-//                 case TRIMOPT_PMOS : str4 = "IPMOS_TRIM_B" + str1;
-//                 case TRIMOPT_IRD  : str4 = "IrefRd_TRIM_B" + str1;
-//                 case TRIMOPT_IEV  : str4 = "IrefEv_TRIM_B" + str1;
-//                 default: str4 = "IPMOS_TRIM_B" + str1;
-//               }   /* case */
-//               
-//               str4 = str4 + str3;
-//
-//               logstr = str4;  /*IPMOS_TRIM_Bx_EVN*/
-//               TWTRealToRealMS(tmpdelta,realval,unitval);
-//               TWPDLDataLogRealVariable(logstr, unitval,realval,TWMinimumData);
-//               
-//               logstr = str4 + "_RATIO";  /*IPMOS_TRIM_Bx_EVN_RATIO*/
-//               unitval = NoUnits;
-//               TWPDLDataLogRealVariable(logstr, unitval,tmptrimratio,TWMinimumData);
-//
-//               logstr = str4 + "_TC";   /*IPMOS_TRIM_Bx_EVN_TC*/
-//               TWPDLDataLogVariable(logstr,tmptrimcode,TWMinimumData);
-//
-//
-//               if(tistdscreenprint)  
-//               {
-//                  str2 = "IPMOS_TRIM_B" + str1;
-//                  str2 = str2 + str3;
-//                  PrintResultTrimCode;
-//               } 
-//                               /*-- do soft --*/
-//            }   /*for loop*/
-//
-//            ArrayAndBoolean(final_results,final_results,trim_valid,v_sites);
-//            ArrayAndBoolean(logsites,logsites,trim_valid,v_sites);
-//
-//            if(not ArrayCompareBoolean(logsites,sitetotrim,v_sites))  
-//            {
-//               logstr = "IPMOS_TRIM_B" + str1;
-//               F021_Log_FailPat_To_TW(logstr,tmp_results,fl_testname);
-//            } 
-//
-//            if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//            {
-//               ArrayAndBoolean(activesites,activesites,final_results,v_sites);
-//               Devsetholdstates(final_results);
-//            } 
-//
-//             /*format & store efuse string per bank bit31:0*/
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  tmpefstr = BANKEF_BIT29_31 + trim_code_str[bank][1][site];  /*odd*/
-//                  tmpefstr = tmpefstr + BANKEF_BIT10_23_BANKNUM[bank];
-//                  tmpefstr = tmpefstr + trim_code_str[bank][0][site];  /*even*/
-//                  tmpefstr = tmpefstr + BANKEF_BIT0_4;
-//                  IREF_PMOSTRIMCODE_STR[bank][site] = tmpefstr;
-//               } 
-//
-//         }   /*if v_any_dev_active*/
-//          /*+++++*/
-//
-//      }   /*for bank*/
-//
-//      Devsetholdstates(savesites);
-//      
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and trim_valid[site])  
-//            SITE_TO_FTRIM[site] = true;
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      writestring(str1,fl_testname);
-//      i = len(str1);
-//      writestring(str1,mid(str1,2,i-6));  /*remove _Test*/
-//
-//      str4 = str1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(str4, unitval,realval,TWMinimumData);
-//      
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         Devsetholdstates(final_results);
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintResultBool(str1,tnum_ipmos[0],final_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;         
-//      } 
-//      
-//   }   /*if v_any_dev_active*/
-//
-//   F021_IPMOS_NMOS_SoftTrim_func = v_any_dev_active;
-//} 
-//      
-//   
+
+         passing_sites = ActiveSites;
+         any_site_active = true;
+         if((!RunAllTests) && (!TI_FlashCOFEna))  
+         {
+            passing_sites.DisableFailingSites(trim_results.Equal(TM_PASS));
+            any_site_active = SetActiveSites(passing_sites);
+         } 
+
+          /*format & store efuse string per bank bit31:0*/
+         if (any_site_active)
+         {
+            tmpefstr = BANKEF_BIT29_31 + trim_code_str[bank][1];  /*odd*/
+            tmpefstr = tmpefstr + BANKEF_BIT10_23_BANKNUM[bank];
+            tmpefstr = tmpefstr + trim_code_str[bank][0];  /*even*/
+            tmpefstr = tmpefstr + BANKEF_BIT0_4;
+            IREF_PMOSTRIMCODE_STR.SetValue(bank, tmpefstr);
+         }
+
+      }   /*if v_any_dev_active*/
+       
+      // re-enable sites because next iteration may need them
+      RunTime.SetActiveSites(savesites);
+
+   }   /*for bank*/
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      if(trim_results[*si] == TM_PASS)  
+         SITE_TO_FTRIM[*si] = true;
+   
+   tt_timer = TIME.StopTimer();
+
+   /*remove _Test*/
+   DatalogTMResultM(trim_results, str1);
+   str4 = fl_testname.Substring(0, fl_testname.Length() - 5) + "_TTT";
+   TIDlog.Value(tt_timer, UTL_VOID, 0., UTL_VOID, "s", str4, UTL_VOID, 
+                UTL_VOID, true, TWMinimumData);
+
+   return (trim_results);
+} 
+      
+   
 //void TL_Mod_OTP_PMOS_SoftTrim()
 //{
 //   const  DATA_TARG_ARB = 0x0000AA00;  /* :MANUAL FIX REQUIRED: Unknown const type */
@@ -32714,11 +32064,12 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 //   } 
 //} 
 
-FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
-                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+FloatM MeasPinTMU_func(const PinM &tpin,                       // Pin to measure on
+                       const StringS &tpattern,                // Test pattern - func assumes CPU loop where measure to be made
                        TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
-                       FloatM maxExpFreq,               // Maximum expected frequency
-                       FloatM simResults)               // results to return in simulated mode
+                       const FloatM &maxExpFreq,               // Maximum expected frequency
+                       const FloatM &simResults,               // results to return in simulated mode
+                       const UnsignedM &pulseCount)            // Optional number of pulses for Frequency Counter mode
 {
    FloatM meas_results;
    BoolM timeout;
@@ -32726,7 +32077,7 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
    if(tistdscreenprint and TI_FlashDebug)  
       cout << "+++++ MeasPinTMU_func +++++" << endl;
 
-   FloatS sampletime = 10ms;
+   FloatS sampletime = 1000ms;
    FloatS tdelay = 100ms;
    FloatM vcmp = 2V;
    
@@ -32735,7 +32086,8 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
    // run pattern to CPU loop, then take measure since 
    // we can't trigger DPIN96 TMU.
    DIGITAL.ExecutePattern(tpattern);
-   DIGITAL.WaitForFlag(DIGITAL_FLAG_CPU, true);
+   if (!SYS.TesterSimulated())
+      DIGITAL.WaitForFlag(DIGITAL_FLAG_CPU, true);
    TIME.Wait(tdelay);
    TMU.SetTimeout(sampletime);
    
@@ -32746,6 +32098,9 @@ FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
          break;
       case TMU_MEASURE_FREQUENCY:
          TMU.MeasureFrequency(tpin, maxExpFreq, TMU_RISING_EDGE, meas_results, simResults);
+         break;
+      case TMU_MEASURE_FREQUENCY_COUNTER:
+         TMU.MeasureFrequencyByCount(tpin, pulseCount, maxExpFreq, meas_results, simResults);
          break;
       default:
          ERR.ReportError(ERR_GENERIC_CRITICAL, "Unsupported measure option in MeasPinTMU_func in F021_Library.", UTL_VOID, NO_SITES, tpin);
@@ -32818,9 +32173,9 @@ TMResultM F021_FOSC_SoftTrim_External_func()
    /* dummy run */
    foscval = 0;
    RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit*1.2, freq_target);
     /*virgin run...yes, VLCT ran it twice. :TODO: check in debug if we need this second run*/
-   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+   meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit*1.2, freq_target);
    Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
    SITE asite = ActiveSites.Begin().GetValue();
    //VLCT also assumed that all sites were at same testnum
@@ -32841,9 +32196,9 @@ TMResultM F021_FOSC_SoftTrim_External_func()
       trim_lookup[j] = i;
       
    SearchMod my_search;
-   my_search.LinearSearchBegin(0., double(MAX_CODE-MIN_CODE), 1., freq_target, target_meas_delta, MAX_CODE-MIN_CODE+1);
+   my_search.LinearSearchBegin(0., FloatM(double(MAX_CODE-MIN_CODE)), 1., freq_target, target_meas_delta, MAX_CODE-MIN_CODE+1);
    
-   int loop = 0;
+   IntS loop = 0;
    while(my_search.searchNotDone)
    {
       // get proper trim code from the lookup table
@@ -32851,7 +32206,7 @@ TMResultM F021_FOSC_SoftTrim_External_func()
          foscval[*si] = trim_lookup[MATH.LegacyRound(my_search.xForceValueMS[*si])];
          
       RAM_Upload_SoftTrim(0xAA55,bgval,irval,foscval,slpct,vsa5ct);
-      meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit, freq_target);
+      meas_value = MeasPinTMU_func(tpin,testpattern,TMU_MEASURE_FREQUENCY, freq_ulimit*1.2, freq_target);
       
       loop = loop+1;
       twstr = "FOSC_SOFT_" + loop;
@@ -32915,43 +32270,3 @@ TMResultM F021_FOSC_SoftTrim_External_func()
 }   /* F021_FOSC_SoftTrim_External_func */
 #endif
 
-void PbistFailLogout() {
-   BoolS doneAsserted = false;
-   PinM capPin = "PB2_131";
-   StringS capName = "pbistData";
-   IntS maxCapCnt = 16384;
-   UnsignedM1D capArray(109);
-   UnsignedM1D simArray(109,1);
-   UnsignedM1D retArray(109);
-   UnsignedM1D tmpArray(109);
-   TMResultM currResult = TM_NOTEST;
-   TMResultM lastResult = TM_NOTEST;
-   IntM failCnt = 0;
-   
-   TIME.Wait(0.0s);
-   
-   if ( lastResult != TM_PASS ) {
-      if (SYS.TesterSimulated()) retArray = simArray;
-      else {
-         do {
-            if (failCnt != 0 ) {
-               // Test "FAIL" pin for assertion
-               currResult = DIGITAL.TestPattern("pb_pb_test_fail_pin_Thrd");
-               // FAIL asserted collect one fail frame
-               if ( currResult == TM_FAIL ) {
-                  PatternDigitalCapture("pb_pb_fail_logout_Thrd", capPin, capName, maxCapCnt, capArray, simArray);
-                  ++failCnt;
-               }
-               
-               // Test "DONE" pin for assertion
-               currResult = DIGITAL.TestPattern("pb_pb_test_done_pin_Thrd");
-               if ( currResult == TM_FAIL ) {
-                  ;
-               }
-            }
-            tmpArray = capArray;
-//            retArray = ProcessFailData();
-         } while (!doneAsserted);
-      }
-   }
-}

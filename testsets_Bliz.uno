@@ -4774,9 +4774,22 @@ __Test F021_InitFLGlobalVars {
 }
 __Test F021_FlashConfig_test {
     __Mask[0] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
+        __Title = Block3;
+        __TestMethod {
+            __Name = Initialize_hardware;
+        }
+    }
+    __Block[1] = {
+        __Title = Block2;
+        __TestMethod {
+            __Name = LoadEfuseCtlrData;
+        }
+    }
+    __Block[2] = {
         __Title = Block1;
         __TestMethod {
             __Name = F021_FlashConfig;
@@ -4784,13 +4797,14 @@ __Test F021_FlashConfig_test {
     }
 }
 __Test Pump_Iref_Vnom {
-    __Entry[0] = PowerCycleVmask_FC;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS OR RunAllTests"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = jtag_reset;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "o_cpu_fail_47"; }
@@ -4826,6 +4840,12 @@ __Test Pump_Iref_Vnom {
         __ContinueOnFail = __Expression { __String = "RunAllTests"; }
         __TestMethod {
             __Name = Pump_Iref_Vnom_func;
+        }
+    }
+    __Block[3] = {
+        __Title = Block4;
+        __TestMethod {
+            __Name = IPMOS_TCode_Upload_func;
         }
     }
 }
@@ -6134,23 +6154,22 @@ __Test Pump_VHV2X_Vmax {
     }
 }
 
-__Test Pbist_Logout_Debug_T {
+__Test Pbist_Logout_Test_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
     __Entry[0] = DCsetup_Loose;
-    __Entry[1] = FlashTestNum_SEQ;
+    __Entry[1] = pBistLogout_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = Pbist_Logout_Debug;
+        __Title = Pbist_Logout_Test;
         __WrapCells = __True;
         __TestMethod {
             __Name = TWFuncTest;
             TestPins = __Expression { __String = "ALLPINS"; }
             TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
-            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_Thrd'"; }
-            CallAtEnd = __Expression { __String = "&Pbist_Fail_Logout"; }
+            TestPatterns = __Expression { __String = "'pb_pb_fail_insert_fail_Thrd'"; }
             MinorID = __Expression { __String = "0"; }
             ShowAdditionalArgs = __Expression { __String = "TRUE"; }
             SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
@@ -6160,6 +6179,21 @@ __Test Pbist_Logout_Debug_T {
             FailBin = __Expression { __String = "'F_FUNC_ATPG_VMIN'"; }
             use_testware = __Expression { __String = "FALSE"; }
             testware_datatype = __Expression { __String = "TWDataType:TWMinimumData"; }
+        }
+    }
+}
+__Test Pbist_Logout_Capture_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = DCsetup_Loose;
+    __Entry[1] = pBistLogout_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Pbist_Fail_Logout_F;
+        __TestMethod {
+            __Name = PbistFailLogout;
         }
     }
 }
@@ -8480,7 +8514,7 @@ __Test MainBG_Trim_T {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
         __Title = jtag_reset_1;
-        __EnableExpression = __Expression { __String = "TRUE"; }
+        __EnableExpression = __Expression { __String = "FALSE"; }
         __TestMethod {
             __Name = LTXC::FuncTest;
             TestPins = __Expression { __String = "o_cpu_fail_47"; }
@@ -8517,6 +8551,7 @@ __Test MainBG_Trim_T {
         }
     }
 }
+<<<<<<< HEAD
 __Test VBOXLO_MEMORY_PG_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
@@ -8574,3 +8609,145 @@ __Test VBOXLO_MEMORY_T {
         }
     }
 }
+=======
+__Test InitVars {
+    __PortExpression[0] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = InitializeFuseROMVariables;
+        }
+    }
+}
+__Test EraseRefArray_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ldo_bypass_1_2;
+        __EnableExpression = __Expression { __String = "TRUE"; }
+        __TestMethod {
+            __Name = LTXC::FuncTest;
+            TestPins = __Expression { __String = "o_cpu_fail_47"; }
+            TestMode = __Expression { __String = "FUNC_MODE_ENUM:SETUP_AND_EXECUTE"; }
+            TestPatterns = __Expression { __String = "'ldo_bypass_init_Thrd'"; }
+            MinorID = __Expression { __String = "10"; }
+            ShowAdditionalArgs = __Expression { __String = "FALSE"; }
+            SimulatedTestResult = __Expression { __String = "TM_RESULT:TM_PASS"; }
+            DisablePatternDatalog = __Expression { __String = "TRUE"; }
+            ExecuteSitesSerially = __Expression { __String = "FALSE"; }
+            CharacterizationEnable = __Expression { __String = "FALSE"; }
+        }
+    }
+    __Block[1] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = EraseRefArray_func;
+        }
+    }
+}
+__Test IrefPMOS_Trim_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = IrefPMOS_Trim_func;
+        }
+    }
+}
+__Test FOSC_VCO_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test VReadBuf_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test VReadBuf_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test TP1TP2_Leak_Pre_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Pump_VHV_Stress_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test TP1TP2_Leak_Pst_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Read_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Pvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Evfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IPMOS_Cvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Read_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Pvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Evfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test Iref_Cvfy_Vnom_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test SA_Iref_NoLoad_Read_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test IWLDRV_Prog_Vmin_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test WLS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test BLS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGCG_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test CGS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGCSS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+__Test EGS_Leak_Vmax_T {
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+}
+
+>>>>>>> c9d9082bf21b238c08c66204d2a8185a9bd28265

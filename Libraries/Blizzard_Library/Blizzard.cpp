@@ -43,34 +43,6 @@ void Initialize_digital_pins ()
 void Initialize_hardware ()
 {
 
-     // Initialize and define settling times
-//    Relays_settling_time = 3e-3;  // Mechanical relays 
-//    Mosfets_settling_time = 1e-3; // Typical is 0.5ms in datasheet 
-//    Muxes_settling_time = 1e-4;   // Switch time is specified below 1us in datasheet
-
-    // Power supplies initial set-up
-    // These need to be defined in globals.h before use
-//    VDD_connected = false;
-//    VDDAR_connected = false;
-//    VDDS_connected = false;
-//    VDDA_connected = false;
-//    VDD_gatedon = false;
-//    VDDAR_gatedon = false;
-//    VDDS_gatedon = false;
-//    VDDA_gatedon = false;
-
-    // Generic variables 
-//    UseFocusCal = false;
-    
-    // Initialize ecbits
-    Initialize_ecbits();
-//    EcbitOpen (ALL_RELAYS_EXCEPT_R5V);
-//    EcbitClose (ALL_MUXES);
-//    EcbitClose (ECBIT_R5V);
-//    TIME.Wait (Relays_settling_time);
-   
-    // Initialize instruments
-    VI.Initialize ("ANA_ALL");    // VI
     DIGITAL.ClearAllSends (); 
     DIGITAL.ClearAllCaptures (); 
 

@@ -1,7 +1,7 @@
 Unison:U1.0d:S5.3;
 
 /******************************************************************************/
-/* Jazz Integrated Program : Bllizar                                          */
+/* Jazz Integrated Program : Bllizard                                         */
 /*                                                                            */
 /* Program Module : FusionProg/toolkit.uno                                    */
 /* Creation Date  : Mon Jun 18 08:08:22 2012                                  */
@@ -56,6 +56,43 @@ __WaveformCapture PBIST_Logout_Capture {
   __Stop "100";
   __Resolution "1.5nS";
   __Pins "OSC0_124+o_cpu_done_46+o_cpu_fail_47+PB2_131+TCK_152" {
+	__Enable __True;
+	__Merge EVW_Merge_All;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+}
+
+__WaveformCapture PBIST_TestDone_Capture {
+  __ReferenceSegment "";
+  __Start "1";
+  __Stop "40";
+  __Resolution "1.5nS";
+  __Pins "OSC0_124+o_cpu_done_46+o_cpu_fail_47+PB2_131+TCK_152" {
+	__Enable __True;
+	__Merge EVW_Merge_All;
+	__DriveEnable __True;
+	__DriveSize "7";
+	__ResponseSize "7";
+	__ScopeEnable __True;
+	__ScopeDriveSize "7";
+	__ScopeHi "3.3V";
+	__ScopeLo "0V";
+  }
+}
+
+__WaveformCapture PBIST_TestFail_Capture {
+  __ReferenceSegment "";
+  __Start "1";
+  __Stop "40";
+  __Resolution "1.5nS";
+  __Pins "OSC0_124+o_cpu_done_46+o_cpu_fail_47+PB2_131+TCK_152" {
+	__Enable __True;
 	__Merge EVW_Merge_All;
 	__DriveEnable __True;
 	__DriveSize "7";

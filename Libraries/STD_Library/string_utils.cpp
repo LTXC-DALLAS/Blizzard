@@ -181,7 +181,7 @@ StringS IntToBinStr(const IntS &srcInt, const IntS &padToLength, const bool &isM
       
    if (isMSBFirst)
    {
-      StringS ret_string = binary_string.Substring(32-length, length);
+      StringS ret_string = binary_string.Substring(0, length);
       ReverseStringInPlace(ret_string);
       return (ret_string);
    }
@@ -249,9 +249,9 @@ UnsignedS BinStringToUnsigned(const StringS &inString, const bool &isMSBFirst)
       {
          if (isMSBFirst)
          {
-            return_val &= (1 << ((str_length-1)-bit_num));
+            return_val |= (1 << ((str_length-1)-bit_num));
          } else {
-            return_val &= (1 << bit_num);
+            return_val |= (1 << bit_num);
          }
       }
    }

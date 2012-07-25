@@ -26,17 +26,13 @@
 #include <Unison.h>
 #include <efuse.h>
 #include <stdEfuse.h>
+#include <enums.evo>
 #include <iomanip>
 using namespace std; 
 
 FuseInstDataRec instData[13];
-
-struct STDFuseFarmRec {
-  int maxFROMRepairs[32];
-  int fuseROMSize[32];
-  PinM JTAGTDI;
-  PinM JTAGTDO;
-};
+ProgDataRec progData;
+bool fuseROMProgrammed;
 
 struct FuseConfigRec {
    DesignInstEnumType instType;
@@ -166,46 +162,44 @@ C027EfuseDataRec fuseFarmCtlr[TOTAL_EFUSE_CTLR];
 //  https://sps02.itg.ti.com/sites/makeoe/Standards/Forms/AllItems.aspx
 // 
 //  *****************************************************************************/
-//
-//void InitializeFuseROMVariables()
-// /*****************************************************************************
-//  This procedure intializes FuseROM variables before each execution of the
-//  test flow.
-// 
-//  Global Input Variables :
-//  fuseFarmCtlr record
-//  blkData.numRepairs     - count of repair rows used
-//  blkData.numBitRepairs  - count of column repairs used
-//  blkData.fuseROMData    - global FuseROM row data array
-//  STPData.maxFROMRepairs - max number of FuseROM controller + redundant
-//  rows
-//  STPData.fuseROMSize    - total number of FuseROM rows per block
-//  
-//  Location : testflow.p
-//  *****************************************************************************/
-//{
-//    IntS site;
-//    IntS ctlr;
-//    IntS blk;
-//    IntS row;
-//
-//
-//    fuseROMProgrammed =  false;
-//
-//    for (site = 1;site <= V_Sites;site++)
-//        for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//            for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//            {
-//                fuseFarmCtlr[ctlr].blkData[blk].numRepairs[site] =
-//                fuseFarmCtlr[ctlr].STPData.maxFROMRepairs[blk];
-//
-//                fuseFarmCtlr[ctlr].blkData[blk].numBitRepairs[site] = 0;
-//
-//                for (row = 0;row <= fuseFarmCtlr[ctlr].STPData.fuseROMSize[blk];row++)
-//                    fuseFarmCtlr[ctlr].blkData[blk].fuseROMData[site][row] = "";
-//            } 
-//}   /* InitializeFuseROMVariables */
-//
+
+void InitializeFuseROMVariables()
+ /*****************************************************************************
+  This procedure intializes FuseROM variables before each execution of the
+  test flow.
+ 
+  Global Input Variables :
+  fuseFarmCtlr record
+  blkData.numRepairs     - count of repair rows used
+  blkData.numBitRepairs  - count of column repairs used
+  blkData.fuseROMData    - global FuseROM row data array
+  STPData.maxFROMRepairs - max number of FuseROM controller + redundant
+  rows
+  STPData.fuseROMSize    - total number of FuseROM rows per block
+  
+  Location : testflow.p
+  *****************************************************************************/
+{
+    IntS ctlr;
+    IntS blk;
+    IntS row;
+
+
+    fuseROMProgrammed =  false;
+
+    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
+        {
+            fuseFarmCtlr[ctlr].blkData[blk].numRepairs =
+            fuseFarmCtlr[ctlr].STPData.maxFROMRepairs[blk];
+
+            fuseFarmCtlr[ctlr].blkData[blk].numBitRepairs = 0;
+
+            for (row = 0;row <= fuseFarmCtlr[ctlr].STPData.fuseROMSize[blk];row++)
+                fuseFarmCtlr[ctlr].blkData[blk].fuseROMData.SetValue(row, "");
+        } 
+}   /* InitializeFuseROMVariables */
+
 //void SendNumFuseROMRepairsToTW()
 // /*****************************************************************************
 //  This procedure sends the number of FuseROM repair rows and columns used to
@@ -265,134 +259,139 @@ C027EfuseDataRec fuseFarmCtlr[TOTAL_EFUSE_CTLR];
 //        } 
 //    } 
 //}   /* SendNumFuseROMRepairsToTW */
+
+
+// NOTE: Currently, the ElemData is not retrieved as it was unused by F021 lib and Blizzard.
+void GetEfuseInstElemData()
+ /*****************************************************************************
+  This procedure will index the fuseFarmCtlr record to extract the data 
+  required to build, program and read a FuseROM instance or element.
+ 
+  Global Output Variables : 
+  instData - record of FuseROM instance data
+  validCtlr   - valid controller
+  fuseROMCtlr - controller number
+  maxSeg      - total number of segements per block
+  rowStart    - row start for segment
+  rowStop     - row stop for segment
+  instStart   - fuseFarmCtlr record start index for segment
+  instStop    - fuseFarmCtlr record stop index for segment     
+  padLSB      - number of LSB pad bits for segment
+  padMSB      - number of MSB pad bits for segment
+ 
+  elemData - record of FuseROM element data
+  validData   - valid for controller and block
+  rowStart    - row start  
+  rowStop     - row stop
+  padLSB      - number of LSB pad bits
+  padMSB      - number of MSB pad bits
+  fuseROMInst - instance number
+  progElemStr - initialize element strings to zeros
+  *****************************************************************************/
+{
+    IntS ctlr;
+    IntS blk;
+    IntS inst;
+    IntS seg;
+    IntS elem;
+    IntS bits;
+    IntS bitIndex;
+    IntS elemIndex;
+    StringS tmpElemStr;
+    int instType;
+    FuseElemEnumType elemType;
+    BoolS rowStopFound;
+    BoolS blkFound;
+
+
+    for (instType = 1; instType < LastDesignInstEnum; ++instType) 
+    {
+        instData[instType].totalBits = 0;
+
+        for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
+        {
+            instData[instType].totalBlks[ctlr] = 0;
+            instData[instType].totalSegs[ctlr] = 0;
+            instData[instType].validCtlr[ctlr] = false;
+
+            for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
+            {
+                // start seg at -1 because it's used as an index
+                // and there is a pre-increment
+                seg = -1;
+                rowStopFound = false;
+                blkFound = false;
+
+                for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
+                    if (fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].instType == 
+                        instType)  
+                    {         
+                        instData[instType].fuseROMCtlr = ctlr; 
+                        instData[instType].validCtlr[ctlr] = true;
+
+                        instData[instType].totalBits = 
+                        instData[instType].totalBits +
+                        fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].bits;
+
+                        if (!blkFound)
+                        {
+                            instData[instType].totalBlks[ctlr] =
+                            instData[instType].totalBlks[ctlr] + 1;
+                            blkFound = true;
+                        } 
+
+                        if (!rowStopFound)
+                        {
+                            seg = seg + 1;
+
+                            // for the loops using seg > maxSeg, do an increment 
+                            // here so that maxSeg is the number of segs, so > maxSeg
+                            // will work properly for 0-based indexes
+                            instData[instType].maxSeg[ctlr][blk] = seg+1;
+
+                            instData[instType].rowStart[ctlr][blk][seg] =
+                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStart;
+
+                            instData[instType].instStart[ctlr][blk][seg] = inst;
+
+                            instData[instType].padMSB[ctlr][blk][seg] = 
+                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].colStart;
+
+                            instData[instType].totalSegs[ctlr] = 
+                            instData[instType].totalSegs[ctlr] + 1;
+
+                            rowStopFound = true;
+                        } 
+
+                        // 0 is a valid seg index, so use >=
+                        if (seg >= 0)  
+                        {
+                            instData[instType].rowStop[ctlr][blk][seg] =
+                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStop;
+
+                            instData[instType].instStop[ctlr][blk][seg] = inst;
+
+                            instData[instType].padLSB[ctlr][blk][seg] = 31 -
+                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].colStop;
+                        }          
+                    }
+                    else
+                        rowStopFound = false;
+            }  
+
+            if ((instData[instType].totalBlks[ctlr] > 1) or
+                (instData[instType].totalSegs[ctlr] > 1))  
+                instData[instType].segmentChain[ctlr] = true;
+            else
+                instData[instType].segmentChain[ctlr] = false;
+        } 
+    }  
+
+// :TODO: Implement this if ever needed...F021 lib and Blizzard never needed the elemData
 //
-//
-//void GetEfuseInstElemData()
-// /*****************************************************************************
-//  This procedure will index the fuseFarmCtlr record to extract the data 
-//  required to build, program and read a FuseROM instance or element.
-// 
-//  Global Output Variables : 
-//  instData - record of FuseROM instance data
-//  validCtlr   - valid controller
-//  fuseROMCtlr - controller number
-//  maxSeg      - total number of segements per block
-//  rowStart    - row start for segment
-//  rowStop     - row stop for segment
-//  instStart   - fuseFarmCtlr record start index for segment
-//  instStop    - fuseFarmCtlr record stop index for segment     
-//  padLSB      - number of LSB pad bits for segment
-//  padMSB      - number of MSB pad bits for segment
-// 
-//  elemData - record of FuseROM element data
-//  validData   - valid for controller and block
-//  rowStart    - row start  
-//  rowStop     - row stop
-//  padLSB      - number of LSB pad bits
-//  padMSB      - number of MSB pad bits
-//  fuseROMInst - instance number
-//  progElemStr - initialize element strings to zeros
-//  *****************************************************************************/
-//{
-//    IntS site;
-//    IntS ctlr;
-//    IntS blk;
-//    IntS inst;
-//    IntS seg;
-//    IntS elem;
-//    IntS bits;
-//    IntS bitIndex;
-//    IntS elemIndex;
-//    StringS tmpElemStr;
-//    DesignInstEnumType instType;
-//    FuseElemEnumType elemType;
-//    BoolS rowStopFound;
-//    BoolS blkFound;
-//
-//
-//    for instType = EnumGetFirst(DesignInstEnumType) to 
-//        EnumGetLast(DesignInstEnumType) do
-//    {
-//        instData[instType].totalBits = 0;
-//
-//        for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
+//    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //        {
-//            instData[instType].totalBlks[ctlr] = 0;
-//            instData[instType].totalSegs[ctlr] = 0;
-//            instData[instType].validCtlr[ctlr] = false;
-//
-//            for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//            {
-//                seg = 0;
-//                rowStopFound = false;
-//                blkFound = false;
-//
-//                for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
-//                    if (fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].instType == 
-//                        instType)  
-//                    {         
-//                        instData[instType].fuseROMCtlr = ctlr; 
-//                        instData[instType].validCtlr[ctlr] = true;
-//
-//                        instData[instType].totalBits = 
-//                        instData[instType].totalBits +
-//                        fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].bits;
-//
-//                        if not blkFound  
-//                        {
-//                            instData[instType].totalBlks[ctlr] =
-//                            instData[instType].totalBlks[ctlr] + 1;
-//                            blkFound = true;
-//                        } 
-//
-//                        if not rowStopFound  
-//                        {
-//                            seg = seg + 1;
-//
-//                            instData[instType].maxSeg[ctlr][blk] = seg;
-//
-//                            instData[instType].rowStart[ctlr][blk][seg] =
-//                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStart;
-//
-//                            instData[instType].instStart[ctlr][blk][seg] = inst;
-//
-//                            instData[instType].padMSB[ctlr][blk][seg] = 
-//                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].colStart;
-//
-//                            instData[instType].totalSegs[ctlr] = 
-//                            instData[instType].totalSegs[ctlr] + 1;
-//
-//                            rowStopFound = true;
-//                        } 
-//
-//                        if (seg > 0)  
-//                        {
-//                            instData[instType].rowStop[ctlr][blk][seg] =
-//                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].rowStop;
-//
-//                            instData[instType].instStop[ctlr][blk][seg] = inst;
-//
-//                            instData[instType].padLSB[ctlr][blk][seg] = 31 -
-//                            fuseFarmCtlr[ctlr].fuseConfig[blk][inst][0].colStop;
-//                        }          
-//                    }
-//                    else
-//                        rowStopFound = false;
-//            }  
-//
-//            if ((instData[instType].totalBlks[ctlr] > 1) or
-//                (instData[instType].totalSegs[ctlr] > 1))  
-//                instData[instType].segmentChain[ctlr] = true
-//            else
-//                instData[instType].segmentChain[ctlr] = false;
-//        } 
-//    }  
-//
-//    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//        {
-//            elemData[elemType].validData[ctlr][blk] = false;
-//
 //            for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
 //                for (elem = 1;elem <= fuseFarmCtlr[ctlr].blkData[blk].maxElements[inst];elem++)
 //                {   
@@ -421,57 +420,53 @@ C027EfuseDataRec fuseFarmCtlr[TOTAL_EFUSE_CTLR];
 //                    for (bitIndex = 1;bitIndex <= bits;bitIndex++)
 //                        tmpElemStr = tmpElemStr +  "0";
 //
-//                    for (site = 1;site <= V_Sites;site++)
-//                        elemData[elemType].progElemStr[site] = tmpElemStr;
+//                    elemData[elemType].progElemStr = tmpElemStr;
 //                } 
 //        } 
-//}   /* GetEfuseInstElemData */
-//
-//void BuildNullStrings()
-// /*****************************************************************************
-//  This procedure will build null strings for every FuseROM instance segment. 
-//  A null string is all zeros.
-//  *****************************************************************************/
-//{
-//    IntS site;
-//    IntS ctlr;
-//    IntS blk;
-//    IntS seg;
-//    IntS elem;
-//    IntS inst;
-//    DesignInstEnumType instType;
-//    IntS instBits;
-//    IntS bitIndex;
-//    IntS instStart;
-//    IntS instStop;
-//
-//
-//    elem = 0;
-//
-//    for instType = EnumGetFirst(DesignInstEnumType) to 
-//        EnumGetLast(DesignInstEnumType) do
-//    {
-//        for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//            for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//                for (seg = 1;seg <= instData[instType].maxSeg[ctlr][blk];seg++)
-//                {
-//                    instData[instType].nullChainStr[ctlr][blk][seg] = "";
-//
-//                    instStart = instData[instType].instStart[ctlr][blk][seg];
-//                    instStop = instData[instType].instStop[ctlr][blk][seg];
-//
-//                    for (inst = instStop;inst >= instStart;--inst)
-//                    {
-//                        instBits = fuseFarmCtlr[ctlr].fuseConfig[blk][inst][elem].bits;
-//
-//                        for (bitIndex = 1;bitIndex <= instBits;bitIndex++)
-//                            instData[instType].nullChainStr[ctlr][blk][seg] =
-//                            instData[instType].nullChainStr[ctlr][blk][seg] +  "0"; 
-//                    } 
-//                }  
-//    } 
-//}   /* BuildNullStrings */
-//
+}   /* GetEfuseInstElemData */
+
+void BuildNullStrings()
+ /*****************************************************************************
+  This procedure will build null strings for every FuseROM instance segment. 
+  A null string is all zeros.
+  *****************************************************************************/
+{
+    IntS ctlr;
+    IntS blk;
+    IntS seg;
+    IntS elem;
+    IntS inst;
+    int instType;
+    IntS instBits;
+    IntS bitIndex;
+    IntS instStart;
+    IntS instStop;
+
+
+    elem = 0;
+
+    for (instType = 1; instType < LastDesignInstEnum; ++instType) 
+    {
+        for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
+            for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
+                for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];seg++)
+                {
+                    instData[instType].nullChainStr[ctlr][blk][seg] = "";
+
+                    instStart = instData[instType].instStart[ctlr][blk][seg];
+                    instStop = instData[instType].instStop[ctlr][blk][seg];
+
+                    for (inst = instStop;inst >= instStart;--inst)
+                    {
+                        instBits = fuseFarmCtlr[ctlr].fuseConfig[blk][inst][elem].bits;
+
+                        for (bitIndex = 0;bitIndex < instBits;bitIndex++)
+                            instData[instType].nullChainStr[ctlr][blk][seg] += "0";
+                    } 
+                }  
+    } 
+}   /* BuildNullStrings */
+
 //void STDEfuseTestSetup(  STDEfuseModeType fuseMode, STDEfuseModeType  prevFuseMode)
 // /*****************************************************************************
 //  This procedure defines the hardware setups for each Efuse mode used
@@ -511,172 +506,197 @@ C027EfuseDataRec fuseFarmCtlr[TOTAL_EFUSE_CTLR];
 //
 //
 //}   /* STDEfuseTestSetup */
-//
-//void LoadEfuseCtlrData()
-// /*****************************************************************************
-//  This procedure loads the FuseFarm controller data before test start.
-//  *****************************************************************************/
-//{
-//    IntS ctlr;
-//    IntS blk;
-//    IntS inst;
+
+// forward reference
+void PrintEfuseInstData(DesignInstEnumType instType);
+
+void LoadEfuseCtlrData()
+ /*****************************************************************************
+  This procedure loads the FuseFarm controller data before test start.
+  *****************************************************************************/
+{
+    IntS ctlr;
+    IntS blk;
+    IntS inst;
 //    IntS seg;
 //    DesignInstEnumType instType;
-//
-//
-//    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//            for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
-//                fuseFarmCtlr[ctlr].blkData[blk].maxElements[inst] = 0;
-//
-//     /********************************/
-//     /* Global STDEfuse Code Options */
-//     /********************************/
-//     /* BEK 24May2011 Modified from F021 to F021_DIEID for Efuse to work correctly */
-//     /* Commented out as per KC. Jamal Sheikh modified Fri, Dec 16 2011*/
-//    progData.codeOption = "F021_DIEID";
+
+    IntM test_type("TITestType");
+    
+   // :IMPORTANT: :TODO:
+   // Change these back before doing more than room temp MP1 in Production
+   // These are hard-coded for ease of debug only!
+   IntS SelectedTITestType = IntS(MP1); //test_type[ActiveSites.Begin().GetValue()];
+
+
+    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
+            for (inst = 1;inst <= fuseFarmCtlr[ctlr].blkData[blk].instances;inst++)
+                fuseFarmCtlr[ctlr].blkData[blk].maxElements[inst] = 0;
+
+     /********************************/
+     /* Global STDEfuse Code Options */
+     /********************************/
+     /* BEK 24May2011 Modified from F021 to F021_DIEID for Efuse to work correctly */
+     /* Commented out as per KC. Jamal Sheikh modified Fri, Dec 16 2011*/
+    progData.codeOption = "F021_DIEID";
 //    readData.codeOption = "F021_DIEID";
-//    
-//
-//     /* Controller instance: F771727/dut_core_inst/fusefarm_inst/I_sc_efuse_ctlr */
-//    fuseFarmCtlr[1].runAutoload = FF_RunAutoload;
-//    fuseFarmCtlr[1].checkMg0    = FF_CheckROM_Mg0;  /*JRR*/
-//    fuseFarmCtlr[1].checkNorm   = FF_CheckROM_norm;  /*JRR*/
-//    fuseFarmCtlr[1].initCheck   = FF_InitCheck;
-//    fuseFarmCtlr[1].loadData    = FF_LoadFuseData_1110;
-//    fuseFarmCtlr[1].progMg1A    = FF_Program_Mg1A;
-//    fuseFarmCtlr[1].progMg1B    = FF_Program_Mg1B;
-//    fuseFarmCtlr[1].readMg0     = FF_Read_Mg0;
-//    fuseFarmCtlr[1].readMg1A    = FF_Read_Mg1A;
-//    fuseFarmCtlr[1].readMg1B    = FF_Read_Mg1B;
-//    fuseFarmCtlr[1].readNorm    = FF_Read_Norm;
-//
-//   /* Pasa modified per Kim Chau recommend for MP3 to use normal read...12/15/11*/
-//  if(TITestType==MP3)  
-//  fuseFarmCtlr[1].fusePatterns[1] = fuseFarmCtlr[1].readNorm;
-//  else
-//    fuseFarmCtlr[1].fusePatterns[1] = fuseFarmCtlr[1].readMg1A;
-//  if(TITestType==MP3)  
-//    fuseFarmCtlr[1].fusePatterns[2] = fuseFarmCtlr[1].progMg1B;
-//  else    
-//    fuseFarmCtlr[1].fusePatterns[2] = fuseFarmCtlr[1].progMg1B;
-//    
-//
-//    fuseFarmCtlr[1].runAutoloadTest  = EfuseRunAutoload_1_st;
-//    fuseFarmCtlr[1].initCheckTest    = EfuseInitCheck_1_st;
-//    fuseFarmCtlr[1].checkMg0Test = EFUSECHECKMG0_1_ST;  /* pasa added*/
-//    
-//    fuseFarmCtlr[1].STPData.maxFROMRepairs[0] = 5;
-//    fuseFarmCtlr[1].STPData.fuseROMSize[0] = 14;
-//
-//    fuseFarmCtlr[1].STPData.JTAGTDI = PA2_48;
-//    fuseFarmCtlr[1].STPData.JTAGTDO = o_cpu_fail_47;
-//    fuseFarmCtlr[1].FROMCLK = OSC0_124;
-//
-//    fuseFarmCtlr[1].blocks = 1;
-//
-//    fuseFarmCtlr[1].blkData[0].instances = MAX_INSTANCES;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].rowStart = 5;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].rowStop  = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].colStart = 0;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].colStop  = 31;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].instType = TIDieID;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].bits     = 128;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].instBits = 128;
-//    fuseFarmCtlr[1].fuseConfig[0][1][0].MSBbits  = true;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].rowStart = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].rowStop  = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].colStart = 0;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].colStop  = 0;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].instType = flash_test_n;  /*BEK 19May2011 Changed to make blowing fuses easier Custom;*/
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].bits     = 1;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].instBits = 1;
-//    fuseFarmCtlr[1].fuseConfig[0][2][0].MSBbits  = true;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].rowStart = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].rowStop  = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].colStart = 1;
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].colStop  = 5;  /*BEK 19May2011 Changed to make blowing fuses easier 1;*/
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].instType = Custom;
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].bits     = 5; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].instBits = 5; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
-//    fuseFarmCtlr[1].fuseConfig[0][3][0].MSBbits  = true;
-//
-//     /*BEK 19May2011 Removed individual fuse definitions to make blowing fuses easier */
-//
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].rowStart = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].rowStop  = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].colStart = 6;
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].colStop  = 11;  /*BEK 19May2011 Changed to make blowing fuses easier 6;*/
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].instType = bg_temp_trim;  /*BEK 19May2011 Changed to make blowing fuses easier Custom;*/
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].bits     = 6; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].instBits = 6; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
-//    fuseFarmCtlr[1].fuseConfig[0][8][0].MSBbits  = true;
-//
-//     /*BEK 19May2011 Removed individual fuse definitions to make blowing fuses easier */
-//
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].rowStart = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].rowStop  = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].colStart = 12;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].colStop  = 19;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].instType = PBist;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].bits     = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].instBits = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].MSBbits  = true;
-//    fuseFarmCtlr[1].fuseConfig[0][14][0].memInst  = 8;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].rowStart = 9;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].rowStop  = 10;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].colStart = 20;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].colStop  = 19;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].instType = NonMBist;  /*JRR*/
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].bits     = 32;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].instBits = 32;
-//    fuseFarmCtlr[1].fuseConfig[0][15][0].MSBbits  = true;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].rowStart = 10;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].rowStop  = 11;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].colStart = 20;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].colStop  = 19;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].instType = NonMBist;  /*JRR*/
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].bits     = 32;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].instBits = 32;
-//    fuseFarmCtlr[1].fuseConfig[0][16][0].MSBbits  = true;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].rowStart = 11;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].rowStop  = 12;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].colStart = 20;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].colStop  = 17;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].instType = NonMBist;  /*JRR*/
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].bits     = 30;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].instBits = 30;
-//    fuseFarmCtlr[1].fuseConfig[0][17][0].MSBbits  = true;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].rowStart = 12;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].rowStop  = 12;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].colStart = 18;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].colStop  = 25;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].instType = PBist;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].bits     = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].instBits = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].MSBbits  = true;
-//    fuseFarmCtlr[1].fuseConfig[0][18][0].memInst  = 10;
-//
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].rowStart = 12;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].rowStop  = 13;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].colStart = 26;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].colStop  = 1;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].instType = PBist;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].bits     = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].instBits = 8;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].MSBbits  = true;
-//    fuseFarmCtlr[1].fuseConfig[0][19][0].memInst  = 9;
-//
-//    GetEfuseInstElemData;
-//    BuildNullStrings;
-//}   /* LoadEfuseCtlrData */
+    
+
+     /* Controller instance: F771727/dut_core_inst/fusefarm_inst/I_sc_efuse_ctlr */
+    fuseFarmCtlr[0].runAutoload = "FF_RunAutoload_Thrd";
+    fuseFarmCtlr[0].checkMg0    = "FF_CheckROM_Mg0_Thrd";  /*JRR*/
+    fuseFarmCtlr[0].checkNorm   = "FF_CheckROM_norm_Thrd";  /*JRR*/
+    fuseFarmCtlr[0].initCheck   = "FF_InitCheck_Thrd";
+    fuseFarmCtlr[0].loadData    = "FF_LoadFuseData_1110_Thrd";
+    fuseFarmCtlr[0].progMg1A    = "FF_Program_Mg1A_Thrd";
+    fuseFarmCtlr[0].progMg1B    = "FF_Program_Mg1B_Thrd";
+    fuseFarmCtlr[0].readMg0     = "FF_Read_Mg0_Thrd";
+    fuseFarmCtlr[0].readMg1A    = "FF_Read_Mg1A_Thrd";
+    fuseFarmCtlr[0].readMg1B    = "FF_Read_Mg1B_Thrd";
+    fuseFarmCtlr[0].readNorm    = "FF_Read_Norm_Thrd";
+
+   /* Pasa modified per Kim Chau recommend for MP3 to use normal read...12/15/11*/
+  if(SelectedTITestType==MP3)  
+  fuseFarmCtlr[0].fusePatterns[1] = fuseFarmCtlr[0].readNorm;
+  else
+    fuseFarmCtlr[0].fusePatterns[1] = fuseFarmCtlr[0].readMg1A;
+  if(SelectedTITestType==MP3)  
+    fuseFarmCtlr[0].fusePatterns[2] = fuseFarmCtlr[0].progMg1B;
+  else    
+    fuseFarmCtlr[0].fusePatterns[2] = fuseFarmCtlr[0].progMg1B;
+    
+
+//    fuseFarmCtlr[0].runAutoloadTest  = EfuseRunAutoload_1_st;
+//    fuseFarmCtlr[0].initCheckTest    = EfuseInitCheck_1_st;
+//    fuseFarmCtlr[0].checkMg0Test = EFUSECHECKMG0_1_ST;  /* pasa added*/
+    
+    fuseFarmCtlr[0].STPData.maxFROMRepairs[0] = 5;
+    fuseFarmCtlr[0].STPData.fuseROMSize[0] = 14;
+
+    fuseFarmCtlr[0].STPData.JTAGTDI = "PA2_48";
+    fuseFarmCtlr[0].STPData.JTAGTDO = "o_cpu_fail_47";
+//    fuseFarmCtlr[0].FROMCLK = OSC0_124;
+
+    fuseFarmCtlr[0].blocks = 1;
+
+    fuseFarmCtlr[0].blkData[0].instances = MAX_INSTANCES;
+
+    fuseFarmCtlr[0].fuseConfig[0][1][0].rowStart = 5;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].rowStop  = 8;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].colStart = 0;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].colStop  = 31;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].instType = TIDieID;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].bits     = 128;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].instBits = 128;
+    fuseFarmCtlr[0].fuseConfig[0][1][0].MSBbits  = true;
+
+    fuseFarmCtlr[0].fuseConfig[0][2][0].rowStart = 9;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].rowStop  = 9;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].colStart = 0;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].colStop  = 0;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].instType = Flash_Test_N;  /*BEK 19May2011 Changed to make blowing fuses easier Custom;*/
+    fuseFarmCtlr[0].fuseConfig[0][2][0].bits     = 1;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].instBits = 1;
+    fuseFarmCtlr[0].fuseConfig[0][2][0].MSBbits  = true;
+
+    fuseFarmCtlr[0].fuseConfig[0][3][0].rowStart = 9;
+    fuseFarmCtlr[0].fuseConfig[0][3][0].rowStop  = 9;
+    fuseFarmCtlr[0].fuseConfig[0][3][0].colStart = 1;
+    fuseFarmCtlr[0].fuseConfig[0][3][0].colStop  = 5;  /*BEK 19May2011 Changed to make blowing fuses easier 1;*/
+    fuseFarmCtlr[0].fuseConfig[0][3][0].instType = Custom;
+    fuseFarmCtlr[0].fuseConfig[0][3][0].bits     = 5; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
+    fuseFarmCtlr[0].fuseConfig[0][3][0].instBits = 5; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
+    fuseFarmCtlr[0].fuseConfig[0][3][0].MSBbits  = true;
+
+     /*BEK 19May2011 Removed individual fuse definitions to make blowing fuses easier */
+
+    fuseFarmCtlr[0].fuseConfig[0][8][0].rowStart = 9;
+    fuseFarmCtlr[0].fuseConfig[0][8][0].rowStop  = 9;
+    fuseFarmCtlr[0].fuseConfig[0][8][0].colStart = 6;
+    fuseFarmCtlr[0].fuseConfig[0][8][0].colStop  = 11;  /*BEK 19May2011 Changed to make blowing fuses easier 6;*/
+    fuseFarmCtlr[0].fuseConfig[0][8][0].instType = BG_TEMP_TRIM;  /*BEK 19May2011 Changed to make blowing fuses easier Custom;*/
+    fuseFarmCtlr[0].fuseConfig[0][8][0].bits     = 6; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
+    fuseFarmCtlr[0].fuseConfig[0][8][0].instBits = 6; /*1} {BEK 30Jun2011 Changed to reflect correct number of bits*/
+    fuseFarmCtlr[0].fuseConfig[0][8][0].MSBbits  = true;
+
+     /*BEK 19May2011 Removed individual fuse definitions to make blowing fuses easier */
+
+    fuseFarmCtlr[0].fuseConfig[0][14][0].rowStart = 9;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].rowStop  = 9;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].colStart = 12;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].colStop  = 19;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].instType = PBist;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].bits     = 8;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].instBits = 8;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].MSBbits  = true;
+    fuseFarmCtlr[0].fuseConfig[0][14][0].memInst  = 8;
+
+    fuseFarmCtlr[0].fuseConfig[0][15][0].rowStart = 9;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].rowStop  = 10;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].colStart = 20;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].colStop  = 19;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].instType = NonMBist;  /*JRR*/
+    fuseFarmCtlr[0].fuseConfig[0][15][0].bits     = 32;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].instBits = 32;
+    fuseFarmCtlr[0].fuseConfig[0][15][0].MSBbits  = true;
+
+    fuseFarmCtlr[0].fuseConfig[0][16][0].rowStart = 10;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].rowStop  = 11;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].colStart = 20;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].colStop  = 19;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].instType = NonMBist;  /*JRR*/
+    fuseFarmCtlr[0].fuseConfig[0][16][0].bits     = 32;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].instBits = 32;
+    fuseFarmCtlr[0].fuseConfig[0][16][0].MSBbits  = true;
+
+    fuseFarmCtlr[0].fuseConfig[0][17][0].rowStart = 11;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].rowStop  = 12;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].colStart = 20;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].colStop  = 17;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].instType = NonMBist;  /*JRR*/
+    fuseFarmCtlr[0].fuseConfig[0][17][0].bits     = 30;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].instBits = 30;
+    fuseFarmCtlr[0].fuseConfig[0][17][0].MSBbits  = true;
+
+    fuseFarmCtlr[0].fuseConfig[0][18][0].rowStart = 12;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].rowStop  = 12;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].colStart = 18;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].colStop  = 25;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].instType = PBist;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].bits     = 8;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].instBits = 8;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].MSBbits  = true;
+    fuseFarmCtlr[0].fuseConfig[0][18][0].memInst  = 10;
+
+    fuseFarmCtlr[0].fuseConfig[0][19][0].rowStart = 12;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].rowStop  = 13;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].colStart = 26;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].colStop  = 1;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].instType = PBist;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].bits     = 8;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].instBits = 8;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].MSBbits  = true;
+    fuseFarmCtlr[0].fuseConfig[0][19][0].memInst  = 9;
+
+    GetEfuseInstElemData();
+    BuildNullStrings();
+    
+//    PrintEfuseInstData(FlashChain);
+//    PrintEfuseInstData(NonMBist);
+//    PrintEfuseInstData(MemBist);
+//    PrintEfuseInstData(MBist);
+//    PrintEfuseInstData(PBist);
+//    PrintEfuseInstData(Custom);
+//    PrintEfuseInstData(Flash_Test_N);
+//    PrintEfuseInstData(TIDieID);
+//    PrintEfuseInstData(BG_TEMP_TRIM);
+//    PrintEfuseInstData(TS_OS_TRIM);
+//    PrintEfuseInstData(IREF_TRIM);
+//    PrintEfuseInstData(NWELL_RTRIM);
+//    PrintEfuseInstData(Piosc_Trim);
+    
+}   /* LoadEfuseCtlrData */
 
 void PrintEfuseInstData(DesignInstEnumType instType)
  /*****************************************************************************
@@ -732,7 +752,7 @@ void PrintEfuseInstData(DesignInstEnumType instType)
 //    cout << TIWindow <<  "+----+---+----+----+----+----+---+---+" << endl;
 //
 //    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //            for (elemType = firstElemType;elemType <= lastElemType;elemType++)
 //                if elemData[elemType].validData[ctlr][blk]  
 //                {
@@ -1107,7 +1127,7 @@ IntM ReadFuseROM(const StringS &codeOption,
         PrintEfuseInstData(instType);
 
     for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
-        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;++blk)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;++blk)
             for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];++seg)
             {
                switch(margType) {
@@ -1164,129 +1184,117 @@ IntM ReadFuseROM(const StringS &codeOption,
    return (error_code);
 }   /* ReadFuseROM */
 
-//void ProgramFuseROM(DesignInstEnumType instType, 
-//                             StringM progChainStr,
-//                             StringM returnChainStr,
-//                             BoolM progResults)
-// /*****************************************************************************
-//  This procedure will program a FuseROM instance. If the instance is 
-//  segmented, the return string will recombine the read data. Program data 
-//  with MSB and/or LSB row padding will automatically pre-read the first 
-//  and/or last row.
-// 
-//  Global Input Variables : 
-//  progData.rowPreRead   - Enable row pre-read, the read data is combined
-//  with the program data string
-// 
-//  progData.redundancy   - Enable redunancy
-//  progData.writeProtect - Enable write protect
-//  progData.readProtect  - Enable read protect
-//  progData.sendTWData   - Enable send FuseROM row data to TestWare, 
-//  w = ctlr, x = blk, y = row and z = string length
-//  TWMinimumData :
-//  None
-//  TWNomimalData :
-//  NFUSEwBxRy   = number of fuses to program by row
-//  GFUSEwBxRy   = number of fuses programmed by row
-//  AFUSEwBxRy   = number of total iterations by row
-//  TWExtendedData : (+ Nominal)
-//  STRFUSEwBxRy = expected/read string data by row
-//  TWExhaustiveData : (+ Extended)
-//  RFUSEwBxRy   = number of error code by row
-//  *****************************************************************************/
-//{
-//    IntS site;
-//    IntS ctlr;
-//    IntS blk;
-//    IntS seg;
-//    StringM segmentChainStr;
-//    IntM bitStart;
-//    FloatS localTT;
-//    IntS status;  /* Pasa added for A2...10/15/11*/
-//
-//    TTHeader("ProgramFuseROM", localTT, 2, true);
-//
-//    progResults =  V_Dev_Active;
-//    bitStart =  instData[instType].totalBits;
-//
-//    if TIStdScreenPrint  
-//        PrintEfuseInstData(instType);
-//
-//    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
-//            for (seg = 1;seg <= instData[instType].maxSeg[ctlr][blk];seg++)
-//            {
-//                if instData[instType].segmentChain[ctlr]  
-//                {
-//                    BuildSegmentString(instType, ctlr, blk, seg,
-//                                       bitStart,
-//                                       progChainStr,
-//                                       segmentChainStr);
-//                    progData.progChainStr = segmentChainStr;
-//                }
-//                else
-//                    progData.progChainStr = progChainStr;
-//
-//                ArraySetInteger(progData.rowStart,
-//                                instData[instType].rowStart[ctlr][blk][seg]);
-//
-//                ArraySetInteger(progData.MSBPadding,
-//                                instData[instType].padMSB[ctlr][blk][seg]);
-//
-//                if not TIIgnoreFail  
-//                {
-//                    if TIStdSumScrPrint  
-//                        SaveNTurnOffScreenPrint;          
-//
-//                    Discard(STDProgramFuseROM(readData.codeOption,
-//                            progData.results,
-//                            fuseFarmCtlr[ctlr].STPData,
-//                            ctlr, blk,
-//                            progData.rowStart,
-//                            progData.progChainStr,
-//                            fuseFarmCtlr[ctlr].fusePatterns,
-//                            progData.writeProtect, 
-//                            progData.readProtect,
-//                            progData.redundancy,
-//                            progData.sendTWData,     
-//                            fuseFarmCtlr[ctlr].blkData[blk].numRepairs,
-//                            progData.returnStr,
-//                            fuseFarmCtlr[ctlr].blkData[blk].fuseROMData,
-//                            progData.errorCode,
-//                            progData.MSBPadding,
-//                            progData.rowPreRead,
-//                            fuseFarmCtlr[ctlr].FROMCLK,
-//                            fuseFarmCtlr[ctlr].blkData[blk].numBitRepairs));
-//
-//                    RestoreScreenPrint;
-//                }
-//                else
-//                    if TIStdScreenPrint  
-//                        cout << TIWindow <<  "Bypass ProgramFuseROM as TIIgnoreFail is true" << endl;
-//
-//                if instData[instType].segmentChain[ctlr]  
-//                {
-//                    for (site = 1;site <= V_Sites;site++)
-//                        if V_Dev_Active[site]  
-//                            returnChainStr[site] = concat(progData.returnStr[site],
-//                                                           returnChainStr[site]);
-//                }
-//                else
-//                    returnChainStr = progData.returnStr;
-//
-//                if TISimulation  
-//                     progData.results =  true ;
-//
-//                ArrayANDBoolean(progResults, 
-//                                progResults, progData.results, V_Sites);
-//            } 
-//
-//    if TIStdScreenPrint or TIStdSumScrPrint  
-//        STDPrintBool("ProgramFuseROM", progResults);
-//
-//    TTFooter(localTT, 2, true);
-//}   /* ProgramFuseROM */
-//
+
+TMResultM ProgramFuseROM(const StringS &readCodeOption,
+                         const DesignInstEnumType &instType, 
+                         const StringM &progChainStr,
+                               StringM &returnChainStr)
+ /*****************************************************************************
+  This procedure will program a FuseROM instance. If the instance is 
+  segmented, the return string will recombine the read data. Program data 
+  with MSB and/or LSB row padding will automatically pre-read the first 
+  and/or last row.
+ 
+  Global Input Variables : 
+  progData.rowPreRead   - Enable row pre-read, the read data is combined
+  with the program data string
+ 
+  progData.redundancy   - Enable redunancy
+  progData.writeProtect - Enable write protect
+  progData.readProtect  - Enable read protect
+  progData.sendTWData   - Enable send FuseROM row data to TestWare, 
+  w = ctlr, x = blk, y = row and z = string length
+  TWMinimumData :
+  None
+  TWNomimalData :
+  NFUSEwBxRy   = number of fuses to program by row
+  GFUSEwBxRy   = number of fuses programmed by row
+  AFUSEwBxRy   = number of total iterations by row
+  TWExtendedData : (+ Nominal)
+  STRFUSEwBxRy = expected/read string data by row
+  TWExhaustiveData : (+ Extended)
+  RFUSEwBxRy   = number of error code by row
+  *****************************************************************************/
+{
+    TMResultM progResults, tmp_results;
+    IntS ctlr;
+    IntS blk;
+    IntS seg;
+    StringM segmentChainStr;
+    IntS bitStart;
+
+    progResults =  TM_NOTEST;
+    bitStart =  instData[instType].totalBits;
+
+    if (tistdscreenprint)  
+        PrintEfuseInstData(instType);
+
+    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;++ctlr)
+        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;++blk)
+            for (seg = 0;seg < instData[instType].maxSeg[ctlr][blk];++seg)
+            {
+                if (instData[instType].segmentChain[ctlr])
+                {
+                    BuildSegmentString(instType, ctlr, blk, seg,
+                                       bitStart,
+                                       progChainStr,
+                                       segmentChainStr);
+                    progData.progChainStr = segmentChainStr;
+                }
+                else
+                {
+                    progData.progChainStr = progChainStr;
+                }
+                
+                progData.rowStart = instData[instType].rowStart[ctlr][blk][seg];
+                progData.MSBPadding = instData[instType].padMSB[ctlr][blk][seg];
+
+                if (!RunAllTests)
+                {      
+                       tmp_results = STDProgramFuseROM(readCodeOption,
+                            fuseFarmCtlr[ctlr].STPData,
+                            ctlr, blk,
+                            progData.rowStart,
+                            progData.progChainStr,
+                            fuseFarmCtlr[ctlr].fusePatterns,
+                            progData.writeProtect, 
+                            progData.readProtect,
+                            progData.redundancy,
+                            progData.sendTWData,     
+                            fuseFarmCtlr[ctlr].blkData[blk].numRepairs,
+                            progData.returnStr,
+                            fuseFarmCtlr[ctlr].blkData[blk].fuseROMData,
+                            progData.errorCode,
+                            progData.MSBPadding,
+                            progData.rowPreRead,
+                            fuseFarmCtlr[ctlr].blkData[blk].numBitRepairs);
+                }
+                else
+                    if (tistdscreenprint) 
+                        cout <<  "Bypass ProgramFuseROM as RunAllTests is true" << endl;
+
+                if (instData[instType].segmentChain[ctlr])
+                   returnChainStr = progData.returnStr + returnChainStr;
+                else
+                   returnChainStr = progData.returnStr;
+
+                if (SYS.TesterSimulated()) 
+                     tmp_results =  TM_PASS ;
+                      
+                progResults = DLOG.AccumulateResults(progResults, tmp_results);
+            } 
+   if (tistdscreenprint)
+   {
+      IntM int_results;
+      // convert TMResultM to IntM 
+      int_results = IntM(progResults);
+      TIDlog.Value(int_results, UTL_VOID, TM_PASS, TM_PASS, "", "ProgramFuseROM", UTL_VOID, UTL_VOID, 
+                  false, TWMinimumData);
+   }
+   
+   return (progResults);
+}   /* ProgramFuseROM */
+
 //void ProgramFuseROMElement(  FuseElemEnumType LSBElemType, FuseElemEnumType 
 //                                    MSBElemType,
 //                                    StringM returnChainStr,
@@ -1365,8 +1373,8 @@ IntM ReadFuseROM(const StringS &codeOption,
 //    if TIStdScreenPrint  
 //        PrintEfuseElemData(LSBElemType, MSBElemType);
 //
-//    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//    for (ctlr = 0;ctlr < TOTAL_EFUSE_CTLR;ctlr++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //        {
 //            if elemData[LSBElemType].validData[ctlr][blk] or 
 //                elemData[MSBElemType].validData[ctlr][blk]  
@@ -1472,7 +1480,7 @@ IntM ReadFuseROM(const StringS &codeOption,
 //        PrintEfuseInstData(instType);
 //
 //    for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//        for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//        for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //            for (seg = 1;seg <= instData[instType].maxSeg[ctlr][blk];seg++)
 //            {
 //                BuildRepairString(instType, ctlr, blk, seg, 
@@ -1710,7 +1718,7 @@ IntM ReadFuseROM(const StringS &codeOption,
 //            } 
 //
 //            for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//                for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//                for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //                {
 //                    ArraySetInteger(readData.rowStop,
 //                                    fuseFarmCtlr[ctlr].STPData.fuseROMSize[blk] - 1);
@@ -1770,7 +1778,7 @@ IntM ReadFuseROM(const StringS &codeOption,
 //        for (site = 1;site <= V_Sites;site++)
 //            if V_Dev_Active[site]  
 //                for (ctlr = 1;ctlr <= TOTAL_EFUSE_CTLR;ctlr++)
-//                    for (blk = 0;blk <= fuseFarmCtlr[ctlr].blocks;blk++)
+//                    for (blk = 0;blk < fuseFarmCtlr[ctlr].blocks;blk++)
 //                        for (margin = 1;margin <= MAX_MARGINMODES;margin++)
 //                            for (voltage = 1;voltage <= MAX_VOLTAGES;voltage++)
 //                                for row = 0 to

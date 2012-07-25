@@ -101,12 +101,12 @@ void IntMToBcdBinVlsiStrM(const IntM &srcData, StringM &bcdStr,
 //                              StringM binStr,
 //                              BoolS hexvalue);
 
-void WriteRamContentDec_32Bit(IntS addr_loc,
-                                   IntM src_data1,
-                                   BoolS data1_hexvalue,
-                                   IntM src_data2,
-                                   BoolS data2_hexvalue,
-                                   BoolS bcd_format);
+void WriteRamContentDec_32Bit(const IntS &addr_loc,
+                              const IntM &src_data1,
+                              const BoolS &data1_hexvalue,
+                              const IntM &src_data2,
+                              const BoolS &data2_hexvalue,
+                              const BoolS &bcd_format);
 
 void GetRamContent_SCRAM(IntS start_addr,
                               IntS store_option);
@@ -418,7 +418,7 @@ void F021_CollectESDA(IntS imagenum);
 //                          BoolS logena,
 //                          StringS logstr);
 //
-//void TL_Boost_RefArray();
+void TL_Boost_RefArray();
 //
 //BoolS F021_RestoreOTPInfo_func(    StringS tname,
 //                                      BoolM test_results,
@@ -473,9 +473,8 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 
 TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPModeType TCRMode);
 
-//BoolS F021_RefArr_Erase_func(    StringS tname,
-//                                    BoolS adaptiveEna,
-//                                    BoolM test_results);
+TMResultM F021_RefArr_Erase_func(const StringS &tname,
+                                 const BoolS &adaptiveEna);
 
 TMResultM F021_InitFLGlobalvars_func();
 
@@ -622,22 +621,24 @@ TMResultM F021_MainIREF_SoftTrim_func(BoolS charTrimEna);
 TMResultM F021_VSA5CT_SoftTrim_func(IntM &ret_ctval);
 TMResultM F021_VHV_SLOPECT_SoftTrim_func(IntM &ret_ctval);
 
-//void ProgramFlashTrim(      StringS tname1, StringS  tname2,
-//                                StringS tname3,
-//                                StringM progChainStr,
-//                                StringM initChainStr);
-//
-//void RAM_Upload_PMOS_SoftTrim_Bank(IntS bank,
-//                                        BoolS bnkeven_ena,
-//                                        BoolS bnkodd_ena,
-//                                        IntM msw_val,
-//                                        IntM lsw_val);
-//void RAM_Clear_PMOS_SoftTrim_Bank(IntS bank);
-//void RAM_Clear_PMOS_SoftTrim();
-//void GetTrimCode_On_EFStr();
+TMResultM ProgramFlashTrim(      StringS tname1, StringS  tname2,
+                                StringS tname3,
+                                StringM progChainStr,
+                                StringM initChainStr);
+
+// bnk variables below left out because they did nothing in the function
+void RAM_Upload_PMOS_SoftTrim_Bank(const IntS &bank,
+//                                   BoolS bnkeven_ena,
+//                                   BoolS bnkodd_ena,
+                                   const IntM &msw_val,
+                                   const IntM &lsw_val);
+
+void RAM_Clear_PMOS_SoftTrim_Bank(const IntS &bank);
+void RAM_Clear_PMOS_SoftTrim();
+void GetTrimCode_On_EFStr();
 void RAM_Upload_PMOS_TrimCode();
 //BoolS F021_IPMOS_SoftTrim_func();
-//BoolS F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
+TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //void TL_Mod_OTP_PMOS_SoftTrim();
 //
 // /*added for fake repair*/
@@ -740,16 +741,17 @@ void RAM_Upload_PMOS_TrimCode();
 //                     BoolS twlogena,
 //                     StringS logstr);
 
-FloatM MeasPinTMU_func(PinM tpin,                       // Pin to measure on
-                       StringS tpattern,                // Test pattern - func assumes CPU loop where measure to be made
+FloatM MeasPinTMU_func(const PinM &tpin,                       // Pin to measure on
+                       const StringS &tpattern,                // Test pattern - func assumes CPU loop where measure to be made
                        TMU_MEASURE_TYPE meas_option,    // Measure type from standard TMU enums, only PULSE_WIDTH & Frequency supported
-                       FloatM maxExpFreq,               // Maximum expected frequency
-                       FloatM simResults);              // results to return in simulated mode
+                       const FloatM &maxExpFreq,               // Maximum expected frequency
+                       const FloatM &simResults,               // results to return in simulated mode
+                       const UnsignedM &pulseCount = 1000);    // Optional number of pulses for Frequency Counter mode
 #if !$FL_USE_DCC_TRIM_FOSC
 TMResultM F021_FOSC_SoftTrim_External_func();
 #endif
+void PatternDigitalCapture(StringS patternBurst, PinML capturePins, StringS capName, UnsignedS maxCapCount, 
+                           UnsignedM1D &captureArr, const UnsignedM1D &simValue, UnsignedS wordSize = UTL_VOID, 
+                           WordOrientationS wordOrientation = WORD_MSB_FIRST);
 
 #endif
-
-void PbistFailLogut_func();
-

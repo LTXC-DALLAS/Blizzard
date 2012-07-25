@@ -1,4 +1,4 @@
-Unison:U1.0d:S5.3;
+Unison:U3.0:S5.3;
 /******************************************************************************/
 /* Jazz Integrated Program : Bllizar                                          */
 /*                                                                            */
@@ -180,6 +180,7 @@ __ApplicationLibrary F021_Library {
    __Source = "./Libraries/F021_Library/f021_flashtests.cpp";
    __Source = "./Libraries/F021_Library/f021_config.cpp";
    __Source = "./Libraries/F021_Library/f021_cfginclude.cpp";
+   __Source = "./Libraries/F021_Library/f021_pbist.cpp";
    __IncludePath = "./Libraries/F021_Library";
    __IncludePath = "./Libraries/TestWare_Library";
    __IncludePath = "./Libraries/STD_Library";
@@ -188,6 +189,7 @@ __ApplicationLibrary F021_Library {
    __Include = "f021_flashtests.h";
    __Include = "f021_flashvar.h";
    __Include = "f021_func.h";
+   __Include = "f021_pbist.h";
    __DependsOnLibrary = TIDependsLib;
    __DependsOnLibrary = TestWare_Library;
    __DependsOnLibrary = STD_Library;
@@ -203,10 +205,17 @@ __ApplicationLibrary STD_Library {
    __Source = "./Libraries/STD_Library/stdEfuse.cpp";
    __Source = "./Libraries/STD_Library/string_utils.cpp";
    __Source = "./Libraries/STD_Library/MultisiteUtils.cpp";
+   __Source = "./Libraries/STD_Library/DspSendUtils.cpp";
+   __Source = "./Libraries/STD_Library/DebugVars.cpp";
    __IncludePath = "./Libraries/STD_Library";
+   __IncludePath = "../../../../../TI_apps/enVision/stdprogram";
+   __IncludePath = "./";
    __Include = "std_vi.h";
    __Include = "SearchMod.h";
    __Include = "stdEfuse.h";
    __Include = "string_utils.h";
    __Include = "MultisiteUtils.h";
+   __Include = "DspSendUtils.h";
+   __Include = "DebugVars.h";
+   __DependsOnLibrary = TIDependsLib;
 }

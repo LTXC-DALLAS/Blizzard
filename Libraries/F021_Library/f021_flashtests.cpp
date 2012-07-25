@@ -4178,10 +4178,8 @@ TMResultM FlashEfuse_MP1_func()
 // instead of here
 //   TIME.Wait(tdelay);
 
-   // :TODO: figure out what to do about instData...efuse.p/h and var.p/h stuff....
-   flnullstr = instData[NonMBist].nullChainStr[1][0][1];  /*[ctlr,blk,seg]*/
+   flnullstr = instData[NonMBist].nullChainStr[0][0][0];  /*[ctlr,blk,seg]*/
    
-   // :TODO: Where the heck is readData coming from?
    if(GL_EFUSE_RD_CODEOPTION != "")  
    {
       read_code_option = GL_EFUSE_RD_CODEOPTION;
@@ -4197,8 +4195,7 @@ TMResultM FlashEfuse_MP1_func()
          cout << endl;
       } 
    } 
-   //:TODO: implement ReadFuseROM
-   eferrcode = ReadFuseROM(read_code_option, NonMBist, MgN, flnullstr, margFlashChainStr, tmp_results);
+   eferrcode = ReadFuseROM(read_code_option, NonMBist, Mg1A, flnullstr, margFlashChainStr, tmp_results);
 
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
       if((eferrcode[*si] == 0x15) || (eferrcode[*si] == 0x5))    /*single/double bit error*/
@@ -4435,6 +4432,9 @@ TMResultM FlashEfuse_MP1_func()
          if((eferrcode[*si] == 0x15) or (eferrcode[*si] == 0x5))  
             marg_results[*si] = TM_FAIL;
 
+      // At this point, VLCT ignores previous value of final_results and 
+      // only cares about the following 3 to set pass/fail on active sites here
+      final_results = TM_NOTEST;
       final_results = DLOG.AccumulateResults(final_results, marg_results);
       final_results = DLOG.AccumulateResults(final_results, cmp_results);
       final_results = DLOG.AccumulateResults(final_results, ipmos_cmp_results);
@@ -4891,7 +4891,7 @@ TMResultM FlashEfuse_Trim_func()
       new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
       if(SetActiveSites(new_active_sites))  
       {
-         iref_chartrim_ena  = GL_DO_IREF_CHAR_TRIM;
+         iref_chartrim_ena  = true;//GL_DO_IREF_CHAR_TRIM;
          tmp_results = F021_MainIREF_SoftTrim_func(iref_chartrim_ena);
          final_results = DLOG.AccumulateResults(final_results, tmp_results);
 
@@ -4988,21 +4988,13 @@ TMResultM Pump_Iref_Vnom_func()
    Sites new_active_sites(ActiveSites);
    FloatM temp_floatm;
 
-   // PowerUpDn(PWRUP_VNOM);
-
    GL_FLTESTID = TESTID;
    tdelay = 2ms;
    TIME.Wait(tdelay);
 
-   /* dummy run for blizzard Pasa ...3/25/12 */
    F021_LoadFlashShell_func();
-   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
 
    RAM_Clear_SoftTrim_All();  /*KChau 09/10/10*/
-
-   /* dummy run for blizzard Pasa ...3/25/12 */
-   F021_LoadFlashShell_func();
-   F021_RunTestNumber(TNUM_ALWAYS_PASS, 1s, temp_floatm);
    
    tcrnum = 126;
    tcrmode = ReadMode;
@@ -5010,13 +5002,14 @@ TMResultM Pump_Iref_Vnom_func()
    final_results = F021_Pump_Para_func(TNUM_PUMP_MAINIREF,post,vcorner,tcrnum,tcrmode);
 
    // disable failing sites (disables sites w/ false).
-//   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
-//   if(SetActiveSites(new_active_sites))  
-//   {
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   if(SetActiveSites(new_active_sites))  
+   {
       tcrnum = 125;
       tmp_results = F021_Pump_Para_func(TNUM_PUMP_MAINICMP10U,post,vcorner,tcrnum,tcrmode);
       final_results = DLOG.AccumulateResults(final_results, tmp_results);
-//   }    
+   }    
    
    // re-enable any sites we've messed around with 
    // to report the results properly
@@ -6970,20 +6963,17 @@ TMResultM EGCG_Leak_Vmax_func()
 //   
 //   Charz_EraseRefArray_Main = v_any_dev_active;
 //}  /* Charz_EraseRefArray_Main */
-#if 0
+
  /*do erase refarray 1st then boost refarray on retest sites if any*/
 TMResultM EraseRefArray_func()
 {
    const IntS TESTID = 41; 
 
-   Sites savesites, virgin_sites;
+   Sites savesites, virgin_sites, boost_sites;
    BoolM virgin_device, boost_device;
    bool any_site_active;
-//   BoolM final_results,alldisable,activesites;
-//   BoolM savesites,virginsites,boostsites;
-//   StringS current_shell;
-//   BoolS adaptena,boostena;
-//   IntS site;
+   TMResultM final_results = TM_PASS;
+   BoolS adaptena,boostena;
 
 //  :TODO: come back and implement Char stuff...for now, unimportant
 //   if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR and (GL_CHARZ_ERSREFARR_COUNT>0))  
@@ -7019,10 +7009,7 @@ TMResultM EraseRefArray_func()
       if(any_site_active)  
       {
          adaptena = GL_DO_REFARR_ERS_ADAPTIVE;
-         final_results = TM_NOTEST;
-      // :HERE:
-         F021_RefArr_Erase_func(RefArr_Ers_Test,adaptena,final_results);
-         arrayandboolean(virginsites,virginsites,v_dev_active,v_sites);
+         final_results = F021_RefArr_Erase_func("RefArr_Ers_Test",adaptena);
             
          if(GL_DO_CHARZ_ERSREFARR)  
          {
@@ -7034,28 +7021,29 @@ TMResultM EraseRefArray_func()
 
       if(boostena)  
       {
-         devsetholdstates(boostsites);
-         if(GL_DO_IREF_PMOS_TRIM and GL_DO_BOOST_REFARR)  
+         boost_sites = savesites;
+         boost_sites.DisableFailingSites(boost_device);
+         any_site_active = SetActiveSites(boost_sites);
+         if(any_site_active && GL_DO_IREF_PMOS_TRIM && GL_DO_BOOST_REFARR)  
          {
-            GetTrimCode_On_EFStr;
-            RAM_Upload_PMOS_TrimCode;
-            TL_Boost_RefArray;
-            RAM_Clear_PMOS_SoftTrim;
+            GetTrimCode_On_EFStr();
+            RAM_Upload_PMOS_TrimCode();
+            TL_Boost_RefArray();
+            RAM_Clear_PMOS_SoftTrim();
          } 
-         ArrayOrBoolean(activesites,boostsites,virginsites,v_sites);
-         ArrayAndboolean(activesites,activesites,savesites,v_sites);
-         devsetholdstates(activesites);
       } 
 
 //   }   /*non-charz*/
+
+   RunTime.SetActiveSites(savesites);
 
     /*enable W8/W9 template override in RAM*/
    if(TI_FlashCharEna and GL_DO_CHARZ_ERSREFARR)  
       GL_DO_CHARZ_OVRTEMPL_W89 = true;
    
-   EraseRefArray_func = v_any_dev_active;
+   return (final_results);
 }   /* EraseRefArray_func */
-#endif
+
 //BoolS VHV_Stress_Prog_func()
 //{
 //   BoolM final_results;
@@ -7442,98 +7430,71 @@ TMResultM ReadDisturb_Stress_func()
 //
 //   FlowCheck_func = v_any_dev_active;
 //}   /* FlowCheck_func */
-//
-//BoolS FOSC_VCO_Vmin_func()
-//{
-//   BoolM final_results,savesites,tmp_results;
-//   StringS current_shell,str1,str2;
-//   IntS site,tnum,measopt;
-//   PinML tpin;
-//   StringS testStringS;
-//   FloatS ttimer1,llim,ulim,time_llim,time_ulim;
-//   FloatM meas_value,freq_value;
-//   IntM msw_tnum,lsw_tnum;
-//   BoolS bool1;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//
-//#if $FL_USE_DCC_TRIM_FOSC==false  
-//   if(v_any_dev_active)  
-//   {
-//       /*PwrupAtVmin_1;*/
-//       /*KChau - temp test at vnom until get proper limits*/
-//      PwrupAtVnom_1;
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//
-//      llim = FOSC_LLimit;
-//      ulim = FOSC_ULimit;
-//      time_ulim = (rcp(single(llim)))*1s;
-//      time_llim = (rcp(single(ulim)))*1s;
-//      tpin = FL_FOSC_EXTERNAL_PIN;
-//      testpattern = FL_FOSC_EXTERNAL_PATTERN;
-//      measopt = 0;  /*clkwidth*/
-//
-//      timernstart(ttimer1);
-//      TestOpen(FOSC_DCC_MN_Test);
-//
-//       /*dummy run*/
-//      MeasPinTMU_func(tpin,testpattern,measopt,time_llim,time_ulim,meas_value,tmp_results);
-//
-//      MeasPinTMU_func(tpin,testpattern,measopt,time_llim,time_ulim,meas_value,tmp_results);
-//      ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//      Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
-//      bool1 = true;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            if(bool1)  
-//            {
-//               tnum = (msw_tnum[site]<<16)+lsw_tnum[site];
-//               bool1 = false;
-//            } 
-//            freq_value[site] = (rcp(single(meas_value[site])))*1Hz;
-//         } 
-//
-//      if(GL_DO_FOSC_TRIM)  
-//         ResultsRecordActive(final_results, S_NULL);
-//      else
-//         ResultsRecordActive(savesites, S_NULL);
-//      TestClose;
-//
-//      ttimer1 = timernread(ttimer1);
-//      
-//      str1 = "FOSC_DCC_MN";
-//      TWTRealToRealMS(freq_value,realval,unitval);
-//      TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-//      
-//      if(tistdscreenprint)  
-//      {
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         PrintResultParam(str1,tnum,final_results,llim,ulim,freq_value,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      } 
-//
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and GL_DO_FOSC_TRIM)  
-//         DevSetHoldStates(final_results);      
-//   } 
-//#endif
-//
-//   FOSC_VCO_Vmin_func = v_any_dev_active;
-//} 
-//
+
+TMResultM FOSC_VCO_Vmin_func()
+{
+   TMResultM final_results;
+   StringS current_shell, testpattern;
+   IntS tnum;
+   PinM tpin;
+   FloatS ttimer1,llim,ulim;
+   FloatM meas_value, sim_val;
+   IntM msw_tnum,lsw_tnum;
+   UnsignedM pulse_count;
+   TMU_MEASURE_TYPE measopt;
+
+   final_results = TM_NOTEST;
+
+#if !$FL_USE_DCC_TRIM_FOSC
+
+    /*KChau - temp test at vnom until get proper limits*/
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   llim = FOSC_LLimit;
+   ulim = FOSC_ULimit;
+   sim_val = (ulim - llim) / 2. + llim;
+   tpin = FL_FOSC_EXTERNAL_PIN;
+   testpattern = FL_FOSC_EXTERNAL_PATTERN;
+   measopt = TMU_MEASURE_FREQUENCY_COUNTER;  /*clkwidth*/
+   pulse_count = 1000;
+
+   TIME.StartTimer();
+
+    /*dummy run*/
+   meas_value = MeasPinTMU_func(tpin, testpattern, measopt, ulim, sim_val, pulse_count);
+
+   meas_value = MeasPinTMU_func(tpin, testpattern, measopt, ulim, sim_val, pulse_count);
+   
+   final_results = TIDlog.Value(meas_value, tpin, llim, ulim, "MHz", 
+                   "FOSC_DCC_MN", UTL_VOID, UTL_VOID, false, TWMinimumData);
+
+   Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
+
+   ttimer1 = TIME.StopTimer();
+   
+   if(tistdscreenprint)  
+   {
+      tnum = (msw_tnum[ActiveSites.Begin().GetValue()] << 16) + lsw_tnum[ActiveSites.Begin().GetValue()];
+      cout << "F021 test number 0x" << hex << tnum << endl;
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   } 
+
+#endif
+
+   return (final_results);
+} /* FOSC_VCO_Vmin_func */
+
+// dummy test...not even bothering.
 //BoolS FOSC_VCO_Vmax_func()
 //{
 //   BoolM final_results;
 //
 //   FOSC_VCO_Vmax_func = v_any_dev_active;
 //} 
-//
+
 //BoolS FOSC_DCC_Vmin_func()
 //{
 //   BoolM final_results,savesites;
@@ -7660,149 +7621,138 @@ TMResultM ReadDisturb_Stress_func()
 //
 //   TP1TP2_Leak_Pre_func = v_any_dev_active;
 //}   /* TP1TP2_Leak_Pre_func */
-//
-//
-//BoolS IrefPMOS_Trim_func()
-//{
-//   const IntS TESTID = 43; 
-//   const IntS PUMP_EF_LEN = 30; 
-//   const IntS BANK_EF_LEN = 32; 
-//
-//   BoolM tmp_results,final_results;
-//   BoolM savesites,alldisable;
-//   BoolS bg_adapttrim_ena;
-//   BoolS bg_chartrim_ena;
-//   IntS site,count,totbanklen,length;
-//   FloatS ttimer1;
-//   FloatM tt_timer;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS tmpstr1,tmpstr4,current_shell,str1;
-//   StringS1D bank_str(8);
-//   StringS dummstr1,dummstr2;
-//   IntS pump_sind,pump_len,bank_sind,bank_len;
-//   StringM logstr;
-//
-//   if(v_any_dev_active and GL_DO_FLASHTRIM and GL_DO_IREF_PMOS_TRIM)  
-//   {
-//      GL_FLTESTID = TESTID;
-//      savesites = v_dev_active;
-//      alldisable = false;
-//       /*init site to flash trim to false. it gets update in *SoftTrim_func*/
-//       /*ArraySetBoolean(SITE_TO_FTRIM,false);} {KChau 01/12/11 - one pass efuse pgm*/
-//
-//       /*dis-able retest (already trimmed) site*/
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and GL_FLASH_RETEST[site] and SITE_IPMOS_TRIMMED[site])  
-//         {
-//            Devsetholdstate(site,false);
-//            if(tistdscreenprint)  
-//               cout << "Site : " << site:2 << "  Already PMOS Trimmed so Disable." << endl;
-//         } 
-//
-//      if(v_any_dev_active)  
-//      {
-//         pump_sind = 1;
-//         pump_len  = PUMP_EF_LEN;
-//         bank_sind = pump_len+1;
-//         bank_len  = BANK_EF_LEN;
-//         totbanklen = (F021_Flash.MAXBANK+1)*bank_len;
-//
-//         PowerUpAtVnom(DCsetup_LooseVnom, norm_fmsu);
-//         ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                  v[vih_loose_osc_vnom],v[vil_loose]);
-//         clockpinset(s_clk_1a,s_clock);
-//         TIME.Wait(2ms);
-//         F021_LoadFlashShell_func;
-//         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
-//              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 01/12/11*/
-//         RAM_Clear_PMOS_SoftTrim;
-//
-// /*psk022411: Enabling IPMOS trim based on NMOS Read current*/
-//
-//         /* discard(F021_IPMOS_SoftTrim_func); } {old method*/
-//         
-//          /*new method nmos based - 0=ipmos, 1=nmos rd, 2=nmos ev*/
-//         
-//         F021_IPMOS_NMOS_SoftTrim_func(GL_PMOS_TRIM_COUNT);
+
+
+TMResultM IrefPMOS_Trim_func()
+{
+   const IntS TESTID = 43; 
+   const IntS PUMP_EF_LEN = 30; 
+   const IntS BANK_EF_LEN = 32; 
+
+   TMResultM final_results = TM_PASS;
+   Sites savesites,untrimmed_sites;
+   IntS count,totbanklen,length;
+   StringS1D bank_str(8);
+   StringS dummstr1,dummstr2;
+   IntS pump_sind,pump_len,bank_sind,bank_len;
+
+   if(GL_DO_FLASHTRIM and GL_DO_IREF_PMOS_TRIM)  
+   {
+      GL_FLTESTID = TESTID;
+      savesites = ActiveSites;
+      untrimmed_sites = ActiveSites;
+       /*init site to flash trim to false. it gets update in *SoftTrim_func*/
+       /*ArraySetBoolean(SITE_TO_FTRIM,false);} {KChau 01/12/11 - one pass efuse pgm*/
+
+       /*dis-able retest (already trimmed) site*/
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if(GL_FLASH_RETEST[*si] and SITE_IPMOS_TRIMMED[*si])  
+         {
+            untrimmed_sites -= *si;
+            if(tistdscreenprint)  
+               cout << "Site : " << *si << "  Already PMOS Trimmed so Disable." << endl;
+         }
+      }
+
+      if(SetActiveSites(untrimmed_sites))  
+      {
+         pump_sind = 0;  // string index
+         pump_len  = PUMP_EF_LEN;
+         bank_sind = pump_len; // string index
+         bank_len  = BANK_EF_LEN;
+         totbanklen = (F021_Flash.MAXBANK+1)*bank_len;
+
+         F021_LoadFlashShell_func();
+         RAM_Upload_SoftTrim(0xAA55,MAINBG_TRIMSAVED,MAINIREF_TRIMSAVED,FOSC_TRIMSAVED,
+              VHV_SLPCT_TRIMSAVED,VSA5CT_TRIMSAVED);  /*KChau 01/12/11*/
+         RAM_Clear_PMOS_SoftTrim();
+
+ /*psk022411: Enabling IPMOS trim based on NMOS Read current*/
+
+         /* discard(F021_IPMOS_SoftTrim_func); } {old method*/
+         
+          /*new method nmos based - 0=ipmos, 1=nmos rd, 2=nmos ev*/
+         
+         F021_IPMOS_NMOS_SoftTrim_func(GL_PMOS_TRIM_COUNT);
 //         if(GL_PMOS_TRIM_COUNT==0)  
 //            str1 = "PMOS";
 //         else if(GL_PMOS_TRIM_COUNT==1)  
 //            str1 = "NMOS_RD";
 //         else
 //            str1 = "NMOS_EV";
-//         /* GL_PMOS_TRIM_COUNT := GL_PMOS_TRIM_COUNT+1;
-//          if(GL_PMOS_TRIM_COUNT>2) then
-//             GL_PMOS_TRIM_COUNT := 0;*/
-//          
-//
-//          /*determine any site need to be trimmed*/
-//         if not(ArrayCompareBoolean(SITE_TO_FTRIM,alldisable,v_sites))  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and SITE_TO_FTRIM[site])  
-//               {
-//                  logstr[site] = str1;
-//                   /*update efuse string with trim code*/
-//                  dummstr1 = mid(SaveFlashProgString[site],pump_sind,pump_len);
-//                  FlashProgString[site] = dummstr1;
-//
-//                  dummstr2 = mid(SaveFlashProgString[site],bank_sind,totbanklen);
-//
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                  {
-//                     if(BANK_TO_PMOS_TRIM[count][site])  
-//                        bank_str[count] = IREF_PMOSTRIMCODE_STR[count][site];
-//                     else
-//                        bank_str[count] = mid(dummstr2,1,bank_len);
-//
-//                     length = (len(dummstr2))-bank_len;
-//                     if(length>==bank_len)  
-//                        dummstr2 = mid(dummstr2,bank_len+1,length);
-//                  } 
-//
-//                  for (count = 0;count <= F021_Flash.MAXBANK;count++)
-//                     FlashProgString[site] = FlashProgString[site] + bank_str[count];
-//
-//                   /*save for later use*/
-//                  SaveFlashProgString[site] = FlashProgString[site];  /*lsb-msb*/
-//
-//                  if(tistdscreenprint)  
-//                  {
-//                     dummstr1 = flashprogstring[site];
-//                     dummstr2 = stringreverse(dummstr1);
-//                     dummstr1 = stringbintohex(dummstr1,s_pad_msb);
-//                     cout << "Site " << site:3 << 
-//                             "  MSB-LSB : " << dummstr1 << endl;
-//                     if(ti_flashdebug)  
-//                     {
-//                        cout << "Site " << site:3 << 
-//                                "  To Be Trimmed (MSB-LSB) : " << 
-//                                FlashProgString[site] << endl;
-//                        cout << "Site " << site:3 << 
-//                                "  LSB-MSB : " << dummstr2 << endl;
-//                     } 
-//                  }   /*tistdscreenprint*/
-//               }   /*if v_dev_active*/
-//
-//             /*TWPDLDatalogTextMS("TRIM_PMOS_BY",logstr,twminimumdata);*/
-//            
-//            ProgramFlashTrim(FTrimProg3_st,FTrimPstRd3_st,FTrimPstRdMg3_st,
-//                             FlashProgString,MargFlashChainStr);
-//         }            /*if not(arraycompare)*/
-//      }   /*if v_any_active*/
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(savesites[site] and GL_FLASH_RETEST[site] and SITE_IPMOS_TRIMMED[site])  
-//            devsetholdstate(site,true);
-//   } 
-//         
-//    /*null out gl_previous_shell*/
-//   GL_PREVIOUS_SHELL = "";
-//
-//   IrefPMOS_Trim_func = v_any_dev_active;
-//} 
-//
+         /* GL_PMOS_TRIM_COUNT := GL_PMOS_TRIM_COUNT+1;
+          if(GL_PMOS_TRIM_COUNT>2) then
+             GL_PMOS_TRIM_COUNT := 0;*/
+          
+
+          /*determine any site need to be trimmed*/
+         if (SITE_TO_FTRIM.AnyEqual(true))  
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               SITE site = *si;
+               if(SITE_TO_FTRIM[site])  
+               {
+                   /*update efuse string with trim code*/
+                  dummstr1 = SaveFlashProgString[site].Substring(pump_sind,pump_len);
+                  FlashProgString[site] = dummstr1;
+
+                  dummstr2 = SaveFlashProgString[site].Substring(bank_sind,totbanklen);
+
+                  for (count = 0;count <= F021_Flash.MAXBANK;++count)
+                  {
+                     if(BANK_TO_PMOS_TRIM[count][site])  
+                        bank_str[count] = IREF_PMOSTRIMCODE_STR[count][site];
+                     else
+                        bank_str[count] = dummstr2.Substring(0,bank_len);
+
+                     length = dummstr2.Length()-bank_len;
+                     if(length>=bank_len)  
+                        dummstr2 = dummstr2.Substring(bank_len,length);
+                  } 
+
+                  for (count = 0;count <= F021_Flash.MAXBANK;++count)
+                     FlashProgString[site] = FlashProgString[site] + bank_str[count];
+
+                   /*save for later use*/
+                  SaveFlashProgString[site] = FlashProgString[site];  /*lsb-msb*/
+
+                  if(tistdscreenprint)  
+                  {
+                     dummstr1 = FlashProgString[site];
+                     dummstr2 = ReverseString(dummstr1);
+                     dummstr1 = StringBinToHex(dummstr1);
+                     cout << "Site " << site << 
+                             "  MSB-LSB : " << dummstr1 << endl;
+                     if(TI_FlashDebug)  
+                     {
+                        cout << "Site " << site << 
+                                "  To Be Trimmed (MSB-LSB) : " << 
+                                FlashProgString[site] << endl;
+                        cout << "Site " << site << 
+                                "  LSB-MSB : " << dummstr2 << endl;
+                     } 
+                  }   /*tistdscreenprint*/
+               }
+            } /* end site loop */
+
+             /*TWPDLDatalogTextMS("TRIM_PMOS_BY",logstr,twminimumdata);*/
+            
+            final_results = ProgramFlashTrim("FTrimProg3_st","FTrimPstRd3_st","FTrimPstRdMg3_st",
+                                             FlashProgString,margFlashChainStr);
+         }            /*if not(arraycompare)*/
+      }   /*if v_any_active*/
+
+      RunTime.SetActiveSites(savesites);
+   } 
+         
+    /*null out gl_previous_shell*/
+   GL_PREVIOUS_SHELL = "";
+
+   return (final_results);
+} 
+
 //BoolS BLCharge_Signal_func()
 //{
 //   BoolM final_results;
@@ -8053,7 +8003,7 @@ TMResultM RdM0OTPTemplate_func() {
 TMResultM Flash_Cycle9X_Pgm_func() {
    TMResultM dummy_results;
 
-   dummy_results = TM_NOTEST;
+   dummy_results = TM_PASS;
    return(dummy_results);
 // Flash_Cycle9X_Pgm_func = v_any_dev_active;
 }   // Flash_Cycle9X_Pgm_func
@@ -17181,7 +17131,7 @@ TMResultM Flash_ISleep_Pst_func() {
 //{
 //   const IntS TESTID = 300; 
 //
-//   BoolM final_results;
+//   BoolM final_results,rd_results;
 //   BoolM savesites,tmp_results;
 //   IntS site,rd_opt;
 //
@@ -17198,26 +17148,10 @@ TMResultM Flash_ISleep_Pst_func() {
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);      
-//       /*dummy run for blizzard*/
-//      /* Patternexecute(num_clks, ldo_bypass_init); */
 //      F021_LoadFlashShell_func;
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            readramaddress(site,0,0x1f);
-//       
-//           /* Pasa Temp added*/
-//      F021_LoadFlashShell_func;
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      
 //      RAM_Clear_SoftTrim_All;
 //      RAM_Clear_PMOS_SoftTrim;
 //      RAM_Clear_MailBox_Key;
-//      
-//       /*dummy run for blizzard*/
-//      /* Patternexecute(num_clks, ldo_bypass_init); */
-//      F021_LoadFlashShell_func; /* Pasa Temp added*/
 //      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
 //      GL_FLTESTID = TESTID;
 //      F021_OTP_WrEngRow_func(final_results);
@@ -17235,35 +17169,27 @@ TMResultM Flash_ISleep_Pst_func() {
 //   if(v_any_dev_active)  
 //   {
 //      savesites = v_dev_active;
-//      PowerDownWithoutRead;  /* Remove pasa pasa 2/23/12*/
+//      rd_results = v_dev_active;
+//       /*PowerDown;*/
 //      powerupatvnom(dcsetup_loosevnom,norm_fmsu);
 //      clockset(s_clock1a,false,GL_F021_PLLENA_SPEED1,
 //                  v[vih_loose_osc_vnom],v[vil_loose]);
 //      clockpinset(s_clk_1a,s_clock);
 //      TIME.Wait(2ms);
-//      Patternexecute(num_clks, ldo_bypass_init);
 //      patternexecute(site,f021_shell_loadpat);
-//        /* Added for dummy run on Blizzard...pasa 2/23/12} {Need to restore RAM after corrupted */
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);     
-//      
 //      tmp_results = v_pf_status;
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      if(ti_flashdebug and tistdscreenprint)  
 //         rd_opt = 0;
 //      else
 //         rd_opt = 1;
-//
-//       /* Added for dummy run on Blizzard...pasa 2/23/12*/
-//      /* patternexecute(site,f021_shell_loadpat); 
-//      f021_runtestnumber(tnum_always_pass, 1s, spare_mstreal1, spare_msbool1); */
-//       
 //      F021_ReadLog1OTP_func(tmp_results,rd_opt);
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      F021_ReadIDOTP_func(tmp_results,false);
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
 //      devsetholdstates(savesites);
 //      TestOpen(RdEngRow_Test);
-//      ResultsRecordActive(final_results, S_NULL);
+//      ResultsRecordActive(rd_results, S_NULL);
 //      TestClose;
 //
 //      if(tistdscreenprint and ti_flashdebug)  
@@ -17283,8 +17209,9 @@ TMResultM Flash_ISleep_Pst_func() {
 //      arrayandboolean(tmp_results,tmp_results,v_dev_active,v_sites);
 //      devsetholdstates(savesites);
 //      F021_Log_OTP_To_TW_Final;
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//      devsetholdstates(final_results);
+//      arrayandboolean(rd_results,rd_results,tmp_results,v_sites);
+//      arrayandboolean(rd_results,rd_results,savesites,v_sites);
+//      devsetholdstates(rd_results);
 //   } 
 //   
 //   clockstopfreerun(s_clock1a);
@@ -17853,38 +17780,22 @@ TMResultM ErsOTP_PreThinOxide_func()
 //   ErsOTP_PreThinOxide_func = v_any_dev_active;
    return(final_results);
 }   /* ErsOTP_PreThinOxide_func */
-//   
-//
-//BoolS IPMOS_TCode_Upload_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//
-//   powerupatvnom(dcsetup_loosevnom,norm_fmsu);
-//   clockset(s_clock1a,false,GL_F021_PLLENA_SPEED1,
-//            v[vih_loose_osc_vnom],v[vil_loose]);
-//   clockpinset(s_clk_1a,s_clock);
-//   TIME.Wait(2ms);      
-//   F021_LoadFlashShell_func;
-//   if(GL_DO_IREF_PMOS_TRIM)  
-//   {
-//      GetTrimCode_On_EFStr;
-//      RAM_Upload_PMOS_TrimCode;
-//   } 
-//
-// /*   if(GL_DO_VHV_CT_TRIM) then
-//       RAM_Upload_VHV_CT_TrimVal; } {KChau 09/10/10*/
-//   
-//   final_results = v_dev_active;
-//   tname = IPMOS_TCode_Upload_Test;
-//   TestOpen(tname);
-//   ResultsRecordActive(final_results, S_NULL);
-//   TestClose;
-//   
-//   IPMOS_TCode_Upload_func = v_any_dev_active;
-//}   /* IPMOS_TCode_Upload_func */
+   
+
+TMResultM IPMOS_TCode_Upload_func()
+{
+   F021_LoadFlashShell_func();
+   if(GL_DO_IREF_PMOS_TRIM)  
+   {
+      GetTrimCode_On_EFStr();
+      RAM_Upload_PMOS_TrimCode();
+   } 
+
+// I can't tell if there is a real test here
+
+   return (TM_PASS);
+   
+}   /* IPMOS_TCode_Upload_func */
 //   
 //BoolS IPMOS_TCode_Upload2_func()
 //{
