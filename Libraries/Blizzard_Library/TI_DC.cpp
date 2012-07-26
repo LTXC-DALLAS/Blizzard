@@ -660,7 +660,8 @@ BoolM TI_DC::Initialize()
 StringS TI_DC::TI_DC_GetPinInstrument(PinM pin) {
     StringS channel_name = pin.GetChannelName(ActiveSites.Begin().GetValue());
     
-    if (channel_name[0] >= '0' && channel_name[0] <= '9') return ("DP");
+    if (channel_name.Length() < 1) return ("");
+    else if (channel_name[0] >= '0' && channel_name[0] <= '9') return ("DP");
     else if (!strncmp ("OVI", channel_name, 3)) return ("OVI");
     else if (!strncmp ("HDVI", channel_name, 4)) return ("HDVI");
     else if (!strncmp ("HCOVI", channel_name, 5)) return ("HCOVI");

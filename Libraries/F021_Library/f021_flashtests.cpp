@@ -6224,47 +6224,45 @@ TMResultM IPMOS_Cvfy_Vnom_func()
 //   
 //   SA_Iref_Load_Read_Vmin_func = v_any_dev_active;
 //}   /* SA_Iref_Load_Read_Vmin_func */
-//
-//
-//BoolS SA_Iref_NoLoad_Read_Vmin_func()
-//{
-//   const IntS TESTID = 56; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmin_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 71;
-//   tcrmode = ReadMode;
-//   
-//   vcorner = VMNE;
-//   F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMNO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   SA_Iref_NoLoad_Read_Vmin_func = v_any_dev_active;
-//}   /* SA_Iref_NoLoad_Read_Vmin_func */
-//
-//
+
+#if 0
+TMResultM SA_Iref_NoLoad_Read_Vmin_func()
+{
+   const IntS TESTID = 56; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 71;
+   tcrmode = ReadMode;
+   
+   vcorner = VMNE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMNO;
+       discard(F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* SA_Iref_NoLoad_Read_Vmin_func */
+#endif
+
 //BoolS IWLDRV_Prog_Vmin_func()
 //{
 //   const IntS TESTID = 57; 
