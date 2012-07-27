@@ -258,9 +258,9 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
                                      FloatS maxtimeout,
                                      BoolS testPassPin = false);
 
-//void MBox_Upload_IProg(IntS senampnum);
-//
-//void MBox_Upload_ISenAmp(IntS senampnum);
+void MBox_Upload_IProg(IntS senampnum);
+
+void MBox_Upload_ISenAmp(IntS senampnum);
 //
 //
 //void TL_Swizzle_VHVE(IntS value);
@@ -445,12 +445,11 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
                                  IntS tcrnum,
                                  TPModeType tcrmode);
 
-//BoolS F021_Bank_Para_MBox_func(    IntS start_testnum,
-//                                      prepostcorner prepost_type,
-//                                      VCornerType vcorner,
-//                                      IntS TCRnum,
-//                                      TPModeType TCRMode,
-//                                      BoolM test_results);
+TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
+                                      prepostcorner prepost_type,
+                                      VCornerType vcorner,
+                                      IntS TCRnum,
+                                      TPModeType TCRMode);
 //
 //void PrintDUTSetup();
 //

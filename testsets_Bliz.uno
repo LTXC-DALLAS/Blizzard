@@ -8785,8 +8785,17 @@ __Test Iref_Cvfy_Vnom_T {
     }
 }
 __Test SA_Iref_NoLoad_Read_Vmin_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = SA_Iref_NoLoad_Read_Vmin_func;
+        }
+    }
 }
 __Test IWLDRV_Prog_Vmin_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
@@ -8830,4 +8839,3 @@ __Test Iref_RM01_Vnom_T {
         }
     }
 }
-

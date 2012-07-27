@@ -6225,7 +6225,6 @@ TMResultM IPMOS_Cvfy_Vnom_func()
 //   SA_Iref_Load_Read_Vmin_func = v_any_dev_active;
 //}   /* SA_Iref_Load_Read_Vmin_func */
 
-#if 0
 TMResultM SA_Iref_NoLoad_Read_Vmin_func()
 {
    const IntS TESTID = 56; 
@@ -6261,7 +6260,6 @@ TMResultM SA_Iref_NoLoad_Read_Vmin_func()
    
    return (final_results);
 }   /* SA_Iref_NoLoad_Read_Vmin_func */
-#endif
 
 //BoolS IWLDRV_Prog_Vmin_func()
 //{
