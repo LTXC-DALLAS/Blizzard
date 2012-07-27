@@ -6726,18 +6726,18 @@ void F021_SetTestNum(IntS testnum)
 }  /*F021_SetTestNum*/
 
 TMResultM Check_RAM_TNUM(IntS expTnum) {
-   TMResultM test_results;
+   TMResultM test_results; 
    IntS site,tnumhi,tnumlo;
    TMResultM tmp_results;
    IntM msw_tnum,lsw_tnum;
 
 
-   tmp_results = TM_NOTEST;      
+   tmp_results = TM_PASS; // set to TM_FAIL below if needed      
    tnumhi = ((expTnum & IntS(0xffff0000))>>16) & IntS(0x0000ffff);
    tnumlo = expTnum&0x0000ffff;
 
-//   if(GL_DO_ESDA_WITH_SCRAM)  
-//      Get_Flash_TestLogSpace_SCRAM;
+//   if (GL_DO_ESDA_WITH_SCRAM)
+      Get_Flash_TestLogSpace_SCRAM();
 
    Get_TLogSpace_TNUM(msw_tnum,lsw_tnum);
    
@@ -6757,11 +6757,12 @@ TMResultM Check_RAM_TNUM(IntS expTnum) {
    if (tistdscreenprint and TI_FlashDebug) {
       cout << "Check RAM expected TNUM " << hex << expTnum << endl;
       for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
-         cout << "Site " << *si << hex <<msw_tnum[*si] << hex << lsw_tnum[*si];
+         cout << "Site " << *si << " 0x" << setfill('0') << hex << setw(4) 
+              << msw_tnum[*si] << setw(4) << lsw_tnum[*si] << dec << setfill (' ');
          if (tmp_results[*si] == TM_PASS)  
-            cout << "/";
+            cout << " / " << endl;
          else
-            cout << "X" << endl;
+            cout << " X " << endl;
       } 
    }
    return(test_results);
@@ -7084,7 +7085,7 @@ void F021_Set_TPADS(IntS TCRnum,
                      
                   tsupply  = FLTP1;
                   str1     = "TP1";
-                  if(special_opt=3)  
+                  if(special_opt==3)  
                      suppena = false;
                   else
                      suppena  = true;
@@ -13046,6 +13047,7 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
    parmena = false;
    binout_ena = false;
    prepost = prepost_type;
+   final_results = TM_PASS;
 
    if((tcrnum==25) and (tcrmode==EvfyMode))  
       special_opt = EV_EMU_OPT;
@@ -13081,7 +13083,7 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
 
       savesites = ActiveSites;
 
-      test_string = fl_testname.Substring(1, fl_testname.Length() - 6);
+      test_string = fl_testname.Substring(0, fl_testname.Length() - 5);
       
 // :TODO: deal with CoF
 //      if(TI_FlashCOFEna)  
@@ -13170,7 +13172,7 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
                                       twstring, UTL_VOID, UTL_VOID, true, TWMinimumData);
 
                tmp_results = DLOG.AccumulateResults(tmp_results, rtest_results);
-
+   
                 /*store/copy to global var*/
                // eats up too much memory for an unused variable...so don't store/copy
                //BANK_PARA_VALUE[bankcount][tcrnum][tcrmode][tpnum][prepost][vcorner] = meas_value;
@@ -13179,7 +13181,7 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
                {
                   final_results = tmp_results;
                   binout_ena = true;
-               
+
                // :TODO: Deal with the fail logging
 //                  if(final_results.AnyEqual(TM_FAIL))  
 //                  {
@@ -13205,7 +13207,6 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
          tmp_results = Check_RAM_TNUM(testnum);
          if(binout_ena)  
             final_results = DLOG.AccumulateResults(final_results, tmp_results);
-
       }   /*for bankcount*/
 
        /*restore all active sites*/ // can use RunTime.SetActiveSites here b/c savesites won't be NO_SITES
@@ -13251,22 +13252,16 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
    IntS bankcount;
    IntS testnum;
    IntS tpnum,tpstart,tpstop,tpcount;
-//   FloatS ttimer1,ttimer2;
    FloatM tt_timer;
    StringS tmpstr1,twstring, test_string, bank_str;
-//   StringS str1,str2,str3,str4;
    StringS fl_testname;
    prepostcorner prepost;
-   BoolS parmena, once;//,done,once,ovride_lim;
-//   FloatS ovride_llim,ovride_ulim;
-   FloatS llim,ulim;//,tmpFloatS;
-   PinM testpad;//,cntrlpad;
+   BoolS parmena, once;
+   FloatS llim,ulim;
+   PinM testpad;
    FloatM meas_value;
-//   FloatS tpad_force,cntrlpad_force;
-//   BoolS x64soft;
-//   StringM site_cof_inst_str;
    BoolS binout_ena,logall;
-   IntS senampnum;//,tmpint;
+   IntS senampnum;
    IntM min_sampnum,max_sampnum;
    FloatM min_value,max_value;
    IntS loopmin,loopmax;
@@ -13279,7 +13274,7 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
    any_site_active = true;
    savesites = ActiveSites;
    tmp_results = TM_NOTEST;
-   final_results = TM_NOTEST;
+   final_results = TM_PASS;  //sometimes this is a pass-thru function...
 
    tpstart = 0;
    tpstop  = 0;
@@ -32062,13 +32057,18 @@ FloatM MeasPinTMU_func(const PinM &tpin,                       // Pin to measure
    switch (meas_option)
    {
       case TMU_MEASURE_PULSE_WIDTH:
-         TMU.MeasurePulseWidth(tpin, TMU_RISING_EDGE, TMU_CMP_HIGH, TMU_CMP_HIGH, meas_results, simResults);
+         TMU.MeasurePulseWidth(tpin, TMU_RISING_EDGE, TMU_CMP_HIGH, TMU_CMP_LOW, meas_results, simResults);
+         cout << "H-L " << meas_results <<endl;
+         TMU.MeasurePulseWidth(tpin, TMU_RISING_EDGE, TMU_CMP_LOW, TMU_CMP_HIGH, meas_results, simResults);
+         cout << "L-H " << meas_results <<endl;
          break;
       case TMU_MEASURE_FREQUENCY:
          TMU.MeasureFrequency(tpin, maxExpFreq, TMU_RISING_EDGE, meas_results, simResults);
+         cout << "Meas results " << meas_results << endl;
          break;
       case TMU_MEASURE_FREQUENCY_COUNTER:
          TMU.MeasureFrequencyByCount(tpin, pulseCount, maxExpFreq, meas_results, simResults);
+         cout << "Meas results " << meas_results << endl;
          break;
       default:
          ERR.ReportError(ERR_GENERIC_CRITICAL, "Unsupported measure option in MeasPinTMU_func in F021_Library.", UTL_VOID, NO_SITES, tpin);
