@@ -4,7 +4,7 @@
  /*  A1.1 : Released with VT/BCC enable.                        KChau 11/10/09 */
  /*                                                                            */
  /* 11/18/09  KChau                                                            */
- /*           -Updated F021_ReadIDOTP_func to reflect new OTP offset/format.   */
+ /*           -Updated F021_ReadIDOTP_func o reflect new OTP offset/format.   */
  /*            Also added check/compare OTP ID contents between banks.         */
  /*           -Updated F021_Read_func to datalog only for bank/sector deplete  */
  /*            test and not bin out.                                           */
@@ -30354,299 +30354,263 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt)
 TMResultM  F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
-                                   BoolM test_results,
-                                   BoolM soft_results)
-{
-//   const IntS none_ena = 0; 
-//   const IntS cmpress_ena = 1; 
-//   const IntS avnv_ena = 2; 
-//   const IntS pmos_ena = 3; 
-//   const IntS efchksum_ena = 4; 
-//   const IntS TARGET_BANK = 0; 
-//   const IntS TARGET_SECT = 1; 
-//   const IntS TARGET_OTP = 4; 
-//   const IntS TARGET_SEMIOTP = 5; 
-//   const IntS TARGET_DATAOTP = 6; 
-//   const IntS TOPT_SW_COMPRESS = 0x31; 
-//
-//   BoolM savesites,logsites,good_results;
-//   IntM pgmpulse;
-     TMResultM  tmp_results,final_results;
-//   IntS bankcount,count;
-//   IntS site,opertype,pattype;
-//   FloatS ttimer1,ttimer2;
-//   FloatM tt_timer;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   IntS testnum,start_tnum;
-//   FloatM FloatSval;
+                                   TMResultM test_results,
+                                   BoolM soft_results) {
+   const IntS none_ena = 0; 
+   const IntS cmpress_ena = 1; 
+   const IntS avnv_ena = 2; 
+   const IntS pmos_ena = 3; 
+   const IntS efchksum_ena = 4;  
+   const IntS TOPT_SW_COMPRESS = 0x31; 
+
+   BoolM savesites,logsites,good_results;
+   IntM pgmpulse;
+   TMResultM  tmp_results,final_results;
+   IntS bankcount,count;
+   IntS site,opertype,pattype;
+   FloatS ttimer1,ttimer2;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   IntS testnum,start_tnum;
+   FloatM FloatSval;
 //   TWunit unitval;
-//   StringS fl_testname;
-//   FloatS maxtime;
-//   IntS1D addr_loc(4);
-//   IntS length;
-//   FloatM vhvprog_val,vhvpvfy_val;
-//   IntM cmpr_factor1,cmpr_factor2;
-//   IntS addr_loc_mbox;
-//   IntS wr_flag_num;
-//   IntM src_data1,src_data2;
-//   BoolS hexvalue,nothexvalue;
-//   BoolS bcd_format,notbcd;
-//   BoolS firsttime;
-//   IntM rti_timer;
-//   StringM site_cof_inst_str;
-//   IntS target_bits;
-//   IntS pulse_ulim,screen_ulim;
-//   IntS blkstart,blkstop;
-//   BoolS dlogonly,faildetect;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_Special_Program_func +++++" << endl;
-//
-//      opertype = none_ena;   /*set to default normal operation*/
-//      dlogonly = false;
-//
-//      writestring(tmpstr1,tname);
-//      length = len(tmpstr1);
-//      writestring(tmpstr1,mid(tmpstr1,2,length-6));
-//      fl_testname = tname;
-//      
-//      timernstart(ttimer1);      
-//
-//      TestOpen(fl_testname);
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      savesites = V_dev_active;
-//      final_results = V_dev_active;
-//      good_results = V_dev_active;
-//
-//      testnum = start_testnum;
-//
-//       /*otp template pgm w/ eng override*/
-//      if(testnum == TNUM_OTP_PROG_TEMPLATE)  
-//      {
-//         opertype = pmos_ena;
-//         pattype = OTPTYPE;
-//      }
-//      else
-//      {
-//         target_bits = (testnum & 0x00000f00) >>8;
-//         switch(target_bits) {
-//           case TARGET_BANK    : pattype = BANKTYPE;
-//           case TARGET_SECT    : pattype = SECTTYPE;
-//           TARGET_OTP,
-//           TARGET_SEMIOTP,
-//           case TARGET_DATAOTP : pattype = OTPTYPE;
-//           default:     pattype = MODTYPE;
-//         }   /*case*/
-//         
-//          /*check override pulse limits bit22*/
-//         if((testnum&0x00400000)>0)  
-//         {
-//            if(tistdscreenprint)  
-//            {
-//               cout << endl;
-//               cout << "*** WARNING: OVERRIDE PULSE LIMITS is Enable." << 
-//                    "  MAKE SURE THIS IS INTENTIONALLY DONE SO <<  i.e. Engineering Debug Only ***" << endl;
-//               cout << endl;
-//            } 
-//             /*make sure not use in production unless*/
-//            if(not ti_flashcofena)  
-//            {
-//               pattype = MODTYPE;
-//               if(tistdscreenprint)  
-//                  cout << "*** PLS SET TI_FlashCOFEna true" << 
-//                       " IF INTENTION OVERRIDE PULSE LIMITS. ***" << endl;
-//            } 
+   StringS fl_testname;
+   FloatS maxtime;
+   IntS1D addr_loc(4);
+   IntS length;
+   FloatM vhvprog_val,vhvpvfy_val;
+   IntM cmpr_factor1,cmpr_factor2;
+   IntS addr_loc_mbox;
+   IntS wr_flag_num;
+   IntM src_data1,src_data2;
+   BoolS hexvalue,nothexvalue;
+   BoolS bcd_format,notbcd;
+   BoolS firsttime;
+   FloatM rti_timer;
+   StringM site_cof_inst_str;
+   IntS target_bits;
+   IntS pulse_ulim,screen_ulim;
+   IntS blkstart,blkstop;
+   BoolS dlogonly,faildetect;
+
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_Special_Program_func +++++" << endl;
+
+   opertype = none_ena;   // set to default normal operation
+   dlogonly = false;
+
+   tmpstr1 = tname;
+   tname.Replace(tname.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+   
+   TIME.StartTimer();
+
+// if (TI_FlashCOFEna)  
+//    F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+// savesites = V_dev_active;
+// final_results = V_dev_active;
+// good_results = V_dev_active;
+
+   testnum = start_testnum;
+
+   // otp template pgm w/ eng override
+   if (testnum == TNUM_OTP_PROG_TEMPLATE) {
+      opertype = pmos_ena;
+      pattype = OTPTYPE;
+   }
+   else {
+      target_bits = (testnum & 0x00000f00) >>8;
+      switch(target_bits) {
+         case TARGET_BANK    : pattype = BANKTYPE; break;
+         case TARGET_SECT    : pattype = SECTTYPE; break;
+         case TARGET_OTP:
+         case TARGET_SEMIOTP :
+         case TARGET_DATAOTP : pattype = OTPTYPE; break;
+         default:     pattype = MODTYPE;
+      }   /*case*/
+      
+      // check override pulse limits bit22
+      if ((testnum&0x00400000)>0) {
+         if (tistdscreenprint) {
+            cout << endl;
+            cout << "*** WARNING: OVERRIDE PULSE LIMITS is Enable.";
+            cout << "  MAKE SURE THIS IS INTENTIONALLY DONE SO i.e. Engineering Debug Only ***" << endl;
+            cout << endl;
+         } 
+         // make sure not use in production unless
+//         if (not ti_flashcofena) {
+//            pattype = MODTYPE;
+//            if (tistdscreenprint)  
+//               cout << "*** PLS SET TI_FlashCOFEna true IF INTENTION OVERRIDE PULSE LIMITS. ***" << endl;
 //         } 
-//      } 
-//      
-//       /*check bank/sector bits*/
-//      if((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0))  
-//      {
-//         if(tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         if(not tistdscreenprint)  
-//            cout << "*** ERROR: Bank/Sector bits are not start @0." << 
-//                    "  Please double check!!! ***" << endl;
-//         pattype = MODTYPE;
-//      } 
-//
-//            
-//      if(TI_FlashESDAEna)  
-//         FLEsda.Pattype  = pattype;
-//
-//      if(pattype == MODTYPE)  
-//      {
-//          /*+++ Module operation +++*/
-//         final_results = false;
-//         if(tistdscreenprint)  
-//            cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
-//      }
-//      else 
-//      {
-//          /*++++++++ Bank operation ++++++++*/
-//     if((testnum&0x0f000000)==0x03000000)  
-//            maxtime = GL_F021_BANK_SWPGM_MAXTIME;
-//     else
-//            maxtime = GL_F021_BANK_PGM_MAXTIME;
-//
-//         pulse_ulim = BANK_PROG_ULimit;
-//         screen_ulim = PPULimit;
-//
-//         if(tistdscreenprint)  
-//            PrintHeaderErsProg(0,screen_ulim,0,0,0,0,(not GL_PLELL_FORMAT));
-//
-//         for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++)
-//         {
-//            if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//            {
-//               blkstart = bankcount;
-//               blkstop  = bankcount;
-//            }
-//            else if(pattype==BLOCKTYPE)  
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXBLOCK[bankcount];
-//            }
-//            else
-//            {
-//               blkstart = 0;
-//               blkstop  = F021_Flash.MAXSECT[bankcount];
-//            } 
-//
-//            testnum  = start_testnum+(bankcount<<4);
-//
-//            for (count = blkstart;count <= blkstop;count++)
-//            {
-//               logsites = v_dev_active;
-//               tmp_results = v_dev_active;
-//               F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               
-//               pgmpulse = 0;
-//               Get_TLogSpace_MaxPPulse(pgmpulse);
-//
-//                /*pass/fail per limit*/
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                      /*check gross limit*/
-//                     if(pgmpulse[site] > pulse_ulim)  
-//                     {
-//                        tmp_results[site] = false;
-//                        final_results[site] = false;
-//                     }
-//                     else if(pgmpulse[site] > screen_ulim)  
-//                     {
-//                        good_results[site] = false;
-//                     } 
-//                  } 
-//               
-//                /*log to TW*/
-//                /*tw string: PGMx_B#_TT and PGMx_B#_PGM_PLS*/
-//               writestring(tmpstr2,bankcount:1);
-//               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-//
-//               if((pattype==BLOCKTYPE) or (pattype==SECTTYPE))  
-//               {
-//                  writestring(tmpstr3,count:1);
-//                  if(pattype==BLOCKTYPE)  
-//                     tmpstr3 = "BLK" + tmpstr3;
-//                  else
-//                     tmpstr3 = "S" + tmpstr3;
-//                  tmpstr2 = tmpstr2 + tmpstr3;
-//               } 
-//
-//               tmpstr3 = tmpstr1 + tmpstr2;  /*now has PGMx_B#*/
-//               tmpstr4 = tmpstr3 + "_TT";
-//               TWTRealToRealMS(tt_timer,realval,unitval);
-//               TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//            
-//               tmpstr4 = tmpstr3 + "_PGM_PLS";
-//               TWPDLDataLogVariable(tmpstr4,pgmpulse, TWMinimumData);
-//               
-//                /*log RTI timer (internal vclock cycle value) to tw*/
-//               rti_timer = 0;
-//               GetRTIValue(rti_timer);
-//               tmpstr4 = tmpstr3 + "_RTI_TT";
-//               TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
-//               
-//               if(tistdscreenprint)  
-//                  PrintResultErsProg(tmpstr3,testnum,pgmpulse,pgmpulse,pgmpulse,
-//                                     0,screen_ulim,0,0,0,0,(not GL_PLELL_FORMAT));
-//
-//                /*log failed test to tw*/
-//                /*KChau 12/21/07 - determine if any site is failing to log to TW.*/
-//               if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//               {
-//                  F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
-//                  
-//                  if(TI_FlashCOFEna)  
-//                     F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-//
-//                  if(TI_FlashESDAEna)  
-//                     if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
-//                        SetFlashESDAVars(tmp_results,bankcount,bankcount);
-//                     else
-//                        SetFlashESDAVars(tmp_results,bankcount,count);
-//               } 
-//               
-//               testnum = testnum+1; 
-//
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                  Devsetholdstates(final_results);
-//               
-//               if(not v_any_dev_active)  
-//                  break;
-//            }   /*for count*/
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for bankcount*/
-//      }    /*+++ End of Bank operation +++*/
-//
-//       /*restore all active sites*/
-//      Devsetholdstates(savesites);
-//
-//      ResultsRecordActive(final_results, S_NULL);
-//      TestClose;
-//
-//      test_results = final_results;
-//      soft_results = good_results;
-//      
-//      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//      
-//      ttimer1 = timernread(ttimer1);
-//      tt_timer = ttimer1;
-//
-//      tmpstr4 = tmpstr1 + "_TTT";
-//      TWTRealToRealMS(tt_timer,realval,unitval);
-//      TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
-//
-//      if(tistdscreenprint)  
-//      {
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
-//         tmpstr4 = tmpstr1 + "_SFTBIN";
-//         PrintResultBool(tmpstr4,start_testnum,soft_results,GL_PLELL_FORMAT);
-//         cout << "   TT " << ttimer1 << endl;
-//         cout << endl;
-//      }         /*if tistdscreenprint*/
-//      
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//         DevSetHoldStates(final_results);
-//            
-//   }   /*if v_any_dev_active*/
-//
-//   F021_Special_Program_func = V_any_dev_active;
-     return(final_results);
-}   /* F021_Special_Program_func */
-//
+      } 
+   } 
+   
+   // check bank/sector bits
+   if ((((testnum&0x00000070)>>4)!=0) or ((testnum&0x0000000f)!=0)) {
+      if (tistdscreenprint)  
+         cout << "*** ERROR: Bank/Sector bits are not start @0.  Please double check!!! ***" << endl;
+      if (not tistdscreenprint)  
+         cout << "*** ERROR: Bank/Sector bits are not start @0.  Please double check!!! ***" << endl;
+
+      pattype = MODTYPE;
+   } 
+
+   if (TI_FlashESDAEna)  
+      FLEsda.Pattype  = pattype;
+
+   if (pattype == MODTYPE) {
+      // +++ Module operation +++
+      final_results = TM_NOTEST;
+      if (tistdscreenprint)  
+         cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
+   }
+   else {
+      // ++++++++ Bank operation ++++++++
+      if ((testnum&0x0f000000)==0x03000000)  
+         maxtime = GL_F021_BANK_SWPGM_MAXTIME;
+      else
+         maxtime = GL_F021_BANK_PGM_MAXTIME;
+
+      pulse_ulim = BANK_PROG_ULimit;
+      screen_ulim = PPULimit;
+
+//      if (tistdscreenprint)  
+//         PrintHeaderErsProg(0,screen_ulim,0,0,0,0,(not GL_PLELL_FORMAT));
+
+      for (bankcount = 0;bankcount <= F021_Flash.MAXBANK;bankcount++) {
+         if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
+            blkstart = bankcount;
+            blkstop  = bankcount;
+         }
+         else if (pattype==BLOCKTYPE) {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXBLOCK[bankcount];
+         }
+         else {
+            blkstart = 0;
+            blkstop  = F021_Flash.MAXSECT[bankcount];
+         } 
+
+         testnum  = start_testnum+(bankcount<<4);
+
+         for (count = blkstart;count <= blkstop;count++) {
+//          logsites = v_dev_active;
+//          tmp_results = v_dev_active;
+            tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
+//          ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+            
+            pgmpulse = 0;
+            Get_TLogSpace_MaxPPulse(pgmpulse);
+
+            // pass/fail per limit
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               // check gross limit
+               if (pgmpulse[*si] > pulse_ulim) {
+                  tmp_results[*si] = TM_FAIL;
+                  final_results[*si] = TM_FAIL;
+               }
+               else if (pgmpulse[*si] > screen_ulim) {
+                  good_results[*si] = TM_FAIL;
+               }
+            }
+            
+            // log to TW
+            // tw string: PGMx_B#_TT and PGMx_B#_PGM_PLS
+            tmpstr2 = "_B";
+            //  tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+            if ( bankcount == 0 ) tmpstr2 += "0";
+            else                  tmpstr2 += CONV.IntToString(bankcount);
+
+            if ((pattype==BLOCKTYPE) or (pattype==SECTTYPE)) {
+               if (pattype==BLOCKTYPE)  tmpstr3 = "BLK";
+               else                     tmpstr3 = "S";
+               //  tmpstr3 += CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
+               if ( count == 0 ) tmpstr3 += "0";
+               else              tmpstr3 += CONV.IntToString(count);
+               tmpstr2 = tmpstr2 + tmpstr3;
+            } 
+
+            tmpstr3 = tmpstr1 + tmpstr2;  /*now has PGMx_B#*/
+            tmpstr4 = tmpstr3 + "_TT";
+//          TWTRealToRealMS(tt_timer,realval,unitval);
+//          TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+         
+            tmpstr4 = tmpstr3 + "_PGM_PLS";
+//          TWPDLDataLogVariable(tmpstr4,pgmpulse, TWMinimumData);
+            
+            // log RTI timer (internal vclock cycle value) to tw
+            rti_timer = TIME.GetTimer();
+            tmpstr4 = tmpstr3 + "_RTI_TT";
+//          TWPDLDataLogVariable(tmpstr4,rti_timer, TWMinimumData);
+            
+//            if (tistdscreenprint)  
+//               PrintResultErsProg(tmpstr3,testnum,pgmpulse,pgmpulse,pgmpulse,
+//                                  0,screen_ulim,0,0,0,0,(not GL_PLELL_FORMAT));
+
+            // log failed test to tw
+            // KChau 12/21/07 - determine if any site is failing to log to TW.
+//          if (not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
+//          {
+//             F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+//             
+//             if(TI_FlashCOFEna)  
+//                F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+
+//             if(TI_FlashESDAEna)  
+//                if((pattype==BANKTYPE) or (pattype==OTPTYPE))  
+//                   SetFlashESDAVars(tmp_results,bankcount,bankcount);
+//                else
+//                   SetFlashESDAVars(tmp_results,bankcount,count);
+//          } 
+            
+            testnum = testnum+1; 
+
+//            if ((not TIIgnoreFail) and (not TI_FlashCOFEna))
+//               Devsetholdstates(final_results);
+            
+//          if(not v_any_dev_active)  
+//             break;
+         }  // for count
+//       if(not v_any_dev_active)  
+//          break;
+      }  // for bankcount
+   }   // +++ End of Bank operation +++
+
+   // restore all active sites
+// Devsetholdstates(savesites);
+
+// ResultsRecordActive(final_results, S_NULL);
+
+   test_results = final_results;
+   soft_results = good_results;
+   
+//   if (TI_FlashCOFEna)  
+//      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
+   
+   ttimer1 = TIME.GetTimer();
+   tt_timer = ttimer1;
+
+   tmpstr4 = tmpstr1 + "_TTT";
+//   TWTRealToRealMS(tt_timer,realval,unitval);
+//   TWPDLDataLogRealVariable(tmpstr4, unitval,realval,TWMinimumData);
+
+   if (tistdscreenprint) {
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+//      PrintResultBool(tmpstr1,start_testnum,final_results,GL_PLELL_FORMAT);
+      tmpstr4 = tmpstr1 + "_SFTBIN";
+//      PrintResultBool(tmpstr4,start_testnum,soft_results,GL_PLELL_FORMAT);
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   }        // if tistdscreenprint
+   
+//   if ((not tiignorefail) and (not TI_FlashCOFEna))
+//     DevSetHoldStates(final_results);
+            
+   return(final_results);
+}   // F021_Special_Program_func
+  
 // /*display OTP decoded ratio word8/9 for 144bit bank*/
 //void TL_Display_W89()
 //{
