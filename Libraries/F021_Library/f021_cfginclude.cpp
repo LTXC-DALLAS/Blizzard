@@ -7578,7 +7578,7 @@ if(GL_BANKTYPE==FLESBANK)
     /*VHV->TP1*/
    TCR.TP1_Ena[115] = true;
    TCR.TP1_MeasType[115] = MeasVoltType;
-   TCR.TP1_VRange[115][ProgMode] = VHV_Prog_ULim;  /*~12v*/
+   TCR.TP1_VRange[115][ProgMode] = VHV_Prog_ULim;  /*~12v*/ 
    TCR.TP1_IRange[115][ProgMode] = -10uA; //10uA;
    TCR.TP1_ULim[115][ProgMode]   = VHV_Prog_ULim;
    TCR.TP1_LLim[115][ProgMode]   = VHV_Prog_LLim;
@@ -7588,7 +7588,7 @@ if(GL_BANKTYPE==FLESBANK)
    TCR.TP1_ULim[115][PvfyMode]   = VHV_Pvfy_ULim;
    TCR.TP1_LLim[115][PvfyMode]   = VHV_Pvfy_LLim;
 
-   TCR.TP1_VRange[115][ErsMode]  = VHV_Ers_ULim;
+   TCR.TP1_VRange[115][ErsMode]  = VHV_Ers_ULim; 
    TCR.TP1_IRange[115][ErsMode]  = -10uA; //10uA;
    TCR.TP1_ULim[115][ErsMode]    = VHV_Ers_ULim;
    TCR.TP1_LLim[115][ErsMode]    = VHV_Ers_LLim;

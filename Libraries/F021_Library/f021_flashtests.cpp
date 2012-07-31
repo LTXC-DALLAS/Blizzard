@@ -5113,6 +5113,7 @@ TMResultM Pump_VHV_Vmin_func(Levels postTrimLevels1, Levels postTrimLevels2)
 
       tmp_results = F021_VHV_PG_CT_Trim_func(ctval);
       VHV_PG_CT_TRIMSAVED = ctval;
+      
 #if $FL_USE_NEW_VHV_TEMPL_ADDR        
       VHV_PG_CT_TRIMSAVED_EMU = ctval;
 #endif
@@ -5593,72 +5594,70 @@ TMResultM Pump_VHV2X_Vmax_func()
 }   /* Pump_VHV2X_Vmax_func */
 
 
-//BoolS VReadBUF_Vmin_func()
-//{
-//   const IntS TESTID = 37; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmin_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMN;
-//   tcrnum = 83;
-//   tcrmode = ProgMode;
-//   F021_Bank_Para_func(TNUM_BANK_VRDBUF,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   VReadBUF_Vmin_func = v_any_dev_active;
-//}   /* VReadBUF_Vmin_func */
-//
-//
-//BoolS VReadBUF_Vmax_func()
-//{
-//   const IntS TESTID = 38; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   vcorner = VMX;
-//   tcrnum = 83;
-//   tcrmode = PvfyMode;   /*use pvfy to select different limit/cond. actual mode is ProgMode*/
-//   F021_Bank_Para_func(TNUM_BANK_VRDBUF,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   VReadBUF_Vmax_func = v_any_dev_active;
-//}   /* VReadBUF_Vmax_func */
-//
-// /*changed to run at vmin instead of vnom but keep same function/test name*/
-//BoolS Iref_Read_Vnom_func()
-//{
-//   const IntS TESTID = 50; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 25;
-//   tcrmode = ReadMode;
-//   
+TMResultM VReadBUF_Vmin_func()
+{
+   const IntS TESTID = 37; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   vcorner = VMN;
+   tcrnum = 83;
+   tcrmode = ProgMode;
+   final_results = F021_Bank_Para_func(TNUM_BANK_VRDBUF,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* VReadBUF_Vmin_func */
+
+
+TMResultM VReadBUF_Vmax_func()
+{
+   const IntS TESTID = 38; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   vcorner = VMX;
+   tcrnum = 83;
+   tcrmode = PvfyMode;   /*use pvfy to select different limit/cond. actual mode is ProgMode*/
+   final_results = F021_Bank_Para_func(TNUM_BANK_VRDBUF,post,vcorner,tcrnum,tcrmode);
+
+   return (final_results);
+}   /* VReadBUF_Vmax_func */
+
+TMResultM Iref_Read_Vnom_func()
+{
+   const IntS TESTID = 50; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 25;
+   tcrmode = ReadMode;
+   savesites = ActiveSites;
+  
+// :TODO: Implement Char stuff
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IREF_RD)  
 //   {
 //      ssample = 1 ; /*10*/
@@ -5675,39 +5674,47 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmin_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IREF_READ_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Iref_Read_Vnom_func = v_any_dev_active;
-//}   /* Iref_Read_Vnom_func */
-//
-//
-// /*changed to run at vmin instead of vnom but keep same function/test name*/
-//BoolS Iref_Pvfy_Vnom_func()
-//{
-//   const IntS TESTID = 51; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 25;
-//   tcrmode = PvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IREF_READ_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_READ_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   //cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* Iref_Read_Vnom_func */
+
+
+TMResultM Iref_Pvfy_Vnom_func()
+{
+   const IntS TESTID = 51; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 25;
+   tcrmode = PvfyMode;
+   savesites = ActiveSites;
+
+// :TODO: Implement Char stuff   
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IREF_PVFY)  
 //   {
 //      ssample = 1;
@@ -5724,39 +5731,47 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmin_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IREF_PVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_PVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Iref_Pvfy_Vnom_func = v_any_dev_active;
-//}   /* Iref_Pvfy_Vnom_func */
-//
-//
-// /*changed to run at vmax instead of vnom but keep same function/test name*/
-//BoolS Iref_Evfy_Vnom_func()
-//{
-//   const IntS TESTID = 52; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 25;
-//   tcrmode = EvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IREF_PVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))   
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_PVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   //cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* Iref_Pvfy_Vnom_func */
+
+
+TMResultM Iref_Evfy_Vnom_func()
+{
+   const IntS TESTID = 52; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 25;
+   tcrmode = EvfyMode;
+   savesites = ActiveSites;
+
+// :TODO: Implement Char stuff   
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IREF_EVFY)  
 //   {
 //      ssample = 1;
@@ -5773,39 +5788,47 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmax_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IREF_EVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_EVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Iref_Evfy_Vnom_func = v_any_dev_active;
-//}   /* Iref_Evfy_Vnom_func */
-//
-//
-// /*changed to run at vmin instead of vnom but keep same function/test name*/
-//BoolS Iref_Cvfy_Vnom_func()
-//{
-//   const IntS TESTID = 53; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 25;
-//   tcrmode = CvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IREF_EVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_EVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   //cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* Iref_Evfy_Vnom_func */
+
+
+TMResultM Iref_Cvfy_Vnom_func()
+{
+   const IntS TESTID = 53; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+   savesites = ActiveSites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 25;
+   tcrmode = CvfyMode;
+
+// :TODO: Implement Char stuff   
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IREF_CVFY)  
 //   {
 //      ssample = 1;
@@ -5822,34 +5845,44 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmin_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IREF_CVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_CVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Iref_Cvfy_Vnom_func = v_any_dev_active;
-//}   /* Iref_Cvfy_Vnom_func */
-//
-//
-//BoolS Iref_RM01_Vnom_func()
-//{
-//   const IntS TESTID = 54; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IREF_CVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_CVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   //cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* Iref_Cvfy_Vnom_func */
+
+
+TMResultM Iref_RM01_Vnom_func()
+{
+   const IntS TESTID = 54; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+   
+   savesites = ActiveSites;
+
+// :TODO: Fix Char stuff
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IREF_RM01)  
 //   {
 //      ssample = 1;
@@ -5877,56 +5910,69 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   } 
 //   
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 26;
-//   tcrmode = ReadMode;
-//   
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IREF_RDM0_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_RDM0_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   if(v_any_dev_active)  
-//   {
-//      tcrnum = 27;
-//      vcorner = VNME;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_RDM1_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      tcrnum = 27;
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IREF_RDM1_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   Iref_RM01_Vnom_func = v_any_dev_active;
-//}   /* Iref_RM01_Vnom_func */
-//
-//
-//BoolS IPMOS_Read_Vnom_func()
-//{
-//   const IntS TESTID = 46; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 40;
-//   tcrmode = ReadMode;
-//
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 26;
+   tcrmode = ReadMode;
+   
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IREF_RDM0_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_RDM0_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites))   
+   {
+      tcrnum = 27;
+      vcorner = VNME;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_RDM1_EVEN,post,vcorner,tcrnum,tcrmode);
+   } 
+
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      tcrnum = 27;
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IREF_RDM1_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   RunTime.SetActiveSites(new_active_sites);
+   
+   return (final_results);
+}   /* Iref_RM01_Vnom_func */
+
+
+TMResultM IPMOS_Read_Vnom_func()
+{
+   const IntS TESTID = 46; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum,ssample;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 40;
+   tcrmode = ReadMode;
+
+// :TODO: Implement characterization code.
 //   if(TI_FlashCharEna and GL_DO_CHARZ_INTERNAL_IREF_VCG)  
 //      Charz_Internal_Iref_VCG;
 //   
@@ -5943,40 +5989,46 @@ TMResultM Pump_VHV2X_Vmax_func()
 //       discard(Charz_Iref_Repeat(vcorner,tcrnum,tcrmode,TNUM_BANK_IPMOS_READ_EVEN,
 //               TNUM_BANK_IPMOS_READ_ODD,ssample,true,"Z_IPMOSRD_MX"));*/
 //   } 
-//   
-//   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IPMOS_READ_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IPMOS_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   IPMOS_Read_Vnom_func = v_any_dev_active;
-//}   /* IPMOS_Read_Vnom_func */
-//
-//
-// /*changed to run at vmin instead of vnom but keep same function/test name*/
-//BoolS IPMOS_Pvfy_Vnom_func()
-//{
-//   const IntS TESTID = 47; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   tcrnum = 40;
-//   tcrmode = PvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_READ_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_READ_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* IPMOS_Read_Vnom_func */
+
+
+TMResultM IPMOS_Pvfy_Vnom_func()
+{
+   const IntS TESTID = 47; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum,ssample;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   tcrnum = 40;
+   tcrmode = PvfyMode;
+   
+// :TODO: Implement characterization code.
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IPMOS_PVFY)  
 //   {
 //      ssample = 1;
@@ -5993,40 +6045,48 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmin_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IPMOS_PVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IPMOS_PVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   IPMOS_Pvfy_Vnom_func = v_any_dev_active;
-//}   /* IPMOS_Pvfy_Vnom_func */
-//
-//
-// /*changed to run at vmax instead of vnom but keep same function/test name*/
-//BoolS IPMOS_Evfy_Vnom_func()
-//{
-//   const IntS TESTID = 48; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 40;
-//   tcrmode = EvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_PVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_PVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   }    
+   
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* IPMOS_Pvfy_Vnom_func */
+
+
+TMResultM IPMOS_Evfy_Vnom_func()
+{
+   const IntS TESTID = 48; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum,ssample;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 40;
+   tcrmode = EvfyMode;
+   
+// :TODO: Implement characterization code.
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IPMOS_EVFY)  
 //   {
 //      ssample = 1;
@@ -6043,39 +6103,48 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmax_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IPMOS_EVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IPMOS_EVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   IPMOS_Evfy_Vnom_func = v_any_dev_active;
-//}   /* IPMOS_Evfy_Vnom_func */
-//
-//
-// /*changed to run at vmin instead of vnom but keep same function/test name*/
-//BoolS IPMOS_Cvfy_Vnom_func()
-//{
-//   const IntS TESTID = 49; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum,ssample;
-//   TPModeType tcrmode;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 40;
-//   tcrmode = CvfyMode;
-//   
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_EVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_EVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+
+}   /* IPMOS_Evfy_Vnom_func */
+
+
+TMResultM IPMOS_Cvfy_Vnom_func()
+{
+   const IntS TESTID = 49; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum,ssample;
+   TPModeType tcrmode;
+   Sites savesites, new_active_sites;
+
+   GL_FLTESTID = TESTID;
+   tcrnum = 40;
+   tcrmode = CvfyMode;
+   
+// :TODO: Implement characterization code.
 //   if(TI_FlashCharEna and GL_DO_CHARZ_IPMOS_CVFY)  
 //   {
 //      ssample = 1;
@@ -6092,24 +6161,32 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //    /*PwrupAtVmin_1;*/
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   vcorner = VNME;
-//   F021_Bank_Para_func(TNUM_BANK_IPMOS_CVFY_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active and (GL_BANKTYPE != FLESBANK))  
-//   {
-//      vcorner = VNMO;
-//      F021_Bank_Para_func(TNUM_BANK_IPMOS_CVFY_ODD,post,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//   
-//   IPMOS_Cvfy_Vnom_func = v_any_dev_active;
-//}   /* IPMOS_Cvfy_Vnom_func */
-//
-//
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   vcorner = VNME;
+   final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_CVFY_EVEN,post,vcorner,tcrnum,tcrmode);
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+   
+   if(SetActiveSites(new_active_sites) and (GL_BANKTYPE != FLESBANK))  
+   {
+      vcorner = VNMO;
+      final_results = F021_Bank_Para_func(TNUM_BANK_IPMOS_CVFY_ODD,post,vcorner,tcrnum,tcrmode);
+   } 
+   
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+
+}   /* IPMOS_Cvfy_Vnom_func */
+
+
 //BoolS SA_Iref_Load_Read_Vmin_func()
 //{
 //   const IntS TESTID = 55; 
@@ -6147,47 +6224,43 @@ TMResultM Pump_VHV2X_Vmax_func()
 //   
 //   SA_Iref_Load_Read_Vmin_func = v_any_dev_active;
 //}   /* SA_Iref_Load_Read_Vmin_func */
-//
-//
-//BoolS SA_Iref_NoLoad_Read_Vmin_func()
-//{
-//   const IntS TESTID = 56; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmin_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 71;
-//   tcrmode = ReadMode;
-//   
-//   vcorner = VMNE;
-//   F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMNO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   SA_Iref_NoLoad_Read_Vmin_func = v_any_dev_active;
-//}   /* SA_Iref_NoLoad_Read_Vmin_func */
-//
-//
+
+TMResultM SA_Iref_NoLoad_Read_Vmin_func()
+{
+   const IntS TESTID = 56; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 71;
+   tcrmode = ReadMode;
+   
+   vcorner = VMNE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMNO;
+       discard(F021_Bank_Para_MBox_func(TNUM_SA_IREF_NOLOAD_READ_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* SA_Iref_NoLoad_Read_Vmin_func */
+
 //BoolS IWLDRV_Prog_Vmin_func()
 //{
 //   const IntS TESTID = 57; 
@@ -7084,29 +7157,27 @@ TMResultM EraseRefArray_func()
 //
 //   VHV_Stress_Pvfy_func = v_any_dev_active;
 //}   /* VHV_Stress_Pvfy_func */
-//
-//
-//BoolS VHV_Stress_Ers_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   tcrnum = 86;
-//   tcrmode = ErsMode;
-//   F021_Stress_func(TNUM_PUMP_VHV_FORCE_ERS,VHVStrErs_Test,tcrnum,tcrmode,final_results);
-//
-//   VHV_Stress_Ers_func = v_any_dev_active;
-//}   /* VHV_Stress_Ers_func */
-//   
-//
+
+
+TMResultM VHV_Stress_Ers_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   tcrnum = 86;
+   tcrmode = ErsMode;
+   final_results = F021_Stress_func(TNUM_PUMP_VHV_FORCE_ERS,"VHVStrErs_Test",tcrnum,tcrmode);
+
+   return (final_results);
+}   /* VHV_Stress_Ers_func */
+   
+
 // /*oxide btween WL and FG stress*/
 TMResultM RevTunnel_Stress_func()
 {
@@ -7573,54 +7644,60 @@ TMResultM FOSC_VCO_Vmin_func()
 //   FOSC_DCC_Vmax_func = v_any_dev_active;
 //} 
 //
-//
-//BoolS Pump_VHV_Stress_func()
-//{
-//   const IntS TESTID = 39; 
-//
-//   BoolM final_results;
-//
-//   GL_FLTESTID = TESTID;
-// /*   discard(VHV_Stress_Prog_func);
-//    discard(VHV_Stress_Pvfy_func);*/
-//   VHV_Stress_Ers_func;
-//   
-//   Pump_VHV_Stress_func = v_any_dev_active;
-//}   /* Pump_VHV_Stress_func */
-//   
-//
-//BoolS TP1TP2_Leak_Pre_func()
-//{
-//   const IntS TESTID = 40; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   FloatS tdelay;
-//   IntS tcrnum,tnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum  = 0;
-//   tcrmode = ReadMode;
-//   vcorner = VMX;
-//   tnum    = TNUM_ALWAYS_PASS;
-//   F021_Pump_Para_func(tnum,pre,vcorner,tcrnum,tcrmode,final_results);
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = ProgMode;
-//      F021_Pump_Para_func(tnum,pre,vcorner,tcrnum,tcrmode,final_results);
-//   } 
-//
-//   TP1TP2_Leak_Pre_func = v_any_dev_active;
-//}   /* TP1TP2_Leak_Pre_func */
+
+TMResultM Pump_VHV_Stress_func()
+{
+   const IntS TESTID = 39; 
+
+   TMResultM final_results;
+
+   GL_FLTESTID = TESTID;
+ /*   discard(VHV_Stress_Prog_func);
+    discard(VHV_Stress_Pvfy_func);*/
+   final_results = VHV_Stress_Ers_func();
+   
+   return (final_results);
+}   /* Pump_VHV_Stress_func */
+   
+
+TMResultM TP1TP2_Leak_Pre_func()
+{
+   const IntS TESTID = 40; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   FloatS tdelay;
+   IntS tcrnum,tnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   Sites savesites, new_active_sites;
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tcrnum  = 0;
+   tcrmode = ReadMode;
+   vcorner = VMX;
+   tnum    = TNUM_ALWAYS_PASS;
+   final_results = F021_Pump_Para_func(tnum,pre,vcorner,tcrnum,tcrmode);
+
+   savesites = ActiveSites;
+   new_active_sites = ActiveSites;
+   new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+  
+   if(SetActiveSites(new_active_sites))  
+   {
+      tcrmode = ProgMode;
+      final_results = F021_Pump_Para_func(tnum,pre,vcorner,tcrnum,tcrmode);
+   } 
+   
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+
+   return (final_results);
+}   /* TP1TP2_Leak_Pre_func */
 
 
 TMResultM IrefPMOS_Trim_func()
@@ -16994,139 +17071,116 @@ TMResultM Flash_ISleep_Pst_func() {
 //   PowerDownAll;
 //   Flash_IStdby_Pst_func = v_any_dev_active;
 //} 
-//
-//
-//BoolS TP1TP2_Leak_Pst_func()
-//{
-//   const IntS TESTID = 288; 
-//
-//   BoolM final_results;
-//   BoolM tmp_results;
-//   StringS current_shell;
-//   FloatS tdelay;
-//   IntS tcrnum,tnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//   FloatM deltaval;
-//   IntS site,i;
-//   StringS str1;
-//   FloatM FloatSval;
-//   TWunit unitval;
-//   StringS tname;
-//
-//   PwrupAtVmax_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tcrnum  = 0;
-//   tcrmode = ReadMode;
-//   vcorner = VMX;
-//   tnum    = TNUM_ALWAYS_PASS;
-//   F021_Pump_Para_func(tnum,post,vcorner,tcrnum,tcrmode,final_results);
-//
-//    /*calc delta*/
-//   if(v_any_dev_active)  
-//   {
-//      for (i = 1;i <= 2;i++)
-//      {
-//         if(PUMP_BANK_PARA_ENABLE[tcrnum][tcrmode][i])  
-//         {
-//            tmp_results = v_dev_active;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  deltaval[site] = TPAD_LEAK_VALUE[tcrmode][pre][i][site]-TPAD_LEAK_VALUE[tcrmode][post][i][site];
-//                  if((deltaval[site]<TP1TP2_DELTA_LLIM) or (deltaval[site]>TP1TP2_DELTA_ULIM))  
-//                     tmp_results[site] = false;
-//               } 
-//            
-//            if(i==1)  
-//               str1 = "TP1_LKG_LO_DLT";
-//            else
-//               str1 = "TP2_LKG_LO_DLT";
-//            
-//            TWTRealToRealMS(deltaval,realval,unitval);
-//            TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-//            
-//             /*if(tistdscreenprint) then
-//             begin
-//              PrintHeaderParam(GL_PLELL_FORMAT);
-//              PrintResultParam(str1,0x0,final_results,0,0,deltaval,GL_PLELL_FORMAT);
-//             end;*/
-//
-//            if(PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][i])  
-//            {
-//               tname = PUMP_BANK_PARA_TESTNAME[tcrnum][tcrmode][i][post][VMX];
-//               TestOpen(tname);
-//               ResultsRecordActive(tmp_results, S_NULL);
-//               TestClose;
-//               arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                  Devsetholdstates(final_results);
-//            } 
-//         }   /*if PUMP enable*/
-//      }    /*for i*/
-//   } 
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrmode = ProgMode;
-//      F021_Pump_Para_func(tnum,post,vcorner,tcrnum,tcrmode,tmp_results);
-//      arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//   } 
-//
-//    /*calc delta*/
-//   if(v_any_dev_active)  
-//   {
-//      for (i = 1;i <= 2;i++)
-//      {
-//         if(PUMP_BANK_PARA_ENABLE[tcrnum][tcrmode][i])  
-//         {
-//            tmp_results = v_dev_active;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  deltaval[site] = TPAD_LEAK_VALUE[tcrmode][pre][i][site]-TPAD_LEAK_VALUE[tcrmode][post][i][site];
-//                  if((deltaval[site]<TP1TP2_DELTA_LLIM) or (deltaval[site]>TP1TP2_DELTA_ULIM))  
-//                     tmp_results[site] = false;
-//               } 
-//            
-//            if(i==1)  
-//               str1 = "TP1_LKG_HI_DLT";
-//            else
-//               str1 = "TP2_LKG_HI_DLT";
-//            
-//            TWTRealToRealMS(deltaval,realval,unitval);
-//            TWPDLDataLogRealVariable(str1, unitval,realval,TWMinimumData);
-//            
-//             /*if(tistdscreenprint) then
-//             begin
-//              PrintHeaderParam(GL_PLELL_FORMAT);
-//              PrintResultParam(str1,0x0,final_results,0,0,deltaval,GL_PLELL_FORMAT);
-//             end;*/
-//
-//            if(PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][i])  
-//            {
-//               tname = PUMP_BANK_PARA_TESTNAME[tcrnum][tcrmode][i][post][VMX];
-//               TestOpen(tname);
-//               ResultsRecordActive(tmp_results, S_NULL);
-//               TestClose;
-//               arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//                  Devsetholdstates(final_results);
-//            } 
-//         }   /*if PUMP enable*/
-//      }   /*for i*/
-//   } 
-//      
-//   
-//   TP1TP2_Leak_Pst_func = v_any_dev_active;
-//}   /* TP1TP2_Leak_Pst_func */
-//
-//
+
+
+TMResultM TP1TP2_Leak_Pst_func()
+{
+   const IntS TESTID = 288; 
+
+   TMResultM final_results = TM_PASS;
+   TMResultM tmp_results;
+   StringS current_shell;
+   FloatS tdelay;
+   IntS tcrnum,tnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   FloatM deltaval;
+   IntS i;
+   StringS str1;
+   Sites savesites, new_active_sites;
+
+   bool any_device_active = true;
+   savesites = ActiveSites;
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tcrnum  = 0;
+   tcrmode = ReadMode;
+   vcorner = VMX;
+   tnum    = TNUM_ALWAYS_PASS;
+   final_results = F021_Pump_Para_func(tnum,post,vcorner,tcrnum,tcrmode);
+
+    /*calc delta*/
+    // yes, this loop needs to start at 1 because the tpads do
+   for (i = 1;i <= 2;i++)
+   {
+      if (any_device_active)
+      {
+         if(PUMP_BANK_PARA_ENABLE[tcrnum][tcrmode][i])  
+         {
+            deltaval = TPAD_LEAK_VALUE[tcrmode][pre][i] - TPAD_LEAK_VALUE[tcrmode][post][i];
+            
+            if(i==1)  
+               str1 = "TP1_LKG_LO_DLT";
+            else
+               str1 = "TP2_LKG_LO_DLT";
+            
+            tmp_results = TIDlog.Value(deltaval, UTL_VOID, TP1TP2_DELTA_LLIM, TP1TP2_DELTA_ULIM, "A", str1, 
+                                       UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+          
+            if(PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][i])  
+            {
+               if((not RunAllTests) and (not TI_FlashCOFEna))  
+               {
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+                  any_device_active = SetActiveSites(new_active_sites);
+               }
+            } 
+         }   /*if PUMP enable*/
+      }
+   }    /*for i*/
+
+   if(any_device_active)  
+   {
+      tcrmode = ProgMode;
+      tmp_results = F021_Pump_Para_func(tnum,post,vcorner,tcrnum,tcrmode);
+      DLOG.AccumulateResults(final_results, tmp_results);
+   } 
+
+    /*calc delta*/
+   for (i = 1;i <= 2;i++)
+   {
+      if(any_device_active)  
+      {
+         if(PUMP_BANK_PARA_ENABLE[tcrnum][tcrmode][i])  
+         {
+            deltaval = TPAD_LEAK_VALUE[tcrmode][pre][i]-TPAD_LEAK_VALUE[tcrmode][post][i];
+            
+            if(i==1)  
+               str1 = "TP1_LKG_HI_DLT";
+            else
+               str1 = "TP2_LKG_HI_DLT";
+            
+            tmp_results = TIDlog.Value(deltaval, UTL_VOID, TP1TP2_DELTA_LLIM, TP1TP2_DELTA_ULIM, "A", str1, 
+                                       UTL_VOID, UTL_VOID, true, TWMinimumData);
+
+            final_results = DLOG.AccumulateResults(final_results, tmp_results);
+
+            if(PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][i])  
+            {
+               if((not RunAllTests) and (not TI_FlashCOFEna))  
+               {
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+                  any_device_active = SetActiveSites(new_active_sites);
+               }
+            } 
+         }   /*if PUMP enable*/
+      }   
+   } /*for i*/ 
+      
+   // cleanup
+   RunTime.SetActiveSites(savesites);
+   
+   return (final_results);
+}   /* TP1TP2_Leak_Pst_func */
+
 //BoolS WrEngRow_func()
 //{
 //   const IntS TESTID = 300; 

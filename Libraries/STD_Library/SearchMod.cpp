@@ -50,6 +50,14 @@ const 	int     NEGATIVE_SLOPE                  = false;
             ptr_y_MSa = 0.;
             ptr_xy_MSa = 0.;
             
+            // these were in the Begin functions, but since order of functions
+            // could overwrite them (ie. if you did SkipMinMax, then called Begin)
+            // it's best to put the initialization here
+            searchSkipMinMax        = false;
+            saSeededValue           = false;
+            searchSkipMinMax        = false;
+
+            
 }
         SearchMod::~SearchMod   () {
     // TODO Auto-generated destructor stub
@@ -211,8 +219,8 @@ targetY   	//search value on y axis
     searchNotDone           = true;
     searchDbgPrintHeader    = true;
     m_searchIndex			        = 0;
-    searchSkipMinMax        = false;
     m_searchAlarm             = TARGET_FOUND;
+    m_searchMaxIndex        = maxSteps;
 
     // save search X parameters
     xMinMS		      = startX;
@@ -287,9 +295,9 @@ targetY    search will terminate once targetY+-toleranceY is reached
     searchNotDone           = true;
     searchDbgPrintHeader    = true;
     m_searchIndex			        = 0;
-    searchSkipMinMax        = false;
     m_searchAlarm           = TARGET_FOUND;
     m_searchAlarmMS         = TARGET_FOUND;
+    m_searchMaxIndex        = maxSteps;
 
     // save search X parameters
     xMinMS		      = startX;
@@ -366,6 +374,14 @@ BinarySearchBegin must be executed before this function.
 
 }
 
+ 
+void    SearchMod::SASetInitialValues   (FloatM initialX, FloatS initialSlope){
+
+    saSeededValue = true;
+    estimatedSlope = initialSlope;
+    xForceValueMS = initialX;
+}
+    
  
 ///////////////////////////////////////////////////////////////////////////////////////
 //void    SearchMod::LinearSearchNext     (float  measuredY ){
@@ -707,25 +723,36 @@ void    SearchMod::SASkipMMSearchNext   (FloatM measuredY ){
      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
 
          if      (m_searchIndex == 0 ){          //  MID value was tested
-             if      ( abs(measuredY [*si] - yTargetMS [*si]) < yToleranceMS [*si] ){
+             if ( abs(measuredY [*si] - yTargetMS [*si]) < yToleranceMS [*si] ){
                  sitesToDisable += *si;  //target found on first try
-             } else{
+             } else {
                  x1MS [*si] = xForceValueMS  [*si];                       //save results
                  y1MS [*si] = measuredY      [*si];
                  
+                 if (saSeededValue) {
+                    // replicate value since we are skipping the index == 1 stuff below
+                    // x1/y1 or x2/y2 will be replaced as appropriate during calculations 
+                    // later, but we need the other to be this point
+                    x2MS [*si] = xForceValueMS  [*si];      
+                    y2MS [*si] = measuredY      [*si];
+                    
+                    b = y1MS[*si] - estimatedSlope * x1MS[*si];
+                    xForceValueMS [*si] = (yTargetMS [*si] - b)/estimatedSlope;
+                 } else {
  //                if (searchPositiveSlope ^ (measuredY[*si] > yTargetMS[*si])){
-                 if (searchPositiveSlope != (measuredY[*si] > yTargetMS[*si])){      // != used as XOR
-                     xForceValueMS     [*si] = xMaxMS [*si]; //set up for max value               		// set up for max value
-                     searchMinPassedMS [*si] = true;
-                     searchMaxPassedMS [*si] = false;              
-                 } else{
-                     xForceValueMS     [*si] = xMinMS [*si]; //set up for min value               		// set up for max value
-                     searchMinPassedMS [*si] = false;
-                     searchMaxPassedMS [*si] = true;                              
-                 }                
+                    if (searchPositiveSlope != (measuredY[*si] > yTargetMS[*si])){      // != used as XOR
+                        xForceValueMS     [*si] = xMaxMS [*si]; //set up for max value               		// set up for max value
+                        searchMinPassedMS [*si] = true;
+                        searchMaxPassedMS [*si] = false;              
+                    } else{
+                        xForceValueMS     [*si] = xMinMS [*si]; //set up for min value               		// set up for max value
+                        searchMinPassedMS [*si] = false;
+                        searchMaxPassedMS [*si] = true;                              
+                    } 
+                 }
              }
          } 
-         else if (m_searchIndex == 1 ){          //  max or nin value was tested
+         else if (m_searchIndex == 1 && !saSeededValue){          //  max or nin value was tested
 
              if(searchPositiveSlope != (measuredY[*si] > yTargetMS[*si]))    searchMaxPassedMS [*si] = true;
              else                                                            searchMinPassedMS [*si] = true;

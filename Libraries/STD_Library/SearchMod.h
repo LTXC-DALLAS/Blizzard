@@ -47,6 +47,10 @@ public:
 //    bool    SASearchBegin           ( float  startX, float  stopX, float  toleranceY, float  targetY, unsigned maxSteps=30 );
     bool    SASearchBegin           ( FloatM startX, FloatM stopX, FloatM toleranceY, FloatM targetY, unsigned maxSteps=30 );
 
+    // SASetInitialValues is optional and used to set an initial starting point and initial slope if your 
+    // target tends to be around a specific area of the possible X values. It could speed up test time
+    // by reducing search loops if the device is well characterized.
+    void    SASetInitialValues      (FloatM initialX, FloatS initialSlope);
     void    SkipMinMax              (	bool    slopeIsPositive );
 
 //    void    SearchNext              ( float  measuredY );
@@ -172,6 +176,7 @@ private:
 
     bool    searchSkipMinMax;
     bool    searchPositiveSlope;
+    bool    saSeededValue;
 
 //    float   xMin;
 //    float   xMax;
@@ -186,6 +191,8 @@ private:
     FloatM  xMaxMS;
     FloatM  xStepMS;
     FloatM  xToleranceMS;
+    
+    FloatS  estimatedSlope;
 
     FloatM  yTargetMS;
     FloatM  yToleranceMS;

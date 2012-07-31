@@ -1505,7 +1505,7 @@ __SubFlow F021FlashFlow_S {
         __Exec = Iref_Rd_Vfy;
     }
     __Node SA_Iref_NoLoad_Read_Vmin_T_594 {
-        __XCoord = (192,147);
+        __XCoord = (63,147);
         __Port[0] {
             __PortPosition = 271;
         }
@@ -1522,14 +1522,14 @@ __SubFlow F021FlashFlow_S {
         __Exec = SA_Iref_NoLoad_Read_Vmin_T;
     }
     __Node IWLDRV_Prog_Vmin_T_597 {
-        __XCoord = (56,148);
+        __XCoord = (64,268);
         __Port[0] {
-            __PortPosition = 268;
+            __PortPosition = 88;
         }
         __Port[1] {
             __PortPosition = 180;
         }
-        __InputPosition = 88;
+        __InputPosition = 275;
         __SpecPairs {
             PSSpecs = __Expression { __String = "PSSpecs.PS_Vmin"; __Type = INTEGER; }
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
@@ -1539,13 +1539,30 @@ __SubFlow F021FlashFlow_S {
         __Exec = IWLDRV_Prog_Vmin_T;
     }
     __Node F021_Leak_601 {
-        __XCoord = (45,270);
+        __XCoord = (192,266);
         __Port[0] {
-            __PortPosition = 280;
+            __PortPosition = 90;
         }
         __InputPosition = 270;
         __TestID = "";
         __Exec = F021_Leak;
+    }
+    __Node Iref_RM01_Vnom_T_1827 {
+        __XCoord = (230,149);
+        __Port[0] {
+            __PortPosition = 275;
+        }
+        __Port[1] {
+            __PortPosition = 180;
+        }
+        __InputPosition = 87;
+        __SpecPairs {
+            PSSpecs = __Expression { __String = "PSSpecs.PS_Vnom"; __Type = INTEGER; }
+            DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
+            ACSpecs = __Expression { __String = "ACSpecs.AC_cat_FTN"; __Type = INTEGER; }
+        }
+        __TestID = "128000000";
+        __Exec = Iref_RM01_Vnom_T;
     }
     __NameFormat = "{Exec}_{GCounter}";
     __StartNode = F021_InitFLGlobalVars_317;
@@ -1569,9 +1586,10 @@ __SubFlow F021FlashFlow_S {
         VreadBuf_545 __Port[0] = TP1TP2_Leak_555;
         TP1TP2_Leak_555 __Port[0] = IPMOS_Rd_Vfy_567;
         IPMOS_Rd_Vfy_567 __Port[0] = Iref_Rd_Vfy_581;
-        Iref_Rd_Vfy_581 __Port[0] = SA_Iref_NoLoad_Read_Vmin_T_594;
+        Iref_Rd_Vfy_581 __Port[0] = Iref_RM01_Vnom_T_1827;
         SA_Iref_NoLoad_Read_Vmin_T_594 __Port[0] = IWLDRV_Prog_Vmin_T_597;
         IWLDRV_Prog_Vmin_T_597 __Port[0] = F021_Leak_601;
+        Iref_RM01_Vnom_T_1827 __Port[0] = SA_Iref_NoLoad_Read_Vmin_T_594;
     }
     __Background {
         __String = "Currently run @ Nom per KChau";
