@@ -510,3 +510,13 @@ void CyclePower(Levels powerDownLevels1, Levels powerDownLevels2, FloatS powerDo
    if (powerUpLevels2.Valid())
       powerUpLevels2.Execute();
 }
+
+void codetest (IntS senampnum)
+{
+   IntS1D din_array(19,0xffff);
+   IntS count, numword_max=4;
+   
+//   for (count = 0;count <= numword_max;count++) din_array[count] = 0xffff;
+   
+   cout << "Sense Amp Number " << setw(5) << senampnum << " DataMask == " << hex << din_array[(senampnum/16)] << endl;
+}

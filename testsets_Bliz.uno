@@ -8551,7 +8551,6 @@ __Test MainBG_Trim_T {
         }
     }
 }
-<<<<<<< HEAD
 __Test VBOXLO_MEMORY_PG_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
@@ -8609,7 +8608,6 @@ __Test VBOXLO_MEMORY_T {
         }
     }
 }
-=======
 __Test InitVars {
     __PortExpression[0] = __Expression { __String = "TRUE"; }
     __Block[0] = {
@@ -8750,4 +8748,3 @@ __Test EGS_Leak_Vmax_T {
     __PortExpression[1] = __Expression { __String = "TRUE"; }
 }
 
->>>>>>> c9d9082bf21b238c08c66204d2a8185a9bd28265

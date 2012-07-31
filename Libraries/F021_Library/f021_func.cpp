@@ -6819,12 +6819,7 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
     /*this is to preventing running previous testnumber due to problem*/
     /*during updating new testnumber which can cause false pass*/
 
-<<<<<<< HEAD
-
-   Get_Flash_TestLogSpace_SCRAM(); //Error: Attempt made to perform "StartCapture" with a capture, CapRam32, whose wordCount is not the same as the wordCount of the capture, CapRam4, that has already been started.
-=======
    Get_Flash_TestLogSpace_SCRAM();
->>>>>>> c9d9082bf21b238c08c66204d2a8185a9bd28265
 
    Get_TLogSpace_TNUM(value2,value1);
    
@@ -7998,27 +7993,106 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
    return (test_results);
 }   /* F021_RunTestNumber_PMEX */
 
-//void MBox_Upload_IProg(IntS senampnum)
-//{
-//   IntS site,length,count,index;
-//   IntS wr_flag_num,dbit,sbit;
-//   IntS numword,numword_max;
-//   IntM msw_data,lsw_data;
-//   IntS addr_loc,tmp_value;
-//   BoolS bcd_format,hexvalue;
-//   IntS1D din_array(19);
-//   BoolS debugprint;
-//
+void MBox_Upload_IProg(IntS senampnum)
+{
+   IntS site,length,count,index;
+   IntS wr_flag_num,dbit,sbit;
+   IntS numword,numword_max;
+   IntM msw_data,lsw_data;
+   IntS addr_loc,tmp_value;
+   BoolS bcd_format,hexvalue;
+   IntS1D din_array(19,0xffff);
+   BoolS debugprint;
+
 //   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ MBox_Upload_IProg +++++" << endl;
-//
-//      wr_flag_num = 0x1234;
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      addr_loc = ADDR_RAM_MAILBOX;
-//
+   if (ActiveSites.GetPassingSites().AnyEqual(true))
+   {
+      if(tistdscreenprint and TI_FlashDebug)  
+         cout << "+++++ MBox_Upload_IProg +++++" << endl;
+
+      wr_flag_num = 0x1234;
+      bcd_format  = true;
+      hexvalue    = true;
+      addr_loc = ADDR_RAM_MAILBOX;
+
+      if(F021_Flash.DATAWIDTH==64)       { numword_max = 4; }
+      else if(F021_Flash.DATAWIDTH==144) { numword_max = 9; }
+      else if(F021_Flash.DATAWIDTH==288) { numword_max = 18; }
+      else                               { numword_max = 9; }
+//if else code above replaces switch code
+//      switch(F021_Flash.DATAWIDTH) {
+//        case 64  : numword_max = 4;
+//        case 144 : numword_max = 9;
+//        case 288 : numword_max = 18;
+//        default: numword_max = 9;
+//      }   /* case */
+      
+//eliminated this code and initialized array in the constructor
+//      for (count = 0;count <= numword_max;count++)
+//         din_array[count] = 0xffff;
+
+       /*upload write flag (msw) and data length (lsw)*/
+      msw_data = wr_flag_num;  /*msword*/
+      lsw_data = numword_max;  /*lsword*/
+       /*upload to ram 32-bit write flag and data length*/
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+      index = senampnum / 16;
+      sbit = senampnum % 16;
+      dbit = 1 << (15-sbit);
+      din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
+
+      debugprint = false;
+      if(tistdscreenprint and debugprint)  
+//         cout << "Sense Amp Number " << senampnum:-5 << " DataMask == " << din_array[index]:s_hex << endl;
+         cout << "Sense Amp Number " << setw(5) << senampnum << " DataMask == " << hex << din_array[index] << endl;
+         
+//      for count = 0 to (numword_max-1) by 2 do
+      for (count = 0;count<=(numword_max-1);count+=2)
+      {
+         addr_loc = addr_loc+ADDR_RAM_INC;
+         msw_data = din_array[count];
+         lsw_data = din_array[count+1];
+         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
+                                  msw_data,hexvalue,bcd_format);
+      }   /*for count*/
+//not yet implemented
+//      if(tistdscreenprint and debugprint)  
+//         DumpRamMailbox;
+   } 
+   
+}   /* MBox_Upload_IProg */
+
+
+void MBox_Upload_ISenAmp(IntS senampnum)
+{
+   IntS site,length,count,index;
+   IntS wr_flag_num,dbit,sbit;
+   IntS numword,numword_max;
+   IntM msw_data,lsw_data;
+   IntS addr_loc,tmp_value;
+   BoolS bcd_format,hexvalue;
+   IntS1D din_array(19,0xffff);
+   BoolS debugprint;
+
+//   if(v_any_dev_active)  
+   if (ActiveSites.GetPassingSites().AnyEqual(true))
+   {
+      if(tistdscreenprint and TI_FlashDebug)  
+         cout << "+++++ MBox_Upload_ISenAmp +++++" << endl;
+
+      bcd_format  = true;
+      hexvalue    = true;
+      wr_flag_num = 0x1234;
+
+      addr_loc    = ADDR_RAM_MAILBOX;
+
+      if (F021_Flash.DATAWIDTH==64)       {numword_max = 4;}
+      else if (F021_Flash.DATAWIDTH==144) {numword_max = 9;}
+      else if (F021_Flash.DATAWIDTH==288) {numword_max = 18;}
+      else                                {numword_max = 9;}
+      
+//replaced with if/else syntax above
 //      switch(F021_Flash.DATAWIDTH) {
 //        case 64  : numword_max = 4;
 //        case 144 : numword_max = 9;
@@ -8026,171 +8100,108 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
 //        default: numword_max = 9;
 //      }   /* case */
 //      
+// initialize this array in the constructor so this code is superfluous
 //      for (count = 0;count <= numword_max;count++)
 //         din_array[count] = 0xffff;
-//
-//       /*upload write flag (msw) and data length (lsw)*/
-//      msw_data = wr_flag_num;  /*msword*/
-//      lsw_data = numword_max;  /*lsword*/
-//       /*upload to ram 32-bit write flag and data length*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//
-//      index = senampnum div 16;
-//      sbit = senampnum mod 16;
-//      dbit = 1 << (15-sbit);
-//      din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
+      
+       /*upload write flag (msw) and data length (lsw)*/
+      msw_data = wr_flag_num;  /*msword*/
+      lsw_data = numword_max;  /*lsword*/
+       /*upload to ram 32-bit write flag and data length*/
+      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+
+      if(numword_max==9)  
+      {
+         if(((senampnum>=0) && (senampnum<=7)) || ((senampnum>=136) && (senampnum<=143)))  
+         {
+            index = 8;
+            if(senampnum<=7)  
+               dbit = 1 << (senampnum+8);
+            else
+               dbit = 1 << (senampnum-136);
+         }
+         else if((senampnum>=8) and (senampnum<=39))  
+         {
+            if(senampnum>=24)  
+            {
+               index = 0;
+               dbit  = 1 << (senampnum-24);
+            }
+            else
+            {
+               index = 1;
+               dbit  = 1 << (senampnum-8);
+            } 
+         }
+         else if((senampnum>=40) and (senampnum<=71))  
+         {
+            if(senampnum>=56)  
+            {
+               index = 2;
+               dbit  = 1 << (senampnum-56);
+            }
+            else
+            {
+               index = 3;
+               dbit  = 1 << (senampnum-40);
+            } 
+         }
+         else if((senampnum>=72) and (senampnum<=103))  
+         {
+            if(senampnum>=88)  
+            {
+               index = 4;
+               dbit  = 1 << (senampnum-88);
+            }
+            else
+            {
+               index = 5;
+               dbit  = 1 << (senampnum-72);
+            } 
+         }
+         else  /*104 to 135*/
+         {
+            if(senampnum>=120)  
+            {
+               index = 6;
+               dbit  = 1 << (senampnum-120);
+            }
+            else
+            {
+               index = 7;
+               dbit  = 1 << (senampnum-104);
+            } 
+         } 
+
+         din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
+      }
+      else
+      {
+         index = senampnum / 16;
+         sbit = senampnum % 16;
+         dbit = 1 << (15-sbit);
+         din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
+      } 
+
+      debugprint = false;
+      if(tistdscreenprint and debugprint)  
 //         cout << "Sense Amp Number " << senampnum:-5 << " DataMask == " << din_array[index]:s_hex << endl;
-//
-//      for count = 0 to (numword_max-1) by 2 do
-//      {
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//         msw_data = din_array[count];
-//         lsw_data = din_array[count+1];
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                                  msw_data,hexvalue,bcd_format);
-//      }   /*for count*/
-//
+         cout << "Sense Amp Number " << setw(5) << senampnum << " DataMask == " << hex << din_array[index] << endl;
+         
+      for (count = 0;count<=(numword_max-1);count+=2)
+      {
+         addr_loc = addr_loc+ADDR_RAM_INC;
+         msw_data = din_array[count];
+         lsw_data = din_array[count+1];
+         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+      }   /*for count*/
+
+//Not yet implemented
 //      if(tistdscreenprint and debugprint)  
 //         DumpRamMailbox;
-//   } 
-//   
-//}   /* MBox_Upload_IProg */
-//
-//
-//void MBox_Upload_ISenAmp(IntS senampnum)
-//{
-//   IntS site,length,count,index;
-//   IntS wr_flag_num,dbit,sbit;
-//   IntS numword,numword_max;
-//   IntM msw_data,lsw_data;
-//   IntS addr_loc,tmp_value;
-//   BoolS bcd_format,hexvalue;
-//   IntS1D din_array(19);
-//   BoolS debugprint;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ MBox_Upload_ISenAmp +++++" << endl;
-//
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      wr_flag_num = 0x1234;
-//
-//      addr_loc    = ADDR_RAM_MAILBOX;
-//
-//      switch(F021_Flash.DATAWIDTH) {
-//        case 64  : numword_max = 4;
-//        case 144 : numword_max = 9;
-//        case 288 : numword_max = 18;
-//        default: numword_max = 9;
-//      }   /* case */
-//      
-//      for (count = 0;count <= numword_max;count++)
-//         din_array[count] = 0xffff;
-//      
-//       /*upload write flag (msw) and data length (lsw)*/
-//      msw_data = wr_flag_num;  /*msword*/
-//      lsw_data = numword_max;  /*lsword*/
-//       /*upload to ram 32-bit write flag and data length*/
-//      WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                               msw_data,hexvalue,bcd_format);
-//
-//      if(numword_max==9)  
-//      {
-//         if(((senampnum>==0) and (senampnum<==7)) or ((senampnum>==136) and (senampnum<==143)))  
-//         {
-//            index = 8;
-//            if(senampnum<==7)  
-//               dbit = 1 << (senampnum+8);
-//            else
-//               dbit = 1 << (senampnum-136);
-//         }
-//         else if((senampnum>==8) and (senampnum<==39))  
-//         {
-//            if(senampnum>==24)  
-//            {
-//               index = 0;
-//               dbit  = 1 << (senampnum-24);
-//            }
-//            else
-//            {
-//               index = 1;
-//               dbit  = 1 << (senampnum-8);
-//            } 
-//         }
-//         else if((senampnum>==40) and (senampnum<==71))  
-//         {
-//            if(senampnum>==56)  
-//            {
-//               index = 2;
-//               dbit  = 1 << (senampnum-56);
-//            }
-//            else
-//            {
-//               index = 3;
-//               dbit  = 1 << (senampnum-40);
-//            } 
-//         }
-//         else if((senampnum>==72) and (senampnum<==103))  
-//         {
-//            if(senampnum>==88)  
-//            {
-//               index = 4;
-//               dbit  = 1 << (senampnum-88);
-//            }
-//            else
-//            {
-//               index = 5;
-//               dbit  = 1 << (senampnum-72);
-//            } 
-//         }
-//         else  /*104 to 135*/
-//         {
-//            if(senampnum>==120)  
-//            {
-//               index = 6;
-//               dbit  = 1 << (senampnum-120);
-//            }
-//            else
-//            {
-//               index = 7;
-//               dbit  = 1 << (senampnum-104);
-//            } 
-//         } 
-//
-//         din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
-//      }
-//      else
-//      {
-//         index = senampnum div 16;
-//         sbit = senampnum mod 16;
-//         dbit = 1 << (15-sbit);
-//         din_array[index] = din_array[index] ^ dbit;  /*bit=0 means selected*/
-//      } 
-//
-//      debugprint = false;
-//      if(tistdscreenprint and debugprint)  
-//         cout << "Sense Amp Number " << senampnum:-5 << " DataMask == " << din_array[index]:s_hex << endl;
-//         
-//      for count = 0 to (numword_max-1) by 2 do
-//      {
-//         addr_loc = addr_loc+ADDR_RAM_INC;
-//         msw_data = din_array[count];
-//         lsw_data = din_array[count+1];
-//         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                                  msw_data,hexvalue,bcd_format);
-//      }   /*for count*/
-//
-//      if(tistdscreenprint and debugprint)  
-//         DumpRamMailbox;
-//   } 
-//   
-//}   /* MBox_Upload_ISenAmp */
+   } 
+   
+}   /* MBox_Upload_ISenAmp */
 //
 //
 //
@@ -13233,7 +13244,7 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 
    FloatS tdelay,maxtime;
    BoolM savesites,logsites;
-   TMResultM tmp_results,final_results,rtest_results;
+   TMResultM final_results,rtest_results;
    IntS site,bankcount;
    IntS pattype,testnum;
    IntS tpnum,tpstart,tpstop,tpcount;
@@ -13256,7 +13267,7 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
    BoolS binout_ena,logall;
    IntS senampnum,tmpint;
    IntM min_sampnum,max_sampnum;
-   FloatM min_value,max_value;
+   FloatM tmp_results,min_value,max_value;
    FloatS FloatSvalsite;
    IntS loopmin,loopmax;
 
@@ -13310,23 +13321,28 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 
 //      if(TI_FlashCOFEna)  
 //         F021_Init_COF_Inst_Str(site_cof_inst_str); //This function basically sets site_cof_inst_str to ''
-      site_cof_inst_str = '';
+      site_cof_inst_str = "";
       
       if(tistdscreenprint)  
          PrintHeaderParam(GL_PLELL_FORMAT);
 
       logall = false;
-      switch(tcrnum) {
-        case TCR_IPROG_DRV   : 
-             logall = GL_DO_TWLOGALL_IPROG_DRV;
-             break;
-        case TCR_ISAMP_LOAD  : 
-             logall = GL_DO_TWLOGALL_ISA_LD;
-             break;
-        case TCR_ISAMP_NLOAD : 
-             logall = GL_DO_TWLOGALL_ISA_NLD;
-             break;
-      }   /* case */
+      if (TCRnum == TCR_IPROG_DRV) { logall = GL_DO_TWLOGALL_IPROG_DRV; }
+      else if (TCRnum == TCR_ISAMP_LOAD) { logall = GL_DO_TWLOGALL_ISA_LD; }
+      else if (TCRnum == TCR_ISAMP_NLOAD) { logall = GL_DO_TWLOGALL_ISA_NLD; }
+
+//this switch statement replaced with if/else code above
+//      switch(TCRnum) {
+//        case TCR_IPROG_DRV   : 
+//             logall = GL_DO_TWLOGALL_IPROG_DRV;
+//             break;
+//        case TCR_ISAMP_LOAD  : 
+//             logall = GL_DO_TWLOGALL_ISA_LD;
+//             break;
+//        case TCR_ISAMP_NLOAD : 
+//             logall = GL_DO_TWLOGALL_ISA_NLD;
+//             break;
+//      }   /* case */
 
 #if $FL_USE_AUTO_FLOW  
       loopmin = 0;
@@ -13352,21 +13368,30 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 
          for (senampnum = loopmin;senampnum <= loopmax;senampnum++)
          {
-            switch(tcrnum) {
-              case TCR_IPROG_DRV   :  
-                 MBox_Upload_IProg(senampnum);  /*datain mask*/
-                 break; 
-              case TCR_ISAMP_LOAD :
-              case TCR_ISAMP_NLOAD :  
-                 MBox_Upload_ISenAmp(senampnum);
-                 break; 
-              default:  
-                 if(tistdscreenprint)  
-                   cout << "*** WARNING: Invalid TCR number entered !!!" << endl;
-                 break; 
-            }   /* case */
+            if (TCRnum == TCR_IPROG_DRV) { MBox_Upload_IProg(senampnum); } /*datain mask*/
+            else if ((TCRnum == TCR_ISAMP_LOAD) || (TCRnum == TCR_ISAMP_NLOAD)) { MBox_Upload_ISenAmp(senampnum); }
+            else 
+            {
+               if(tistdscreenprint)  
+                  cout << "*** WARNING: Invalid TCR number entered !!!" << endl;
+            }
+               
+//switch statement replaced with above if/else code            
+//            switch(TCRnum) {
+//              case TCR_IPROG_DRV   :  
+//                 MBox_Upload_IProg(senampnum);  /*datain mask*/
+//                 break; 
+//              case TCR_ISAMP_LOAD :
+//              case TCR_ISAMP_NLOAD :  
+//                 MBox_Upload_ISenAmp(senampnum);
+//                 break; 
+//              default:  
+//                 if(tistdscreenprint)  
+//                   cout << "*** WARNING: Invalid TCR number entered !!!" << endl;
+//                 break; 
+//            }   /* case */
 
-            F021_TurnOff_AllTpads();
+//            F021_TurnOff_AllTpads(); //not sure where this function is defined
             F021_Set_TPADS(TCRnum,TCRMode);
             rtest_results=F021_RunTestNumber_PMEX(testnum,maxtime);
             TIME.Wait(tdelay);
@@ -13412,11 +13437,12 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 #endif
                   }   /*case tpnum*/
             
-                  tmp_results=F021_Meas_TPAD_PMEX(testpad,tcrnum,tcrmode,llim,ulim,meas_value);
+//                  tmp_results=F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode,llim,ulim,meas_value);
+                  tmp_results=F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
                   
 //                  ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-                  tmp_results = DLOG.AccumulateResults(tmp_results,rtest_results);
-
+//                  tmp_results = DLOG.AccumulateResults(tmp_results,rtest_results);
+final_results= DLOG.AccumulateResults(final_results,rtest_results);
                    /*store min/max meas_value and respective senampnumber*/
                   if(not once)  
                   {
@@ -13469,7 +13495,7 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
                   if(tpstart==tpstop)  
                      tmpstr3 = tmpstr1 + tmpstr2;
                   else
-                     tmpstr3 = BANK_PARA_TWSTR[TCRnum][TCRMode][tpnum][prepost][vcorner] + tmpstr2;
+//                     tmpstr3 = BANK_PARA_TWSTR[TCRnum][TCRMode][tpnum][prepost][vcorner] + tmpstr2; //find out where this is populated
 //                  writestring(tmpstr2,senampnum:1);
 //                  tmpstr2 = "_SA" + tmpstr2;
 //                  tmpstr3 = tmpstr3 + tmpstr2;
@@ -13528,11 +13554,11 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 //                  
 //                  if(not v_any_dev_active)  
 //                     break;
-//               }   /*if PUMP_BANK_PARA_ENABLE*/
+               }   /*if PUMP_BANK_PARA_ENABLE*/
 //               
 //               if(not v_any_dev_active)  
 //                  break;
-//            }   /*for tpnum*/
+            }   /*for tpnum*/
 //
 //            Disable(s_pmexit);
 //
@@ -13569,9 +13595,9 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 //            str3 = str1 + "_MAX";
 //            TWTRealToRealMS(max_value,realval,unitval);
 //            TWPDLDataLogRealVariable(str3,unitval,realval,TWMinimumData);
-//         } 
+         } 
 //         
-//      }   /*for bankcount*/
+      }   /*for bankcount*/
 //
 //       /*restore all active sites*/
 //      Devsetholdstates(savesites);
@@ -13603,9 +13629,10 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
 //            DevSetHoldStates(final_results);
 //
 //      test_results = final_results;
-//   }   /*if v_any_dev_active and parmena*/
+   }   /*if v_any_dev_active and parmena*/
 //   
 //   F021_Bank_Para_MBox_func = V_any_dev_active;
+return(final_results); //just to get a good compile
 }   /* F021_Bank_Para_MBox_func */
    
 

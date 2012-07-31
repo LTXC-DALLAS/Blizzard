@@ -229,13 +229,13 @@ __SignalHeader ScanHeaderZ_1k {
 __SignalHeader ScanHeader3 {
     __Signals {
         PA2_48 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
-        C1_n_45 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
+        C1_n_45 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; } //Out
         PA3_49 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
-        C1_p_44 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
+        C1_p_44 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; } //Out
         PA4_50 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
-        C0_p_43 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
+        C0_p_43 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; } //Out
         PA5_51 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
-        C0_n_42 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
+        C0_n_42 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; } //Out
         PA6_54 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
         TRD2_88 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
         PA7_55 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
@@ -244,6 +244,14 @@ __SignalHeader ScanHeader3 {
         TRD0_90 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
         PB1_130 { __Scan, __ScanLength = 291, __Fill = L, __PreFill; }
         PF3_91 { __Scan, __ScanLength = 291, __Fill = M, __PostFill; }
+    }
+}
+__SignalHeader ScanHeader4 {
+    __Signals {
+        o_cpu_done_46 { __Scan, __ScanLength = 2056, __Fill = L, __PreFill; } //In
+        o_cpu_fail_47 { __Scan, __ScanLength = 2056, __Fill = M, __PostFill; } //Out
+        TDO_149 { __Scan, __ScanLength = 2056, __Fill = M, __PostFill; }  //Out
+        TDI_150 { __Scan, __ScanLength = 2056, __Fill = L, __PreFill; } //In
     }
 }
 
@@ -365,8 +373,10 @@ __PatternMap DefaultPatternMap {
 */
 /*********  END v4p0 FLASH PATTERNS  *********/
 
-
-
+    __Pattern XD_a_st_tk_1_9pDSH {
+        __File "XD_a_st_tk_1_9pDSH";
+        __Path "./Patterns/Ascii";
+    }
     __Pattern TestPatScan {
         __File "TestPatScan";
         __Path "./Patterns/Ascii";

@@ -2081,11 +2081,8 @@ __PatternSequence FlashTestNum_SEQ {
         __Row { TDLStdPatGrp, WFT11 = { WFT11 } }
         __Row { TDLStdPatGrp, WFT5 = { WFT5 } }
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
-<<<<<<< HEAD
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
-=======
         __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
->>>>>>> c9d9082bf21b238c08c66204d2a8185a9bd28265
     }
     __AutoBasePeriod = __True;
     __PinModes {
