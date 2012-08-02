@@ -8923,3 +8923,538 @@ __Test Iref_RM01_Vnom_T {
         }
     }
 }
+
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**             Begin BJP f021 Flash Tests               **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/
+
+__Test Pump_Leak_Vmax_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Pump_Leak_Vmax;
+        __TestMethod {
+            __Name = Pump_Leak_Vmax_func;
+        }
+    }
+}
+__Test EGCG_Leak_Vmax_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = EGCG_Leak_Vmax;
+        __TestMethod {
+            __Name = EGCG_Leak_Vmax_func;
+        }
+    }
+}
+__Test CGS_Leak_Vmax_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = CGS_Leak_Vmax;
+        __TestMethod {
+            __Name = CGS_Leak_Vmax_func;
+        }
+    }
+}
+__Test EGCSS_Leak_Vmax_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = EGCSS_Leak_Vmax;
+        __TestMethod {
+            __Name = EGCSS_Leak_Vmax_func;
+        }
+    }
+}
+__Test EGS_LEAK_VMAX_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = EGS_Leak_Vmax;
+        __TestMethod {
+            __Name = EGS_Leak_Vmax_func;
+        }
+    }
+}
+__Test Flash_Cycle1X_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Flash_Cycle1X;
+        __TestMethod {
+            __Name = Flash_Cycle1X_func;
+        }
+    }
+}
+__Test Flash_Cycle1X_Pgm_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Flash_Cycle1X_Pgm;
+        __TestMethod {
+            __Name = Flash_Cycle1X_Pgm_func;
+        }
+    }
+}
+__Test RdM1_PstCycle1X_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM1_PstCycle1X;
+        __TestMethod {
+            __Name = RdM1_PstCycle1X_func;
+        }
+    }
+}
+__Test PgmMain_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmMain;
+        __TestMethod {
+            __Name = PgmMain_func;
+        }
+    }
+}
+__Test RdM0_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0;
+        __TestMethod {
+            __Name = RdM0_func;
+        }
+    }
+}
+__Test BankErs_PreThinOxide_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = BankErs_PreThinOxide;
+        __TestMethod {
+            __Name = BankErs_PreThinOxide_func;
+        }
+    }
+}
+__Test ErsOTP_PreThinOxide_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ErsOTP_PreThinOxide;
+        __TestMethod {
+            __Name = ErsOTP_PreThinOxide_func;
+        }
+    }
+}
+__Test PreThinOxideVT1_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PreThinOxideVT1;
+        __TestMethod {
+            __Name = PreThinOxideVT1_func;
+        }
+    }
+}
+__Test PreThinOxideVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PreThinOxideVT1OTP;
+        __TestMethod {
+            __Name = PreThinOxideVT1OTP_func;
+        }
+    }
+}
+__Test ThinOxide_Stress_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ThinOxide_Stress;
+        __TestMethod {
+            __Name = ThinOxide_Stress_func;
+        }
+    }
+}
+__Test PstThinOxideVT1_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstThinOxideVT1;
+        __TestMethod {
+            __Name = PstThinOxideVT1_func;
+        }
+    }
+}
+__Test PstThinOxideVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstThinOxideVT1OTP;
+        __TestMethod {
+            __Name = PstThinOxideVT1OTP_func;
+        }
+    }
+}
+__Test ThinOxideVt1Delta_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ThinOxideVt1Delta;
+        __TestMethod {
+            __Name = TunOxideVT1Delta_func;
+        }
+    }
+}
+__Test ThinOxideVt1DeltaOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ThinOxideVt1DeltaOTP;
+        __TestMethod {
+            __Name = ThinOxideVT1DeltaOTP_func;
+        }
+    }
+}
+__Test BankErs_PrePunchThru_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = BankErs_PrePunchThru;
+        __TestMethod {
+            __Name = BankErs_PrePunchThru_func;
+        }
+    }
+}
+__Test ErsOTP_PrePunchThru_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = ErsOTP_PrePunchThru;
+        __TestMethod {
+            __Name = ErsOTP_PrePunchThru_func;
+        }
+    }
+}
+__Test PrePunchThruVT1_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PrePunchThruVT1;
+        __TestMethod {
+            __Name = PrePunchThruVT1_func;
+        }
+    }
+}
+__Test PrePunchThruVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PrePunchThruVT1OTP;
+        __TestMethod {
+            __Name = PrePunchThruVT1OTP_func;
+        }
+    }
+}
+__Test PunchThru_Stress_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PunchThru_Stress;
+        __TestMethod {
+            __Name = PunchThru_Stress_func;
+        }
+    }
+}
+__Test PstPunchThruVT1_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstPunchThruVT1;
+        __TestMethod {
+            __Name = PstPunchThruVT1_func;
+        }
+    }
+}
+__Test PstPunchThruVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstPunchThruVT1OTP;
+        __TestMethod {
+            __Name = PstPunchThruVT1OTP_func;
+        }
+    }
+}
+__Test PunchThruVT1Delta_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PunchThruVT1Delta;
+        __TestMethod {
+            __Name = PunchThruVT1Delta_func;
+        }
+    }
+}
+__Test PunchThruVT1DeltaOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PunchThruVT1DeltaOTP;
+        __TestMethod {
+            __Name = PunchThruVT1DeltaOTP_func;
+        }
+    }
+}
+__Test RevTunnel_Stress_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RevTunnel_Stress;
+        __TestMethod {
+            __Name = RevTunnel_Stress_func;
+        }
+    }
+}
+__Test PstRevTunVT1_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstRevTunVT1;
+        __TestMethod {
+            __Name = PstRevTunVT1_func;
+        }
+    }
+}
+__Test PstRevTunVT1OTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PstRevTunVT1OTP;
+        __TestMethod {
+            __Name = PstRevTunVT1OTP_func;
+        }
+    }
+}
+__Test RevTunVT1Delta_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RevTunVT1Delta;
+        __TestMethod {
+            __Name = RevTunVT1Delta_func;
+        }
+    }
+}
+__Test RevTunVT1DeltaOTP_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RevTunVT1DeltaOTP;
+        __TestMethod {
+            __Name = RevTunVT1DeltaOTP_func;
+        }
+    }
+}
+__Test PgmMain_PreCSFG_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmMain_PreCSFG;
+        __TestMethod {
+            __Name = PgmMain_PreCSFG_func;
+        }
+    }
+}
+__Test RdM0_PreCSFG_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0_PreCSFG;
+        __TestMethod {
+            __Name = RdM0_PreCSFG_func;
+        }
+    }
+}
+__Test PgmOTP_PreCSFG_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = PgmOTP_PreCSFG;
+        __TestMethod {
+            __Name = PgmOTP_PreCSFG_func;
+        }
+    }
+}
+__Test RdM0OTP_PreCSFG_func_T {
+    __Mask[0] = ACSpecsMask;
+    __Mask[1] = DCSpecsMask;
+    __Mask[2] = PSSpecsMask;
+    __Entry[0] = FlashTestNum_SEQ;
+    __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
+    __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = RdM0OTP_PreCSFG;
+        __TestMethod {
+            __Name = RdM0OTP_PreCSFG_func;
+        }
+    }
+}
+
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**              End BJP f021 Flash Tests                **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/

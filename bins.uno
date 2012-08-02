@@ -1231,6 +1231,89 @@ Unison:U3.0:S5.3;
     __CheckOverFlow = __True;
     __Color = 2;
 }
+
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**              Begin BJP f021 Flash Bins                 **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/
+
+__Bin F_FLASHLEAKEGCG {
+    __Number = 313;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHLEAKCG {
+    __Number = 314;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHLEAKEGCS {
+    __Number = 315;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHLEAKEG {
+    __Number = 316;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+//__Bin F_FLASHCYCLE1X {
+//    __Number = 318;
+//    __Result = __False;
+//    __CheckOverFlow = __True;
+//    __Color = 2;
+//}
+__Bin F_FLASHPGM { //PgmMain_func_T
+    __Number = 320;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHVTPSTTHINOX { //PstThnOxideVT1_func_T
+    __Number = 321;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHRDM0 { //RdM0_func_T
+    __Number = 326;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin F_FLASHVTTHINOXDELTA { //ThinOxideVt1Delta_func_T
+    __Number = 327;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+__Bin FLASHERSBANK_PREPUNTHRU_F { //BankErs_PrePunchThru_func_T
+    __Number = 329;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+ __Bin F_FLASHCYCLE1X_PGM {
+    __Number = 330;
+    __Result = __False;
+    __CheckOverFlow = __True;
+    __Color = 2;
+}
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**              End BJP f021 Flash Bins                 **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/
+
 /**************************************************/
 /*** Hardbin Definitions used in BoardChk flow ***/
 /**************************************************/
@@ -1742,6 +1825,34 @@ __BinMap ATSite_BinMap_Probe {
     __Bin F_FUNC_IDDQ = 23;
     __Bin F_LEAK_IOZ = 29;
     __Bin F_LEVEL = 19;
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**              Begin BJP f021 Flash Bins                 **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/
+
+    __Bin F_FLASHLEAKEGCG = 19;
+    __Bin F_FLASHLEAKCG = 19;
+    __Bin F_FLASHLEAKEGCS = 19;
+    __Bin F_FLASHLEAKEG = 19;
+//    __Bin F_FLASHCYCLE1X = 19;
+    __Bin F_FLASHPGM = 19;
+    __Bin F_FLASHVTPSTTHINOX = 19;
+    __Bin F_FLASHRDM0 = 19;
+    __Bin F_FLASHVTTHINOXDELTA = 19;
+    __Bin FLASHERSBANK_PREPUNTHRU_F = 19;
+    __Bin F_FLASHCYCLE1X_PGM = 19;
+    
+/**********************************************************/
+/**********************************************************/
+/**                                                      **/
+/**              End BJP f021 Flash Bins                 **/
+/**                                                      **/
+/**********************************************************/
+/**********************************************************/
+
 }
 
 /**************************************************/

@@ -13845,11 +13845,14 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   else if(special_opt==2)    /*eg lkg*/
                      tmptcrmode = EvfyMode;
 
-                  switch(vcorner) {
-                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN; break;
-                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM; break;
-                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX; break;
-                  }   /* case */
+                  if ((vcorner == VMN) || (vcorner == VMNO) || (vcorner == VMNE)) tmpvcorner = VMN;
+                  else if ((vcorner == VNM) || (vcorner == VNMO) || (vcorner == VNME)) tmpvcorner = VNM;
+                  else if ((vcorner == VMX) || (vcorner == VMXO) || (vcorner == VMXE)) tmpvcorner = VMX;
+/*                  switch(vcorner) {
+                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN;
+                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM;
+                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX;
+                  } */  /* case */
 
                   debugprint = false;
 //Unison is sited.  Don't need an iterator for this.

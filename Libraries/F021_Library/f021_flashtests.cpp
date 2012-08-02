@@ -8951,7 +8951,7 @@ TMResultM Flash_Cycle1X_func()
       testnum = TNUM_BANK_RDM0S;
       if(GL_DO_REDENA)  
          testnum = testnum+TNUM_REDUNDENA;
-//      F021_Read_func(testnum,tname,final_results); Code not yet implemented
+      final_results= F021_Read_func(testnum,tname); 
       //ArrayAndBoolean(test_results,test_results,final_results,v_sites);
       test_results = DLOG.AccumulateResults(test_results,final_results);
    } 
