@@ -67,7 +67,7 @@ __TestProg BllizarA0 {
         __OperatorVariable[39] = EnaSolnDlog;
         __OperatorVariable[40] = EnaReadOnly;
         __OperatorVariable[41] = EnaEfuseDlog;
-        __AdapterBoard = Blizzard_EVAL_x2_x1_by_module_s1_m1;
+        __AdapterBoard = Blizzard_EVAL_x2_x1_by_module;
         __Flow = Probe_FLOW;
     	__PatternMap = DefaultPatternMap;
         __BinMap = ATSite_BinMap_Probe;

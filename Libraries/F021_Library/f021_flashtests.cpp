@@ -3588,168 +3588,154 @@ void Charz_BCC(VCornerType vcorner,
 //   Charz_Ers_StairStep(9);
 //   Charz_Ers_StairStep_9 = v_any_dev_active;
 //}   /* Charz_Ers_StairStep_9 */
-//   
-//BoolS Charz_FreqSchmoo_RandCode(VCornerType vcorner)
-//{
-//   IntS stnum,tnum,bank,wstate;
-//   IntS loop,minloop,maxloop;
-//   FloatS fstart,fstop,finc;
-//   BoolS autoWstate,enapll,enapipe;
-//   BoolS doena,twlogena;
-//   StringS str1,filestr,current_shell;
+   
+TMResultM Charz_FreqSchmoo_RandCode(VCornerType vcorner) {
+   TMResultM final_results;
+   IntS stnum,tnum,bank,wstate;
+   IntS loop,minloop,maxloop;
+   FloatS fstart,fstop,finc;
+   BoolS autoWstate,enapll,enapipe;
+   BoolS doena,twlogena;
+   StringS str1,filestr,current_shell;
 //   DCSetUp prevDCSU;
-//
-//   if(v_any_dev_active)  
-//   {
-//      SetupGet(prevDCSU);
-//      minloop = 0;
-//      maxloop = 2;
-//      twlogena = true;
-//      filestr = "";  /*dump schmoo to file. not yet implemented*/
-//      doena = true;
-//
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         if(F021_Flash.EMUBANK[bank])  
-//            stnum = 0x4C11BA00  ; /*rd psa*/
-//         else
-//            stnum = TNUM_EXEC_RANDCODE;
-//
-//         if(doena)  
-//         {
-//            tnum = stnum+(bank<<4);
-//            for (loop = minloop;loop <= maxloop;loop++)
-//            {
-//               switch(loop) {
-//                 case 0 :  
-//                        if(F021_Flash.EMUBANK[bank])  
-//                         
-//                           switch(vcorner) {
-//                             case case  VMN: case VMNO: case VMNE :   
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                             case default:  
-//                                fstart = 200Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                            break;   /* case */
-//                         
-//                        else
-//                         
-//                           switch(vcorner) {
-//                             case case case  VMN: case VMNO: case VMNE :   
-//                                fstart = 30Mghz;
-//                                fstop  = 80Mghz;
-//                                finc   = 1Mghz;
-//                              break; 
-//                             case case default:  
-//                                fstart = 40Mghz;
-//                                fstop  = 100Mghz;
-//                                finc   = 1Mghz;
-//                              break; 
-//                            break;   /* case */
-//                        } 
-//                        autoWstate = false;
-//                        wstate = 0;
-//                        enapll = true;
-//                        enapipe = false;
-//                        str1 = "Z_RCOD_0WS";
-//                     } 
-//                 1 : {
-//                        if(F021_Flash.EMUBANK[bank])  
-//                        {
-//                           switch(vcorner) {
-//                             case  VMN: case VMNO: case VMNE :   
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                             default:  
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                           }   /* case */
-//                        }
-//                        else
-//                        {
-//                           switch(vcorner) {
-//                             case  VMN: case VMNO: case VMNE :   
-//                                fstart = 70Mghz;
-//                                fstop  = 170Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                             default:  
-//                                fstart = 100Mghz;
-//                                fstop  = 200Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                           }   /* case */
-//                        } 
-//                        autoWstate = false;
-//                        wstate = 1;
-//                        enapll = true;
-//                        enapipe = true;
-//                        str1 = "Z_RCOD_1WS";
-//                     } 
-//                 2 : {
-//                        if(F021_Flash.EMUBANK[bank])  
-//                        {
-//                           switch(vcorner) {
-//                             case  VMN: case VMNO: case VMNE :   
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                             default:  
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                           }   /* case */
-//                        }
-//                        else
-//                        {
-//                           switch(vcorner) {
-//                             case  VMN: case VMNO: case VMNE :   
-//                                fstart = 100Mghz;
-//                                fstop  = 200Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                             default:  
-//                                fstart = 100Mghz;
-//                                fstop  = 250Mghz;
-//                                finc   = 5Mghz;
-//                              break; 
-//                           }   /* case */
-//                        } 
-//                        autoWstate = false;
-//                        wstate = 2;
-//                        enapll = true;
-//                        enapipe = true;
-//                        str1 = "Z_RCOD_2WS";
-//                     } 
-//               }   /* case */
-//               TL_Schmoo_Freq(vcorner,tnum,fstart,fstop,finc,enapll,autoWstate,wstate,enapipe,twlogena,str1,filestr);
-//                /*powerdownall;
-//                wait(1ms);
-//                PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//                ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,v[vih_loose_osc_vnom],v[vil_loose]);
-//                clockpinset(s_clk_1a,s_clock);
-//                discard(patternexecute(spareint1,f021_shell_loadpat));
-//                discard(f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1));*/
-//            }   /*loop*/
-//         }   /*doena*/
-//      }   /*bank*/
-//
-//      SetupSelect(prevDCSU,norm_fmsu);
-//   } 
-//   Charz_FreqSchmoo_RandCode = v_any_dev_active;
-//}   /* Charz_FreqSchmoo_RandCode */
-//   
+
+//   SetupGet(prevDCSU);
+   final_results = TM_PASS;
+   minloop = 0;
+   maxloop = 2;
+   twlogena = true;
+   filestr = "";  /*dump schmoo to file. not yet implemented*/
+   doena = true;
+
+   for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+   
+      if (F021_Flash.EMUBANK[bank]) stnum = 0x4C11BA00  ; // rd psa
+      else                          stnum = TNUM_EXEC_RANDCODE;
+
+      if (doena) {
+         tnum = stnum+(bank<<4);
+         for (loop = minloop; loop <= maxloop; ++loop) {
+            switch(loop) {
+               case 0 :  
+                  if (F021_Flash.EMUBANK[bank]) { 
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE:   
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                        default:  
+                           fstart = 200MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break;
+                     }      
+                  } 
+                  else {
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE :   
+                           fstart = 30MHz;
+                           fstop  = 80MHz;
+                           finc   = 1MHz;
+                           break; 
+                        default:  
+                           fstart = 40MHz;
+                           fstop  = 100MHz;
+                           finc   = 1MHz;
+                         break; 
+                     }
+                  }
+                  autoWstate = false;
+                  wstate = 0;
+                  enapll = true;
+                  enapipe = false;
+                  str1 = "Z_RCOD_0WS";
+               case 1:
+                  if (F021_Flash.EMUBANK[bank]) {
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE:   
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                        default:  
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                     }
+                  }
+                  else {
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE:   
+                           fstart = 70MHz;
+                           fstop  = 170MHz;
+                           finc   = 5MHz;
+                           break; 
+                        default:  
+                           fstart = 100MHz;
+                           fstop  = 200MHz;
+                           finc   = 5MHz;
+                           break; 
+                     }
+                  } 
+                  autoWstate = false;
+                  wstate = 1;
+                  enapll = true;
+                  enapipe = true;
+                  str1 = "Z_RCOD_1WS";
+               case 2:
+                  if (F021_Flash.EMUBANK[bank]) {
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE:   
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                        default:  
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                     }
+                  }
+                  else {
+                     switch(vcorner) {
+                        case VMN: case VMNO: case VMNE:   
+                           fstart = 100MHz;
+                           fstop  = 200MHz;
+                           finc   = 5MHz;
+                           break; 
+                        default:  
+                           fstart = 100MHz;
+                           fstop  = 250MHz;
+                           finc   = 5MHz;
+                           break; 
+                     }
+                  } 
+                  autoWstate = false;
+                  wstate = 2;
+                  enapll = true;
+                  enapipe = true;
+                  str1 = "Z_RCOD_2WS";
+            }   // switch loop
+          TL_Schmoo_Freq(vcorner,tnum,fstart,fstop,finc,enapll,autoWstate,wstate,enapipe,twlogena,str1,filestr);
+            // The next 7 lines were commented out in the original VLCT code
+            // powerdownall;
+            // wait(1ms);
+            // PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
+            // ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,v[vih_loose_osc_vnom],v[vil_loose]);
+            // clockpinset(s_clk_1a,s_clock);
+            // discard(patternexecute(spareint1,f021_shell_loadpat));
+            // discard(f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1));*/
+         }   // for loop
+      }   // doena
+   }   // bank
+
+//   SetupSelect(prevDCSU,norm_fmsu);
+   return(final_results);
+}  //  Charz_FreqSchmoo_RandCode
+   
 //BoolS FreqSchmoo_RandCode()
 //{
 //   BoolS dovmin,dovmax;
@@ -3766,162 +3752,146 @@ void Charz_BCC(VCornerType vcorner,
 //   
 //   FreqSchmoo_RandCode = v_any_dev_active;
 //}   /* FreqSchmoo_RandCode */
-//
-//BoolS Charz_SenAmpNoise_RPC_EF(VCornerType vcorner,
-//                                  BoolS pgmena)
-//{
-//   BoolM final_results;
-//   StringS current_shell,str1,str2;
-//   StringS tname;
-//   IntS tcrnum,tdata,ttarget;
-//   FloatS vcg;
-//   BoolS redundena,dopgm;
-//   IntS i,sindex,eindex,tnum;
-//   IntS ovr_efind,ovr_efval;
-//   StringS1D logstr(16);
-//   BoolS donoef,doef17,doef22,doef22_17;
-//
-//   if(v_any_dev_active)  
-//   {
-//      tcrnum  = 6;
-//      tdata   = TNUM_DATA_ECHK;
-//      ttarget = TNUM_TARGET_QUAD;
-//      vcg     = 0V;
-//      tname   = NULL_TestName;
-//      redundena = false;
-//      dopgm = pgmena ; /*true*/
-//
-//      if(dopgm)  
-//      {
-//         pwrupatvnom_1;
-//         current_shell = "FlashShell";
-//         if(GL_PREVIOUS_SHELL != current_shell)        
-//            F021_LoadFlashShell_func;
-//         tnum = TNUM_BANK_PROG_SM + tdata;
-//         if(redundena)  
-//            tnum = tnum + TNUM_REDUNDENA;
-//         TL_RunTestNum(tnum,"");
-//      } 
-//
-//      switch(vcorner) {
-//        case  VMN: case VMNO: case VMNE :   
-//           pwrupatvmin_1;
-//           str2 = "Z_SAN_VMN_";
-//         break; 
-//        case  VNM: case VNMO: case VNME :   
-//           pwrupatvnom_1;
-//           str2 = "Z_SAN_VNM_";
-//         break; 
-//        case  VMX: case VMXO: case VMXE :   
-//           pwrupatvmax_1;
-//           str2 = "Z_SAN_VMX_";
-//         break; 
-//        default:  
-//           pwrupatvnom_1;
-//           str2 = "Z_SAN_VNM_";
-//         break;            
-//      }   /* case */
-//
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//
-//      dopgm = false;
-//      sindex = 1;  /*was 0*/
-//      eindex = 1;  /*was 7;*/
-//
-//      donoef = true;
-//      if(donoef)  
-//      {
-//          /*vary rpc, EF17=0*/
-//         logstr[0] = "PC0";
-//         logstr[1] = "PC1";
-//         logstr[2] = "PC2";
-//         logstr[3] = "PC3";
-//         logstr[4] = "PC4";
-//         logstr[5] = "PC5";
-//         logstr[6] = "PC6";
-//         logstr[7] = "PC7";
-//         ovr_efind = 0x0;
-//         ovr_efval = 0x0;
-//         for (i = sindex;i <= eindex;i++)
-//         {
-//            str1 = str2 + logstr[i];
-//            discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,
-//                    i,ovr_efind,ovr_efval,str1));
-//         } 
-//      } 
-//      
-//      doef17 = false;
-//      if(doef17)  
-//      {
-//          /*vary rpc, EF17=1*/
-//         logstr[0] = "F17PC0";
-//         logstr[1] = "F17PC1";
-//         logstr[2] = "F17PC2";
-//         logstr[3] = "F17PC3";
-//         logstr[4] = "F17PC4";
-//         logstr[5] = "F17PC5";
-//         logstr[6] = "F17PC6";
-//         logstr[7] = "F17PC7";
-//         ovr_efind = 0x00020000;
-//         ovr_efval = 0x00020000;
-//         for (i = sindex;i <= eindex;i++)
-//         {
-//            str1 = str2 + logstr[i];
-//            discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,
-//                    i,ovr_efind,ovr_efval,str1));
-//         } 
-//      } 
-//
-//      doef22 = false;
-//      if(doef22)  
-//      {
-//          /*vary rpc, EF22=1*/
-//         logstr[0] = "F22PC0";
-//         logstr[1] = "F22PC1";
-//         logstr[2] = "F22PC2";
-//         logstr[3] = "F22PC3";
-//         logstr[4] = "F22PC4";
-//         logstr[5] = "F22PC5";
-//         logstr[6] = "F22PC6";
-//         logstr[7] = "F22PC7";
-//         ovr_efind = 0x00400000;
-//         ovr_efval = 0x00400000;
-//         for (i = sindex;i <= eindex;i++)
-//         {
-//            str1 = str2 + logstr[i];
-//            discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,
-//                    i,ovr_efind,ovr_efval,str1));
-//         } 
-//      } 
-//
-//      doef22_17 = false;
-//      if(doef22_17)  
-//      {
-//          /*vary rpc, EF22=1, EF17=1*/
-//         logstr[0] = "F22F17PC0";
-//         logstr[1] = "F22F17PC1";
-//         logstr[2] = "F22F17PC2";
-//         logstr[3] = "F22F17PC3";
-//         logstr[4] = "F22F17PC4";
-//         logstr[5] = "F22F17PC5";
-//         logstr[6] = "F22F17PC6";
-//         logstr[7] = "F22F17PC7";
-//         ovr_efind = 0x00420000;
-//         ovr_efval = 0x00420000;
-//         for (i = sindex;i <= eindex;i++)
-//         {
-//            str1 = str2 + logstr[i];
-//            discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,
-//                    i,ovr_efind,ovr_efval,str1));
-//         } 
-//      } 
-//      
-//   } 
-//   Charz_SenAmpNoise_RPC_EF = v_any_dev_active;
-//}   /* Charz_SenAmpNoise_RPC_EF */
-//
+
+TMResultM Charz_SenAmpNoise_RPC_EF(VCornerType vcorner, BoolS pgmena) {
+   TMResultM final_results;
+   StringS current_shell,str1,str2;
+   StringS tname;
+   IntS tcrnum,tdata,ttarget;
+   FloatS vcg;
+   BoolS redundena,dopgm;
+   IntS i,sindex,eindex,tnum;
+   IntS ovr_efind,ovr_efval;
+   StringS1D logstr(16);
+   BoolS donoef,doef17,doef22,doef22_17;
+   Levels PS_Vmin = "PowerUpAtVmask";
+   Levels PS_Vnom = "PowerUpAtVmask";
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   tcrnum  = 6;
+   tdata   = TNUM_DATA_ECHK;
+   ttarget = TNUM_TARGET_QUAD;
+   vcg     = 0V;
+   tname   = "NULL_TestName";
+   redundena = false;
+   dopgm = pgmena ;   // true
+
+   if (dopgm) {
+      PS_Vnom.Execute();
+      current_shell = "FlashShell";
+      if (GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      tnum = TNUM_BANK_PROG_SM + tdata;
+      if (redundena)  
+         tnum = tnum + TNUM_REDUNDENA;
+      TL_RunTestNum(tnum,"");
+   } 
+
+   switch(vcorner) {
+      case  VMN: case VMNO: case VMNE :   
+         PS_Vmin.Execute();
+         str2 = "Z_SAN_VMN_";
+         break; 
+      case  VNM: case VNMO: case VNME :   
+         PS_Vnom.Execute();
+         str2 = "Z_SAN_VNM_";
+         break; 
+      case  VMX: case VMXO: case VMXE :   
+         PS_Vmax.Execute();
+         str2 = "Z_SAN_VMX_";
+         break; 
+      default:  
+         PS_Vnom.Execute();
+         str2 = "Z_SAN_VNM_";
+         break;            
+   }   // case
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      final_results = F021_LoadFlashShell_func();
+
+   dopgm = false;
+   sindex = 1;  // was 0
+   eindex = 1;  // was 7;
+
+   donoef = true;
+   if (donoef) {
+      // vary rpc, EF17=0
+      logstr[0] = "PC0";
+      logstr[1] = "PC1";
+      logstr[2] = "PC2";
+      logstr[3] = "PC3";
+      logstr[4] = "PC4";
+      logstr[5] = "PC5";
+      logstr[6] = "PC6";
+      logstr[7] = "PC7";
+      ovr_efind = 0x0;
+      ovr_efval = 0x0;
+      for (i = sindex;i <= eindex;i++) {
+         str1 = str2 + logstr[i];
+ //        discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,i,ovr_efind,ovr_efval,str1));
+      } 
+   } 
+   
+   doef17 = false;
+   if (doef17) {
+      // vary rpc, EF17=1
+      logstr[0] = "F17PC0";
+      logstr[1] = "F17PC1";
+      logstr[2] = "F17PC2";
+      logstr[3] = "F17PC3";
+      logstr[4] = "F17PC4";
+      logstr[5] = "F17PC5";
+      logstr[6] = "F17PC6";
+      logstr[7] = "F17PC7";
+      ovr_efind = 0x00020000;
+      ovr_efval = 0x00020000;
+      for (i = sindex;i <= eindex;i++) {
+         str1 = str2 + logstr[i];
+ //        discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,i,ovr_efind,ovr_efval,str1));
+      } 
+   } 
+
+   doef22 = false;
+   if (doef22) {
+      // vary rpc, EF22=1
+      logstr[0] = "F22PC0";
+      logstr[1] = "F22PC1";
+      logstr[2] = "F22PC2";
+      logstr[3] = "F22PC3";
+      logstr[4] = "F22PC4";
+      logstr[5] = "F22PC5";
+      logstr[6] = "F22PC6";
+      logstr[7] = "F22PC7";
+      ovr_efind = 0x00400000;
+      ovr_efval = 0x00400000;
+      for (i = sindex;i <= eindex;i++) {
+         str1 = str2 + logstr[i];
+//         discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,i,ovr_efind,ovr_efval,str1));
+      } 
+   } 
+
+   doef22_17 = false;
+   if (doef22_17) {
+      // vary rpc, EF22=1, EF17=1
+      logstr[0] = "F22F17PC0";
+      logstr[1] = "F22F17PC1";
+      logstr[2] = "F22F17PC2";
+      logstr[3] = "F22F17PC3";
+      logstr[4] = "F22F17PC4";
+      logstr[5] = "F22F17PC5";
+      logstr[6] = "F22F17PC6";
+      logstr[7] = "F22F17PC7";
+      ovr_efind = 0x00420000;
+      ovr_efval = 0x00420000;
+      for (i = sindex;i <= eindex;i++) {
+         str1 = str2 + logstr[i];
+//         discard(SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,final_results,dopgm,i,ovr_efind,ovr_efval,str1));
+      } 
+   } 
+   return(final_results);
+}   /* Charz_SenAmpNoise_RPC_EF */
+
 //BoolS Charz_Run_BCC_SAMP_ACCY(vttype vt_type)
 //{
 //   IntS site,bank,testnum,stnum;
@@ -16411,14 +16381,15 @@ TMResultM RefreshOTP_func() {
 TMResultM PgmChkboard_func() {
    const IntS TESTID = 271; 
 
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
+   FloatM ret_timer;
    StringS tname;
    IntS testnum;
    StringS current_shell;
 
    if ((SelectedTITestType==MP1) and GL_DO_CHARZ_FREQ_RANDCODE) {
       if (GL_CHARZ_FREQ_RANDCODE_COUNT == 1) {
-//         final_results = FlashCode_WR_EXE_func("PgmRCod_Test",Random);
+         final_results = FlashCode_WR_EXE_func("PgmRCod_Test",Random);
 //         FreqSchmoo_RandCode();
 //         powerdownall();
          TIME.Wait(1ms);
@@ -16426,7 +16397,7 @@ TMResultM PgmChkboard_func() {
 //       ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,v[vih_loose_osc_vnom],v[vil_loose]);
 //       clockpinset(s_clk_1a,s_clock);
 //       patternexecute(spareint1,f021_shell_loadpat);
-//         f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+         tmp_results = F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,ret_timer);
          TL_RunTestNum(TNUM_BANK_ERS_NOPRECON,"");
       } 
       GL_CHARZ_FREQ_RANDCODE_COUNT = GL_CHARZ_FREQ_RANDCODE_COUNT + 1;
@@ -21070,7 +21041,7 @@ TMResultM PreDRLVT0Min_func() {
    IntS tdata,bgdata;
    vttype vtcat;
    prepostcorner prepost;
-   BoolS save_redena;
+   BoolS save_redena, IsBCC;
    BoolS save_vtpbist,save_bccpbist;
    BoolS charzena,runena,runrcode;
    IntS tcrnum;
@@ -21142,20 +21113,21 @@ TMResultM PreDRLVT0Min_func() {
       
 //    logsites = v_dev_active;
 //    final_results = v_dev_active;
-      DLOG.AccumulateResults(final_results,tmp_results);
       
       if (GL_DO_VT_FIRST) {
          tname = "PreDRLVT0Min_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PreDRLBCC0Max_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         
       }
       else {
          tname = "PreDRLBCC0Max_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PreDRLVT0Min_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
       } 
+      DLOG.AccumulateResults(final_results,tmp_results);
       
       // if(not arraycompareboolean(logsites,final_results,v_sites))  
       if (TI_FlashESDAEna)  {
@@ -21176,10 +21148,10 @@ TMResultM PreDRLVT0Min_func() {
 
             GL_DO_SAVE_SAMP_ACCY_DATA = true;
 //            Charz_Run_IVT_SAMP_ACCY(CHKVT0);
-//            TL_SAMP_ACCY_IV(not isBCC,"Z_SAACCY_IVT",true);
+            TL_SAMP_ACCY_IV(not IsBCC,"Z_SAACCY_IVT",true);
 //            Charz_Run_BCC_SAMP_ACCY(CHKVT0);
             GL_DO_SAVE_SAMP_ACCY_DATA = false;
-//            TL_SAMP_ACCY_IV(isBCC,"Z_SAACCY_BCC",true);
+            TL_SAMP_ACCY_IV(IsBCC,"Z_SAACCY_BCC",true);
          }
          
          GL_DO_CHARZ_SAMP_ACCY_COUNT = GL_DO_CHARZ_SAMP_ACCY_COUNT+1;
@@ -21263,7 +21235,8 @@ TMResultM PreDRLVT1Max_func()
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PreDRLBCC1Min_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
-//         if(not arraycompareboolean(logsites,final_results,v_sites))         
+//         if(not arraycompareboolean(logsites,final_results,v_sites))
+
          if (TI_FlashESDAEna) {
             for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
                if ( final_results[*si] != TM_PASS ) {
