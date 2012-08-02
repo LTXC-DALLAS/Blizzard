@@ -681,10 +681,9 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //                                IntS banknum,
 //                                IntS bkgrnd_data,
 //                                  IntS start_senamp, IntS stop_senamp);
-//
-//BoolS FlashCode_WR_EXE_func(StringS tname,
-//                               FlashCodeType code_type,
-//                               BoolM test_results);
+
+TMResultM FlashCode_WR_EXE_func(StringS tname,
+                                FlashCodeType code_type);
 //BoolS FlashCode_RdPsa_func(StringS tname,
 //                              FlashCodeType code_type,
 //                              BoolM test_results);
@@ -708,20 +707,22 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //                               IntS ctoffset, IntS maxep,
 //                             BoolS logena,
 //                             StringS logstr);
-//void TL_Schmoo_Freq(VCornerType vcorner,
-//                         IntS testnumber,
-//                           FloatS freqstart, FloatS freqstop, FloatS freqinc,
-//                         BoolS EnaPLL,
-//                         BoolS UseAutoWaitState,
-//                         IntS waitState,
-//                         BoolS EnaPipeLine,
-//                         BoolS twlogena,
-//                         StringS logstr,
-//                         StringS dumpToFileName);
-//
-//void TL_SAMP_ACCY_IV(BoolS dobcc,
-//                          StringS logstr,
-//                          BoolS twlogena);
+void TL_Schmoo_Freq( VCornerType vcorner,
+                     IntS        testnumber,
+                     FloatS      freqstart,
+                     FloatS      freqstop,
+                     FloatS      freqinc,
+                     BoolS       EnaPLL,
+                     BoolS       UseAutoWaitState,
+                     IntS        waitState,
+                     BoolS       EnaPipeLine,
+                     BoolS       twlogena,
+                     StringS     logstr,
+                     StringS     dumpToFileName);
+
+void TL_SAMP_ACCY_IV ( BoolS   dobcc,
+                       StringS logstr,
+                       BoolS   twlogena);
 //void TL_SWEEP_RDM0_NMOS_EF(IntS tdata,
 //                             BoolS ovrideEF,
 //                             IntS ovrideEF_Index,

@@ -6112,123 +6112,108 @@ void MBox_Upload_RCODE_PSA_VRD_CT(IntS banknum, FlashCodeType code_type, IntS ov
 //      cout << endl;
 //   } 
 //}   /* TL_Get_SenAmp_From_CpuAddrData */
-//
-//void TL_Get_SenAmp_From_CpuAddrData_MS(      IntM msw_cpuaddr, IntM lsw_cpuaddr,
-//                                              IntM msw_fdata, IntM lsw_fdata,
-//                                                  IntM msw_mainaddr, IntM lsw_mainaddr,
-//                                                IntM SenAmpNum)
-//{
-//   const  B2_ECC_START = 0xF0100000;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B2_ECC_STOP = 0xF01FFFFF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B0_ECC_START = 0xF0400000;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B1_ECC_START = 0xF0410000;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS B0_START = 0x08000000; 
-//   const IntS B1_START = 0x08080000; 
-//   const  B2_START = 0xF0200000;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B2_ECC_START_MSW = 0xF010;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B2_ECC_STOP_MSW = 0xF01F;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B0_ECC_START_MSW = 0xF040;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  B1_ECC_START_MSW = 0xF041;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  BITMASKECC = 0x000FFFFF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  BITMASKMAIN = 0xFFFFFFF0;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  BITMASKBYTE = 0x0000000F;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS MULTFACTOR = 8; 
-//
-//   IntS addr,bank_addr,byte_addr;
-//   IntS bitpos,senamp,fdata;
-//   IntS cpuwordoff,site;
-//   FloatS bitposFloatS,fdataFloatS;
-//   BoolS eccbank;
-//
-//   if(v_any_dev_active)  
-//   {
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//      {
-//         if(v_dev_active[site])  
-//         {
-//            addr = ((msw_cpuaddr[site]<<16)&0xffff0000) + lsw_cpuaddr[site];
-//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//               cout << "Site" << site:-4 << " cpu addr == " << addr:s_hex << endl;
-//            
-//            if((msw_cpuaddr[site]>==B2_ECC_START_MSW) and (msw_cpuaddr[site]<==B2_ECC_STOP_MSW))  
-//            {
-//                /*bank2 ecc*/
-//               bank_addr = B2_START + ((addr&BITMASKECC)*MULTFACTOR);
-//               eccbank = true;
-//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//                  cout << "Bank2 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
-//            }
-//            else if(msw_cpuaddr[site]>==B0_ECC_START_MSW)  
-//            {
-//                /*b0/b1 ecc*/
-//               bank_addr = B0_START + ((addr&BITMASKECC)*MULTFACTOR);
-//               eccbank = true;
-//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//                  cout << "Bank0/1 ECC <<  bank_addr == " << bank_addr:s_hex << endl;
-//            }
-//            else
-//            {
-//                /*b0/b1/b2 main*/
-//               bank_addr = addr&BITMASKMAIN;
-//               byte_addr = addr&BITMASKBYTE;
-//               eccbank = false;
-//               if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//                  cout << "Bank0/1/2 Main <<  bank_addr == " << bank_addr:s_hex:-12 << " byte_addr == " << byte_addr:s_hex << endl;
-//            } 
-//            
-//             /*bit position = log2(fdata)*/
-//            fdata = ((msw_fdata[site]<<16)&0xffff0000) + lsw_fdata[site];
-//            if(msw_fdata[site] != 0)  
-//            {
-//               fdatareal = msw_fdata[site];
-//               bitposreal = (ln(fdatareal) / ln(2))+16;
-//            }
-//            else
-//            {
-//               if(lsw_fdata[site]==0)  
-//                  if(tistdscreenprint)  
-//                     cout << "*** Warning: fail data is all 0s <<  invalid result ***" << endl;
-//               fdatareal = lsw_fdata[site];
-//               bitposreal = ln(fdatareal) / ln(2);
-//            } 
-//            bitpos = trunc(bitposreal);
-//            
-//            if(tistdscreenprint and TI_FlashDebug and tiprintpass)  
-//               cout << "FData == " << fdata:s_hex:-12 << " bitposreal == " << bitposreal << "  bitpos == " << bitpos << endl;
-//            
-//            if(eccbank)  
-//            {
-//               if(bitpos>==8)  
-//                  senamp = bitpos-8;
-//               else
-//                  senamp = bitpos+136;
-//            }
-//            else
-//            {
-//               cpuwordoff = byte_addr>>2;  /*offset from start bank word*/
-//               senamp = 8 + (cpuwordoff*32) + bitpos;   /*sense amp data starts at 8 for main array*/
-//            } 
-//
-//            msw_mainaddr[site] = ((bank_addr&0xFFFF0000) >>16) & 0xFFFF;
-//            lsw_mainaddr[site] = bank_addr&0x0000FFFF;
-//            SenAmpNum[site] = senamp;  /*return 1st encountered sense amp from failing data*/
-//            
-//            if(tistdscreenprint and TI_FlashDebug)  
-//            {
-//               cout << "Site" << site:-4 << "MSW_CPUADDR  == " << msw_cpuaddr[site]:s_hex:-8 << " LSW_CPUADDR == " << lsw_cpuaddr[site]:s_hex:-8 << 
-//                       "MSW_FDATA == " << msw_fdata[site]:s_hex:-8 << " LSW_FDATA == " << lsw_fdata[site]:s_hex:-8 << endl;
-//               if(eccbank)  
-//                  cout << "ECC BankWordADDR == " << bank_addr:s_hex:-16);
-//               else
-//                  cout << "Main BankWordADDR == " << bank_addr:s_hex:-16 << " ByteADDR == " << byte_addr:s_hex:-5;
-//               cout << "  SenAmpNum == " << SenAmpNum[site]:-5 << endl;
-//               cout << endl;
-//            } 
-//         }   /*v_dev_active*/
-//      }   /*for site*/
-//   }   /*v_any_dev_active*/
-//}   /* TL_Get_SenAmp_From_CpuAddrData_MS */
-//   
+
+void TL_Get_SenAmp_From_CpuAddrData_MS( IntM msw_cpuaddr,  IntM lsw_cpuaddr,
+                                        IntM msw_fdata,    IntM lsw_fdata,
+                                        IntM msw_mainaddr, IntM lsw_mainaddr,
+                                                           IntM SenAmpNum) {
+   const IntS B2_ECC_START = 0xF0100000;
+   const IntS B2_ECC_STOP = 0xF01FFFFF;
+   const IntS B0_ECC_START = 0xF0400000;
+   const IntS B1_ECC_START = 0xF0410000;
+   const IntS B0_START = 0x08000000; 
+   const IntS B1_START = 0x08080000; 
+   const IntS B2_START = 0xF0200000;
+   const IntS B2_ECC_START_MSW = 0xF010;
+   const IntS B2_ECC_STOP_MSW = 0xF01F;
+   const IntS B0_ECC_START_MSW = 0xF040;
+   const IntS B1_ECC_START_MSW = 0xF041;
+   const IntS BITMASKECC = 0x000FFFFF;
+   const IntS BITMASKMAIN = 0xFFFFFFF0;
+   const IntS BITMASKBYTE = 0x0000000F;
+   const IntS MULTFACTOR = 8; 
+
+   IntS addr,bank_addr,byte_addr;
+   IntS bitpos,senamp,fdata;
+   IntS cpuwordoff,site;
+   FloatS bitposreal,fdatareal;
+   BoolS eccbank;
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      addr = ((msw_cpuaddr[*si]<<16) & IntS(0xffff0000)) + lsw_cpuaddr[*si];
+      if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+         cout << "Site " << setw(4) << *si << " cpu addr == " << hex << addr << endl;
+      
+      if ((msw_cpuaddr[*si] >= B2_ECC_START_MSW) and (msw_cpuaddr[*si] <= B2_ECC_STOP_MSW)) {
+         // bank2 ecc
+         bank_addr = B2_START + ((addr&BITMASKECC)*MULTFACTOR);
+         eccbank = true;
+         if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+            cout << "Bank2 ECC <<  bank_addr == " << hex << bank_addr << endl;
+      }
+      else if (msw_cpuaddr[*si] >= B0_ECC_START_MSW) {
+         // b0/b1 ecc
+         bank_addr = B0_START + ((addr&BITMASKECC)*MULTFACTOR);
+         eccbank = true;
+         if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+            cout << "Bank0/1 ECC <<  bank_addr == " << hex << bank_addr << endl;
+      }
+      else {
+         // b0/b1/b2 main
+         bank_addr = addr&BITMASKMAIN;
+         byte_addr = addr&BITMASKBYTE;
+         eccbank = false;
+         if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+            cout << "Bank0/1/2 Main <<  bank_addr == " << hex << setw(12) << bank_addr << " byte_addr == " << hex << byte_addr << endl;
+      } 
+      
+      // bit position = log2(fdata)
+      fdata = ((msw_fdata[*si]<<16) & IntS(0xffff0000)) + lsw_fdata[*si];
+      if (msw_fdata[*si] != 0) {
+         fdatareal = int(msw_fdata[*si]);
+         bitposreal = MATH.Ln(fdatareal) / MATH.Ln(FloatS(2.0)) + 16;
+      }
+      else {
+         if (lsw_fdata[*si]==0)  
+            if (tistdscreenprint)  
+               cout << "*** Warning: fail data is all 0s invalid result ***" << endl;
+         fdatareal = int(lsw_fdata[*si]);
+         bitposreal = MATH.Ln(fdatareal) / MATH.Ln(FloatS(2.0));
+      } 
+      bitpos = int(MATH.Truncate(bitposreal));
+      
+      if (tistdscreenprint and TI_FlashDebug and tiprintpass)  
+         cout << "FData == " << hex << setw(12) << fdata << " bitposreal == " << bitposreal << "  bitpos == " << bitpos << endl;
+      
+      if (eccbank) {
+         if (bitpos >= 8)  
+            senamp = bitpos-8;
+         else
+            senamp = bitpos+136;
+      }
+      else {
+         cpuwordoff = byte_addr>>2;               // offset from start bank word
+         senamp = 8 + (cpuwordoff*32) + bitpos;   // sense amp data starts at 8 for main array
+      } 
+
+      msw_mainaddr[*si] = ((bank_addr & IntS(0xFFFF0000)) >>16) & 0xFFFF;
+      lsw_mainaddr[*si] = bank_addr & 0x0000FFFF;
+      SenAmpNum[*si] = senamp;  // return 1st encountered sense amp from failing data
+      
+      if (tistdscreenprint and TI_FlashDebug) {
+         cout << "Site" << setw(4) << *si << "MSW_CPUADDR  == " << hex<< setw(8) << msw_cpuaddr[*si]<< " LSW_CPUADDR == " << hex << setw(8) << lsw_cpuaddr[*si];
+         cout << "MSW_FDATA == " << hex << setw(8) << msw_fdata[*si] << " LSW_FDATA == " << hex<< setw(8) << lsw_fdata[*si] << endl;
+         if (eccbank)  
+            cout << "ECC BankWordADDR == " << hex << setw(16) << bank_addr;
+         else
+            cout << "Main BankWordADDR == " << hex << setw(16) << bank_addr << " ByteADDR == " << hex << setw(5) << byte_addr;
+            
+         cout << "  SenAmpNum == " << setw(5) << SenAmpNum[*si] << endl;
+         cout << endl;
+      } 
+   }   // for site
+}   // TL_Get_SenAmp_From_CpuAddrData_MS
+   
 //void TL_Get_PhysSenAmp_From_ESDA_WorstBit(    IntS test_site,
 //                                                   IntS PhysSenAmp,
 //                                                   IntS MBoxWdIndex,
@@ -6840,6 +6825,8 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
    test_results = DLOG.AccumulateResults(tmp_results, test_results);
    test_results = DLOG.AccumulateResults(test_results, exec_results);
 
+   cout << "   test_results[" << test_results << "]" << endl;
+   
    if(tistdscreenprint and TI_FlashDebug)  
    {
       DLOG.Value(test_results, TM_PASS, TM_PASS, UTL_VOID, "RunTestNumber");
@@ -7932,9 +7919,11 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       }
       
       // check for results
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         cout << "   si[" << *si << "]" << endl;
          test_results[*si] = all_bool[*si] ? TM_PASS : TM_FAIL;
-      
+         cout << "   test_results[" << test_results << "]" << endl;
+      }   
    }
    
    if (using_cpu_loop) // let's end the loop
@@ -18404,7 +18393,9 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
       else
          ers_llimit = 0;
 
-      maxtime = GL_F021_BANK_ERS_MAXTIME;
+// Set to 1.0s to save debug time
+//      maxtime = GL_F021_BANK_ERS_MAXTIME;
+        maxtime = 1.0;
 
       for (bankcount = 0; bankcount <= F021_Flash.MAXBANK; ++bankcount) {
          if ((pattype==BANKTYPE) or (pattype==OTPTYPE)) {
@@ -30074,156 +30065,145 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt)
 //            
 //   }   /*if v_any_dev_active*/
 //} 
-//   
-//BoolS FlashCode_WR_EXE_func(StringS tname,
-//                               FlashCodeType code_type,
-//                               BoolM test_results)
-//{
-//   const IntS NONE_OPT = 0; 
-//   const IntS SCPL_OPT = 1; 
-//
-//   BoolM savesites,logsites;
-//   BoolM tmp_results,final_results;
-//   FloatS ttimer1,ttimer2,tfreq;
-//   FloatM tt_timer;
-//   StringS str1,str2,str3,str4;
-//   IntS testnum,length,special_opt;
-//   FloatM FloatSval;
+   
+TMResultM FlashCode_WR_EXE_func(StringS tname, FlashCodeType code_type) {
+   const IntS NONE_OPT = 0; 
+   const IntS SCPL_OPT = 1; 
+
+   BoolM savesites,logsites;
+   TMResultM tmp_results,final_results,test_results;
+   FloatS ttimer1,ttimer2,tfreq;
+   FloatM tt_timer;
+   StringS str1,str2,str3,str4;
+   IntS testnum,length,special_opt;
+   FloatM FloatSval;
 //   TWunit unitval;
-//   StringS fl_testname;
-//   FloatS maxtime,tdelay;
-//   StringS tpatt;
-//   vcornertype vcorner;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ FlashCode_WR_EXE_func +++++" << endl;
-//
-//      writestring(str1,tname);
-//      length = len(str1);
-//      writestring(str1,mid(str1,2,length-6));
-//      fl_testname = tname;
-//      
-//      timernstart(ttimer1);      
-//
-//      savesites = V_dev_active;
-//      final_results = V_dev_active;
-//
-//      testnum = TNUM_PROG_RANDCODE;
-//
-//      maxtime = GL_F021_BANK_PGM_MAXTIME;
-//      tdelay  = 2ms;
-//
-//      if(F021_RunCode.DO_RUNCODE_ENA[code_type])  
-//      {
-//         if(code_type==OtpSCPL)  
-//            special_opt = SCPL_OPT;
-//         else
-//            special_opt = NONE_OPT;
-//
-//         TestOpen(fl_testname);
-//
-//         vcorner = F021_RunCode.PROG_VDDCORNER[code_type];
-//         tfreq   = F021_RunCode.PROG_FREQ[code_type];
-//         switch(vcorner) {
-//           case  VMN: case VMNO: case VMNE :   
-//              PowerUpAtVmin(dcsetup_loosevmin,norm_fmsu);
-//              ClockSet(S_CLOCK1A,false,tfreq,
-//                    v[vih_loose_osc_vmin],v[vil_loose]);
-//            break; 
-//           case  VNM: case VNMO: case VNME :   
-//              PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//              ClockSet(S_CLOCK1A,false,tfreq,
-//                    v[vih_loose_osc_vnom],v[vil_loose]);
-//            break; 
-//           case  VMX: case VMXO: case VMXE :   
-//              PowerUpAtVmax(dcsetup_loosevmax,norm_fmsu);
-//              ClockSet(S_CLOCK1A,false,tfreq,
-//                    v[vih_loose_osc_vmax],v[vil_loose]);
-//            break; 
-//           default:  
-//              PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//              ClockSet(S_CLOCK1A,false,tfreq,
-//                    v[vih_loose_osc_vnom],v[vil_loose]);
-//            break;            
-//         }   /* case */
-//
-//         TIME.Wait(tdelay);
-//
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//
-//         for (tpatt = F021_RunCode.FIRST_PROGPAT[code_type];tpatt <= F021_RunCode.LAST_PROGPAT[code_type];tpatt++)
-//         {
-//            logsites = v_dev_active;
-//
-//            if(special_opt==NONE_OPT)  
-//            {
-//               patternexecute(spareint1,tpatt);
-//               tmp_results = v_pf_status;
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               writestring(str2,tpatt);
-//               PrintResultBool(str2,0,tmp_results,GL_PLELL_FORMAT);
-//               
-//               F021_RunTestNumber(testnum,maxtime,tt_timer,tmp_results);
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               PrintResultBool(str1,testnum,tmp_results,GL_PLELL_FORMAT);
-//            }
-//            else
-//            {
-//                /*SCPL_OPTion*/
-//               discard(f021_matchloopbypmu_ms(tpatt,F021_PASSPIN,F021_DONEPIN,F021_NDONEPIN,
-//                       maxtime,1,tt_timer,tmp_results));
-//               ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//               PrintResultBool(str1,testnum,tmp_results,GL_PLELL_FORMAT);
-//            } 
-//               
-//            if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//            {
-//               writestring(str3,str1,tpatt);
-//               F021_Log_FailPat_To_TW(str3,tmp_results,fl_testname);
-//            } 
-//            
-//            if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//               Devsetholdstates(final_results);
-//            
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for tpatt*/
-//
-//         Devsetholdstates(savesites);
-//
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//
-//         test_results = final_results;
-//      
-//         ttimer1 = timernread(ttimer1);
-//         tt_timer = ttimer1;
-//         
-//         str4 = str1 + "_TTT";
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str4, unitval,realval,TWMinimumData);
-//         
-//         if(tistdscreenprint)  
-//         {
-//             /*PrintResultBool(str1,testnum,final_results,GL_PLELL_FORMAT);*/
-//            cout << "   TT " << ttimer1 << endl;
-//            cout << endl;
-//         }         /*if tistdscreenprint*/
-//      
-//         if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
-//            DevSetHoldStates(final_results);
-//      }   /*if do_runcode_ena*/
-//
-//      ClockStopFreeRun(s_clock1a);
-//      powerdownall;
-//      GL_PREVIOUS_SHELL = "";
-//   }   /*if v_any_dev_active*/
-//
-//   FlashCode_WR_EXE_func = V_any_dev_active;
-//}   /*FlashCode_WR_EXE_func*/
-//   
+   StringS fl_testname;
+   FloatS maxtime,tdelay;
+   StringS tpatt;
+   VCornerType vcorner;
+   Levels PS_Vmin = "PowerUpAtVmask";
+   Levels PS_Vnom = "PowerUpAtVmask";
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ FlashCode_WR_EXE_func +++++" << endl;
+
+   str1 = tname;
+   str1.Replace(str1.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+   
+   TIME.StartTimer();   
+
+//   savesites = V_dev_active;
+//   final_results = V_dev_active;
+
+   testnum = TNUM_PROG_RANDCODE;
+
+   maxtime = GL_F021_BANK_PGM_MAXTIME;
+   tdelay  = 2ms;
+
+   if (F021_RunCode.DO_RUNCODE_ENA[code_type]) {
+   
+      if (code_type==OtpSCPL) special_opt = SCPL_OPT;
+      else                    special_opt = NONE_OPT;
+
+      vcorner = F021_RunCode.PROG_VDDCORNER[code_type];
+      tfreq   = F021_RunCode.PROG_FREQ[code_type];
+      
+      switch(vcorner) {
+        case  VMN: case VMNO: case VMNE :
+           PS_Vmin.Execute();
+//           PowerUpAtVmin(dcsetup_loosevmin,norm_fmsu);
+//           ClockSet(S_CLOCK1A,false,tfreq,v[vih_loose_osc_vmin],v[vil_loose]);
+           break; 
+        case  VNM: case VNMO: case VNME :
+           PS_Vnom.Execute();
+//           PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
+//           ClockSet(S_CLOCK1A,false,tfreq,v[vih_loose_osc_vnom],v[vil_loose]);
+           break; 
+        case  VMX: case VMXO: case VMXE :
+           PS_Vmax.Execute();
+//           PowerUpAtVmax(dcsetup_loosevmax,norm_fmsu);
+//           ClockSet(S_CLOCK1A,false,tfreq,v[vih_loose_osc_vmax],v[vil_loose]);
+            break; 
+        default:
+           PS_Vnom.Execute();
+//           PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
+//           ClockSet(S_CLOCK1A,false,tfreq,v[vih_loose_osc_vnom],v[vil_loose]);
+           break;            
+      }   // case
+
+      TIME.Wait(tdelay);
+
+//      PrintHeaderBool(GL_PLELL_FORMAT);
+
+//      for (tpatt = F021_RunCode.FIRST_PROGPAT[code_type]; tpatt <= F021_RunCode.LAST_PROGPAT[code_type]; ++tpatt) {
+        for (IntS loopPat =0; loopPat < 3; ++loopPat ) {
+//         logsites = v_dev_active;
+           tpatt = F021_RunCode.FIRST_PROGPAT[loopPat];
+
+         if (special_opt==NONE_OPT) {
+//            patternexecute(spareint1,tpatt);
+//            tmp_results = v_pf_status;
+//            ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+            str2 = tpatt;
+//            PrintResultBool(str2,0,tmp_results,GL_PLELL_FORMAT);
+            
+            tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
+//            ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+//            PrintResultBool(str1,testnum,tmp_results,GL_PLELL_FORMAT);
+         }
+         else {
+            // SCPL_OPTion
+//            discard(f021_matchloopbypmu_ms(tpatt,F021_PASSPIN,F021_DONEPIN,F021_NDONEPIN,maxtime,1,tt_timer,tmp_results));
+              final_results = DLOG.AccumulateResults(final_results, tmp_results);
+//            ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+//            PrintResultBool(str1,testnum,tmp_results,GL_PLELL_FORMAT);
+         } 
+            
+         if (final_results != TM_PASS) {
+            str3 = str1 + tpatt;
+//            F021_Log_FailPat_To_TW(str3,tmp_results,fl_testname);
+         } 
+         
+         if ((not RunAllTests) and (not TI_FlashCOFEna))
+            ;
+//            Devsetholdstates(final_results);
+         
+      }  // for tpatt
+
+//      Devsetholdstates(savesites);
+
+//      ResultsRecordActive(final_results, S_NULL);
+
+      test_results = final_results;
+   
+      ttimer1 = TIME.GetTimer();
+      tt_timer = ttimer1;
+      
+      str4 = str1 + "_TTT";
+//      TWTRealToRealMS(tt_timer,realval,unitval);
+//      TWPDLDataLogRealVariable(str4, unitval,realval,TWMinimumData);
+      
+      if (tistdscreenprint) {
+          /*PrintResultBool(str1,testnum,final_results,GL_PLELL_FORMAT);*/
+         cout << "   TT " << ttimer1 << endl;
+         cout << endl;
+      }        // if tistdscreenprint
+   
+      if ((not RunAllTests) and (not TI_FlashCOFEna))
+         ;
+//         DevSetHoldStates(final_results);
+   }   /*if do_runcode_ena*/
+
+//   ClockStopFreeRun(s_clock1a);
+//   powerdownall;
+   GL_PREVIOUS_SHELL = "";
+
+   return(final_results);
+}   // FlashCode_WR_EXE_func
+   
 //BoolS FlashCode_RdPsa_func(StringS tname,
 //                              FlashCodeType code_type,
 //                              BoolM test_results)
@@ -31234,450 +31214,409 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 //         
 //   }   /*if v_any_dev_active*/
 //}   /* TL_StairStep_Erase */
-//      
-//void TL_Schmoo_Freq(VCornerType vcorner,
-//                         IntS testnumber,
-//                           FloatS freqstart, FloatS freqstop, FloatS freqinc,
-//                         BoolS EnaPLL,
-//                         BoolS UseAutoWaitState,
-//                         IntS waitState,
-//                         BoolS EnaPipeLine,
-//                         BoolS twlogena,
-//                         StringS logstr,
-//                         StringS dumpToFileName)
-//{
-//   const  TNUM_ARBFREQ_ENA = 0x0C000000;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS MAXITER = 512; 
-//
-//   IntS site,tnum,bank,i,index,j,k;
-//   BoolM tmp_results,savesites,FmaxFound;
-//   FloatS fstart,fstop,finc,infreq;
-//   StringS str1,str2,str3,str4,str5,s;
-//   BoolS done,wstate_addr_ena,arbpsaena;
-//   FloatS maxtime,ttimer1,tdelay,tfreq;
-//   FloatM tt_timer;
-//   BoolS dumptofile,lotohi;
-//   BoolS PgmInvert;
-//   FloatS PgmFRQ,PgmClkVIH,PgmClkVIL;
-//   FloatS vdd_vProg,vdd_iprog;
-//   IntS2D SchmooResults; /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITER,1..NumSites */
-//   IntM intdata,FmaxResult;
-//   DCSetUp prevDCSU;
-//
-//   if(v_any_dev_active)  
-//   {
-//      switch(vcorner) {
-//        case  VMN: case VMNO: case VMNE :   
-//           PowerUpAtVmin(dcsetup_loosevmin,norm_fmsu);
-//           ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                    v[vih_loose_osc_vmin],v[vil_loose]);
-//         break; 
-//        case  VNM: case VNMO: case VNME :   
-//           PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//           ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                    v[vih_loose_osc_vnom],v[vil_loose]);
-//         break; 
-//        case  VMX: case VMXO: case VMXE :   
-//           PowerUpAtVmax(dcsetup_loosevmax,norm_fmsu);
-//           ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                    v[vih_loose_osc_vmax],v[vil_loose]);
-//         break; 
-//        default:  
-//           PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//           ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//                    v[vih_loose_osc_vnom],v[vil_loose]);
-//         break;            
-//      }   /* case */
-//
-//      clockpinset(s_clk_1a,s_clock);
-//      TIME.Wait(2ms);
-//      patternexecute(i,f021_shell_loadpat);
-//      f021_runtestnumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
-//      SetupGet(prevDCSU);
-//
-//      savesites = v_dev_active;
-//      tmp_results = v_dev_active;
-//      FmaxFound = false;
-//      FmaxResult = 0;
-//
-//      maxtime = 2s;  /*GL_F021_BANK_VT_MAXTIME;*/
-//      tdelay = 2ms;
-//      wstate_addr_ena = false;
-//      
-//      fstart = trunc(single(freqstart/1MgHz));
-//      fstop  = trunc(single(freqstop/1MgHz));
-//      finc   = trunc(single(freqinc/1MgHz));
-//      if(finc <== 0)  
-//         finc = 1;  /*default 1mghz resolution*/
-//      infreq = fstart;
-//
-//      if(fstart <== fstop)  
-//         lotohi = true;
-//      else
-//         lotohi = false;
-//
-//      bank = (testnumber & 0x000000F0) >>4;
-//      writestring(str4,bank:1);
-//      str4 = "B" + str4;
-//      str4 = str4 + "_";
-//      
-//      tnum = testnumber | TNUM_ARBFREQ_ENA;
-//      
-//      arbpsaena = false;
-//      if(((testnumber & 0x00000F00) == TNUM_TARGET_ARB) or (testnumber == (TNUM_EXEC_RANDCODE+(bank<<4))))  
-//         arbpsaena = true;
-//
-//      if(tistdscreenprint)  
-//      {
-//         PrintDUTSetup;
-//         cout << endl;
-//         cout << "Schmoo Freq (MGHZ) start == " << fstart:-7:1 << " <<   stop == " << fstop:-7:1 << " <<   resolution == " << finc:-7:1 << endl;
-//         cout << "PLLEna == " << EnaPLL:-7 << "  AutoWState == " << UseAutoWaitState:-7 << "  WS == " << waitState:-5 << "  PipeLineEna == " << EnaPipeLine:-7 << endl;
-//         if(twlogena)  
-//            PrintHeaderBool(GL_PLELL_FORMAT);
-//      } 
-//
-//      if(logstr == "")  
-//         str1 = "FREQ_";
-//      else
-//         str1 = logstr + "_";
-//      str1 = str1 + str4;
-//
-//      Clockget(s_clock1a,pgminvert,pgmfrq,pgmclkvih,pgmclkvil);
-//      STDGetVI(VDD,vdd_vProg,vdd_iprog);
-//      TrealToStr(vdd_vProg,str4);
-//      str1 = str1 + str4;
-//      
-//      timernstart(ttimer1);
-//
-//      done = false;
-//      index = 0;
-//      
-//      REPEAT
-//         if(TI_FlashDebug)  
-//            if(Inkey(s))   done = true;
-//         
-//         ClockStopFreeRun(s_clock1a);
-//         if(not EnaPLL)  
-//         {
-//            ClockSet(S_CLOCK1A,pgminvert,infreq*1Mghz,pgmclkvih,pgmclkvil);
-//            TIME.Wait(tdelay);
-//         } 
-//
-//         if not(arraycompareboolean(savesites,tmp_results,v_sites))  
-//         {
-//            SetupSelect(prevDCSU,norm_fmsu);
-//            patternexecute(i,f021_shell_loadpat);
-//         } 
-//         
-//         TL_SetArbFREQ(infreq,EnaPLL);
-//         TL_SetArbWAIT(UseAutoWaitState,waitState,wstate_addr_ena,EnaPipeLine);
-//         if(arbpsaena)  
-//            MBox_Upload_RCODE_PSA(bank,Random);            
-//         tmp_results = v_dev_active;
-//         F021_RunTestNumber(tnum,maxtime,tt_timer,tmp_results);
-//         index = index+1;
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if(tmp_results[site])  
-//               {
-//                  SchmooResults[index][site] = 1;
-//                  intdata[site] = 1;
-//                  if(not FmaxFound[site])  
-//                     FmaxResult[site] = trunc(infreq);
-//                  if(not lotohi)  
-//                     FmaxFound[site] = true;
-//               }
-//               else
-//               {
-//                  SchmooResults[index][site] = 0;
-//                  intdata[site] = 0;
-//                  if(lotohi)  
-//                     if(not FmaxFound[site])  
-//                        FmaxFound[site] = true;
-//               } 
-//            } 
-//         
-//         tfreq = infreq*1Mghz;
-//         TrealToStr(tfreq,str2);
-//         str2 = "_" + str2;
-//         str3 = str1 + str2;
-//         if(tistdscreenprint and twlogena)  
-//            PrintResultBool(str3,tnum,tmp_results,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//            TWPDLDataLogVariable(str3,intdata,TWMinimumData);
-//         
-//         if(lotohi)  
-//         {
-//            infreq = infreq + finc;
-//            if(infreq > fstop)  
-//               done = true;
-//         }
-//         else
-//         {
-//            infreq = infreq - finc;
-//            if(infreq < fstop)  
-//               done = true;
-//         } 
-//      UNTIL(done);
-//
-//      if(twlogena)  
-//      {
-//         str5 = str1 + "_FMAX";
-//         TWPDLDataLogVariable(str5,FmaxResult,TWMinimumData);
-//         PrintResultInt(str5,tnum,FmaxResult,trunc(fstart),trunc(fstop),GL_PLELL_FORMAT);
-//      } 
-//      
-//      if(tistdscreenprint)  
-//      {
-//         cout << endl;
-//         cout << str1 << "  TNUM == " << tnum:s_hex:-15 << "  1==Pass <<   0==Fail" << endl;
-//         cout << "FREQ(MHZ)":-10;
-//         k = 0;
-//         for (i = 1;i <= index;i++)
-//         {
-//             /*print every 10th point*/
-//            if((i==1) or ((i mod 11)==0))  
-//            {
-//               if(i==1)  
-//                  tfreq = fstart*1Mghz;
-//               else if(lotohi)  
-//                  tfreq = (fstart+((i-1)*finc))*1Mghz;
-//               else
-//                  tfreq = (fstart-((i-1)*finc))*1Mghz;
-//               TrealToStr(tfreq,str2);
-//               j = len(str2);
-//               str2 = mid(str2,1,j-4);
-//               k = k+len(str2);
-//               cout << str2;
-//            }
-//            else
-//            {
-//               if(i>k)  
-//               {
-//                  k = k+1;
-//                  cout << " ";
-//               } 
-//            } 
-//         } 
-//         cout << endl;
-//         
-//         cout << " ":-10;
-//         for (i = 1;i <= index;i++)
-//         {
-//            if((i==1) or ((i mod 11) == 0))  
-//               cout << "+");
-//            else
-//               cout << "-";
-//         } 
-//         cout << endl;
-//
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               cout << "Site" << site:-6;
-//               for (i = 1;i <= index;i++)
-//                  cout << SchmooResults[i][site]:-1;
-//               cout << endl;
-//            } 
-//         cout << endl;
-//         cout << "TL_Schmoo_Freq TT " << timernread(ttimer1) << endl;
-//      } 
-//
-//      ClockStopFreeRun(s_clock1a);
-//      ClockSet(s_clock1a,pgminvert,pgmfrq,pgmclkvih,pgmclkvil);
-//      
-//   }   /*if v_any_dev_active*/
-//}   /* TL_Schmoo_Freq */
-//
-//
-//void TL_SAMP_ACCY_IV(BoolS dobcc,
-//                          StringS logstr,
-//                          BoolS twlogena)
-//{
-//   IntS site,bank,count,tnum,stnum,numread;
-//   IntS addrms,addrls,senamp;
-//   IntM msw_cpuaddr,lsw_cpuaddr;
-//   IntM msw_fdata,lsw_fdata;
-//   IntM msw_fdata0,lsw_fdata0;
-//   IntM msw_fdata1,lsw_fdata1;
-//   IntM msw_mainaddr,lsw_mainaddr;
-//   IntM senampnum;
-//   FloatM vt_vcg,meas_val;
-//   BoolM savesites,logsites,allsitefalse;
-//   BoolM tmp_results;
-//   PinM cg_pin,bl_pin;
-//   FloatS cg_vProg,cg_iProg,bl_vProg,bl_iProg;
-//   FloatS vdd_vProg,vdd_iProg;
-//   FloatS tdelay1,tdelay2,tdelay3,maxtime;
-//   StringS str1,str2,str3,str4,str5,str6,str7;
-//   FloatM FloatSval;
+      
+void TL_Schmoo_Freq( VCornerType         vcorner, IntS    testnumber, FloatS       freqstart,
+                     FloatS             freqstop, FloatS     freqinc, BoolS           EnaPLL,
+                     BoolS      UseAutoWaitState, IntS     waitState, BoolS      EnaPipeLine,
+                     BoolS              twlogena, StringS     logstr, StringS dumpToFileName ) {
+
+   const IntS TNUM_ARBFREQ_ENA = 0x0C000000;
+   const IntS MAXITER = 512; 
+
+   IntS site,tnum,bank,i,index,j,k;
+   TMResultM tmp_results;
+   BoolM savesites,FmaxFound;
+   FloatS fstart,fstop,finc,infreq;
+   StringS str1,str2,str3,str4,str5,s;
+   BoolS done,wstate_addr_ena,arbpsaena;
+   FloatS maxtime,ttimer1,tdelay,tfreq;
+   FloatM tt_timer;
+   BoolS dumptofile,lotohi;
+   BoolS PgmInvert;
+   FloatS PgmFRQ,PgmClkVIH,PgmClkVIL;
+   FloatS vdd_vProg,vdd_iprog;
+   IntS2D SchmooResults; /* :MANUAL FIX REQUIRED: array dimensions are : 1..MAXITER,1..NumSites */
+   IntM intdata,FmaxResult;
+   Levels PS_Vmin = "PowerUpAtVmask";
+   Levels PS_Vnom = "PowerUpAtVmask";
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+// DCSetUp prevDCSU;
+
+   switch(vcorner) {
+      case  VMN: case VMNO: case VMNE:   
+         PS_Vmin.Execute();
+         break; 
+      case  VNM: case VNMO: case VNME :   
+         PS_Vnom.Execute();
+         break; 
+      case  VMX: case VMXO: case VMXE :   
+         PS_Vmax.Execute();
+         break; 
+      default:  
+         PS_Vnom.Execute();
+         break;            
+   }   // case
+
+   TIME.Wait(2ms);
+// patternexecute(i,f021_shell_loadpat);
+   tmp_results = F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,tt_timer);
+// SetupGet(prevDCSU);
+
+// savesites = v_dev_active;
+// tmp_results = v_dev_active;
+   FmaxFound = false;
+   FmaxResult = 0;
+
+   maxtime = 2s;  /*GL_F021_BANK_VT_MAXTIME;*/
+   tdelay = 2ms;
+   wstate_addr_ena = false;
+   
+   fstart = MATH.Truncate(freqstart/1MHz);
+   fstop  = MATH.Truncate(freqstop/1MHz);
+   finc   = MATH.Truncate(freqinc/1MHz);
+
+   if (finc <= 0) finc = 1;  // default 1MHz resolution
+   infreq = fstart;
+
+   if (fstart <= fstop)  lotohi = true;
+   else                  lotohi = false;
+
+   bank = (testnumber & 0x000000F0) >>4;
+
+   str4 = "B";
+   // str4 += CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
+   if ( bank == 0 ) str4 += "0_";
+   else             str4 += CONV.IntToString(bank) + "-";
+   
+   tnum = testnumber | TNUM_ARBFREQ_ENA;
+   
+   arbpsaena = false;
+   if (((testnumber & 0x00000F00) == TNUM_TARGET_ARB) or (testnumber == (TNUM_EXEC_RANDCODE+(bank<<4))))  
+      arbpsaena = true;
+
+   if(tistdscreenprint) {
+//    PrintDUTSetup;
+      cout << endl;
+      cout << "Schmoo Freq (MHz) start == " << setw(7) << fstart;
+      cout << "   stop == " << setw(7) << fstop;
+      cout << "   resolution == " << setw(7) << finc << endl;
+      cout << "PLLEna == " << setw(7) << EnaPLL;
+      cout << "   AutoWState == " << setw(7) << UseAutoWaitState;
+      cout << "   WS == " << setw(5) << waitState;
+      cout << "   PipeLineEna == " << setw(7) << EnaPipeLine << endl;
+
+      if (twlogena)  
+         ;
+//       PrintHeaderBool(GL_PLELL_FORMAT);
+   } 
+
+   if (logstr == "")  str1 = "FREQ_";
+   else               str1 = logstr + "_";
+
+   str1 = str1 + str4;
+
+//   Clockget(s_clock1a,pgminvert,pgmfrq,pgmclkvih,pgmclkvil);
+// STDGetVI(VDD,vdd_vProg,vdd_iprog,);
+
+   str4 = CONV.FloatToString(vdd_vProg);
+   str1 = str1 + str4;
+   
+   TIME.StartTimer();
+
+   done = false;
+   index = 0;
+   
+   do {
+      if (TI_FlashDebug)
+         ;
+// Not sure if we want an externa; input to stop a characterization routine
+//         if (Inkey(s))   done = true;
+      
+//    ClockStopFreeRun(s_clock1a);
+      if (not EnaPLL) {
+//       ClockSet(S_CLOCK1A,pgminvert,infreq*1Mghz,pgmclkvih,pgmclkvil);
+         TIME.Wait(tdelay);
+      } 
+
+//    if not(arraycompareboolean(savesites,tmp_results,v_sites)) {
+//       SetupSelect(prevDCSU,norm_fmsu);
+//       patternexecute(i,f021_shell_loadpat);
+//    } 
+      
+//      TL_SetArbFREQ(infreq,EnaPLL);
+//      TL_SetArbWAIT(UseAutoWaitState,waitState,wstate_addr_ena,EnaPipeLine);
+      if (arbpsaena)  
+         MBox_Upload_RCODE_PSA(bank,Random);            
+
+      tmp_results = F021_RunTestNumber(tnum,maxtime,tt_timer);
+      index = index+1;
+      
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if(tmp_results[*si]) {
+            SchmooResults[index][*si] = 1;
+            intdata[*si] = 1;
+            if(not FmaxFound[*si])  
+               FmaxResult[*si] = int(MATH.Truncate(infreq));
+            if(not lotohi)  
+               FmaxFound[*si] = true;
+         }
+         else {
+            SchmooResults[index][*si] = 0;
+            intdata[*si] = 0;
+            if(lotohi)  
+               if(not FmaxFound[*si])  
+                  FmaxFound[*si] = true;
+         } 
+      } 
+      
+      tfreq = infreq*1MHz;
+      str2 = "_";
+      str2 = CONV.FloatToString(tfreq);
+
+      str3 = str1 + str2;
+      if (tistdscreenprint and twlogena)  
+         ;
+//       PrintResultBool(str3,tnum,tmp_results,GL_PLELL_FORMAT);
+      if (twlogena)  
+         ;
+//       TWPDLDataLogVariable(str3,intdata,TWMinimumData);
+      
+      if (lotohi) {
+         infreq = infreq + finc;
+         if (infreq > fstop) done = true;
+      }
+      else {
+         infreq = infreq - finc;
+         if (infreq < fstop) done = true;
+      } 
+   } while (!done);
+
+   if(twlogena) {
+      str5 = str1 + "_FMAX";
+//    TWPDLDataLogVariable(str5,FmaxResult,TWMinimumData);
+//    PrintResultInt(str5,tnum,FmaxResult,trunc(fstart),trunc(fstop),GL_PLELL_FORMAT);
+   } 
+   
+   if (tistdscreenprint) {
+      cout << endl;
+      cout << str1 << "  TNUM == " << setw(15) << hex << tnum << "  1==Pass <<   0==Fail" << endl;
+      cout << setw(10) << "FREQ(MHZ)";
+
+      k = 0;
+      for (i = 1; i <= index; ++i) {
+         // print every 10th point
+         if ( (i==1) or ( i % 11) ==0 )  {
+
+            if (i==1)        tfreq = fstart*1MHz;
+            else if (lotohi) tfreq = (fstart+((i-1)*finc))*1MHz;
+            else             tfreq = (fstart-((i-1)*finc))*1MHz;
+
+            str2 = CONV.FloatToString(tfreq);
+            j = str2.Length();
+//          str2 = mid(str2,1,j-4);
+            k = k+str2.Length();
+            cout << str2;
+         }
+         else {
+            if (i>k)  {
+               k = k+1;
+               cout << " ";
+            } 
+         } 
+      } 
+      cout << endl;
+      
+//      cout << " ":-10;
+      cout << "          ";
+      for (i = 1; i <= index; ++i) {
+         if ((i==1) or ((i % 11) == 0)) cout << "+";
+         else                           cout << "-";
+      } 
+      cout << endl;
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            cout << "Site" << setw(6) << *si;
+            for (i = 1; i <= index; ++i)
+               cout << setw(1) << SchmooResults[i][*si];
+            cout << endl;
+      } 
+      cout << endl;
+      cout << "TL_Schmoo_Freq TT " << TIME.GetTimer() << endl;
+   } 
+
+// ClockStopFreeRun(s_clock1a);
+// ClockSet(s_clock1a,pgminvert,pgmfrq,pgmclkvih,pgmclkvil);
+      
+}   // TL_Schmoo_Freq
+  
+void TL_SAMP_ACCY_IV(BoolS dobcc, StringS logstr, BoolS twlogena) {
+   IntS site,bank,count,tnum,stnum,numread;
+   IntS addrms,addrls,senamp;
+   IntM msw_cpuaddr,lsw_cpuaddr;
+   IntM msw_fdata,lsw_fdata;
+   IntM msw_fdata0,lsw_fdata0;
+   IntM msw_fdata1,lsw_fdata1;
+   IntM msw_mainaddr,lsw_mainaddr;
+   IntM senampnum;
+   FloatM vt_vcg,meas_val;
+   BoolM savesites,logsites,allsitefalse;
+   TMResultM tmp_results;
+   PinM cg_pin,bl_pin;
+   FloatS cg_vProg,cg_iProg,bl_vProg,bl_iProg;
+   FloatS vdd_vProg,vdd_iProg;
+   FloatS tdelay1,tdelay2,tdelay3,maxtime;
+   StringS str1,str2,str3,str4,str5,str6,str7;
+   FloatM FloatSval;
 //   TWunit unitval;
-//   StringM FAddrStr_msw,FAddrStr_lsw;
-//   StringM FDataStr_msw,FDataStr_lsw,tmpbinstr;
-//   StringM FAddrStr,FDataStr;
-//   IntM FAddr,FData;
-//   StringS twlogstr;
-//
-//   if(v_any_dev_active)  
-//   {
-//      count = 0;
-//      tdelay1 = 2ms;
-//      tdelay2 = 10ms;
-//      tdelay3 = 100ms;
-//      maxtime = GL_F021_PARAM_MAXTIME;
-//      numread = 5;
-//      
-//      cg_pin     = FLTP1;
-//      cg_iProg   = 100mA;
-//      bl_pin     = FLTP2;
-//      bl_iProg   = 500uA;
-//      stnum      = TNUM_BITLINE_ACCESS+TNUM_TARGET_ARB;
-//
-//      savesites = v_dev_active;
-//      logsites = v_dev_active;
-//      allsitefalse = false;
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            STDGetVI(VDD,bl_vProg,vdd_iProg);
-//            break;
-//         } 
-//
-//      if(logstr!="")  
-//      {
-//         twlogstr = logstr;
-//         str1 = logstr + "_VCG";
-//         str2 = logstr + "_IBL";
-//         str5 = logstr + "_FADDR";
-//         str6 = logstr + "_FDATA";
-//         str7 = logstr + "_SANUM";
-//      }
-//      else
-//      {
-//         str1 = "Z_SAACCY_VCG";
-//         str2 = "Z_SAACCY_IBL";
-//         str5 = "Z_SAACCY_FADDR";
-//         str6 = "Z_SAACCY_FDATA";
-//         str7 = "Z_SAACCY_SANUM";
-//      } 
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         if(dobcc)  
-//            vt_vcg = 5.0V;
-//         else
-//            vt_vcg = FL_SAMP_ACCY_VT[bank][count];
-//         msw_cpuaddr = FL_SAMP_ACCY_VT_FADDR_MSW[bank][count];
-//         lsw_cpuaddr = FL_SAMP_ACCY_VT_FADDR_LSW[bank][count];
-//         msw_fdata0 = FL_SAMP_ACCY_VT_FDATA_MSW[bank][count];
-//         lsw_fdata0 = FL_SAMP_ACCY_VT_FDATA_LSW[bank][count];
-//         msw_fdata1 = FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count];
-//         lsw_fdata1 = FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count];
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               if((msw_fdata0[site]!=0) or (lsw_fdata0[site]!=0))  
-//               {
-//                  msw_fdata[site] = msw_fdata0[site];
-//                  lsw_fdata[site] = lsw_fdata0[site];
-//               }
-//               else
-//               {
-//                  msw_fdata[site] = msw_fdata1[site];
-//                  lsw_fdata[site] = lsw_fdata1[site];
-//               } 
-//            }   /*v_dev_active*/
-//                  
-//         TL_Get_SenAmp_From_CpuAddrData_MS(msw_cpuaddr,lsw_cpuaddr,msw_fdata,lsw_fdata,msw_mainaddr,lsw_mainaddr,senampnum);
-//         IntToBCD_BinStr(msw_mainaddr,FAddrStr_msw,tmpbinstr,true);
-//         IntToBCD_BinStr(lsw_mainaddr,FAddrStr_lsw,tmpbinstr,true);
-//         IntToBCD_BinStr(msw_fdata,FDataStr_msw,tmpbinstr,true);
-//         IntToBCD_BinStr(lsw_fdata,FDataStr_lsw,tmpbinstr,true);
-//
-//         F021_TurnOff_AllTPADS;
-//         devsetholdstates(allsitefalse);
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(logsites[site])  
-//            {
-//               devsetholdstate(site,true);
-//               senamp = senampnum[site];
-//               MBox_Upload_ISenAmp(senamp);
-//               addrms = msw_mainaddr[site];
-//               addrls = lsw_mainaddr[site];
-//               TL_SetArbAddr(addrms,addrls);
-//               cg_vProg = vt_vcg[site];
-//               STDSetVRange(cg_pin,cg_vProg);
-//               STDSetVI(cg_pin,cg_vProg,cg_iProg);
-//               STDSetVRange(bl_pin,bl_vProg);
-//               STDSetVI(bl_pin,bl_vProg,bl_iProg);
-//               FAddrStr[site] = "0x" + FAddrStr_msw[site];
-//               FAddrStr[site] = FAddrStr[site] + FAddrStr_lsw[site];
-//               FDataStr[site] = "0x" + FDataStr_msw[site];
-//               FDataStr[site] = FDataStr[site] + FDataStr_lsw[site];
-//
-//               FAddr[site] = (msw_mainaddr[site]<<16) + lsw_mainaddr[site];
-//               FData[site] = (msw_fdata[site]<<16) + lsw_fdata[site];
-//               devsetholdstate(site,false);
-//            } 
-//         devsetholdstates(logsites);
-//               
-//         TIME.Wait(tdelay1);
-//         tnum = stnum+(bank<<4);
-//         F021_RunTestNumber_PMEX(tnum,maxtime,tmp_results);
-//         TIME.Wait(tdelay3);
-//         ClockStopFreeRun(S_Clock1A);
-//         STDMeasI(bl_pin,numread,meas_val);
-//         Disable(S_PMEXIT);
-//         STDSetVI(cg_pin,0v,1mA);
-//         STDSetVI(bl_pin,0v,1mA);
-//         TIME.Wait(tdelay1);
-//
-//         writestring(str3,bank:1);
-//         str3 = "_B" + str3;
-//         
-//         str4 = str1 + str3;
-//         PrintResultParam(str4,tnum,tmp_results,0v,6v,vt_vcg,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//         {
-//            TWTRealToRealMS(vt_vcg,realval,unitval);
-//            TWPDLDataLogRealVariable(str4,unitval,realval,TWMinimumData);
-//         } 
-//         
-//         str4 = str2 + str3;
-//         PrintResultParam(str4,tnum,tmp_results,0uA,50uA,meas_val,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//         {
-//            TWTRealToRealMS(meas_val,realval,unitval);
-//            TWPDLDataLogRealVariable(str4,unitval,realval,TWMinimumData);
-//         } 
-//
-//         str4 = str5 + str3;
-//         PrintResultIntHex(str4,0,FAddr,0,0,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//            TWPDLDataLogText(str4,FAddrStr,TWMinimumData);
-//         
-//         str4 = str6 + str3;
-//         PrintResultIntHex(str4,0,FData,0,0,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//            TWPDLDataLogText(str4,FDataStr,TWMinimumData);
-//         
-//         str4 = str7 + str3;
-//         PrintResultInt(str4,tnum,senampnum,0,143,GL_PLELL_FORMAT);
-//         if(twlogena)  
-//            TWPDLDataLogVariable(str4,senampnum,TWMinimumData);
-//
-//      }   /*for bank*/
-//         
-//   }   /*if v_any_dev_active*/
-//}   /* TL_SAMP_ACCY_IV */
-//
+   StringM FAddrStr_msw,FAddrStr_lsw;
+   StringM FDataStr_msw,FDataStr_lsw,tmpbinstr;
+   StringM FAddrStr,FDataStr;
+   IntM FAddr,FData;
+   StringS twlogstr;
+
+   count = 0;
+   tdelay1 = 2ms;
+   tdelay2 = 10ms;
+   tdelay3 = 100ms;
+   maxtime = GL_F021_PARAM_MAXTIME;
+   numread = 5;
+   
+   cg_pin     = FLTP1;
+   cg_iProg   = 100mA;
+   bl_pin     = FLTP2;
+   bl_iProg   = 500uA;
+   stnum      = TNUM_BITLINE_ACCESS+TNUM_TARGET_ARB;
+
+// savesites = v_dev_active;
+// logsites = v_dev_active;
+// allsitefalse = false;
+
+//   STDGetVI(VDD,bl_vProg,vdd_iProg);
+
+   if (logstr != "")  {
+      twlogstr = logstr;
+      str1 = logstr + "_VCG";
+      str2 = logstr + "_IBL";
+      str5 = logstr + "_FADDR";
+      str6 = logstr + "_FDATA";
+      str7 = logstr + "_SANUM";
+   }
+   else {
+      str1 = "Z_SAACCY_VCG";
+      str2 = "Z_SAACCY_IBL";
+      str5 = "Z_SAACCY_FADDR";
+      str6 = "Z_SAACCY_FDATA";
+      str7 = "Z_SAACCY_SANUM";
+   } 
+
+// PrintHeaderParam(GL_PLELL_FORMAT);
+   
+   for (bank = 0;bank <= F021_Flash.MAXBANK;bank++) {
+      if (dobcc)  
+         vt_vcg = 5.0V;
+      else
+         vt_vcg = FL_SAMP_ACCY_VT[bank][count];
+
+      msw_cpuaddr = FL_SAMP_ACCY_VT_FADDR_MSW[bank][count];
+      lsw_cpuaddr = FL_SAMP_ACCY_VT_FADDR_LSW[bank][count];
+      msw_fdata0 = FL_SAMP_ACCY_VT_FDATA_MSW[bank][count];
+      lsw_fdata0 = FL_SAMP_ACCY_VT_FDATA_LSW[bank][count];
+      msw_fdata1 = FL_SAMP_ACCY_VT_FDATA1_MSW[bank][count];
+      lsw_fdata1 = FL_SAMP_ACCY_VT_FDATA1_LSW[bank][count];
+      
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if ((msw_fdata0[*si]!=0) or (lsw_fdata0[*si] != 0))  {
+            msw_fdata[*si] = msw_fdata0[*si];
+            lsw_fdata[*si] = lsw_fdata0[*si];
+         }
+         else {
+            msw_fdata[*si] = msw_fdata1[*si];
+            lsw_fdata[*si] = lsw_fdata1[*si];
+         } 
+      }
+               
+      TL_Get_SenAmp_From_CpuAddrData_MS(msw_cpuaddr,lsw_cpuaddr,msw_fdata,lsw_fdata,msw_mainaddr,lsw_mainaddr,senampnum);
+//    IntToBCD_BinStr(msw_mainaddr,FAddrStr_msw,tmpbinstr,true);
+//    IntToBCD_BinStr(lsw_mainaddr,FAddrStr_lsw,tmpbinstr,true);
+//    IntToBCD_BinStr(msw_fdata,FDataStr_msw,tmpbinstr,true);
+//    IntToBCD_BinStr(lsw_fdata,FDataStr_lsw,tmpbinstr,true);
+
+      F021_TurnOff_AllTPADS();
+//    devsetholdstates(allsitefalse);
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//       devsetholdstate(site,true);
+         senamp = senampnum[*si];
+         MBox_Upload_ISenAmp(senamp);
+         addrms = msw_mainaddr[*si];
+         addrls = lsw_mainaddr[*si];
+         TL_SetArbAddr(addrms,addrls);
+         cg_vProg = vt_vcg[*si];
+//         STDSetVRange(cg_pin,cg_vProg);
+         STDSetVI(cg_pin,cg_vProg,cg_iProg,VI_FORCE_V,VI_MEASURE_I,cg_vProg);
+//         STDSetVRange(bl_pin,bl_vProg);
+         STDSetVI(bl_pin,bl_vProg,bl_iProg,VI_FORCE_V,VI_MEASURE_I,bl_vProg);
+         FAddrStr[*si] = "0x" + FAddrStr_msw[*si];
+         FAddrStr[*si] = FAddrStr[*si] + FAddrStr_lsw[*si];
+         FDataStr[*si] = "0x" + FDataStr_msw[*si];
+         FDataStr[*si] = FDataStr[*si] + FDataStr_lsw[*si];
+
+         FAddr[*si] = (msw_mainaddr[*si]<<16) + lsw_mainaddr[*si];
+         FData[*si] = (msw_fdata[*si]<<16) + lsw_fdata[*si];
+//       devsetholdstate(site,false);
+      }
+//    devsetholdstates(logsites);
+            
+      TIME.Wait(tdelay1);
+      tnum = stnum+(bank<<4);
+      tmp_results = F021_RunTestNumber_PMEX(tnum,maxtime);
+      TIME.Wait(tdelay3);
+//    ClockStopFreeRun(S_Clock1A);
+      STDMeasI(bl_pin,numread,meas_val, 1mA);
+//      Disable(S_PMEXIT);
+      STDSetVI(cg_pin,0V,1mA,VI_FORCE_V,VI_MEASURE_I);
+      STDSetVI(bl_pin,0V,1mA,VI_FORCE_V,VI_MEASURE_I);
+      TIME.Wait(tdelay1);
+
+      str3 = "_B";
+      //  str3 = CONV.IntToString(bank);  // Bug IntToStr can't convert zero (SPR142812)
+      if ( bank == 0 ) str3 += "0";
+      else             str3 += CONV.IntToString(bank);
+      
+      str4 = str1 + str3;
+//    PrintResultParam(str4,tnum,tmp_results,0v,6v,vt_vcg,GL_PLELL_FORMAT);
+
+//    if (twlogena) {
+//       TWTRealToRealMS(vt_vcg,realval,unitval);
+//       TWPDLDataLogRealVariable(str4,unitval,realval,TWMinimumData);
+//    } 
+      
+      str4 = str2 + str3;
+//    PrintResultParam(str4,tnum,tmp_results,0uA,50uA,meas_val,GL_PLELL_FORMAT);
+//    if (twlogena) {
+//       TWTRealToRealMS(meas_val,realval,unitval);
+//       TWPDLDataLogRealVariable(str4,unitval,realval,TWMinimumData);
+//    } 
+
+      str4 = str5 + str3;
+//    PrintResultIntHex(str4,0,FAddr,0,0,GL_PLELL_FORMAT);
+//    if (twlogena)  
+//       TWPDLDataLogText(str4,FAddrStr,TWMinimumData);
+      
+      str4 = str6 + str3;
+//    PrintResultIntHex(str4,0,FData,0,0,GL_PLELL_FORMAT);
+//    if (twlogena)  
+//       TWPDLDataLogText(str4,FDataStr,TWMinimumData);
+      
+      str4 = str7 + str3;
+//    PrintResultInt(str4,tnum,senampnum,0,143,GL_PLELL_FORMAT);
+//    if (twlogena)  
+//       TWPDLDataLogVariable(str4,senampnum,TWMinimumData);
+
+   }  // for bank
+         
+}   // TL_SAMP_ACCY_IV
+
 //void TL_SWEEP_RDM0_NMOS_EF(IntS tdata,
 //                                BoolS ovrideEF,
 //                                IntS ovrideEF_Index,
