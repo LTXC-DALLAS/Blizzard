@@ -695,5 +695,14 @@ void F021_FlashConfig()
    LoadSendFlashTestNum (0x12090010);
 
    LoadSendFlashTestNum (0x60200010); //EGCG_Leak_Vmax_func BJP  
+   LoadSendFlashTestNum (0x60220010); //CGS_Leak_Vmax_func BJP  
+   LoadSendFlashTestNum (0x60400010); //EGCSS_Leak_Vmax_func BJP  
+   LoadSendFlashTestNum (0x60300010); //EGS_LEAK_VMAX_func BJP  
+   LoadSendFlashTestNum (0x21000010); //Flash_Cycle1X_func BJP  
+   LoadSendFlashTestNum (0x40040010); //Flash_Cycle1X_func BJP  
+   LoadSendFlashTestNum (0x20000410); //Flash_Cycle1X_func BJP  
+   LoadSendFlashTestNum (0x40040410); //Flash_Cycle1X_func BJP  
+   LoadSendFlashTestNum (0x40081410); //RdM1_PstCycle1X_func BJP  
+   LoadSendFlashTestNum (0x60600010); //ThinOxide_Stress_func BJP  
 }   /* F021_FlashConfig */
 

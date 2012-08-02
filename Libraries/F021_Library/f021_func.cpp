@@ -13842,6 +13842,9 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   else if(special_opt==2)    /*eg lkg*/
                      tmptcrmode = EvfyMode;
 
+                  if ((vcorner == VMN) || (vcorner == VMNO) || (vcorner == VMNE)) tmpvcorner = VMN;
+                  else if ((vcorner == VNM) || (vcorner == VNMO) || (vcorner == VNME)) tmpvcorner = VNM;
+                  else if ((vcorner == VMX) || (vcorner == VMXO) || (vcorner == VMXE)) tmpvcorner = VMX;
 /*                  switch(vcorner) {
                     case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN;
                     case  VNM: case VNMO: case VNME :  tmpvcorner = VNM;
