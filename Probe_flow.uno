@@ -109,7 +109,7 @@ __SubFlow Probe_SUB_FLOW {
             Globals_Meas = __Expression { __String = "Globals_Meas.GlobalMeasDefaults"; __Type = INTEGER; }
         }
         __TestID = "27000000";
-        __Exec = WrEngRow_func;
+//        __Exec = WrEngRow_func;
     }
     __Node ATPG_CPU_VboxHi_S_1732 {
         __XCoord = (25,151);

@@ -19,11 +19,11 @@ __PatternGroup TDLStdPatGrp {
 
 __WaveformTable TDLStdPatGrp TDLStdPatGrp {
     __Cell "TDLStdPatGrp.Pins-AIN10_183-OSC0_124-TCK_152-o_cpu_done_46" L/H NRZDrive {
-        __Data 6/7;
-        __Color 3/6;
-        __Drive {
-            __Waveform { __DriveOn; __DriveData; }
-        }
+	__Data 6/7;
+	__Color 3/6;
+	__Drive {
+	    __Waveform { __DriveOn; __DriveData; }
+	}
     }
     __Cell "TDLStdPatGrp.Pins" Y/S DriveNoCare {
         __Data 6/7;
@@ -33,18 +33,18 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
         }
     }
     __Cell "AIN10_183+OSC0_124+TCK_152+o_cpu_done_46" L/C RZClk {
-        __Data 6/7;
-        __Color 8/4;
-        __Drive {
-            __Waveform { __DriveOn; __DriveData; __DriveLow; }
-        }
+	__Data 6/7;
+	__Color 8/4;
+	__Drive {
+	    __Waveform { __DriveOn; __DriveData; __DriveLow; }
+	}
     }
     __Cell "AIN10_183+OSC0_124+TCK_152+o_cpu_done_46" H NRZDriveClk {
-        __Data 7;
-        __Color 6;
-        __Drive {
-            __Waveform { __DriveOn; __DriveData; }
-        }
+	__Data 7;
+	__Color 6;
+	__Drive {
+	    __Waveform { __DriveOn; __DriveData; }
+	}
     }
     __Cell "OSC0_124" l/2 DoubleClk {
         __Data 6/7;
@@ -93,11 +93,11 @@ __WaveformTable TDLStdPatGrp TDLStdPatGrp {
             __Waveform { }
         }
     }
-    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" i SCANDRIVE {
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL+ScanHeader4_PL" i SCANDRIVE {
         __Data 6 __Serial;
         __Color 3;
     }
-    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL" o SCANSTROBE {
+    __Cell "ScanHeader1_PL+ScanHeader2_PL+ScanHeader3_PL+ScanHeader4_PL" o SCANSTROBE {
         __Data 3 __Serial;
         __Color 3;
     }
@@ -1998,6 +1998,7 @@ __PatternSequence FuseFarm_SEQ {
     __Thread[5] = FF_Program_Mg1A_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT12_eng = { WFT12_eng } }
+        __Row { TDLStdPatGrp, WFT12 = { WFT12_eng } }
     }
     __AutoBasePeriod = __True;
     __PinModes {
@@ -2452,6 +2453,7 @@ __PatternSequence SCAN_SA_PG_PS {
     __Thread[25] = a_st_tk_1_DSH_Thrd;
     __Thread[26] = a_st_tk_1_v22SH1_Thrd;
     __Thread[27] = SCAN_SA_PG_glob_Thrd;
+    __Thread[28] = XD_a_st_tk_1_Thrd;
     __Zipper = __Zipper {
         __Row { TDLStdPatGrp, WFT1 = { WFT1 } }
     }

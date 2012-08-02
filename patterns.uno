@@ -248,10 +248,10 @@ __SignalHeader ScanHeader3 {
 }
 __SignalHeader ScanHeader4 {
     __Signals {
-        o_cpu_done_46 { __Scan, __ScanLength = 2056, __Fill = L, __PreFill; } //In
-        o_cpu_fail_47 { __Scan, __ScanLength = 2056, __Fill = M, __PostFill; } //Out
-        TDO_149 { __Scan, __ScanLength = 2056, __Fill = M, __PostFill; }  //Out
-        TDI_150 { __Scan, __ScanLength = 2056, __Fill = L, __PreFill; } //In
+        o_cpu_done_46 { __Scan, __ScanLength = 514, __Fill = L, __PreFill; } //In
+        o_cpu_fail_47 { __Scan, __ScanLength = 514, __Fill = M, __PostFill; } //Out
+        TDO_149 { __Scan, __ScanLength = 514, __Fill = M, __PostFill; }  //Out
+        TDI_150 { __Scan, __ScanLength = 514, __Fill = L, __PreFill; } //In
     }
 }
 
@@ -373,10 +373,7 @@ __PatternMap DefaultPatternMap {
 */
 /*********  END v4p0 FLASH PATTERNS  *********/
 
-    __Pattern XD_a_st_tk_1_9pDSH {
-        __File "XD_a_st_tk_1_9pDSH";
-        __Path "./Patterns/Ascii";
-    }
+
     __Pattern TestPatScan {
         __File "TestPatScan";
         __Path "./Patterns/Ascii";

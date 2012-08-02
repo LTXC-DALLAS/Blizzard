@@ -13651,6 +13651,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //      writestring(tmpstr1,fl_testname);
 //      length = len(tmpstr1);
 //      writestring(tmpstr1,mid(tmpstr1,2,length-6));
+      tmpstr1 = fl_testname;
       tmpstr1 = tmpstr1.Substring(2,tmpstr1.Length()-6);
 
 //No testopen in Unison

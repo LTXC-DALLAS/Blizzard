@@ -692,6 +692,7 @@ void F021_FlashConfig()
    LoadSendFlashTestNum (0x12050010);
    LoadSendFlashTestNum (0x12080010);
    LoadSendFlashTestNum (0x12090010);
-   
+
+   LoadSendFlashTestNum (0x60200010); //EGCG_Leak_Vmax_func BJP  
 }   /* F021_FlashConfig */
 
