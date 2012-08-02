@@ -8855,16 +8855,43 @@ __Test SA_Iref_NoLoad_Read_Vmin_T {
     }
 }
 __Test IWLDRV_Prog_Vmin_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block2;
+        __TestMethod {
+            __Name = IWLDRV_Prog_Vmin_func;
+        }
+    }
 }
 __Test WLS_Leak_Vmax_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = WLS_Leak_Vmax_func;
+        }
+    }
 }
 __Test BLS_Leak_Vmax_T {
+    __Entry[0] = PowerUpAtVmask;
+    __Entry[1] = DCsetup_LooseVmask;
+    __Entry[2] = FlashTestNum_SEQ;
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
+    __Block[0] = {
+        __Title = Block1;
+        __TestMethod {
+            __Name = BLS_Leak_Vmax_func;
+        }
+    }
 }
 __Test EGCG_Leak_Vmax_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }

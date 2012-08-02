@@ -37,10 +37,30 @@ void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI,
    // because of asymmetric clamps on some instruments, we check for
    // that on the negative side
    FloatS1D vmin_clamp, vmax_clamp;
-   FloatM vmin_setting;
+   FloatM vmin, vmax;
    
-   SITE a_site = ActiveSites.Begin().GetValue();
-   
+   switch (forceType)
+   {
+      case VI_FORCE_I:
+         VI.GetConstraints(viPin, VI_CONSTR_VCLAMP_MIN, vmax_clamp, vmin_clamp);
+         if (vRange != UTL_VOID)
+         {
+            vmin = (-vRange > vmin_clamp[0]) ? -vRange : vmin_clamp[0];
+            vmax = MATH.Abs(vRange);
+         } else {
+            vmin = (-setV > vmin_clamp[0]) ? -setV : vmin_clamp[0];
+            vmax = MATH.Abs(setV);
+         }
+         VI.Force(viPin, forceType, setI, setI, vmax, vmax, vmin, VI_FORCE_ENABLE);
+         break;
+      case VI_FORCE_V:
+         VI.Force(viPin, forceType, setV, vRange, setI, MATH.Abs(setI), -(MATH.Abs(setI)), VI_FORCE_ENABLE);
+         break;
+      default:   // do nothing
+         break; 
+   }
+}
+#if 0  // see if the above works to replace this
    switch (forceType)
    {
       case VI_FORCE_I: // force current
@@ -76,6 +96,7 @@ void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI,
          break;
       default:
          return; // do nothing, don't gate on
+
    }
 
    if (VI.GetGateState(viPin).AnyGreater(VI_GATE_ON)) // if any are gated off
@@ -83,6 +104,7 @@ void STDSetVI(const PinM &viPin, const FloatM &setV, const FloatM &setI,
       VI.Gate(viPin, VI_GATE_ON);
    }
 }
+#endif
 
 bool STDGetConnect (const PinM &myPin, const BoolS &checkDCL)
 {

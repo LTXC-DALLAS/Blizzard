@@ -4,7 +4,7 @@
  /*  A1.1 : Released with VT/BCC enable.                        KChau 11/10/09 */
  /*                                                                            */
  /* 11/18/09  KChau                                                            */
- /*           -Updated F021_ReadIDOTP_func o reflect new OTP offset/format.   */
+ /*           -Updated F021_ReadIDOTP_func to reflect new OTP offset/format.   */
  /*            Also added check/compare OTP ID contents between banks.         */
  /*           -Updated F021_Read_func to datalog only for bank/sector deplete  */
  /*            test and not bin out.                                           */
@@ -6825,8 +6825,6 @@ TMResultM F021_RunTestNumber(    const IntS &testnum,
    test_results = DLOG.AccumulateResults(tmp_results, test_results);
    test_results = DLOG.AccumulateResults(test_results, exec_results);
 
-   cout << "   test_results[" << test_results << "]" << endl;
-   
    if(tistdscreenprint and TI_FlashDebug)  
    {
       DLOG.Value(test_results, TM_PASS, TM_PASS, UTL_VOID, "RunTestNumber");
@@ -7919,11 +7917,9 @@ TMResultM F021_RunTestNumber_PMEX(    IntS testnum,
       }
       
       // check for results
-      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
-         cout << "   si[" << *si << "]" << endl;
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
          test_results[*si] = all_bool[*si] ? TM_PASS : TM_FAIL;
-         cout << "   test_results[" << test_results << "]" << endl;
-      }   
+      
    }
    
    if (using_cpu_loop) // let's end the loop
@@ -13161,6 +13157,10 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
                      
                   twstring = tmpstr1 + bank_num_str;
                }
+
+               // force a passing value in the simulator
+               if (SYS.TesterSimulated())
+                  meas_value = ((ulim - llim) / 2.) + llim;
                   
                tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(), 
                                       twstring, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -13419,6 +13419,10 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
                   twstring += "_SA";
                   twstring = twstring + senampnum;
                   
+                  // force a passing value in the simulator
+                  if (SYS.TesterSimulated())
+                     meas_value = ((ulim - llim) / 2.) + llim;
+
                   tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
                                           twstring, UTL_VOID, UTL_VOID, logall, TWMinimumData);
 
@@ -13572,7 +13576,7 @@ TMResultM Bool2TMRes ( BoolM TransThis )
    TMResultM Trans(TM_NOTEST);
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
-       if(TransThis[*si]=true)  
+       if(TransThis[*si])  
            Trans[*si] = TM_PASS;
        else
           Trans[*si] = TM_FAIL;
@@ -13640,8 +13644,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //      writestring(tmpstr1,fl_testname);
 //      length = len(tmpstr1);
 //      writestring(tmpstr1,mid(tmpstr1,2,length-6));
-      tmpstr1 = fl_testname;
-      tmpstr1 = tmpstr1.Substring(2,tmpstr1.Length()-6);
+      tmpstr1 = fl_testname.Substring(0,tmpstr1.Length()-5);
 
 //No testopen in Unison
 //      TestOpen(fl_testname);
@@ -13842,11 +13845,11 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   else if(special_opt==2)    /*eg lkg*/
                      tmptcrmode = EvfyMode;
 
-/*                  switch(vcorner) {
-                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN;
-                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM;
-                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX;
-                  } */  /* case */
+                  switch(vcorner) {
+                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN; break;
+                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM; break;
+                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX; break;
+                  }   /* case */
 
                   debugprint = false;
 //Unison is sited.  Don't need an iterator for this.
