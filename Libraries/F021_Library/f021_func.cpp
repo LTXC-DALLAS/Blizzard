@@ -13167,6 +13167,10 @@ TMResultM F021_Bank_Para_func(   IntS start_testnum,
                      
                   twstring = tmpstr1 + bank_num_str;
                }
+
+               // force a passing value in the simulator
+               if (SYS.TesterSimulated())
+                  meas_value = ((ulim - llim) / 2.) + llim;
                   
                tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(), 
                                       twstring, UTL_VOID, UTL_VOID, true, TWMinimumData);
@@ -13425,6 +13429,10 @@ TMResultM F021_Bank_Para_MBox_func(    IntS start_testnum,
                   twstring += "_SA";
                   twstring = twstring + senampnum;
                   
+                  // force a passing value in the simulator
+                  if (SYS.TesterSimulated())
+                     meas_value = ((ulim - llim) / 2.) + llim;
+
                   tmp_results = TIDlog.Value(meas_value, testpad, llim, ulim, meas_value.GetUnits(),
                                           twstring, UTL_VOID, UTL_VOID, logall, TWMinimumData);
 
@@ -13578,7 +13586,7 @@ TMResultM Bool2TMRes ( BoolM TransThis )
    TMResultM Trans(TM_NOTEST);
    for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
    {
-       if(TransThis[*si]=true)  
+       if(TransThis[*si])  
            Trans[*si] = TM_PASS;
        else
           Trans[*si] = TM_FAIL;
@@ -13646,7 +13654,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //      writestring(tmpstr1,fl_testname);
 //      length = len(tmpstr1);
 //      writestring(tmpstr1,mid(tmpstr1,2,length-6));
-      tmpstr1 = tmpstr1.Substring(2,tmpstr1.Length()-6);
+      tmpstr1 = fl_testname.Substring(0,tmpstr1.Length()-5);
 
 //No testopen in Unison
 //      TestOpen(fl_testname);
@@ -13847,11 +13855,11 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                   else if(special_opt==2)    /*eg lkg*/
                      tmptcrmode = EvfyMode;
 
-/*                  switch(vcorner) {
-                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN;
-                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM;
-                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX;
-                  } */  /* case */
+                  switch(vcorner) {
+                    case  VMN: case VMNO: case VMNE :  tmpvcorner = VMN; break;
+                    case  VNM: case VNMO: case VNME :  tmpvcorner = VNM; break;
+                    case  VMX: case VMXO: case VMXE :  tmpvcorner = VMX; break;
+                  }   /* case */
 
                   debugprint = false;
 //Unison is sited.  Don't need an iterator for this.

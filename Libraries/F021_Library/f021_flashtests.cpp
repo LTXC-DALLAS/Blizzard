@@ -6261,196 +6261,200 @@ TMResultM SA_Iref_NoLoad_Read_Vmin_func()
    return (final_results);
 }   /* SA_Iref_NoLoad_Read_Vmin_func */
 
-//BoolS IWLDRV_Prog_Vmin_func()
-//{
-//   const IntS TESTID = 57; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmin_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 69;
-//   tcrmode = ProgMode;
-//   vcorner = VMNE;
-//   F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMNO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   IWLDRV_Prog_Vmin_func = v_any_dev_active;
-//}   /* IWLDRV_Prog_Vmin_func */
-//
-//
-//BoolS IWLDRV_Prog_Vmax_func()
-//{
-//   const IntS TESTID = 58; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmax_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 69;
-//   tcrmode = ProgMode;
-//   vcorner = VMXE;
-//   F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMXO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   IWLDRV_Prog_Vmax_func = v_any_dev_active;
-//}   /* IWLDRV_Prog_Vmax_func */
-//
-//
-//BoolS WLS_Leak_Vmax_func()
-//{
-//   const IntS TESTID = 72; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//   BoolS runena;
-//
-//   if(TITestType==MP1)  
-//      runena = true;
-//   else
-//      runena = false;
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      
-//      if(GL_DO_WLS_LEAK_OPTION==BANK_GANG)  
-//      {
-//         tcrnum = 58;
-//         tcrmode = ProgMode;
-//         vcorner = VMX;      
-//         F021_Flash_Leak_func(TNUM_BANK_WLS,WLS_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//      }
-//      else  /*if(GL_DO_WLS_LEAK_OPTION=BANK_ODDEVEN) then*/
-//      {
-//         if(GL_BANKTYPE!=FLESBANK)  
-//         {
-//            tcrnum = 59;
-//            tcrmode = ProgMode;
-//            vcorner = VMXO;      
-//            F021_Flash_Leak_func(TNUM_BANK_WLS_ODD,WLSO_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//         
-//         if(v_any_dev_active)  
-//         {
-//            tcrnum = 60;
-//            tcrmode = ProgMode;
-//            vcorner = VMXE;
-//            F021_Flash_Leak_func(TNUM_BANK_WLS_EVEN,WLSE_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//      } 
-//   } 
-//   
-//   WLS_Leak_Vmax_func = v_any_dev_active;
-//}   /* WLS_Leak_Vmax_func */
-//
-//
-//BoolS BLS_Leak_Vmax_func()
-//{
-//   const IntS TESTID = 73; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//   BoolS runena;
-//
-//   if(TITestType==MP1)  
-//      runena = true;
-//   else
-//      runena = false;
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      
-//      if(GL_DO_BLS_LEAK_OPTION==BANK_GANG)  
-//      {
-//         tcrnum = 15;
-//         tcrmode = ProgMode;
-//         vcorner = VMX;
-//         F021_Flash_Leak_func(TNUM_BANK_BLS,BLS_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//      }
-//      else  /*if(GL_DO_BLS_LEAK_OPTION=BANK_ODDEVEN) then*/
-//      {
-//         if(GL_BANKTYPE!=FLESBANK)  
-//         {
-//            tcrnum = 17;
-//            tcrmode = ProgMode;
-//            vcorner = VMXO;
-//            F021_Flash_Leak_func(TNUM_BANK_BLS_ODD,BLSO_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//         
-//         if(v_any_dev_active)  
-//         {
-//            tcrnum = 16;
-//            tcrmode = ProgMode;
-//            vcorner = VMXE;
-//            F021_Flash_Leak_func(TNUM_BANK_BLS_EVEN,BLSE_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//      } 
-//   } 
-//   
-//   BLS_Leak_Vmax_func = v_any_dev_active;
-//}   /* BLS_Leak_Vmax_func */
-//
-//
+TMResultM IWLDRV_Prog_Vmin_func()
+{
+   const IntS TESTID = 57; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 69;
+   tcrmode = ProgMode;
+   vcorner = VMNE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMNO;
+       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* IWLDRV_Prog_Vmin_func */
+
+
+TMResultM IWLDRV_Prog_Vmax_func()
+{
+   const IntS TESTID = 58; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 69;
+   tcrmode = ProgMode;
+   vcorner = VMXE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMXO;
+       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* IWLDRV_Prog_Vmax_func */
+
+
+TMResultM WLS_Leak_Vmax_func()
+{
+   const IntS TESTID = 72; 
+
+   TMResultM final_results = TM_PASS; //runena could cause skips
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   BoolS runena;
+   Sites savesites = ActiveSites;
+
+   if(SelectedTITestType==MP1)  
+      runena = true;
+   else
+      runena = false;
+
+   if(runena)  
+   {      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      
+      if(GL_DO_WLS_LEAK_OPTION==BANK_GANG)  
+      {
+         tcrnum = 58;
+         tcrmode = ProgMode;
+         vcorner = VMX;      
+         final_results = F021_Flash_Leak_func(TNUM_BANK_WLS,"WLS_Leak_Test",post,vcorner,tcrnum,tcrmode);
+      }
+      else  /*if(GL_DO_WLS_LEAK_OPTION=BANK_ODDEVEN) then*/
+      {
+         if(GL_BANKTYPE!=FLESBANK)  
+         {
+            tcrnum = 59;
+            tcrmode = ProgMode;
+            vcorner = VMXO;      
+            final_results = F021_Flash_Leak_func(TNUM_BANK_WLS_ODD,"WLSO_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         Sites new_active_sites = ActiveSites;
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites))  
+         {
+            tcrnum = 60;
+            tcrmode = ProgMode;
+            vcorner = VMXE;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_WLS_EVEN,"WLSE_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         }
+         
+         // re-enable any sites disabled
+         RunTime.SetActiveSites(savesites);
+      } 
+   } 
+   
+   return (final_results);
+}   /* WLS_Leak_Vmax_func */
+
+
+TMResultM BLS_Leak_Vmax_func()
+{
+   const IntS TESTID = 73; 
+
+   TMResultM final_results = TM_PASS;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   BoolS runena;
+   Sites savesites = ActiveSites;
+
+   if(SelectedTITestType==MP1)  
+      runena = true;
+   else
+      runena = false;
+
+   if(runena)  
+   {      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      
+      if(GL_DO_BLS_LEAK_OPTION==BANK_GANG)  
+      {
+         tcrnum = 15;
+         tcrmode = ProgMode;
+         vcorner = VMX;
+         final_results = F021_Flash_Leak_func(TNUM_BANK_BLS,"BLS_Leak_Test",post,vcorner,tcrnum,tcrmode);
+      }
+      else  /*if(GL_DO_BLS_LEAK_OPTION=BANK_ODDEVEN) then*/
+      {
+         if(GL_BANKTYPE!=FLESBANK)  
+         {
+            tcrnum = 17;
+            tcrmode = ProgMode;
+            vcorner = VMXO;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_BLS_ODD,"BLSO_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         Sites new_active_sites = ActiveSites;
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites))          
+         {
+            tcrnum = 16;
+            tcrmode = ProgMode;
+            vcorner = VMXE;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_BLS_EVEN,"BLSE_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         // re-enable any sites disabled
+         RunTime.SetActiveSites(savesites);      
+      } 
+   } 
+   
+   return (final_results);
+}   /* BLS_Leak_Vmax_func */
+
+
 TMResultM Pump_Leak_Vmax_func()
 {
    TMResultM final_results;
