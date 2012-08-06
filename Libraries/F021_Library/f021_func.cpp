@@ -13595,7 +13595,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
    Sites new_active_sites,savesites,retestsites;
    BoolM logsites;
    TMResultM tm_results;
-   BoolM tmp_results,final_results,rtest_results;
+   TMResultM tmp_results,final_results,rtest_results;
    IntS count,maxsector,tpnum;
    IntS bankcount,bankstart,bankstop;
    IntS blkcount,blkstart,blkstop;
@@ -13623,14 +13623,17 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
    VCornerType tmpvcorner;
    BoolM disallsites;
    BoolS retest_ena;
+   bool any_site_active = true;
 
    savesites = ActiveSites;
    new_active_sites = ActiveSites;
    retestsites=new_active_sites;
-   
+
+// just make sure there are active sites before calling this function
+// since we can't tell from the inside since we can never get to 0 active sites
 //   if(V_any_dev_active)  
-   if (ActiveSites.GetPassingSites().AnyEqual(true))
-   {
+//   {
+
       if(tistdscreenprint and TI_FlashDebug)  
          cout << "+++++ F021_Flash_Leak_func +++++" << endl;
 
@@ -13658,7 +13661,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
       
 //      savesites = V_dev_active;
 //      tmp_results = V_dev_active;
-      final_results = TM_NOTEST;
+      final_results = TM_PASS;
 //      final_results = V_dev_active;
       tmp_results = final_results;  
 
@@ -13676,7 +13679,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
          {   
 //            retestsites = GL_FLASH_RETEST; //BoolM GL_FLASH_RETEST
 //            arrayandboolean(retestsites,retestsites,v_dev_active,v_sites);
-            retestsites.DisableFailingSites(!GL_FLASH_RETEST); //disable sites that are not set to retest
+//            retestsites.DisableFailingSites(!GL_FLASH_RETEST); //disable sites that are not set to retest
             
 //vlct function arraycompareboolean looks at v_sites elements of retestsites and disallsites & compares
 //them element by element.  If all elements are the same, true is returned.  Otherwise false.  So this
@@ -13684,7 +13687,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //In other words, if there is at least one retest site, then do the retest_ena and ulim_retest assignment
 //            disallsites = false;
 //            if(not arraycompareboolean(retestsites,disallsites,v_sites))  
-            if(SetActiveSites(retestsites))
+            if(GL_FLASH_RETEST.AnyEqual(true))
             {   
                retest_ena = true;
                Ulim_retest = BLS_VBL_LEAK_Prog_ULim_Retest;
@@ -13778,14 +13781,14 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //      }   /* case */
  
       
-      if(tistdscreenprint)  
-         PrintHeaderParam(GL_PLELL_FORMAT);
+//      if(tistdscreenprint)  
+//         PrintHeaderParam(GL_PLELL_FORMAT);
       
               
       if(pattype == MODTYPE)  
       {
           /*+++ Module operation +++*/
-         final_results = false;
+         final_results = TM_FAIL;
          if(tistdscreenprint)  
             cout << "+++ WARNING : Invalid Test Number Entered +++" << endl;
       }
@@ -13813,19 +13816,19 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 
             for (count = blkstart;count <= blkstop;count++)
             {
-               logsites = ActiveSites.GetPassingSites();
-               rtest_results = logsites;
+//               logsites = ActiveSites.GetPassingSites();
+//               rtest_results = logsites;
 //               timernstart(ttimer2);
                ttimer2 = TIME.GetTimer();
                
                if(special_opt==3)  
                   F021_Set_TPADS(TCRnum,TCRMode);
                
-               tm_results=F021_RunTestNumber_PMEX(testnum,maxtime);
-               if (tm_results == TM_PASS) 
-                  rtest_results = true; 
-               else 
-                  rtest_results = false;
+               rtest_results=F021_RunTestNumber_PMEX(testnum,maxtime);
+//               if (tm_results == TM_PASS) 
+//                  rtest_results = true; 
+//               else 
+//                  rtest_results = false;
                
                if(special_opt!=3)  
                   F021_Set_TPADS(TCRnum,TCRMode);
@@ -13835,6 +13838,28 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //               discard(F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode,
 //                       Llim,Ulim,meas_value,tmp_results));
                meas_value = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
+
+//               writestring(tmpstr2,bankcount:1);
+               if (bankcount==0) tmpstr2 = "0";
+               else tmpstr2 = CONV.IntToString(bankcount);
+               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
+               if(pattype!=BANKTYPE)  
+               {
+//                  writestring(tmpstr3,count:1);
+                  if (count==0) tmpstr3 = "0";
+                  else tmpstr3 = CONV.IntToString(count);                  
+                  if(pattype==BLOCKTYPE)  
+                     tmpstr3 = "BLK" + tmpstr3;
+                  else
+                     tmpstr3 = "S" + tmpstr3;
+                  tmpstr2 = tmpstr2 + tmpstr3;
+               } 
+               tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
+
+               tmpstr4 = tmpstr3;
+            
+//               TWTRealToRealMS(meas_value,realval,unitval);
+//               TWPDLDataLogRealVariable(tmpstr4, meas_value.GetUnits(),meas_value,TWMinimumData);
 
                if((special_opt>0) and (special_opt<3))  
                {
@@ -13863,19 +13888,23 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                            meas_value = meas_value-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner];
                         else
                            meas_value = PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner]-meas_value;
+
+                        tmp_results = TIDlog.Value(meas_value, testpad, Llim, Ulim, meas_value.GetUnits(), 
+                                                   tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);                
                            
-                        if((meas_value>=Llim) and (meas_value<=Ulim))  
-                           tmp_results = true;
-                        else
-                           tmp_results = false;
-                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                     {
-                        if(debugprint and tistdscreenprint)  
-                        {
-                           //cout << "Site " << site:-5 << " Total Meas==" << total_value[si]:-5:3 << endl;
-                           IO.Flush(IO.Stdout);
-                        }
-                     } 
+//                        if((meas_value>=Llim) and (meas_value<=Ulim))  
+//                           tmp_results = true;
+//                        else
+//                           tmp_results = false;
+//                     for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//                     {
+//                        if(debugprint and tistdscreenprint)  
+//                        {
+//                           cout << "Site " << site << " Total Meas=" << setprecision(3) << setw(-5) 
+//                                << meas_value[*si] << endl;
+//                           IO.Flush(IO.Stdout);
+//                        }
+//                     } 
 /*                   if(specail_opt==1)
                       meas_valu = meas_value-PUMP_LEAK_VALUE[tmptcrmode][tmpvcorner][site];
                    else
@@ -13894,6 +13923,8 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
               */ }
                else if((special_opt==3) and (TCRnum!=13) and retest_ena)  
                {
+                  tmp_results = TIDlog.Value(meas_value, testpad, Llim, Ulim_retest, meas_value.GetUnits(), 
+                                             tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);   
 //Unison is sited.  Don't need a site iterator for this
 //                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                     if(v_dev_active[site] and retestsites[site])  
@@ -13902,13 +13933,14 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //                           tmp_results[site] = true;
 //                              cout << "Site" << site:-5 << "retested w/ limits " << llim << "  " << ulim_retest << endl;
 //                        } 
-                  tmp_results = ((meas_value>=Llim) & (meas_value<=Ulim_retest));
-                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-                     cout<<"Site"<<setw(-5)<<si<<"retested w/ limits"<<Llim<<"  "<<Ulim_retest<<endl;
+                  
+//                  tmp_results = ((meas_value>=Llim) & (meas_value<=Ulim_retest));
+//                  for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//                     cout<<"Site"<<setw(-5)<<si<<"retested w/ limits"<<Llim<<"  "<<Ulim_retest<<endl;
                }   /*if special_opt*/
 
 //               ArrayAndBoolean(tmp_results,tmp_results,rtest_results,v_sites);
-                 tmp_results=tmp_results&rtest_results;
+//                 tmp_results=tmp_results&rtest_results;
                  if(pattype==BANKTYPE)  
                  {
 //  Unison is sited.  Don't need a site iterator here.
@@ -13928,40 +13960,21 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //This array isn't really used for too much.  Comment out for now
 //                  BLOCK_PARA_VALUE[bankcount][count][TCRnum][TCRMode][tpnum][prepost][vcorner] = meas_value;
               } 
-
+              
                ttimer1 = TIME.StopTimer();
                tt_timer = ttimer1;
-               
-                /*log to TW*/
-//               writestring(tmpstr2,bankcount:1);
-               if (bankcount==0) tmpstr2 = "0";
-               else tmpstr2 = CONV.IntToString(bankcount);
-               tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-               if(pattype!=BANKTYPE)  
-               {
-//                  writestring(tmpstr3,count:1);
-                  if (count==0) tmpstr3 = "0";
-                  else tmpstr3 = CONV.IntToString(count);                  
-                  if(pattype==BLOCKTYPE)  
-                     tmpstr3 = "BLK" + tmpstr3;
-                  else
-                     tmpstr3 = "S" + tmpstr3;
-                  tmpstr2 = tmpstr2 + tmpstr3;
-               } 
-               tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
+                             
                tmpstr4 = tmpstr3 + "_TT";
 //               TWTRealToRealMS(tt_timer,realval,unitval);
                TWPDLDataLogRealVariable(tmpstr4, tt_timer.GetUnits(),tt_timer,TWMinimumData);
-               
-               tmpstr4 = tmpstr3;
-//               TWTRealToRealMS(meas_value,realval,unitval);
-               TWPDLDataLogRealVariable(tmpstr4, meas_value.GetUnits(),meas_value,TWMinimumData);
-
                if(special_opt!=0)  
                {
                   tmpstr4 = tmpstr4 + "_WPUMP";
 //                  TWTRealToRealMS(total_value,realval,unitval);
-                  TWPDLDataLogRealVariable(tmpstr4, total_value.GetUnits(),total_value,TWMinimumData);
+//                  TWPDLDataLogRealVariable(tmpstr4, total_value.GetUnits(),total_value,TWMinimumData);
+                  // datalog for reference, but no limits because not really tested.
+                  TIDlog.Value(total_value, testpad, UTL_VOID, UTL_VOID, total_value.GetUnits(), 
+                               tmpstr4, UTL_VOID, UTL_VOID, true, TWMinimumData);
                } 
                
 //               if(tistdscreenprint)  
@@ -13970,7 +13983,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                if((prepost==post) and (PUMP_BANK_PARA_BINOUT[TCRnum][TCRMode][tpnum]))  
                {
 //                  ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-                  final_results = final_results & tmp_results;
+                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
                   binout_ena = true;
                   
                    /*log failed test to tw*/
@@ -13994,26 +14007,32 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //               Check_RAM_TNUM(testnum,tmp_results);
                if(binout_ena)  
 //                  ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-                  final_results = final_results & tmp_results;
+                  final_results = DLOG.AccumulateResults(final_results, tmp_results);
 //               F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,spare_mstreal1,spare_msbool1);
                
                testnum = testnum+1;  /*increment blk#*/
                
-//               if((not TIIgnoreFail) and (not TI_FlashCOFEna) and
-//                  ((prepost==post) and (PUMP_BANK_PARA_BINOUT[tcrnum][tcrmode][tpnum])))  
+               if((not RunAllTests) and (not TI_FlashCOFEna) and
+                  ((prepost==post) and (PUMP_BANK_PARA_BINOUT[TCRnum][TCRMode][tpnum])))  
+               {
+                  new_active_sites = ActiveSites;
+                  new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+                  any_site_active = SetActiveSites(new_active_sites);
+               }
 //                  Devsetholdstates(final_results);
                
 //               if(not v_any_dev_active) 
-               if(!(ActiveSites.GetPassingSites().AnyEqual(true))) 
+               if(!any_site_active) 
                   break;
             }   /*for count*/
 //            if(not v_any_dev_active)  
-            if(!(ActiveSites.GetPassingSites().AnyEqual(true))) 
+            if(!any_site_active) 
                break;
          }   /*for bankcount*/
       }    /*+++ End of Bank operation +++*/
 
        /*restore all active sites*/
+      RunTime.SetActiveSites(savesites);
 //      Devsetholdstates(savesites);
 
 //      ResultsRecordActive(final_results, S_NULL);
@@ -14052,10 +14071,10 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
 //         if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
 //            DevSetHoldStates(final_results);
 //            
-   } /*if v_any_dev_active*/
+//   } /*if v_any_dev_active*/
 
 //   F021_Flash_Leak_func = V_any_dev_active;
-   return(Bool2TMRes ( final_results ));
+   return(final_results);
 }   /* F021_Flash_Leak_func */
 
    
