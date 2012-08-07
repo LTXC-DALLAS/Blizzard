@@ -418,7 +418,7 @@ BoolM STDReadFuseRow(StringS &techName,
   UnsignedM send_uint;
   UnsignedM1D send_data(1);
   StringS send_name = "FF_ReadRowAddr";
-  StringS send_ref = "FF_ReadRow_sref";
+  StringS send_ref = "SendFF";
   
   readError = 0;
   readRowStr = nullRowStr;
@@ -802,7 +802,7 @@ TMResultM STDProgramFuseRow(IntS version,
   int i, num_words, num_chars_left;
   StringS strProgData, strCRAData, strProgCode, strData;
   StringS send_name = "FF_ProgramRow";
-  StringS send_ref = "FF_ProgramRow_sref";
+  StringS send_ref = "SendFF";
   
 
   /*******************************/ 

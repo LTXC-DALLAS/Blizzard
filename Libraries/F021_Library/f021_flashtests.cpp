@@ -4840,7 +4840,7 @@ TMResultM FlashEfuse_Trim_func()
          if(GL_FLASH_RETEST[*si])  
             cout << "Site : " << *si << "  Already Trimmed so Disable." << endl;
    new_active_sites.DisableFailingSites(!GL_FLASH_RETEST);
-   
+  
    if(SetActiveSites(new_active_sites))  
    {
       bg_chartrim_ena    = GL_DO_BG_CHAR_TRIM;

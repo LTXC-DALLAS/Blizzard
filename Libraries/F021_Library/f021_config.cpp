@@ -43,7 +43,7 @@ void LoadSendFlashTestNum (IntS testnum)
    // create unique name per test number
    StringS send_name = "F021_Tnum_" + testnum;
    // This must match the SendRef in the pattern
-   StringS tnum_sref = "tnum_sref";
+   StringS tnum_sref;
    UnsignedS maskbit;
 
 
@@ -51,6 +51,7 @@ void LoadSendFlashTestNum (IntS testnum)
 #if $GL_USE_JTAG_RAMPMT  
     /*lsb 1st - msb last*/
    data_pins = "JTAG_DIN";
+   tnum_sref = "SendJtag";
    int word_size = 16;
    int num_words = 2;
    UnsignedM1D send_data(num_words);
@@ -62,6 +63,7 @@ void LoadSendFlashTestNum (IntS testnum)
 
 #else
    data_pins = "DMLED_INBUS";
+   tnum_sref = "SendDmled";
    int num_words = 8;
    maskbit = 0xF;
    int length = 4;
@@ -83,6 +85,7 @@ void LoadSendFlashTestNum (IntS testnum)
    int length; 
    
    data_pins = "PMT_RAMBUS";
+   tnum_sref = "SendRambus";
    if(GL_USE_RAMPMT_X64)  
    {
       num_words = 8;
