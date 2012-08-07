@@ -12909,7 +12909,7 @@ TMResultM F021_Pump_Para_func(    IntS start_testnum,
 #endif
             }   /*case tpnum*/
 
-            TIME.Wait(tdelay);
+            TIME.Wait(tdelay); 
 
             meas_value = F021_Meas_TPAD_PMEX(testpad,TCRnum,TCRMode);
          
@@ -13969,7 +13969,7 @@ TMResultM F021_Flash_Leak_func(    IntS start_testnum,
                TWPDLDataLogRealVariable(tmpstr4, tt_timer.GetUnits(),tt_timer,TWMinimumData);
                if(special_opt!=0)  
                {
-                  tmpstr4 = tmpstr4 + "_WPUMP";
+                  tmpstr4 = tmpstr3 + "_WPUMP";
 //                  TWTRealToRealMS(total_value,realval,unitval);
 //                  TWPDLDataLogRealVariable(tmpstr4, total_value.GetUnits(),total_value,TWMinimumData);
                   // datalog for reference, but no limits because not really tested.
