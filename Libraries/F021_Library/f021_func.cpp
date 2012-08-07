@@ -9859,43 +9859,41 @@ void TL_RunTestNum(IntS start_testnum,
 }   /*TL_RunTestNum*/
 
    
-//void TL_DumpOTP()
-//{
-//   IntS site,bank,tnum,i;
-//   IntS saddr,eaddr;
-//   IntS1D testnum(4);
-//   StringS1D str1(4);
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//      {
-//         testnum[0] = TNUM_OTP_RD_LOG1_MBOX;
-//         testnum[1] = TNUM_OTP_RD_ID_MBOX;
-//         testnum[2] = TNUM_OTP_RD_VT_MBOX;
-//         testnum[3] = TNUM_OTP_RD_LOG3_MBOX;
-//         str1[0] = "OTP LOG1 SPACE";
-//         str1[1] = "OTP ID SPACE";
-//         str1[2] = "OTP VT/BCC SPACE";
-//         str1[3] = "OTP LOG3 SPACE";
-//
-//         saddr = ADDR_RAM_MAILBOX;
-//         eaddr = saddr+(68*ADDR_RAM_INC);
-//
-//         for (i = 0;i <= 3;i++)
-//            for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//            {
-//               tnum = testnum[i]+(bank<<4);
-//               F021_RunTestNumber(tnum,10s,spare_mstreal1,spare_msbool1);
-//               cout << "*** DUMPING " << str1[i] << " ***" << endl;
+void TL_DumpOTP() {
+   IntS site,bank,tnum,i;
+   IntS saddr,eaddr;
+   IntS1D testnum(4);
+   StringS1D str1(4);
+   TMResultM tmp_results;
+   FloatM tt_timer;
+   
+
+   if (tistdscreenprint) {
+      testnum[0] = TNUM_OTP_RD_LOG1_MBOX;
+      testnum[1] = TNUM_OTP_RD_ID_MBOX;
+      testnum[2] = TNUM_OTP_RD_VT_MBOX;
+      testnum[3] = TNUM_OTP_RD_LOG3_MBOX;
+      str1[0] = "OTP LOG1 SPACE";
+      str1[1] = "OTP ID SPACE";
+      str1[2] = "OTP VT/BCC SPACE";
+      str1[3] = "OTP LOG3 SPACE";
+
+      saddr = ADDR_RAM_MAILBOX;
+      eaddr = saddr+(68*ADDR_RAM_INC);
+
+      for (i = 0;i <= 3;i++) {
+         for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+            tnum = testnum[i]+(bank<<4);
+            tmp_results = F021_RunTestNumber(tnum,10s,tt_timer);
+            cout << "*** DUMPING " << str1[i] << " ***" << endl;
 //               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
 //                  if(v_dev_active[site])  
-//                     readramaddress(site,saddr,eaddr);
-//            }   /*bank*/
-//      } 
-//   } 
-//}   /* TL_DumpOTP */
-//
+                  ReadRamAddress(saddr,eaddr);
+         }  // bank
+      }
+   } 
+}   // TL_DumpOTP
+
 // /*extract raw data from FL_SCRAM_CAPT_ARR and output to text file*/
 // /*must run F021_GetESDA_NonSCRAM or Get_Flash_ESDASpace_SCRAM before calling this procedure*/
 //void TL_DumpRawESDA_ToFile(IntS imgnum,
@@ -18425,7 +18423,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             
             // TW strings
             tmpstr2 = "_B";  // _B#
-//            tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//            tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
             if ( bankcount == 0 ) tmpstr2 += "0";
             else                  tmpstr2 += CONV.IntToString(bankcount);
             
@@ -18437,7 +18435,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                else
                   tmpstr3 = "S";
                
-//            tmpstr3 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//            tmpstr3 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
                if ( count == 0 ) tmpstr3 += "0";
                else              tmpstr3 += CONV.IntToString(count);
                tmpstr2 += tmpstr3;
@@ -23000,221 +22998,203 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //   F021_ReadLog3OTP_func = v_any_dev_active;
 //} 
 //
-//
-// /*F021_RestoreOTPInfo_func is intended to use at MP3 after stresses tests which does*/
-// /*re-write TI-OTP contents that was saved during flowcheck test*/
-//BoolS F021_RestoreOTPInfo_func(    StringS tname,
-//                                      BoolM test_results,
-//                                      BoolS dlogonly)
-//{
-//   const  DATA_TARG_ARB = 0x0000AA00;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS IND_FLWBYTE = 52; 
-//   const IntS IND_OTPCHKSUM_HI = 42; 
-//   const IntS IND_OTPCHKSUM_LO = 43; 
-//   const IntS IND_MP2REV = 97; 
-//   const IntS IND_MP3REV = 98;    
-//
-//   BoolM tmp_results,final_results;
-//   BoolM savesites,logsites;
-//   BoolS binout_ena;
-//   IntS testnum,length,flowbit;
-//   IntS bank,count,loop,site,index;
-//   IntS wr_flag_num,numword,numword_max;
-//   IntS addr_loc,addr_msw,addr_lsw;
-//   BoolS bcd_format,hexvalue;
-//   IntM msw_data,lsw_data;
-//   FloatS maxtime;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   StringS fl_testname;
-//   StringM site_cof_inst_str;
-//
-//   if(V_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ F021_RestoreOTPInfo_func +++++" << endl;
-//   
-//      final_results = V_dev_active;
-//      savesites = V_dev_active;
-//
-//      wr_flag_num = 0x1234;
-//      numword     = 0;
-//      numword_max = 127;
-//      bcd_format  = true;
-//      hexvalue    = true;
-//      maxtime     = GL_F021_MAXTIME;
-//
-//      writestring(tmpstr1,tname);
-//      length = len(tmpstr1);
-//      writestring(tmpstr1,mid(tmpstr1,2,length-6));
-//      fl_testname = tname;
-//
-//      if(not dlogonly)  
-//         TestOpen(fl_testname);
-//
-//       /*+++ clear good flowbit +++*/
-//      switch(TITestType) {
-//        case MP1 : flowbit = 0x0001;
-//        case MP2 : flowbit = 0x0002;
-//        case MP3 :  
-//                 if(GL_DO_TNI_CODE)  
-//                    flowbit = 0x0204;
-//                 else
-//                    flowbit = 0x0004;
-//               break; 
-//        default:  
-//           flowbit = 0x0000;
-//         break; 
-//      }   /* case */
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               OTP_ID_INFO_VAL[bank][IND_FLWBYTE][site] = OTP_ID_INFO_VAL[bank][IND_FLWBYTE][site] | flowbit;
-//               OTP_ID_INFO_VAL[bank][IND_OTPCHKSUM_HI][site] = 0xffff;
-//               OTP_ID_INFO_VAL[bank][IND_OTPCHKSUM_LO][site] = 0xffff;
-//               switch(TITestType) {
-//                 case MP2 : OTP_ID_INFO_VAL[bank][IND_MP2REV][site] = 0xffff;
-//                 case MP3 : OTP_ID_INFO_VAL[bank][IND_MP3REV][site] = 0xffff;
-//               }   /* case */
-//            } 
-//      } 
-//
-//      PrintHeaderBool(GL_PLELL_FORMAT);
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Init_COF_Inst_Str(site_cof_inst_str);
-//
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         for (loop = 0;loop <= 3;loop++)
-//         {
-//             /*clear mp2/mp3  drl vt*/
-//            if(loop==2)  
-//            {
-//               if(TITestType==MP2)  
-//                  index = 1;
-//               else if(TITestType==MP3)  
-//                  index = 2;
-//               for (count = 1;count <= 32;count++)
-//               {
-//                  OTP_BCC_INFO_INTVAL[bank][index] = 0xffff;
-//                  index = index+4;
-//               } 
-//            } 
-//               
-//            tmp_results = V_dev_active;
-//            logsites = V_dev_active;
-//
-//            addr_msw = ADDR_TIOTP_HI[bank];
-//            addr_lsw = ADDR_TIOTP_LO[bank]+(loop*0x100);
-//            TL_SetARBADDR(addr_msw,addr_lsw);
-//            addr_msw = 0;
-//            addr_lsw = (numword_max+1)*2;
-//            TL_SetARBLENGTH(addr_msw,addr_lsw);
-//            
-//            testnum = TNUM_BANK_PROG_SM+DATA_TARG_ARB+(bank<<4);
-//            addr_loc = ADDR_RAM_MAILBOX;
-//            msw_data = wr_flag_num;  /*msword*/
-//            lsw_data = numword_max+1;  /*lsword*/
-//            WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                                     msw_data,hexvalue,bcd_format);
-//            addr_loc = addr_loc+ADDR_RAM_INC;
-//            
-//            for count = numword to numword_max by 2 do
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     switch(loop) {
-//                       case 0 :  
-//                              msw_data[site] = OTP_LOG1_INFO_VAL[bank][count][site];
-//                              lsw_data[site] = OTP_LOG1_INFO_VAL[bank][count+1][site];
-//                            break; 
-//                       case 1 :  
-//                              msw_data[site] = OTP_ID_INFO_VAL[bank][count][site];
-//                              lsw_data[site] = OTP_ID_INFO_VAL[bank][count+1][site];
-//                            break; 
-//                       case 2 :  
-//                              msw_data[site] = OTP_BCC_INFO_INTVAL[bank][count][site];
-//                              lsw_data[site] = OTP_BCC_INFO_INTVAL[bank][count+1][site];
-//                            break; 
-//                       case 3 :  
-//                              msw_data[site] = OTP_LOG3_INFO_VAL[bank][count][site];
-//                              lsw_data[site] = OTP_LOG3_INFO_VAL[bank][count+1][site];
-//                            break; 
-//                     }   /* case */
-//                  }   /*v_dev_active*/
-//#if $GL_USE_DMLED_RAMPMT  
-//    /*swizzle for shell endianness on blizzard*/
-//               WriteRamContentDec_32Bit(addr_loc,msw_data,hexvalue,
-//                                        lsw_data,hexvalue,bcd_format);
-//#else   
-//               WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
-//                                        msw_data,hexvalue,bcd_format);
-//#endif
-//               addr_loc = addr_loc+ADDR_RAM_INC;
-//            }   /*for count*/
-//
-//            F021_RunTestNumber(testnum,maxtime,spare_mstreal1,tmp_results);
-//            Arrayandboolean(final_results,final_results,tmp_results,v_sites);
-//
-//            writestring(tmpstr2,bank:1);
-//            tmpstr2 = "_B" + tmpstr2;  /*_B#*/
-//            writestring(tmpstr4,loop:1);
-//            tmpstr2 = "_REG" + tmpstr4;
-//            tmpstr3 = tmpstr1 + tmpstr2;
-//            tmpstr3 = tmpstr1 + tmpstr4;
-//
-//            if(not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
-//            {
-//               if(not dlogonly)  
-//                  F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
-//            
-//               if(TI_FlashCOFEna)  
-//                  F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
-//            } 
-//         
-//            if(tistdscreenprint)  
-//               PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT);
-//
-//            if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
-//               DevSetHoldStates(final_results);
-//
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*loop*/
-//
-//         if(not v_any_dev_active)  
-//            break;
-//      }   /*bank*/
-//
-//      if(not dlogonly)  
-//      {
-//         Devsetholdstates(savesites);
-//         
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//      } 
-//      
-//      test_results = final_results;
-//
-//      if(TI_FlashCOFEna)  
-//         F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
-//
-//      TL_SetARBADDR(0,0);
-//      TL_SetARBLENGTH(0,0);
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         TL_DumpOTP;
-//      
-//      if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
-//         DevSetHoldStates(final_results);
-//   }   /*if v_any_dev_active*/
-//
-//   F021_RestoreOTPInfo_func = v_any_dev_active;
-//}   /* F021_RestoreOTPInfo_func */
-//   
+
+// F021_RestoreOTPInfo_func is intended to use at MP3 after stresses tests which does
+// re-write TI-OTP contents that was saved during flowcheck test
+TMResultM F021_RestoreOTPInfo_func( StringS tname, BoolS dlogonly) {
+
+   const IntS DATA_TARG_ARB = 0x0000AA00;
+   const IntS IND_FLWBYTE = 52; 
+   const IntS IND_OTPCHKSUM_HI = 42; 
+   const IntS IND_OTPCHKSUM_LO = 43; 
+   const IntS IND_MP2REV = 97; 
+   const IntS IND_MP3REV = 98;    
+
+   TMResultM tmp_results,final_results, test_results;
+   BoolM savesites,logsites;
+   BoolS binout_ena;
+   IntS testnum,length,flowbit;
+   IntS bank,count,loop,site,index;
+   IntS wr_flag_num,numword,numword_max;
+   IntS addr_loc,addr_msw,addr_lsw;
+   BoolS bcd_format,hexvalue;
+   IntM msw_data,lsw_data;
+   FloatS maxtime;
+   FloatM tt_timer;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   StringS fl_testname;
+   StringM site_cof_inst_str;
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ F021_RestoreOTPInfo_func +++++" << endl;
+
+// final_results = V_dev_active;
+// savesites = V_dev_active;
+
+   wr_flag_num = 0x1234;
+   numword     = 0;
+   numword_max = 127;
+   bcd_format  = true;
+   hexvalue    = true;
+   maxtime     = GL_F021_MAXTIME;
+
+   tmpstr1 = tname;
+   tmpstr1.Replace(tmpstr1.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+
+// if (not dlogonly)  
+//    TestOpen(fl_testname);
+
+   // +++ clear good flowbit +++
+   switch(SelectedTITestType) {
+      case MP1 : flowbit = 0x0001; break;
+      case MP2 : flowbit = 0x0002; break;
+      case MP3 :  
+         if(GL_DO_TNI_CODE)  flowbit = 0x0204;
+         else                flowbit = 0x0004;
+         break; 
+      default:  
+         flowbit = 0x0000;
+         break; 
+   }   // case
+
+   for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         OTP_ID_INFO_VAL.SetValue(bank,IND_FLWBYTE,OTP_ID_INFO_VAL[bank][IND_FLWBYTE] | flowbit);
+         OTP_ID_INFO_VAL.SetValue(bank,IND_OTPCHKSUM_HI,0xffff);
+         OTP_ID_INFO_VAL.SetValue(bank,IND_OTPCHKSUM_LO,0xffff);
+         switch(SelectedTITestType) {
+            case MP2 : OTP_ID_INFO_VAL.SetValue(bank,IND_MP2REV,0xffff); break;
+            case MP3 : OTP_ID_INFO_VAL.SetValue(bank,IND_MP3REV,0xffff); break;
+         }   // case
+      }
+   } 
+
+// PrintHeaderBool(GL_PLELL_FORMAT);
+
+// if (TI_FlashCOFEna)  
+//    F021_Init_COF_Inst_Str(site_cof_inst_str);
+
+   for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+      for (loop = 0; loop <= 3; ++loop) {
+         // clear mp2/mp3  drl vt
+         if (loop==2)  {
+            if (SelectedTITestType==MP2)  
+               index = 1;
+            else if(SelectedTITestType==MP3)  
+               index = 2;
+            for (count = 1; count <= 32; ++count) {
+               OTP_BCC_INFO_INTVAL.SetValue(bank,index,0xffff);
+               index = index+4;
+            } 
+         } 
+            
+//       tmp_results = V_dev_active;
+//       logsites = V_dev_active;
+
+         addr_msw = ADDR_TIOTP_HI[bank];
+         addr_lsw = ADDR_TIOTP_LO[bank]+(loop*0x100);
+         TL_SetArbAddr(addr_msw,addr_lsw);
+         addr_msw = 0;
+         addr_lsw = (numword_max+1)*2;
+         TL_SetArbLength(addr_msw,addr_lsw);
+         
+         testnum = TNUM_BANK_PROG_SM+DATA_TARG_ARB+(bank<<4);
+         addr_loc = ADDR_RAM_MAILBOX;
+         msw_data = wr_flag_num;  /*msword*/
+         lsw_data = numword_max+1;  /*lsword*/
+         WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,
+                                  msw_data,hexvalue,bcd_format);
+         addr_loc = addr_loc+ADDR_RAM_INC;
+         
+         for (count = numword; count <= numword_max; count += 2 ) {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               switch(loop) {
+                  case 0 :  
+                     msw_data[*si] = OTP_LOG1_INFO_VAL[bank][count][*si];
+                     lsw_data[*si] = OTP_LOG1_INFO_VAL[bank][count+1][*si];
+                     break; 
+                  case 1 :  
+                     msw_data[*si] = OTP_ID_INFO_VAL[bank][count][*si];
+                     lsw_data[*si] = OTP_ID_INFO_VAL[bank][count+1][*si];
+                     break; 
+                  case 2 :  
+                     msw_data[*si] = OTP_BCC_INFO_INTVAL[bank][count][*si];
+                     lsw_data[*si] = OTP_BCC_INFO_INTVAL[bank][count+1][*si];
+                     break; 
+                  case 3 :  
+                     msw_data[*si] = OTP_LOG3_INFO_VAL[bank][count][*si];
+                     lsw_data[*si] = OTP_LOG3_INFO_VAL[bank][count+1][*si];
+                     break; 
+               }   // case
+            }
+#if $GL_USE_DMLED_RAMPMT  
+// swizzle for shell endianness on blizzard
+            WriteRamContentDec_32Bit(addr_loc,msw_data,hexvalue,lsw_data,hexvalue,bcd_format);
+#else   
+            WriteRamContentDec_32Bit(addr_loc,lsw_data,hexvalue,msw_data,hexvalue,bcd_format);
+#endif
+            addr_loc = addr_loc+ADDR_RAM_INC;
+         }  // for count
+
+         tmp_results = F021_RunTestNumber(testnum,maxtime,tt_timer);
+         DLOG.AccumulateResults(final_results,tmp_results);
+//       Arrayandboolean(final_results,final_results,tmp_results,v_sites);
+
+         tmpstr2 = "_B";
+//       tmpstr3 += CONV.IntToString(bank);  // Bug IntToStr can't convert zero (SPR142812)
+         if ( bank == 0 ) tmpstr3 += "0";
+         else             tmpstr3 += CONV.IntToString(bank);
+
+//       tmpstr4 += CONV.IntToString(loop);  // Bug IntToStr can't convert zero (SPR142812)
+         if ( loop == 0 ) tmpstr4 += "0";
+         else             tmpstr4 += CONV.IntToString(loop);
+
+         tmpstr2 = "_REG" + tmpstr4;
+         tmpstr3 = tmpstr1 + tmpstr2;
+         tmpstr3 = tmpstr1 + tmpstr4;
+
+//       if (not ArrayCompareBoolean(logsites,tmp_results,v_sites))  
+//       {
+//          if (not dlogonly)  
+//             F021_Log_FailPat_To_TW(tmpstr3,tmp_results,fl_testname);
+         
+//          if (TI_FlashCOFEna)  
+//             F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+//       } 
+      
+//       if (tistdscreenprint)  
+//          PrintResultBool(tmpstr3,testnum,tmp_results,GL_PLELL_FORMAT);
+
+//       if ((not RunAllTests) and (not TI_FlashCOFEna) and (not dlogonly))  
+//          DevSetHoldStates(final_results);
+
+      }  // loop
+   }  // bank
+
+// if (not dlogonly)  {
+//    Devsetholdstates(savesites);
+//    ResultsRecordActive(final_results, S_NULL);
+//    TestClose;
+// } 
+   
+   test_results = final_results;
+
+// if (TI_FlashCOFEna)  
+//    F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
+
+   TL_SetArbAddr(0,0);
+   TL_SetArbLength(0,0);
+
+   if(tistdscreenprint and TI_FlashDebug)  
+      TL_DumpOTP();
+   
+// if((not RunAllTests) and (not TI_FlashCOFEna) and (not dlogonly))  
+//    DevSetHoldStates(final_results);
+
+   return(test_results);
+}   // F021_RestoreOTPInfo_func
+   
 //void GoRestoreOTP_OnFail()
 //{
 //   IntS site,i,bank,tnum;
@@ -28335,363 +28315,343 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt)
 //
 //   Run_Update_FakeRepair = v_any_dev_active;
 //}   /* Run_Update_FakeRepair */
-//
+
 // /*in production test screen: tname must not be NULL_TestName and ovrideRPC_EFIndex/twlogstr will be ignored*/
 // /*usage for charz: tname=NULL_TestName, ovrideRPC_EFIndex=select predefined read PC/efuse mbox (calling TL_EngOvride_RPC_EF())*/
 // /*                 twlogstr=log string w/o bank info, ie no _B0/B0Q0. Also log bit histogram to tw iff charena*/
-//BoolS SAMP_Noise_Screen_func(StringS tname,
-//                                IntS tcrnum,
-//                                IntS tdata,
-//                                IntS ttarget,
-//                                FloatS force_vcg,
-//                                BoolS redundena,
-//                                    BoolM test_results,
-//                                BoolS dopgmbkgrnd,
-//                                IntS ovrideRPC_Val,
-//                                IntS ovrideEF_Index,
-//                                IntS ovrideEF_Val,
-//                                StringS twlogstr)
-//{
-//   IntS site,bank,count,addr,tnum,length;
-//   IntS stnum_prog,stnum_bcc;
-//   FloatS cg_vprog,cg_iprog,maxtime,ttimer1,tdelay;
-//   FloatS iref_vprog,iref_iprog;
-//   FloatS iref_start,iref_stop,iref_inc;
-//   IntM FAddr,FData;
-//   IntM faddr_msw,faddr_lsw,fdata_msw,fdata_lsw;
-//   IntM sum_msw,sum_lsw,Sumbit;
-//   StringM FAddrStr_msw,FAddrStr_lsw;
-//   StringM FDataStr_msw,FDataStr_lsw,tmpbinstr;
-//   StringM FAddrStr,FDataStr;
-//   BoolM FoundBit;
-//   BoolM final_results,tmp_results;
-//   BoolM logsites,savesites,activesites;
-//   StringS str1,str2,str3,str4,str5,str6,istr,str7;
-//   StringS fl_testname;
-//   BoolS tp_iref_ena,tp_cg_ena,done,logena;
-//   PinM tp_iref,tp_cg;
-//   FloatM tt_timer,FBCC;
-//   FloatM FloatSval;
+TMResultM SAMP_Noise_Screen_func(StringS tname,
+                                IntS tcrnum,
+                                IntS tdata,
+                                IntS ttarget,
+                                FloatS force_vcg,
+                                BoolS redundena,
+                                BoolS dopgmbkgrnd,
+                                IntS ovrideRPC_Val,
+                                IntS ovrideEF_Index,
+                                IntS ovrideEF_Val,
+                                StringS twlogstr) {
+   IntS site,bank,count,addr,tnum,length;
+   IntS stnum_prog,stnum_bcc;
+   FloatS cg_vprog,cg_iprog,maxtime,ttimer1,tdelay;
+   FloatS iref_vprog,iref_iprog;
+   FloatS iref_start,iref_stop,iref_inc;
+   IntM FAddr,FData;
+   IntM faddr_msw,faddr_lsw,fdata_msw,fdata_lsw;
+   IntM sum_msw,sum_lsw,Sumbit;
+   StringM FAddrStr_msw,FAddrStr_lsw;
+   StringM FDataStr_msw,FDataStr_lsw,tmpbinstr;
+   StringM FAddrStr,FDataStr;
+   BoolM FoundBit;
+   TMResultM final_results,tmp_results,test_results;
+   BoolM logsites,savesites,activesites;
+   StringS str1,str2,str3,str4,str5,str6,istr,str7;
+   StringS fl_testname;
+   BoolS tp_iref_ena,tp_cg_ena,done,logena;
+   PinM tp_iref,tp_cg;
+   FloatM tt_timer,FBCC;
+   FloatM FloatSval;
 //   TWunit unitval;
-//   FloatS ULimit,LLimit;
-//   BoolS charena,dlogonly;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint and TI_FlashDebug)  
-//         cout << "+++++ SAMP_Noise_Screen_func +++++" << endl;
-//
-//      writestring(str1,tname);
-//      length = len(str1);
-//      writestring(str1,mid(str1,2,length-6));
-//      fl_testname = tname;
-//      logena = true;
-//      tdelay = 2ms;
-//      maxtime = GL_F021_BANK_VT_MAXTIME;
-//
-//      if(tname==NULL_TestName)  
-//      {
-//         dlogonly = true;
-//         charena  = true;
-//         str7 = "";
-//         if(twlogstr!="")  
-//         {
-//            if((instr(twlogstr,"Z_SAN_VMX")==1) or (instr(twlogstr,"Z_SAN_VMN")==1) or (instr(twlogstr,"Z_SAN_VNM")==1))  
-//            {
-//               length = len(twlogstr);
-//               if(length>9)  
-//               {
-//                  str1 = mid(twlogstr,1,9);
-//                  str7 = mid(twlogstr,10,length-9);
-//               }
-//               else
-//                  str1 = twlogstr;
-//            }
-//            else
-//            {
-//               str1 = twlogstr;
-//            } 
-//         }
-//         else
-//            str1 = "Z_SAMP_NOISE";
-//      }
-//      else
-//      {
-//         dlogonly = false;
-//         charena  = false;
-//      } 
-//      
-//      timernstart(ttimer1);      
-//
-//      savesites = v_dev_active;
-//      final_results = v_dev_active;
-//      tmp_results = v_dev_active;
-//
-//       /*programming*/
-//      if(dopgmbkgrnd)  
-//      {
-//         stnum_prog = TNUM_BANK_PROG_SM + tdata;
-//         if(redundena)  
-//            stnum_prog = stnum_prog + TNUM_REDUNDENA;
-//         tnum = stnum_prog;
-//         discard(F021_Program_func(tnum,PgmChk_Test  /*fl_testname},tmp_results)); {KChau 07/25/11 - will need to add to Jazz later*/
-//         ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//      } 
-//      
-//       /*get sense amp noise*/
-//      if(v_any_dev_active)  
-//      {
-//         TestOpen(fl_testname);
-//
-//         switch(tcrnum) {
-//           case 6  :  
-//                   stnum_bcc   = TNUM_TCR6 + MainBCC.IRATIO[CHKVT0][pre];
-//                   tp_cg_ena   = true;
-//                   tp_iref_ena = true;
-//                   tp_cg       = FLTP1;
-//                   tp_iref     = FLTP2;
-//                 break; 
-//           case 38 :  
-//                   stnum_bcc   = TNUM_TCR38;
-//                   tp_cg_ena   = false;
-//                   tp_iref_ena = true;
-//                   tp_iref     = FLTP1;
-//                 break; 
-//           default:  
-//              stnum_bcc   = TNUM_TCR6 + MainBCC.IRATIO[CHKVT0][pre];
-//              tp_cg_ena   = true;
-//              tp_iref_ena = true;
-//              tp_cg       = FLTP1;
-//              tp_iref     = FLTP2;
-//            break; 
-//         }   /* case */
-//
-//         cg_vprog   = force_vcg;
-//         cg_iprog   = 100mA;
-//         iref_start = 20uA;
-//         iref_stop  = 1uA;
-//         iref_inc   = 1uA;
-//         iref_vprog = 2.5V;
-//         
-//         if(tp_cg_ena)  
-//            STDSetVRange(tp_cg,iref_vprog);
-//         
-//         if(tp_iref_ena)  
-//            STDSetVRange(tp_iref,iref_vprog);
-//
-//         LLimit = 0uA;
-//         
-//         stnum_bcc = stnum_bcc + ttarget + tdata;
-//
-//         if((tdata==TNUM_DATA_LOGIC_ECHK) or (tdata==TNUM_DATA_ECHK) or (tdata==TNUM_DATA_OCHK))  
-//            stnum_bcc = stnum_bcc + TNUM_PBIST_MASK1s;
-//         
-//         if(redundena)  
-//         {
-//            if(tdata==TNUM_DATA_0S)  
-//               stnum_bcc = stnum_bcc + TNUM_REDUNDENA;
-//         } 
-//
-//         PrintHeaderParam(GL_PLELL_FORMAT);
-//
-//         for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//         {
-//            logsites = v_dev_active;
-//            activesites = v_dev_active;
-//
-//            Foundbit = false;
-//            FAddr = 0;
-//            FData = 0;
-//            FBCC = 0uA;
-//
-//            ULimit = SAMP_NOISE_ULIM[bank];
-//            
-//            tnum = stnum_bcc + (bank<<4);
-//            F021_TurnOff_AllTpads;
-//            if(tp_cg_ena)  
-//               STDSetVI(tp_cg,cg_vprog,cg_iprog);
-//
-//            writestring(str3,bank:1);
-//            str3 = "_B" + str3;
-//            if(ttarget == TNUM_TARGET_QUAD)  
-//               str3 = str3 + "Q0";
-//            str4 = str1 + str3;
-//            if(charena)  
-//               str4 = str4 + str7;
-//
-//            done = false;
-//            iref_iprog = iref_start;
-//
-//            REPEAT
-//               if(tp_iref_ena)  
-//                  STDSetVI(tp_iref,iref_vprog,iref_iprog);
-//               TIME.Wait(tdelay);
-//               if(tistdscreenprint and TI_FlashDebug)  
-//                  cout << "IREF @ " << iref_iprog << endl;
-//
-//               if(charena)  
-//               {
-//                  TL_EngOvride_RPC_EF(ovrideRPC_Val,ovrideEF_Index,ovrideEF_Val);
-//               } 
-//               
-//               F021_RunTestNumber(tnum,maxtime,tt_timer,tmp_results);
-//               Get_TLogSpace_TotPPulse(sum_msw,sum_lsw);
-//               Get_TLogSpace_FAILADDR(faddr_msw,faddr_lsw);
-//               IntToBCD_BinStr(faddr_msw,FAddrStr_msw,tmpbinstr,true);
-//               IntToBCD_BinStr(faddr_lsw,FAddrStr_lsw,tmpbinstr,true);
-//               Get_TLogSpace_FAILDATA(fdata_msw,fdata_lsw);
-//               IntToBCD_BinStr(fdata_msw,FDataStr_msw,tmpbinstr,true);
-//               IntToBCD_BinStr(fdata_lsw,FDataStr_lsw,tmpbinstr,true);
-//               
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site])  
-//                  {
-//                     Sumbit[site] = (sum_msw[site]<<16) + sum_lsw[site];
-//                     if((Sumbit[site]>0) and (not Foundbit[site]))  
-//                     {
-//                        Foundbit[site] = true;
-//                        FAddrStr[site] = "0x" + FAddrStr_msw[site];
-//                        FAddrStr[site] = FAddrStr[site] + FAddrStr_lsw[site];
-//                        FDataStr[site] = "0x" + FDataStr_msw[site];
-//                        FDataStr[site] = FDataStr[site] + FDataStr_lsw[site];
-//                        FBCC[site] = iref_iprog;
-//                        FAddr[site] = (faddr_msw[site]<<16) + faddr_lsw[site];
-//                        FData[site] = (fdata_msw[site]<<16) + fdata_lsw[site];
-//                        if(not charena)  
-//                           devsetholdstate(site,false);
-//                        if(tistdscreenprint and TI_FlashDebug)  
-//                           cout << "Site" << site:-5 << " FAddr==" << FAddr[site]:s_hex:-12 << " FData==" << FData[site]:s_hex:-12 << " FBCC==" << FBCC[site] << endl;
-//                     } 
-//                  }   /*v_dev_active*/
-//
-//                /*log bit histo*/
-//               if(charena)  
-//               {
-//                  str5 = str4;
-//                  if(tp_iref_ena)  
-//                  {
-//                     TrealToStr(iref_iprog,istr);
-//                     if((istr=="1000NA") or (istr=="1000na"))  
-//                        istr = "01UA";
-//                     if(len(istr)<4)  
-//                        istr = "0" + istr;
-//                     str5 = str5 + "_";
-//                     str5 = str5 + istr;
-//                  } 
-//                  str5 = str5 + "_FBIT";
-//                  TWPDLDataLogVariable(str5,Sumbit,TWMinimumData);
-//                  PrintResultInt(str5,tnum,Sumbit,0,0,GL_PLELL_FORMAT);
-//               } 
-//
-//               if(iref_start>iref_stop)  
-//               {
-//                  if(iref_iprog<iref_stop)  
-//                     done = true;
-//                  else
-//                  {
-//                     if((iref_iprog>==8ua) and (iref_iprog<==9ua) and (not charena))  
-//                        iref_iprog = iref_iprog-0.5uA;
-//                     else
-//                        iref_iprog = iref_iprog-iref_inc;
-//                  } 
-//               }
-//               else
-//               {
-//                  if(iref_iprog>iref_stop)  
-//                     done = true;
-//                  else
-//                  {
-//                     if((iref_iprog>==8ua) and (iref_iprog<==9ua) and (not charena))  
-//                        iref_iprog = iref_iprog+0.5uA;
-//                     else
-//                        iref_iprog = iref_iprog+iref_inc;
-//                  } 
-//               } 
-//
-//               if(not v_any_dev_active)  
-//                  done = true;
-//               
-//            UNTIL (done);  /*iref_iprog*/
-//
-//            devsetholdstates(activesites);
-//            tmp_results = v_dev_active;
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  if(FBCC[site] > ULimit)  
-//                     tmp_results[site] = false;
-//               } 
-//
-//            ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
-//            
-//            if(charena and tistdscreenprint)  
-//               cout << endl;
-//            str5 = str4 + "_BCC";
-//            PrintResultParam(str5,tnum,tmp_results,LLimit,ULimit,FBCC,GL_PLELL_FORMAT);
-//                  
-//            if(logena)  
-//            {
-//               TWTRealToRealMS(FBCC,realval,unitval);
-//               TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//               str5 = str4 + "_FADDR";
-//                /*TWPDLDatalogVariableMS(str5,FAddr, TWMinimumData);*/
-//               TWPDLDataLogText(str5,FAddrStr,TWMinimumData);
-//               PrintResultIntHex(str5,0,FAddr,0,0,GL_PLELL_FORMAT);
-//               str5 = str4 + "_FDATA";
-//                /*TWPDLDatalogVariableMS(str5,FData, TWMinimumData);*/
-//               TWPDLDataLogText(str5,FDataStr,TWMinimumData);
-//               PrintResultIntHex(str5,0,FData,0,0,GL_PLELL_FORMAT);
-//               if(charena and tistdscreenprint and (bank<F021_Flash.MAXBANK))  
-//                  cout << endl;
-//            } 
-//                  
-//            if((not ArrayCompareBoolean(logsites,tmp_results,v_sites)) and (not dlogonly))  
-//            {
-//               F021_Log_FailPat_To_TW(str4,tmp_results,fl_testname);
-//            } 
-//
-//            if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
-//               DevSetHoldStates(final_results);
-//
-//            if(not v_any_dev_active)  
-//               break;
-//
-//         }   /*for bank*/
-//
-//         Devsetholdstates(savesites);
-//         F021_TurnOff_AllTpads;
-//
-//         ResultsRecordActive(final_results, S_NULL);
-//         TestClose;
-//         
-//         ttimer1 = timernread(ttimer1);
-//         tt_timer = ttimer1;
-//         
-//         str5 = str1 + "_TTT";
-//         TWTRealToRealMS(tt_timer,realval,unitval);
-//         TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
-//
-//         if(tistdscreenprint)  
-//         {
-//            PrintResultBool(str1,tnum,final_results,GL_PLELL_FORMAT);
-//            cout << "   TT " << ttimer1 << endl;
-//            cout << endl;
-//         }         /*if tistdscreenprint*/
-//
-//         if((not TIIgnoreFail) and (not TI_FlashCOFEna) and (not dlogonly))  
-//            DevSetHoldStates(final_results);
-//
-//      }   /*v_any_dev_active senamp noise*/
-//
-//      test_results = final_results;
-//         
-//   }   /*v_any_dev_active*/
-//
-//   SAMP_Noise_Screen_func = v_any_dev_active;
-//
-//}   /* SAMP_Noise_Screen_func */
-//   
+   FloatS ULimit,LLimit;
+   BoolS charena,dlogonly;
+
+   if (tistdscreenprint and TI_FlashDebug)  
+      cout << "+++++ SAMP_Noise_Screen_func +++++" << endl;
+
+   str1 = tname;
+   str1.Replace(str1.Find("_Test"), 5, "");   // remove _Test
+   fl_testname = tname;
+   logena = true;
+   tdelay = 2ms;
+   maxtime = GL_F021_BANK_VT_MAXTIME;
+
+   if (tname=="NULL_TestName")  {
+      dlogonly = true;
+      charena  = true;
+      str7 = "";
+      if(twlogstr!="")  {
+         if ((twlogstr.Find("Z_SAN_VMX")==1) or (twlogstr.Find("Z_SAN_VMN")==1) or (twlogstr.Find("Z_SAN_VNM")==1)) {
+            length = twlogstr.Length();
+            if (length>9)  {
+               str1 = twlogstr.Substring(1,9);
+               str7 = twlogstr.Substring(10,length-9);
+            }
+            else
+               str1 = twlogstr;
+         }
+         else {
+            str1 = twlogstr;
+         } 
+      }
+      else
+         str1 = "Z_SAMP_NOISE";
+   }
+   else
+   {
+      dlogonly = false;
+      charena  = false;
+   } 
+   
+   TIME.StartTimer();
+
+//   savesites = v_dev_active;
+//   final_results = v_dev_active;
+//   tmp_results = v_dev_active;
+
+   // programming
+   if (dopgmbkgrnd)  {
+      stnum_prog = TNUM_BANK_PROG_SM + tdata;
+      if (redundena)  
+         stnum_prog = stnum_prog + TNUM_REDUNDENA;
+      tnum = stnum_prog;
+      tmp_results = F021_Program_func(tnum,"PgmChk_Test"); // KChau 07/25/11 - will need to add to Jazz later*/
+      DLOG.AccumulateResults(final_results,tmp_results);
+//    ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+   }
+   
+   // get sense amp noise
+   // TestOpen(fl_testname);
+
+   switch(tcrnum) {
+      case 6:  
+         stnum_bcc   = TNUM_TCR6 + MainBCC.IRATIO[CHKVT0][pre];
+         tp_cg_ena   = true;
+         tp_iref_ena = true;
+         tp_cg       = FLTP1;
+         tp_iref     = FLTP2;
+         break; 
+      case 38 :  
+         stnum_bcc   = TNUM_TCR38;
+         tp_cg_ena   = false;
+         tp_iref_ena = true;
+         tp_iref     = FLTP1;
+         break; 
+      default:  
+         stnum_bcc   = TNUM_TCR6 + MainBCC.IRATIO[CHKVT0][pre];
+         tp_cg_ena   = true;
+         tp_iref_ena = true;
+         tp_cg       = FLTP1;
+         tp_iref     = FLTP2;
+         break; 
+   }   // case
+
+   cg_vprog   = force_vcg;
+   cg_iprog   = 100mA;
+   iref_start = 20uA;
+   iref_stop  = 1uA;
+   iref_inc   = 1uA;
+   iref_vprog = 2.5V;
+   
+   if (tp_cg_ena)  
+      STDSetVI(tp_cg,iref_vprog,iref_iprog,VI_FORCE_V,VI_MEASURE_V,iref_vprog);
+   
+   if (tp_iref_ena)  
+      STDSetVI(tp_iref,iref_vprog,iref_iprog,VI_FORCE_V,VI_MEASURE_V,iref_vprog);
+
+   LLimit = 0uA;
+   
+   stnum_bcc = stnum_bcc + ttarget + tdata;
+
+   if ((tdata==TNUM_DATA_LOGIC_ECHK) or (tdata==TNUM_DATA_ECHK) or (tdata==TNUM_DATA_OCHK))  
+      stnum_bcc = stnum_bcc + TNUM_PBIST_MASK1S;
+   
+   if (redundena)  {
+      if(tdata==TNUM_DATA_0S)  
+         stnum_bcc = stnum_bcc + TNUM_REDUNDENA;
+   } 
+
+// PrintHeaderParam(GL_PLELL_FORMAT);
+
+   for (bank = 0;bank <= F021_Flash.MAXBANK;bank++) {
+//    logsites = v_dev_active;
+//    activesites = v_dev_active;
+
+      FoundBit = false;
+      FAddr = 0;
+      FData = 0;
+      FBCC = 0uA;
+
+      ULimit = SAMP_NOISE_ULIM[bank];
+      
+      tnum = stnum_bcc + (bank<<4);
+      F021_TurnOff_AllTPADS();
+      if (tp_cg_ena)  
+         STDSetVI(tp_cg,cg_vprog,cg_iprog,VI_FORCE_V,VI_MEASURE_V,cg_vprog);
+
+
+      str3 = "_B";
+//    str3 += CONV.IntToString(bank);  // Bug IntToStr can't convert zero (SPR142812)
+      if ( bank == 0 ) str3 += "0";
+      else             str3 += CONV.IntToString(bank);
+
+      if (ttarget == TNUM_TARGET_QUAD)
+         str3 = str3 + "Q0";
+
+      str4 = str1 + str3;
+      if (charena)  
+         str4 = str4 + str7;
+
+      done = false;
+      iref_iprog = iref_start;
+
+      do {
+         if (tp_iref_ena)  
+            STDSetVI(tp_iref,iref_vprog,iref_iprog,VI_FORCE_V,VI_MEASURE_V,iref_vprog);
+
+         TIME.Wait(tdelay);
+
+         if (tistdscreenprint and TI_FlashDebug)  
+            cout << "IREF @ " << iref_iprog << endl;
+
+         if (charena)  {
+//            TL_EngOvride_RPC_EF(ovrideRPC_Val,ovrideEF_Index,ovrideEF_Val);
+         } 
+         
+         tmp_results = F021_RunTestNumber(tnum,maxtime,tt_timer);
+//         Get_TLogSpace_TotPPulse(sum_msw,sum_lsw);
+         Get_TLogSpace_FailAddr(faddr_msw,faddr_lsw);
+//         IntToBCD_BinStr(faddr_msw,FAddrStr_msw,tmpbinstr,true);
+//         IntToBCD_BinStr(faddr_lsw,FAddrStr_lsw,tmpbinstr,true);
+         Get_TLogSpace_FailData(fdata_msw,fdata_lsw);
+//         IntToBCD_BinStr(fdata_msw,FDataStr_msw,tmpbinstr,true);
+//         IntToBCD_BinStr(fdata_lsw,FDataStr_lsw,tmpbinstr,true);
+         
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            Sumbit[*si] = (sum_msw[*si]<<16) + sum_lsw[*si];
+            if((Sumbit[*si]>0) and (not FoundBit[*si]))  
+            {
+               FoundBit[*si] = true;
+               FAddrStr[*si] = "0x" + FAddrStr_msw[*si];
+               FAddrStr[*si] = FAddrStr[*si] + FAddrStr_lsw[*si];
+               FDataStr[*si] = "0x" + FDataStr_msw[*si];
+               FDataStr[*si] = FDataStr[*si] + FDataStr_lsw[*si];
+               FBCC[*si] = iref_iprog;
+               FAddr[*si] = (faddr_msw[*si]<<16) + faddr_lsw[*si];
+               FData[*si] = (fdata_msw[*si]<<16) + fdata_lsw[*si];
+
+//             if (not charena)  
+//                devsetholdstate(site,false);
+
+               if (tistdscreenprint and TI_FlashDebug) {
+                  cout << "Site" << setw(5) << *si << " FAddr==" << setw(12) << hex << FAddr[*si];
+                  cout << " FData==" << setw(12) << hex << FData[*si] << " FBCC==" << FBCC[*si] << endl;
+               }
+            } 
+         }
+
+         // log bit histo
+         if (charena)  {
+            str5 = str4;
+            if (tp_iref_ena) {
+               istr = CONV.FloatToString(iref_iprog);
+               if ((istr=="1000NA") or (istr=="1000na"))  
+                  istr = "01uA";
+               if (istr.Length()<4)  
+                  istr = "0" + istr;
+               str5 = str5 + "_";
+               str5 = str5 + istr;
+            } 
+            str5 = str5 + "_FBIT";
+//          TWPDLDataLogVariable(str5,Sumbit,TWMinimumData);
+//          PrintResultInt(str5,tnum,Sumbit,0,0,GL_PLELL_FORMAT);
+         } 
+
+         if (iref_start>iref_stop) {
+            if (iref_iprog<iref_stop)  
+               done = true;
+            else {
+               if ((iref_iprog>=8uA) and (iref_iprog<=9uA) and (not charena))  
+                  iref_iprog = iref_iprog-0.5uA;
+               else
+                  iref_iprog = iref_iprog-iref_inc;
+            } 
+         }
+         else {
+            if (iref_iprog>iref_stop)  
+               done = true;
+            else {
+               if ((iref_iprog>=8uA) and (iref_iprog<=9uA) and (not charena))  
+                  iref_iprog = iref_iprog+0.5uA;
+               else
+                  iref_iprog = iref_iprog+iref_inc;
+            } 
+         } 
+
+//       if(not v_any_dev_active)  
+//          done = true;
+         
+      } while (!done);  // iref_iprog
+
+//    devsetholdstates(activesites);
+//    tmp_results = v_dev_active;
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if (FBCC[*si] > ULimit)  
+            tmp_results[*si] = TM_FAIL;
+      } 
+
+//    ArrayAndBoolean(final_results,final_results,tmp_results,v_sites);
+      DLOG.AccumulateResults(final_results,tmp_results);
+      
+      if (charena and tistdscreenprint)  
+         cout << endl;
+
+      str5 = str4 + "_BCC";
+//    PrintResultParam(str5,tnum,tmp_results,LLimit,ULimit,FBCC,GL_PLELL_FORMAT);
+            
+      if (logena) {
+//       TWTRealToRealMS(FBCC,realval,unitval);
+//       TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
+         str5 = str4 + "_FADDR";
+          /*TWPDLDatalogVariableMS(str5,FAddr, TWMinimumData);*/
+//       TWPDLDataLogText(str5,FAddrStr,TWMinimumData);
+//       PrintResultIntHex(str5,0,FAddr,0,0,GL_PLELL_FORMAT);
+         str5 = str4 + "_FDATA";
+//        /*TWPDLDatalogVariableMS(str5,FData, TWMinimumData);*/
+//       TWPDLDataLogText(str5,FDataStr,TWMinimumData);
+//       PrintResultIntHex(str5,0,FData,0,0,GL_PLELL_FORMAT);
+         if (charena and tistdscreenprint and (bank<F021_Flash.MAXBANK))  
+            cout << endl;
+      } 
+            
+//    if((not ArrayCompareBoolean(logsites,tmp_results,v_sites)) and (not dlogonly)) {
+//       F021_Log_FailPat_To_TW(str4,tmp_results,fl_testname);
+//    } 
+
+//    if ((not RunAllTests) and (not TI_FlashCOFEna) and (not dlogonly))  
+//       DevSetHoldStates(final_results);
+
+//    if(not v_any_dev_active)  
+//       break;
+
+   }  // for bank
+
+// Devsetholdstates(savesites);
+   F021_TurnOff_AllTPADS();
+
+// ResultsRecordActive(final_results, S_NULL);
+// TestClose;
+   
+   ttimer1 = TIME.GetTimer();
+   tt_timer = ttimer1;
+   
+   str5 = str1 + "_TTT";
+// TWTRealToRealMS(tt_timer,realval,unitval);
+// TWPDLDataLogRealVariable(str5, unitval,realval,TWMinimumData);
+
+   if (tistdscreenprint)  {
+//      PrintResultBool(str1,tnum,final_results,GL_PLELL_FORMAT);
+      cout << "   TT " << ttimer1 << endl;
+      cout << endl;
+   }   // if tistdscreenprint
+
+// if ((not RunAllTests) and (not TI_FlashCOFEna) and (not dlogonly))  
+//    DevSetHoldStates(final_results);
+
+   test_results = final_results;
+   return(final_results);
+
+}   // SAMP_Noise_Screen_func
+   
 //BoolS F021_LPO_Trim_func(    StringS fl_tname,
 //                                BoolS dlogonly,
 //                                BoolM test_results)
@@ -30347,7 +30307,6 @@ TMResultM FlashCode_WR_EXE_func(StringS tname, FlashCodeType code_type) {
 TMResultM  F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
-                                   TMResultM test_results,
                                    BoolM soft_results) {
    const IntS none_ena = 0; 
    const IntS cmpress_ena = 1; 
@@ -30358,7 +30317,7 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 
    BoolM savesites,logsites,good_results;
    IntM pgmpulse;
-   TMResultM  tmp_results,final_results;
+   TMResultM  tmp_results,final_results, test_results;
    IntS bankcount,count;
    IntS site,opertype,pattype;
    FloatS ttimer1,ttimer2;

@@ -388,8 +388,8 @@ void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
 void TL_RunTestNum(IntS start_testnum,
                         StringS logstr);
 
-//void TL_DumpOTP();
-//
+void TL_DumpOTP();
+
 //void TL_DumpRawESDA_ToFile(IntS imgnum,
 //                                StringS logstr);
 //void TL_SaveESDAImage(IntS imgnum,
@@ -419,10 +419,9 @@ void F021_CollectESDA(IntS imagenum);
 //                          StringS logstr);
 //
 void TL_Boost_RefArray();
-//
-//BoolS F021_RestoreOTPInfo_func(    StringS tname,
-//                                      BoolM test_results,
-//                                      BoolS dlogonly);
+
+TMResultM F021_RestoreOTPInfo_func( StringS tname,
+                                    BoolS   dlogonly);
 //void GoRestoreOTP_OnFail();
 
 void RAM_Clear_MailBox_Key();
@@ -645,19 +644,18 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //                                   BoolM test_results,
 //                                  BoolS dlogonly);
 //
-//BoolS SAMP_Noise_Screen_func(StringS tname,
-//                                IntS tcrnum,
-//                                IntS tdata,
-//                                IntS ttarget,
-//                                FloatS force_vcg,
-//                                BoolS redundena,
-//                                    BoolM test_results,
-//                                BoolS dopgmbkgrnd,
-//                                IntS ovrideRPC_Val,
-//                                IntS ovrideEF_Index,
-//                                IntS ovrideEF_Val,
-//                                StringS twlogstr);
-//
+TMResultM SAMP_Noise_Screen_func(StringS tname,
+                                IntS tcrnum,
+                                IntS tdata,
+                                IntS ttarget,
+                                FloatS force_vcg,
+                                BoolS redundena,
+                                BoolS dopgmbkgrnd,
+                                IntS ovrideRPC_Val,
+                                IntS ovrideEF_Index,
+                                IntS ovrideEF_Val,
+                                StringS twlogstr);
+
 //BoolS F021_LPO_Trim_func(    StringS fl_tname,
 //                                BoolS dlogonly,
 //                                BoolM test_results);
@@ -688,12 +686,11 @@ TMResultM FlashCode_WR_EXE_func(StringS tname,
 //                              FlashCodeType code_type,
 //                              BoolM test_results);
 //
-//BoolS F021_Special_Program_func(IntS start_testnum,
-//                                   StringS tname,
-//                                   IntS PPULimit,
-//                                   BoolM test_results,
-//                                   BoolM soft_results);
-//
+TMResultM F021_Special_Program_func(IntS start_testnum,
+                                   StringS tname,
+                                   IntS PPULimit,
+                                   BoolM soft_results);
+
 //void TL_Display_W89();
 //void TL_Display_W34();
 //void TL_Display_Word8_9();

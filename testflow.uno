@@ -3108,7 +3108,7 @@ __SubFlow F021_TunOxide {
         __TestID = "\'Bin\'";
         __Exec = F_FLASHVTPRESTRESSOTP;
     }
-    __Node TunOxideStress_func_T_340 {
+    __Node TunOxide_Stress_func_T_340 {
         __XCoord = (650,50);
         __Port[0] {
             __PortPosition = 90;
@@ -3128,7 +3128,7 @@ __SubFlow F021_TunOxide {
             DCSpecs = __Expression { __String = "DCSpecs.CommonDCdata"; __Type = INTEGER; }
         }
         __TestID = "93000000";
-        __Exec = TunOxideStress_func_T;
+        __Exec = TunOxide_Stress_func_T;
     }
     __Node F_FLASHSTRESSFUNC_341 {
         __XCoord = (648,175);
@@ -3264,10 +3264,10 @@ __SubFlow F021_TunOxide {
         ErsOTP_PreTunOxide_func_T_310 __Port[1] = F_FLASHERSOTP_311;
         PreTunOxideVT1_func_T_320 __Port[0] = PreTunOxideVT1OTP_func_T_330;
         PreTunOxideVT1_func_T_320 __Port[1] = F_FLASHVTPRESTRESS_321;
-        PreTunOxideVT1OTP_func_T_330 __Port[0] = TunOxideStress_func_T_340;
+        PreTunOxideVT1OTP_func_T_330 __Port[0] = TunOxide_Stress_func_T_340;
         PreTunOxideVT1OTP_func_T_330 __Port[1] = F_FLASHVTPRESTRESSOTP_331;
-        TunOxideStress_func_T_340 __Port[0] = PstTunOxideVT1_func_T_350;
-        TunOxideStress_func_T_340 __Port[1] = F_FLASHSTRESSFUNC_341;
+        TunOxide_Stress_func_T_340 __Port[0] = PstTunOxideVT1_func_T_350;
+        TunOxide_Stress_func_T_340 __Port[1] = F_FLASHSTRESSFUNC_341;
         PstTunOxideVT1_func_T_350 __Port[0] = PstTunOxideVT1OTP_func_T_360;
         PstTunOxideVT1_func_T_350 __Port[1] = F_FLASHVTPSTTUNOX_351;
         PstTunOxideVT1OTP_func_T_360 __Port[0] = TunOxideVT1Delta_func_T_370;

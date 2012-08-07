@@ -6259,7 +6259,7 @@ __Test PreTunOxideVT1OTP_func_T {
         }
     }
 }
-__Test TunOxideStress_func_T {
+__Test TunOxide_Stress_func_T {
     __Mask[0] = ACSpecsMask;
     __Mask[1] = DCSpecsMask;
     __Mask[2] = PSSpecsMask;
@@ -6268,9 +6268,9 @@ __Test TunOxideStress_func_T {
     __PortExpression[0] = __Expression { __String = ".Result = TM_RESULT:TM_PASS"; }
     __PortExpression[1] = __Expression { __String = "TRUE"; }
     __Block[0] = {
-        __Title = TunOxideStress;
+        __Title = TunOxide_Stress;
         __TestMethod {
-            __Name = TunOxideStress_func;
+            __Name = TunOxide_Stress_func;
         }
     }
 }
