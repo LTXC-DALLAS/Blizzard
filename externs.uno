@@ -74,7 +74,7 @@ __ExternalRef {
 
 
  __ExternalRef {
-   __File = "testsets_Bliz.uno";
+   __File = "testsets.uno";
 }
 
 
