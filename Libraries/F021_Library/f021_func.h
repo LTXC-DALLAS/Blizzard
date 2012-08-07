@@ -388,8 +388,8 @@ void RestoreTCR_Fr_TCR128(TPModeType tcrmode_tget,
 void TL_RunTestNum(IntS start_testnum,
                         StringS logstr);
 
-void TL_DumpOTP();
-
+  void TL_DumpOTP();
+  
 //void TL_DumpRawESDA_ToFile(IntS imgnum,
 //                                StringS logstr);
 //void TL_SaveESDAImage(IntS imgnum,
@@ -419,9 +419,9 @@ void F021_CollectESDA(IntS imagenum);
 //                          StringS logstr);
 //
 void TL_Boost_RefArray();
-
-TMResultM F021_RestoreOTPInfo_func( StringS tname,
-                                    BoolS   dlogonly);
+  
+  TMResultM F021_RestoreOTPInfo_func(    StringS tname,
+                                        BoolS dlogonly);
 //void GoRestoreOTP_OnFail();
 
 void RAM_Clear_MailBox_Key();
@@ -643,7 +643,7 @@ TMResultM F021_IPMOS_NMOS_SoftTrim_func(IntS trimopt);
 //BoolS Run_Update_FakeRepair(    StringS tname,
 //                                   BoolM test_results,
 //                                  BoolS dlogonly);
-//
+
 TMResultM SAMP_Noise_Screen_func(StringS tname,
                                 IntS tcrnum,
                                 IntS tdata,
@@ -685,7 +685,7 @@ TMResultM FlashCode_WR_EXE_func(StringS tname,
 //BoolS FlashCode_RdPsa_func(StringS tname,
 //                              FlashCodeType code_type,
 //                              BoolM test_results);
-//
+
 TMResultM F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
