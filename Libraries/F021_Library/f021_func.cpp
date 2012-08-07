@@ -9858,7 +9858,6 @@ void TL_RunTestNum(IntS start_testnum,
    }   /*bank*/
 }   /*TL_RunTestNum*/
 
-   
 void TL_DumpOTP() {
    IntS site,bank,tnum,i;
    IntS saddr,eaddr;
@@ -9893,7 +9892,7 @@ void TL_DumpOTP() {
       }
    } 
 }   // TL_DumpOTP
-
+   
 // /*extract raw data from FL_SCRAM_CAPT_ARR and output to text file*/
 // /*must run F021_GetESDA_NonSCRAM or Get_Flash_ESDASpace_SCRAM before calling this procedure*/
 //void TL_DumpRawESDA_ToFile(IntS imgnum,
@@ -18423,7 +18422,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             
             // TW strings
             tmpstr2 = "_B";  // _B#
-//            tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//            tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
             if ( bankcount == 0 ) tmpstr2 += "0";
             else                  tmpstr2 += CONV.IntToString(bankcount);
             
@@ -18435,7 +18434,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                else
                   tmpstr3 = "S";
                
-//            tmpstr3 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//            tmpstr3 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
                if ( count == 0 ) tmpstr3 += "0";
                else              tmpstr3 += CONV.IntToString(count);
                tmpstr2 += tmpstr3;
@@ -22997,8 +22996,7 @@ TMResultM F021_Read_func(    IntS start_testnum,
 //
 //   F021_ReadLog3OTP_func = v_any_dev_active;
 //} 
-//
-
+  
 // F021_RestoreOTPInfo_func is intended to use at MP3 after stresses tests which does
 // re-write TI-OTP contents that was saved during flowcheck test
 TMResultM F021_RestoreOTPInfo_func( StringS tname, BoolS dlogonly) {
@@ -23194,7 +23192,7 @@ TMResultM F021_RestoreOTPInfo_func( StringS tname, BoolS dlogonly) {
 
    return(test_results);
 }   // F021_RestoreOTPInfo_func
-   
+  
 //void GoRestoreOTP_OnFail()
 //{
 //   IntS site,i,bank,tnum;
@@ -28651,7 +28649,7 @@ TMResultM SAMP_Noise_Screen_func(StringS tname,
    return(final_results);
 
 }   // SAMP_Noise_Screen_func
-   
+
 //BoolS F021_LPO_Trim_func(    StringS fl_tname,
 //                                BoolS dlogonly,
 //                                BoolM test_results)
@@ -30307,6 +30305,7 @@ TMResultM FlashCode_WR_EXE_func(StringS tname, FlashCodeType code_type) {
 TMResultM  F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
+                                   TMResultM test_results,
                                    BoolM soft_results) {
    const IntS none_ena = 0; 
    const IntS cmpress_ena = 1; 
@@ -30317,7 +30316,7 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
 
    BoolM savesites,logsites,good_results;
    IntM pgmpulse;
-   TMResultM  tmp_results,final_results, test_results;
+   TMResultM  tmp_results,final_results;
    IntS bankcount,count;
    IntS site,opertype,pattype;
    FloatS ttimer1,ttimer2;

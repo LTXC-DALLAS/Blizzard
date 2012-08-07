@@ -3892,101 +3892,96 @@ TMResultM Charz_SenAmpNoise_RPC_EF(VCornerType vcorner, BoolS pgmena) {
    return(final_results);
 }   /* Charz_SenAmpNoise_RPC_EF */
 
-//BoolS Charz_Run_BCC_SAMP_ACCY(vttype vt_type)
-//{
-//   IntS site,bank,testnum,stnum;
-//   FloatM Istart,Istop,vforce,vt_values;
-//   FloatS ires,maxtime,llimit,ulimit;
-//   StringS str1,str2;
-//   BoolM tmp_results;
-//   FloatM FloatSval;
+TMResultM Charz_Run_BCC_SAMP_ACCY(vttype vt_type) {
+   IntS site,bank,testnum,stnum;
+   FloatM Istart,Istop,vforce,vt_values,spare_mstreal1;
+   FloatS ires,maxtime,llimit,ulimit;
+   StringS str1,str2;
+   TMResultM tmp_results;
+   FloatM FloatSval;
 //   TWunit unitval;
-//
-//   if(v_any_dev_active)  
-//   {
-//      maxtime = GL_F021_BANK_VT_MAXTIME;
-//      istart = MainBCC.SSTART[vt_type][pre];
-//      istop = MainBCC.SSTOP[vt_type][pre];
-//      ires = MainBCC.SRESOL[vt_type][pre];
-//      vforce = 5V;
-//      stnum = TNUM_TCR6+MainBCC.IRATIO[vt_type][pre]+MainBCC.TDATA[vt_type]+MainBCC.RDOPTION[vt_type][pre]+TNUM_TARGET_QUAD;
-//      llimit = MainBCC.LLIM[vt_type][pre];
-//      ulimit = MainBCC.ULIM[vt_type][pre];
-//      str1 = "Z_SAACCY_BCC0";
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      GL_DO_SAVE_SAMP_ACCY_DATA = true;
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         testnum = stnum+(bank<<4);
-//         F021_BCC_BinSearch_TTR(testnum,Istart,Istop,ires,Vforce,maxtime,spare_mstreal1,vt_values);
-//         writestring(str2,bank:1);
-//         str2 = "_B" + str2;
-//         str2 = str1 + str2;
-//         TWTRealToRealMS(vt_values,realval,unitval);
-//         TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
-//         if(tistdscreenprint)  
-//         {
-//            tmp_results = false;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//                  if((vt_values[site]>==llimit) and (vt_values[site]<==ulimit))  
-//                     tmp_results[site] = true;
-//            PrintResultParam(str2,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
-//         } 
-//      }   /*for bank*/
-//      GL_DO_SAVE_SAMP_ACCY_DATA = false;
-//   } 
-//   Charz_Run_BCC_SAMP_ACCY = v_any_dev_active;
-//}   /* Charz_Run_BCC_SAMP_ACCY */
-//
-//BoolS Charz_Run_IVT_SAMP_ACCY(vttype vt_type)
-//{
-//   IntS site,bank,testnum,stnum;
-//   FloatM Istart,Istop,vforce,vt_values;
-//   FloatS ires,maxtime,llimit,ulimit;
-//   StringS str1,str2;
-//   BoolM tmp_results;
-//
-//   if(v_any_dev_active)  
-//   {
-//      maxtime = GL_F021_BANK_VT_MAXTIME;
-//      istart = MainVT.SSTART[vt_type][pre];
-//      istop = MainVT.SSTOP[vt_type][pre];
-//      ires = MainVT.SRESOL[vt_type][pre];
-//      vforce = 20uA;
-//      llimit = MainVT.LLIM[vt_type][pre];
-//      ulimit = MainVT.ULIM[vt_type][pre];
-//       /*stnum := TNUM_TCR5+MainVT.IRATIO[vt_type,pre]+MainVT.TDATA[vt_type]+MainVT.RDOPTION[vt_type,pre]+TNUM_TARGET_QUAD;*/
-//      stnum = TNUM_TCR72+MainVT.TDATA[vt_type]+MainVT.RDOPTION[vt_type][pre]+TNUM_TARGET_QUAD;
-//      str1 = "Z_SAACCY_IVT0";
-//
-//      PrintHeaderParam(GL_PLELL_FORMAT);
-//      GL_DO_SAVE_SAMP_ACCY_DATA = true;
-//      for (bank = 0;bank <= F021_Flash.MAXBANK;bank++)
-//      {
-//         testnum = stnum+(bank<<4);
-//         MeasInternalVT(testnum,llimit,ulimit,tmp_results,vt_values);
-//         if(tistdscreenprint)  
-//         {
-//            tmp_results = false;
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//                  if((vt_values[site]>==llimit) and (vt_values[site]<==ulimit))  
-//                     tmp_results[site] = true;
-//                  else
-//                     tmp_results[site] = false;
-//            writestring(str2,bank:1);
-//            str2 = "_B" + str2;
-//            str2 = str1 + str2;
-//            PrintResultParam(str2,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
-//         } 
-//      }   /*for bank*/
-//      GL_DO_SAVE_SAMP_ACCY_DATA = false;
-//   } 
-//   Charz_Run_IVT_SAMP_ACCY = v_any_dev_active;
-//}   /* Charz_Run_IVT_SAMP_ACCY */
-//
+
+   maxtime = GL_F021_BANK_VT_MAXTIME;
+   Istart = MainBCC.SSTART[vt_type][pre];
+   Istop = MainBCC.SSTOP[vt_type][pre];
+   ires = MainBCC.SRESOL[vt_type][pre];
+   vforce = 5V;
+   stnum = TNUM_TCR6+MainBCC.IRATIO[vt_type][pre]+MainBCC.TDATA[vt_type]+MainBCC.RDOPTION[vt_type][pre]+TNUM_TARGET_QUAD;
+   llimit = MainBCC.LLIM[vt_type][pre];
+   ulimit = MainBCC.ULIM[vt_type][pre];
+   str1 = "Z_SAACCY_BCC0";
+
+//   PrintHeaderParam(GL_PLELL_FORMAT);
+   GL_DO_SAVE_SAMP_ACCY_DATA = true;
+   for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+      testnum = stnum+(bank<<4);
+      F021_BCC_BinSearch_TTR(testnum,Istart,Istop,ires,vforce,maxtime,spare_mstreal1,vt_values);
+      
+      str2 = "_B" + str2;
+//      str2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+      if ( bank == 0 ) str2 += "0";
+      else             str2 += CONV.IntToString(bank);
+      str2 = str1 + str2;
+      
+//      TWTRealToRealMS(vt_values,realval,unitval);
+//      TWPDLDataLogRealVariable(str2, unitval,realval,TWMinimumData);
+      if(tistdscreenprint) {
+         tmp_results = TM_NOTEST;
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//            if(v_dev_active[site])  
+               if((vt_values[*si]>=llimit) and (vt_values[*si]<=ulimit))  
+                  tmp_results[*si] = TM_PASS;
+         }
+//         PrintResultParam(str2,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
+      } 
+   }   /*for bank*/
+   GL_DO_SAVE_SAMP_ACCY_DATA = false;
+   return(tmp_results);
+}   /* Charz_Run_BCC_SAMP_ACCY */
+
+TMResultM Charz_Run_IVT_SAMP_ACCY(vttype vt_type) {
+   IntS site,bank,testnum,stnum;
+   FloatM Istart,Istop,vforce,vt_values;
+   FloatS ires,maxtime,llimit,ulimit;
+   StringS str1,str2;
+   TMResultM tmp_results;
+
+   maxtime = GL_F021_BANK_VT_MAXTIME;
+   Istart = MainVT.SSTART[vt_type][pre];
+   Istop = MainVT.SSTOP[vt_type][pre];
+   ires = MainVT.SRESOL[vt_type][pre];
+   vforce = 20uA;
+   llimit = MainVT.LLIM[vt_type][pre];
+   ulimit = MainVT.ULIM[vt_type][pre];
+   // stnum := TNUM_TCR5+MainVT.IRATIO[vt_type,pre]+MainVT.TDATA[vt_type]+MainVT.RDOPTION[vt_type,pre]+TNUM_TARGET_QUAD;
+   stnum = TNUM_TCR72+MainVT.TDATA[vt_type]+MainVT.RDOPTION[vt_type][pre]+TNUM_TARGET_QUAD;
+   str1 = "Z_SAACCY_IVT0";
+
+//   PrintHeaderParam(GL_PLELL_FORMAT);
+   GL_DO_SAVE_SAMP_ACCY_DATA = true;
+   for (bank = 0; bank <= F021_Flash.MAXBANK; ++bank) {
+      testnum = stnum+(bank<<4);
+      MeasInternalVT(testnum,llimit,ulimit,tmp_results, vt_values);
+      if (tistdscreenprint) {
+//         tmp_results = false;
+//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+//               if((vt_values[site]>==llimit) and (vt_values[site]<==ulimit))  
+//                  tmp_results[site] = true;
+//               else
+//                  tmp_results[site] = false;
+//                  
+         str2 = "_B";
+//       tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+         if ( bank == 0 ) str2 += "0";
+         else             str2 += CONV.IntToString(bank);
+         str2 = str1 + str2;
+//         PrintResultParam(str2,testnum,tmp_results,LLimit,ULimit,vt_values,GL_PLELL_FORMAT);
+      } 
+   }  // for bank
+   GL_DO_SAVE_SAMP_ACCY_DATA = false;
+   return(tmp_results);
+}   // Charz_Run_IVT_SAMP_ACCY
+
 //BoolS Charz_RDM0_NMOS(VCornerType vcorner,
 //                         IntS bkgnddata)
 //{
@@ -6231,196 +6226,200 @@ TMResultM SA_Iref_NoLoad_Read_Vmin_func()
    return (final_results);
 }   /* SA_Iref_NoLoad_Read_Vmin_func */
 
-//BoolS IWLDRV_Prog_Vmin_func()
-//{
-//   const IntS TESTID = 57; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmin_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 69;
-//   tcrmode = ProgMode;
-//   vcorner = VMNE;
-//   F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMNO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   IWLDRV_Prog_Vmin_func = v_any_dev_active;
-//}   /* IWLDRV_Prog_Vmin_func */
-//
-//
-//BoolS IWLDRV_Prog_Vmax_func()
-//{
-//   const IntS TESTID = 58; 
-//
-//   BoolM final_results;
-//   Vcornertype vcorner;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS savebool;
-//
-//   PwrupAtVmax_1;
-//
-//   savebool = ti_flashdebug;
-//   ti_flashdebug = false;
-//   
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//   
-//   GL_FLTESTID = TESTID;
-//   tcrnum = 69;
-//   tcrmode = ProgMode;
-//   vcorner = VMXE;
-//   F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode,final_results);
-// /*
-//    if(v_any_dev_active) then
-//    begin
-//       vcorner := VMXO;
-//       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
-//    end;
-//    */
-//   ti_flashdebug = savebool;
-//   
-//   IWLDRV_Prog_Vmax_func = v_any_dev_active;
-//}   /* IWLDRV_Prog_Vmax_func */
-//
-//
-//BoolS WLS_Leak_Vmax_func()
-//{
-//   const IntS TESTID = 72; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//   BoolS runena;
-//
-//   if(TITestType==MP1)  
-//      runena = true;
-//   else
-//      runena = false;
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      
-//      if(GL_DO_WLS_LEAK_OPTION==BANK_GANG)  
-//      {
-//         tcrnum = 58;
-//         tcrmode = ProgMode;
-//         vcorner = VMX;      
-//         F021_Flash_Leak_func(TNUM_BANK_WLS,WLS_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//      }
-//      else  /*if(GL_DO_WLS_LEAK_OPTION=BANK_ODDEVEN) then*/
-//      {
-//         if(GL_BANKTYPE!=FLESBANK)  
-//         {
-//            tcrnum = 59;
-//            tcrmode = ProgMode;
-//            vcorner = VMXO;      
-//            F021_Flash_Leak_func(TNUM_BANK_WLS_ODD,WLSO_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//         
-//         if(v_any_dev_active)  
-//         {
-//            tcrnum = 60;
-//            tcrmode = ProgMode;
-//            vcorner = VMXE;
-//            F021_Flash_Leak_func(TNUM_BANK_WLS_EVEN,WLSE_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//      } 
-//   } 
-//   
-//   WLS_Leak_Vmax_func = v_any_dev_active;
-//}   /* WLS_Leak_Vmax_func */
-//
-//
-//BoolS BLS_Leak_Vmax_func()
-//{
-//   const IntS TESTID = 73; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   VcornerType vcorner;
-//   BoolS runena;
-//
-//   if(TITestType==MP1)  
-//      runena = true;
-//   else
-//      runena = false;
-//
-//   if(v_any_dev_active and runena)  
-//   {
-//      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      
-//      if(GL_DO_BLS_LEAK_OPTION==BANK_GANG)  
-//      {
-//         tcrnum = 15;
-//         tcrmode = ProgMode;
-//         vcorner = VMX;
-//         F021_Flash_Leak_func(TNUM_BANK_BLS,BLS_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//      }
-//      else  /*if(GL_DO_BLS_LEAK_OPTION=BANK_ODDEVEN) then*/
-//      {
-//         if(GL_BANKTYPE!=FLESBANK)  
-//         {
-//            tcrnum = 17;
-//            tcrmode = ProgMode;
-//            vcorner = VMXO;
-//            F021_Flash_Leak_func(TNUM_BANK_BLS_ODD,BLSO_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//         
-//         if(v_any_dev_active)  
-//         {
-//            tcrnum = 16;
-//            tcrmode = ProgMode;
-//            vcorner = VMXE;
-//            F021_Flash_Leak_func(TNUM_BANK_BLS_EVEN,BLSE_Leak_Test,post,vcorner,tcrnum,tcrmode,final_results);
-//         } 
-//      } 
-//   } 
-//   
-//   BLS_Leak_Vmax_func = v_any_dev_active;
-//}   /* BLS_Leak_Vmax_func */
-//
-//
+TMResultM IWLDRV_Prog_Vmin_func()
+{
+   const IntS TESTID = 57; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 69;
+   tcrmode = ProgMode;
+   vcorner = VMNE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMNO;
+       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* IWLDRV_Prog_Vmin_func */
+
+
+TMResultM IWLDRV_Prog_Vmax_func()
+{
+   const IntS TESTID = 58; 
+
+   TMResultM final_results;
+   VCornerType vcorner;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS savebool;
+
+   savebool = TI_FlashDebug;
+   TI_FlashDebug = false;
+   
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+   
+   GL_FLTESTID = TESTID;
+   tcrnum = 69;
+   tcrmode = ProgMode;
+   vcorner = VMXE;
+   final_results = F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_EVEN,post,vcorner,tcrnum,tcrmode);
+ /*
+    if(v_any_dev_active) then
+    begin
+       vcorner := VMXO;
+       discard(F021_Bank_Para_MBox_func(TNUM_IWLDRV_PROG_ODD,post,vcorner,tcrnum,tcrmode,final_results));
+    end;
+    */
+   TI_FlashDebug = savebool;
+   
+   return (final_results);
+}   /* IWLDRV_Prog_Vmax_func */
+
+
+TMResultM WLS_Leak_Vmax_func()
+{
+   const IntS TESTID = 72; 
+
+   TMResultM final_results = TM_PASS; //runena could cause skips
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   BoolS runena;
+   Sites savesites = ActiveSites;
+
+   if(SelectedTITestType==MP1)  
+      runena = true;
+   else
+      runena = false;
+
+   if(runena)  
+   {      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      
+      if(GL_DO_WLS_LEAK_OPTION==BANK_GANG)  
+      {
+         tcrnum = 58;
+         tcrmode = ProgMode;
+         vcorner = VMX;      
+         final_results = F021_Flash_Leak_func(TNUM_BANK_WLS,"WLS_Leak_Test",post,vcorner,tcrnum,tcrmode);
+      }
+      else  /*if(GL_DO_WLS_LEAK_OPTION=BANK_ODDEVEN) then*/
+      {
+         if(GL_BANKTYPE!=FLESBANK)  
+         {
+            tcrnum = 59;
+            tcrmode = ProgMode;
+            vcorner = VMXO;      
+            final_results = F021_Flash_Leak_func(TNUM_BANK_WLS_ODD,"WLSO_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         Sites new_active_sites = ActiveSites;
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites))  
+         {
+            tcrnum = 60;
+            tcrmode = ProgMode;
+            vcorner = VMXE;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_WLS_EVEN,"WLSE_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         }
+         
+         // re-enable any sites disabled
+         RunTime.SetActiveSites(savesites);
+      } 
+   } 
+   
+   return (final_results);
+}   /* WLS_Leak_Vmax_func */
+
+
+TMResultM BLS_Leak_Vmax_func()
+{
+   const IntS TESTID = 73; 
+
+   TMResultM final_results = TM_PASS;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   VCornerType vcorner;
+   BoolS runena;
+   Sites savesites = ActiveSites;
+
+   if(SelectedTITestType==MP1)  
+      runena = true;
+   else
+      runena = false;
+
+   if(runena)  
+   {      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      
+      if(GL_DO_BLS_LEAK_OPTION==BANK_GANG)  
+      {
+         tcrnum = 15;
+         tcrmode = ProgMode;
+         vcorner = VMX;
+         final_results = F021_Flash_Leak_func(TNUM_BANK_BLS,"BLS_Leak_Test",post,vcorner,tcrnum,tcrmode);
+      }
+      else  /*if(GL_DO_BLS_LEAK_OPTION=BANK_ODDEVEN) then*/
+      {
+         if(GL_BANKTYPE!=FLESBANK)  
+         {
+            tcrnum = 17;
+            tcrmode = ProgMode;
+            vcorner = VMXO;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_BLS_ODD,"BLSO_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         Sites new_active_sites = ActiveSites;
+         new_active_sites.DisableFailingSites(final_results.Equal(TM_PASS));
+         if(SetActiveSites(new_active_sites))          
+         {
+            tcrnum = 16;
+            tcrmode = ProgMode;
+            vcorner = VMXE;
+            final_results = F021_Flash_Leak_func(TNUM_BANK_BLS_EVEN,"BLSE_Leak_Test",post,vcorner,tcrnum,tcrmode);
+         } 
+         
+         // re-enable any sites disabled
+         RunTime.SetActiveSites(savesites);      
+      } 
+   } 
+   
+   return (final_results);
+}   /* BLS_Leak_Vmax_func */
+
+
 TMResultM Pump_Leak_Vmax_func()
 {
    TMResultM final_results;
@@ -7184,7 +7183,6 @@ TMResultM PgmFF_Stress_func() {
    IntS tcrnum;
    TPModeType tcrmode;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if (MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
       do_ena = true;
@@ -7192,7 +7190,7 @@ TMResultM PgmFF_Stress_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vnom.Execute();
+   
 #if $TP3_TO_TP5_PRESENT  
    tcrnum =  52;
 #else
@@ -7298,15 +7296,13 @@ TMResultM TunOxide_Stress_func() {
    IntS tcrnum;
    TPModeType tcrmode;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if (MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
       do_ena = true;
    else
       do_ena = false;
 
-   if (do_ena) {
-      PS_Vnom.Execute();
+   if (do_ena) {  
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)  
          F021_LoadFlashShell_func();
@@ -7403,38 +7399,41 @@ TMResultM ThinOxide_Stress_func()
 //
 //
 // /*oxide btween WL and FG stress*/
-//BoolS ReadDisturb_Stress_func()
-//{
-//   const IntS TESTID = 229; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[RDDISTBVT0][post] or MainVT.ENA[RDDISTBVT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM ReadDisturb_Stress_func()
+{
+   const IntS TESTID = 229; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[RDDISTBVT0][post] or MainVT.ENA[RDDISTBVT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tcrnum = 58;  /*use wls*/
-//      tcrmode = ReadMode;   /*Note: use ReadMode for different bias cond w/ same tcr#*/
-//      
-//      F021_Stress_func(TNUM_BANK_RDDIST_STRESS,RdDistb_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tcrnum = 58;  /*use wls*/
+      tcrmode = ReadMode;   /*Note: use ReadMode for different bias cond w/ same tcr#*/
+      
+      final_results=F021_Stress_func(TNUM_BANK_RDDIST_STRESS,"RdDistb_Stress_Test",tcrnum,tcrmode);
+   } 
+   
 //   ReadDisturb_Stress_func = v_any_dev_active;
-//}   /* ReadDisturb_Stress_func */
+   return(final_results);
+}   /* ReadDisturb_Stress_func */
 //
 //
 //
@@ -8116,7 +8115,7 @@ TMResultM Flash_Cycle9X_func() {
 
          if (loop==1) {
             PPULim = 1;
-            final_results = F021_Special_Program_func(testnum,tname,PPULim,soft_results);
+//            final_results = F021_Special_Program_func(testnum,tname,PPULim,soft_results);
             // softbinning
 //          TestOpen(GoodHiPP_Test);
 //          ResultsRecordActive(soft_results, S_NULL);
@@ -8853,20 +8852,28 @@ TMResultM RdM1_PstCycle9X_func() {
 }   /* RdM1_PstCycle9X_func */
 
 // /*dummy empty function to separate binning for 1X pgm fail*/
-BoolM Flash_Cycle1X_Pgm_func() {
-   return(ActiveSites.GetPassingSites().AnyEqual(true));
-}   // Flash_Cycle1X_Pgm_func
+TMResultM Flash_Cycle1X_Pgm_func()
+{
+   TMResultM final_results = TM_NOTEST;
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+      if(ActiveSites.GetPassingSites()[*si] == true) final_results[*si] = TM_PASS;
+      else final_results[*si] = TM_FAIL;
+   return(final_results);
+}   /* Flash_Cycle1X_Pgm_func */
 
 TMResultM Flash_Cycle1X_func()
 {
    const IntS TESTID = 289; 
 
-   TMResultM final_results,test_results;
-   BoolM logsites;
+   TMResultM final_results = TM_NOTEST;
+   TMResultM test_results = TM_NOTEST;
+   BoolM logsites, savedsites;
    StringS current_shell;
    IntS testnum,savelimit;
    StringS tname;
    BoolS savebool;
+   Levels PS_Vnom = "PowerUpAtVmask";
 
 //   PwrupAtVnom_1; //This code not yet implemented
 
@@ -8879,7 +8886,6 @@ TMResultM Flash_Cycle1X_func()
 //    /*KChau 11/30/11 - added to COF testing all banks then disable failing sites*/
    savebool = TI_FlashCOFEna;
    TI_FlashCOFEna = true;
-   test_results = TM_NOTEST;
    
     /*pgm*/
    if(ActiveSites.GetPassingSites().AnyEqual(true))  
@@ -8940,7 +8946,7 @@ TMResultM Flash_Cycle1X_func()
       testnum = TNUM_BANK_RDM0S;
       if(GL_DO_REDENA)  
          testnum = testnum+TNUM_REDUNDENA;
-//      F021_Read_func(testnum,tname,final_results); Code not yet implemented
+      final_results= F021_Read_func(testnum,tname); 
       //ArrayAndBoolean(test_results,test_results,final_results,v_sites);
       test_results = DLOG.AccumulateResults(test_results,final_results);
    } 
@@ -9038,16 +9044,19 @@ TMResultM Flash_Cycle1X_func()
    return(test_results);
 } 
 //
-BoolS RdM1_PstCycle1X_func()
+TMResultM RdM1_PstCycle1X_func()
 {
    const IntS TESTID = 80; 
 
-   BoolM final_results,logsites;
+   TMResultM final_results;
+   BoolM logsites;
    StringS current_shell;
    IntS testnum,tid;
    StringS tname;
+   Levels PS_Vmax = "PowerUpAtVmask";
 
 //   PwrupAtVmax_1; code not yet implemented
+   PS_Vmax.Execute();
 
    current_shell = "FlashShell";
    if(GL_PREVIOUS_SHELL != current_shell)        
@@ -9088,16 +9097,16 @@ BoolS RdM1_PstCycle1X_func()
    {
       tname = "RdM1OTP_PstCyc1X_Test";
       testnum = TNUM_OTP_RDM1S;
-//      final_results = F021_Read_func(testnum,tname); not yet implemented
+      final_results = F021_Read_func(testnum,tname); 
    } 
 #endif
    
  //  RdM1_PstCycle1X_func = v_any_dev_active;
-     return(ActiveSites.GetPassingSites().AnyEqual(true));
+     return(final_results);
 }   /* RdM1_PstCycle1X_func */
 
 
-BoolS PgmMain_func()
+TMResultM PgmMain_func()
 {
    const IntS TESTID = 81; 
 
@@ -9166,7 +9175,7 @@ BoolS PgmMain_func()
    } 
 //   
 //   PgmMain_func = v_any_dev_active;
-    return (ActiveSites.GetPassingSites().AnyEqual(true));
+    return (final_results);
 }   /* PgmMain_func */
    
 
@@ -9668,7 +9677,6 @@ TMResultM BankErs_PrePgmFF_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if ((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
       (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
@@ -9677,7 +9685,7 @@ TMResultM BankErs_PrePgmFF_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vnom.Execute();
+      
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)       
          F021_LoadFlashShell_func();
@@ -9725,7 +9733,6 @@ TMResultM PrePgmFFVT1_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if ((MainBCC.ENA[PGMFFVT1][pre] and (MainBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
       (MainVT.ENA[PGMFFVT1][pre] and (MainVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
@@ -9734,7 +9741,7 @@ TMResultM PrePgmFFVT1_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vmax.Execute();
+      
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -9784,7 +9791,6 @@ TMResultM PrePgmFFVT1OTP_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if ((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
       (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
@@ -9792,8 +9798,7 @@ TMResultM PrePgmFFVT1OTP_func() {
    else
       do_ena = false;
 
-   if (do_ena) {
-      PS_Vmax.Execute();
+   if (do_ena) {   
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -9833,7 +9838,6 @@ TMResultM PstPgmFFVT1_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if (MainBCC.ENA[PGMFFVT1][post] or MainVT.ENA[PGMFFVT1][post])  
       do_ena = true;
@@ -9841,7 +9845,6 @@ TMResultM PstPgmFFVT1_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vmax.Execute();
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -9889,7 +9892,6 @@ TMResultM PstPgmFFVT1OTP_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if (OtpBCC.ENA[PGMFFVT1][post] or OtpVT.ENA[PGMFFVT1][post])  
       do_ena = true;
@@ -9897,7 +9899,6 @@ TMResultM PstPgmFFVT1OTP_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vmax.Execute();
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -10333,7 +10334,6 @@ TMResultM BankErs_PreFGWL_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if ((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
       (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
@@ -10342,7 +10342,6 @@ TMResultM BankErs_PreFGWL_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vnom.Execute();
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -10385,7 +10384,6 @@ TMResultM ErsOTP_PreFGWL_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if ((OtpBCC.ENA[FGWLVT1][pre] and (OtpBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
       (OtpVT.ENA[FGWLVT1][pre] and (OtpVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
@@ -10394,7 +10392,6 @@ TMResultM ErsOTP_PreFGWL_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vnom.Execute();
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)  
          F021_LoadFlashShell_func();
@@ -10420,7 +10417,6 @@ TMResultM PreFGWLVT1_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if ((MainBCC.ENA[FGWLVT1][pre] and (MainBCC.PREVTYPE[FGWLVT1]==FGWLVT1)) or
       (MainVT.ENA[FGWLVT1][pre] and (MainVT.PREVTYPE[FGWLVT1]==FGWLVT1)))  
@@ -10436,7 +10432,7 @@ TMResultM PreFGWLVT1_func() {
          testnum = TNUM_TCR38+MainBCC.IRATIO[FGWLVT1][pre]+MainBCC.RDOPTION[FGWLVT1][pre]+TNUM_DATA_1S;
 //         Charz_BCC(VMX,testnum,BANKTYPE,istart,istop,ires,true,"Z_FGWL_BC1MX");
       } 
-      PS_Vmax.Execute();
+      
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -10685,24 +10681,23 @@ TMResultM BankErs_PreTunOxide_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
    
-   if ((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+   if((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
       do_ena = true;
    else
       do_ena = false;
 
-   if (do_ena) {
+   if(do_ena) {
 #if $GL_USE_DMLED_RAMPMT  
       /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
 
       TIME.Wait(2ms);
       GL_PREVIOUS_SHELL = "";
 #endif
-      PS_Vnom.Execute();
+      
       current_shell = "FlashShell";
-      if (GL_PREVIOUS_SHELL != current_shell)   
+      if(GL_PREVIOUS_SHELL != current_shell)   
          F021_LoadFlashShell_func();
       
 #if $GL_USE_DMLED_RAMPMT  
@@ -10713,13 +10708,13 @@ TMResultM BankErs_PreTunOxide_func() {
       GL_FLTESTID = TESTID;
       tname = "Ers_PreTunOx_Test";
       
-      if (GL_DO_ERS_BY_SECTOR) {
+      if(GL_DO_ERS_BY_SECTOR) {
          testnum = TNUM_SECT_ERS_NOPRECON_SM;
       }
       else
          testnum = TNUM_BANK_ERS_NOPRECON;
          
-      if (GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
+      if(GL_DO_REDENA) testnum = testnum+TNUM_REDUNDENA;
       
       final_results = F021_Erase_func(testnum,tname);
       
@@ -10748,7 +10743,6 @@ TMResultM PreTunOxideVT1_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if ((MainBCC.ENA[TUNOXVT1][pre] and (MainBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (MainVT.ENA[TUNOXVT1][pre] and (MainVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
@@ -10757,7 +10751,7 @@ TMResultM PreTunOxideVT1_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vmax.Execute();
+      
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)      
          F021_LoadFlashShell_func();
@@ -10805,7 +10799,6 @@ TMResultM PreTunOxideVT1OTP_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if ((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
@@ -10813,8 +10806,7 @@ TMResultM PreTunOxideVT1OTP_func() {
    else
       do_ena = false;
 
-   if (do_ena) {
-      PS_Vmax.Execute();
+   if (do_ena) {  
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -10851,7 +10843,6 @@ TMResultM PstTunOxideVT1_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if(MainBCC.ENA[TUNOXVT1][post] or MainVT.ENA[TUNOXVT1][post])  
       do_ena = true;
@@ -10859,7 +10850,7 @@ TMResultM PstTunOxideVT1_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vmax.Execute();
+//      PwrupAtVmax_1;
       
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)       
@@ -10908,7 +10899,6 @@ TMResultM PstTunOxideVT1OTP_func() {
    vttype vtcat;
    prepostcorner prepost;
    BoolS do_ena;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    if(OtpBCC.ENA[TUNOXVT1][post] or OtpVT.ENA[TUNOXVT1][post])  
       do_ena = true;
@@ -10916,7 +10906,7 @@ TMResultM PstTunOxideVT1OTP_func() {
       do_ena = false;
 
    if(do_ena) {
-      PS_Vmax.Execute();    
+//      PwrupAtVmax_1;    
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
@@ -13510,325 +13500,358 @@ TMResultM RdM0_PreEGFG_LF3_func()
 //   RdM0_PreEGFG_LF3_func = v_any_dev_active;
    return(final_results);
 }   /* RdM0_PreEGFG_LF3_func */
-//   
-//
-//BoolS PreEGFGVT0_LF3_func()
-//{
-//   const IntS TESTID = 116; 
-//
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[EGFG3VT0][pre] and (MainBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
-//      (MainVT.ENA[EGFG3VT0][pre] and (MainVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   
+
+TMResultM PreEGFGVT0_LF3_func()
+{
+   const IntS TESTID = 116; 
+
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if((MainBCC.ENA[EGFG3VT0][pre] and (MainBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
+      (MainVT.ENA[EGFG3VT0][pre] and (MainVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = EGFG3VT0;
-//      prepost = pre;
-//      
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = EGFG3VT0;
+      prepost = pre;
+      
 //      logsites = v_dev_active;
 //      final_results = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreEGFG3VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PreEGFG3BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreEGFG3BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PreEGFG3VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//      
-//      if(TI_FlashESDAEna)  
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PreEGFG3VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PreEGFG3BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+      }
+      else
+      {
+         tname = "PreEGFG3BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PreEGFG3VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+      
+      if(TI_FlashESDAEna)  
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_PRE;
-//            F021_CollectESDA(FLEsda.ImageNum);
-//         } 
-//   } 
-//   
+         {
+            for(SiteIter si=ActiveSites.Begin(); !si.End(); ++si)
+               if (final_results[*si] == TM_FAIL)
+               {
+                  FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_PRE;
+                  F021_CollectESDA(FLEsda.ImageNum);
+               }
+         } 
+   } 
+   
 //   PreEGFGVT0_LF3_func = v_any_dev_active;
-//}   /* PreEGFGVT0_LF3_func */
-//   
-//
-//BoolS PreEGFGVT0_LF3_OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
-//      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return(final_results);
+}   /* PreEGFGVT0_LF3_func */
+   
+
+TMResultM PreEGFGVT0_LF3_OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
+      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = EGFG3VT0;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreEGFG3VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PreEGFG3BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreEGFG3BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PreEGFG3VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = EGFG3VT0;
+      prepost = pre;
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PreEGFG3VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PreEGFG3BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else
+      {
+         tname = "PreEGFG3BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PreEGFG3VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   
 //   PreEGFGVT0_LF3_OTP_func = v_any_dev_active;
-//}   /* PreEGFGVT0_LF3_OTP_func */
-//   
-//
-//BoolS EGFG_LF3_Stress_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[EGFG3VT0][post] or MainVT.ENA[EGFG3VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return (final_results);
+}   /* PreEGFGVT0_LF3_OTP_func */
+   
+
+TMResultM EGFG_LF3_Stress_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[EGFG3VT0][post] or MainVT.ENA[EGFG3VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      tcrnum = 23;  
-//      tcrmode = PvfyMode;   /*Note: actual mode is ErsMode but use PvfyMode for different bias cond w/ same tcr#*/
-//      
-//      F021_Stress_func(TNUM_BANK_EGS,EGFG3_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      tcrnum = 23;  
+      tcrmode = PvfyMode;   /*Note: actual mode is ErsMode but use PvfyMode for different bias cond w/ same tcr#*/
+      
+      final_results=F021_Stress_func(TNUM_BANK_EGS,"EGFG3_Stress_Test",tcrnum,tcrmode);
+   } 
+   
 //   EGFG_LF3_Stress_func = v_any_dev_active;
-//}   /* EGFG_LF3_Stress_func */
+   return(final_results);
+}   /* EGFG_LF3_Stress_func */
 //   
 //
-//BoolS PstEGFGVT0_LF3_func()
-//{
-//   const IntS TESTID = 119; 
-//
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[EGFG3VT0][post] or MainVT.ENA[EGFG3VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PstEGFGVT0_LF3_func()
+{
+   const IntS TESTID = 119; 
+
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[EGFG3VT0][post] or MainVT.ENA[EGFG3VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tdata   = BANKTYPE;
-//      vtcat   = EGFG3VT0;
-//      prepost = post;
-//      
-//      logsites = v_dev_active;
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tdata   = BANKTYPE;
+      vtcat   = EGFG3VT0;
+      prepost = post;
+      
+//     logsites = v_dev_active;
 //      final_results = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstEGFG3VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PstEGFG3BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstEGFG3BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PstEGFG3VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//      
-//      if(TI_FlashESDAEna)  
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstEGFG3VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PstEGFG3BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+      }
+      else
+      {
+         tname = "PstEGFG3BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PstEGFG3VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+      
+      if(TI_FlashESDAEna)  
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_PST;
-//            F021_CollectESDA(FLEsda.ImageNum);
-//         } 
-//   } 
-//   
+         {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               if (final_results[*si] == TM_FAIL)
+               {
+                  FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_PST;
+                  F021_CollectESDA(FLEsda.ImageNum);
+               }
+            }
+         } 
+   } 
+   
 //   PstEGFGVT0_LF3_func = v_any_dev_active;
-//}   /* PstEGFGVT0_LF3_func */
+   return(final_results);
+}   /* PstEGFGVT0_LF3_func */
 //   
 //
-//BoolS PstEGFGVT0_LF3_OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(OtpBCC.ENA[EGFG3VT0][post] or OtpVT.ENA[EGFG3VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PstEGFGVT0_LF3_OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(OtpBCC.ENA[EGFG3VT0][post] or OtpVT.ENA[EGFG3VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = EGFG3VT0;
-//      prepost = post;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstEGFG3VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PstEGFG3BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstEGFG3BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PstEGFG3VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = EGFG3VT0;
+      prepost = post;
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstEGFG3VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PstEGFG3BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else
+      {
+         tname = "PstEGFG3BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PstEGFG3VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   
 //   PstEGFGVT0_LF3_OTP_func = v_any_dev_active;
-//}   /* PstEGFGVT0_LF3_OTP_func */
-//   
-//
-//BoolS EGFGVT0_LF3_Delta_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
+   return(final_results);
+}   /* PstEGFGVT0_LF3_OTP_func */
+   
+
+TMResultM EGFGVT0_LF3_Delta_func()
+{
+   TMResultM final_results;
+   BoolM logsites;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
 //   logsites = v_dev_active;
 //   final_results = v_dev_active;
-//   
-//   if(MainVT.ENA[EGFG3VT0][post])  
-//   {
-//      dlogonly = MainVT.DLOGONLY[EGFG3VT0][post];
-//      tname = EGFG3VT0DLT_Test;
-//      pattype = MainVT.MEMCFG[EGFG3VT0];
-//      F021_VT_Delta_func(pattype,EGFG3VT0,tname,final_results,dlogonly);
-//   } 
-//
-//   if(MainBCC.ENA[EGFG3VT0][post])  
-//   {
-//      dlogonly = MainBCC.DLOGONLY[EGFG3VT0][post];
-//      tname = EGFG3BCC0DLT_Test;
-//      pattype = MainBCC.MEMCFG[EGFG3VT0];
-//      F021_BCC_Delta_func(pattype,EGFG3VT0,tname,final_results,dlogonly);
-//   } 
-//   
-//   if(TI_FlashESDAEna)  
+   
+   if(MainVT.ENA[EGFG3VT0][post])  
+   {
+      dlogonly = MainVT.DLOGONLY[EGFG3VT0][post];
+      tname = "EGFG3VT0DLT_Test";
+      pattype = MainVT.MEMCFG[EGFG3VT0];
+      final_results=F021_VT_Delta_func(pattype,EGFG3VT0,tname,dlogonly);
+   } 
+
+   if(MainBCC.ENA[EGFG3VT0][post])  
+   {
+      dlogonly = MainBCC.DLOGONLY[EGFG3VT0][post];
+      tname = "EGFG3BCC0DLT_Test";
+      pattype = MainBCC.MEMCFG[EGFG3VT0];
+      final_results=F021_BCC_Delta_func(pattype,EGFG3VT0,tname,dlogonly);
+   } 
+   
+   if(TI_FlashESDAEna)  
 //      if(not arraycompareboolean(logsites,final_results,v_sites))  
-//      {
-//         FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_DLT;
-//         F021_CollectESDA(FLEsda.ImageNum);
-//      } 
-//
+      {
+         for(SiteIter si=ActiveSites.Begin(); !si.End(); ++si)
+         {
+            if(final_results[*si]==TM_FAIL)
+            {
+               FLEsda.ImageNum = ESDA_IMG_EGFG3_VT0_DLT;
+               F021_CollectESDA(FLEsda.ImageNum);
+            }
+         }
+      } 
+
 //   EGFGVT0_LF3_Delta_func = v_any_dev_active;
-//}   /* EGFGVT0_LF3_Delta_func */
+   return(final_results);
+}   /* EGFGVT0_LF3_Delta_func */
 //   
 //
-//BoolS EGFGVT0_LF3_DeltaOTP_func()
-//{
-//   BoolM final_results;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
-//
-//   if(OtpVT.ENA[EGFG3VT0][post])  
-//   {
-//      dlogonly = OtpVT.DLOGONLY[EGFG3VT0][post];
-//      tname = EGFG3VT0DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_VT_Delta_func(pattype,EGFG3VT0,tname,final_results,dlogonly);
-//   } 
-//   
-//   if(OtpBCC.ENA[EGFG3VT0][post])  
-//   {
-//      dlogonly = OtpBCC.DLOGONLY[EGFG3VT0][post];
-//      tname = EGFG3BCC0DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_BCC_Delta_func(pattype,EGFG3VT0,tname,final_results,dlogonly);
-//   } 
-//
+TMResultM EGFGVT0_LF3_DeltaOTP_func()
+{
+   TMResultM final_results;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
+
+   if(OtpVT.ENA[EGFG3VT0][post])  
+   {
+      dlogonly = OtpVT.DLOGONLY[EGFG3VT0][post];
+      tname = "EGFG3VT0DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results=F021_VT_Delta_func(pattype,EGFG3VT0,tname,dlogonly);
+   } 
+   
+   if(OtpBCC.ENA[EGFG3VT0][post])  
+   {
+      dlogonly = OtpBCC.DLOGONLY[EGFG3VT0][post];
+      tname = "EGFG3BCC0DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results=F021_BCC_Delta_func(pattype,EGFG3VT0,tname,dlogonly);
+   } 
+
 //   EGFGVT0_LF3_DeltaOTP_func = v_any_dev_active;
-//}   /* EGFGVT0_LF3_DeltaOTP_func */
+   return(final_results);
+}   /* EGFGVT0_LF3_DeltaOTP_func */
 //   
 //
 //BoolS BankErs_PreEGFG_LF4_func()
@@ -14822,53 +14845,56 @@ TMResultM EGFGVT0_LF4_DeltaOTP_func()
 //}   /* BankErs_PreRdDisturb_func */
 //   
 //
-//BoolS PgmMain_PreRdDisturb_func()
-//{
-//   const IntS TESTID = 224; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[RDDISTBVT0][pre] and (MainBCC.PREVTYPE[RDDISTBVT0]==RDDISTBVT0)) or
-//      (MainVT.ENA[RDDISTBVT0][pre] and (MainVT.PREVTYPE[RDDISTBVT0]==RDDISTBVT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PgmMain_PreRdDisturb_func()
+{
+   const IntS TESTID = 224; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if((MainBCC.ENA[RDDISTBVT0][pre] and (MainBCC.PREVTYPE[RDDISTBVT0]==RDDISTBVT0)) or
+      (MainVT.ENA[RDDISTBVT0][pre] and (MainVT.PREVTYPE[RDDISTBVT0]==RDDISTBVT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      tname = PgmMain_PreRdDistb_Test;
-//      
-//      if(GL_DO_PGM_USING_PBIST)  
-//      {
-//         if(TITestType==MP1)  
-//            testnum = TNUM_FASTPRECON;
-//         else
-//            testnum = TNUM_BANK_PROG_SM;  /*use after already repaired*/
-//      }
-//      else
-//          if(TITestType == MP1)  
-//              testnum = TNUM_BANK_PROG_ITERSECTOR ; /*C06 Changed to match spec Jamal Sheikh modified Fri, Feb  3 2012*/
-//          else
-//              testnum = TNUM_BANK_PROG_SM;           
-//      
-//      if(GL_DO_REDENA)  
-//         testnum = testnum+TNUM_REDUNDENA;
-//      F021_Program_func(testnum,tname,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      tname = "PgmMain_PreRdDistb_Test";
+      
+      if(GL_DO_PGM_USING_PBIST)  
+      {
+         if(SelectedTITestType==MP1)  
+            testnum = TNUM_FASTPRECON;
+         else
+            testnum = TNUM_BANK_PROG_SM;  /*use after already repaired*/
+      }
+      else
+          if(SelectedTITestType == MP1)  
+              testnum = TNUM_BANK_PROG_ITERSECTOR ; /*C06 Changed to match spec Jamal Sheikh modified Fri, Feb  3 2012*/
+          else
+              testnum = TNUM_BANK_PROG_SM;           
+      
+      if(GL_DO_REDENA)  
+        testnum = testnum+TNUM_REDUNDENA;
+      final_results=F021_Program_func(testnum,tname);
+   } 
+   
 //   PgmMain_PreRdDisturb_func = v_any_dev_active;
-//}   /* PgmMain_PreRdDisturb_func */
+   return(final_results);
+}   /* PgmMain_PreRdDisturb_func */
 //   
 //
 //BoolS RdM0_PreRdDisturb_func()
@@ -15027,109 +15053,121 @@ TMResultM EGFGVT0_LF4_DeltaOTP_func()
 //}   /* PreRdDisturbVT0OTP_func */
 //
 //
-//BoolS PstRdDisturbVT0_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[RDDISTBVT0][post] or MainVT.ENA[RDDISTBVT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PstRdDisturbVT0_func()
+{
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[RDDISTBVT0][post] or MainVT.ENA[RDDISTBVT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = BANKTYPE;
-//      vtcat   = RDDISTBVT0;
-//      prepost = post;
-//      
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = BANKTYPE;
+      vtcat   = RDDISTBVT0;
+      prepost = post;
+      
 //      logsites = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstRDDISTBVT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PstRDDISTBBCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         if(TI_FlashESDAEna)  
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstRDDISTBVT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PstRDDISTBBCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         if(TI_FlashESDAEna)  
 //            if(not arraycompareboolean(logsites,final_results,v_sites))  
-//            {
-//               FLEsda.ImageNum = ESDA_IMG_BLK0;
-//               F021_CollectESDA(FLEsda.ImageNum);
-//            } 
-//      }
-//      else
-//      {
-//         tname = PstRDDISTBBCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PstRDDISTBVT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+            {
+               for(SiteIter si=ActiveSites.Begin(); !si.End(); ++si)
+               {
+                  if(final_results[*si] == TM_FAIL)
+                  {
+                     FLEsda.ImageNum = ESDA_IMG_BLK0;
+                     F021_CollectESDA(FLEsda.ImageNum);
+                  }
+               }
+            } 
+      }
+      else
+      {
+         tname = "PstRDDISTBBCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PstRDDISTBVT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+   } 
+   
 //   PstRdDisturbVT0_func = v_any_dev_active;
-//}   /* PstRdDisturbVT0_func */
-//   
-//
-//BoolS PstRdDisturbVT0OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(OtpBCC.ENA[RDDISTBVT0][post] or OtpVT.ENA[RDDISTBVT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return(final_results);
+}   /* PstRdDisturbVT0_func */
+   
+
+TMResultM PstRdDisturbVT0OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(OtpBCC.ENA[RDDISTBVT0][post] or OtpVT.ENA[RDDISTBVT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = RDDISTBVT0;
-//      prepost = post;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstRdDISTBVT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PstRdDISTBBCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstRdDISTBBCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PstRdDISTBVT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = RDDISTBVT0;
+      prepost = post;
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstRdDISTBVT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PstRdDISTBBCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else
+      {
+         tname = "PstRdDISTBBCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PstRdDISTBVT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   
 //   PstrdDisturbVT0OTP_func = v_any_dev_active;
-//}   /* PstrdDisturbVT0OTP_func */
+   return(final_results);
+}   /* PstrdDisturbVT0OTP_func */
 //   
 //
 //BoolS RdDisturbVT0Delta_func()
@@ -15196,35 +15234,38 @@ TMResultM EGFGVT0_LF4_DeltaOTP_func()
 //}   /* RdDisturbVT0DeltaOTP_func */
 //   
 //
-//BoolS ReadDisturb2_Stress_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS tcrnum;
-//   TPModeType tcrmode;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[RDDISTB2VT0][post] or MainVT.ENA[RDDISTB2VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM ReadDisturb2_Stress_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS tcrnum;
+   TPModeType tcrmode;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[RDDISTB2VT0][post] or MainVT.ENA[RDDISTB2VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         F021_LoadFlashShell_func;
-//      
-//      tcrnum = 58;  /*use wls*/
-//      tcrmode = PvfyMode;   /*Note: use PvfyMode for different bias cond w/ same tcr#*/
-//      
-//      F021_Stress_func(TNUM_BANK_RDDIST_STRESS,RdDistb2_Stress_Test,tcrnum,tcrmode,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)  
+         F021_LoadFlashShell_func();
+      
+      tcrnum = 58;  /*use wls*/
+      tcrmode = PvfyMode;   /*Note: use PvfyMode for different bias cond w/ same tcr#*/
+      
+      final_results=F021_Stress_func(TNUM_BANK_RDDIST_STRESS,"RdDistb2_Stress_Test",tcrnum,tcrmode);
+   } 
+   
 //   ReadDisturb2_Stress_func = v_any_dev_active;
-//}   /* ReadDisturb2_Stress_func */
+   return(final_results);
+}   /* ReadDisturb2_Stress_func */
 //
 //BoolS BankErs_PreRdDisturb2_func()
 //{
@@ -15281,47 +15322,50 @@ TMResultM EGFGVT0_LF4_DeltaOTP_func()
 //}   /* BankErs_PreRdDisturb_func */
 //   
 //
-//BoolS PgmMain_PreRdDisturb2_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[RDDISTB2VT0][pre] and (MainBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
-//      (MainVT.ENA[RDDISTB2VT0][pre] and (MainVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PgmMain_PreRdDisturb2_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if((MainBCC.ENA[RDDISTB2VT0][pre] and (MainBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
+      (MainVT.ENA[RDDISTB2VT0][pre] and (MainVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)       
-//         F021_LoadFlashShell_func;
-//      
-//      tname = PgmMain_PreRdDistb2_Test;
-//      
-//      if(GL_DO_PGM_USING_PBIST)  
-//      {
-//         if(TITestType==MP1)  
-//            testnum = TNUM_FASTPRECON;
-//         else
-//            testnum = TNUM_BANK_PROG_SM;  /*use after already repaired*/
-//      }
-//      else
-//         testnum = TNUM_BANK_PROG_SM;
-//      
-//      if(GL_DO_REDENA)  
-//         testnum = testnum+TNUM_REDUNDENA;
-//      F021_Program_func(testnum,tname,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)       
+         F021_LoadFlashShell_func();
+      
+      tname = "PgmMain_PreRdDistb2_Test";
+      
+      if(GL_DO_PGM_USING_PBIST)  
+      {
+         if(SelectedTITestType==MP1)  
+            testnum = TNUM_FASTPRECON;
+         else
+            testnum = TNUM_BANK_PROG_SM;  /*use after already repaired*/
+      }
+      else
+         testnum = TNUM_BANK_PROG_SM;
+      
+      if(GL_DO_REDENA)  
+         testnum = testnum+TNUM_REDUNDENA;
+      final_results=F021_Program_func(testnum,tname);
+   } 
+   
 //   PgmMain_PreRdDisturb2_func = v_any_dev_active;
-//}   /* PgmMain_PreRdDisturb2_func */
+   return(final_results);
+}   /* PgmMain_PreRdDisturb2_func */
 //   
 //
 //BoolS RdM0_PreRdDisturb2_func()
@@ -15364,286 +15408,318 @@ TMResultM EGFGVT0_LF4_DeltaOTP_func()
 //}   /* RdM0_PreRdDisturb2_func */
 //   
 //
-//BoolS PreRdDisturb2VT0_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((MainBCC.ENA[RDDISTB2VT0][pre] and (MainBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
-//      (MainVT.ENA[RDDISTB2VT0][pre] and (MainVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PreRdDisturb2VT0_func()
+{
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if((MainBCC.ENA[RDDISTB2VT0][pre] and (MainBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
+      (MainVT.ENA[RDDISTB2VT0][pre] and (MainVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = BANKTYPE;
-//      vtcat   = RDDISTB2VT0;
-//      prepost = pre;
-//      
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = BANKTYPE;
+      vtcat   = RDDISTB2VT0;
+      prepost = pre;
+      
 //      logsites = v_dev_active;
 //      final_results = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreRDDISTB2VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PreRDDISTB2BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreRDDISTB2BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PreRDDISTB2VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//      
-//      if(TI_FlashESDAEna)  
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PreRDDISTB2VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PreRDDISTB2BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+      }
+      else
+      {
+         tname = "PreRDDISTB2BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PreRDDISTB2VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+      
+      if(TI_FlashESDAEna)  
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_PRE;
-//            F021_CollectESDA(FLEsda.ImageNum);
-//         } 
-//   } 
-//   
+         {
+            for(SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
+            {
+               if(final_results[*si] == TM_FAIL)
+               {
+                  FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_PRE;
+                  F021_CollectESDA(FLEsda.ImageNum);
+               }
+            } //for(SiteIter si
+         } //if(TI_FlashESDAEna)
+   } //if(do_ena)
+   
 //   PreRdDisturb2VT0_func = v_any_dev_active;
-//}   /* PreRdDisturb2VT0_func */
-//   
-//
-//BoolS PreRdDisturb2VT0OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[RDDISTB2VT0][pre] and (OtpBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
-//      (OtpVT.ENA[RDDISTB2VT0][pre] and (OtpVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return(final_results);
+}   /* PreRdDisturb2VT0_func */
+   
+
+TMResultM PreRdDisturb2VT0OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if((OtpBCC.ENA[RDDISTB2VT0][pre] and (OtpBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
+      (OtpVT.ENA[RDDISTB2VT0][pre] and (OtpVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = RDDISTB2VT0;
-//      prepost = pre;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PreRDDISTB2VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PreRDDISTB2BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PreRDDISTB2BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PreRDDISTB2VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = RDDISTB2VT0;
+      prepost = pre;
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PreRDDISTB2VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PreRDDISTB2BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else
+      {
+         tname = "PreRDDISTB2BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PreRDDISTB2VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   
 //   PreRdDisturb2VT0OTP_func = v_any_dev_active;
-//}   /* PreRdDisturb2VT0OTP_func */
-//
-//
-//BoolS PstRdDisturb2VT0_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(MainBCC.ENA[RDDISTB2VT0][post] or MainVT.ENA[RDDISTB2VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return(final_results);
+}   /* PreRdDisturb2VT0OTP_func */
+
+
+TMResultM PstRdDisturb2VT0_func()
+{
+   TMResultM final_results;
+   BoolM logsites;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(MainBCC.ENA[RDDISTB2VT0][post] or MainVT.ENA[RDDISTB2VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = BANKTYPE;
-//      vtcat   = RDDISTB2VT0;
-//      prepost = post;
-//      
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = BANKTYPE;
+      vtcat   = RDDISTB2VT0;
+      prepost = post;
+      
 //      logsites = v_dev_active;
 //      final_results = v_dev_active;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstRDDISTB2VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//         tname = PstRDDISTB2BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstRDDISTB2BCC0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"",final_results);
-//         tname = PstRDDISTB2VT0_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"",final_results);
-//      } 
-//      
-//      if(TI_FlashESDAEna)  
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstRDDISTB2VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tname = "PstRDDISTB2BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+      }
+      else
+      {
+         tname = "PstRDDISTB2BCC0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tname = "PstRDDISTB2VT0_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+      } 
+      
+      if(TI_FlashESDAEna)  
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
-//         {
-//            FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_PST;
-//            F021_CollectESDA(FLEsda.ImageNum);
-//         } 
-//   } 
-//   
+      {
+           for(SiteIter si=ActiveSites.Begin(); !si.End(); ++si)
+           {
+              if(final_results[*si] == TM_FAIL)
+              {
+                  FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_PST;
+                  F021_CollectESDA(FLEsda.ImageNum);
+              } //if(final_results[*si]
+           } //for(SiteIter si=ActiveSites
+      } //if(TI_FlashESDAEna)
+   } 
+   
 //   PstRdDisturb2VT0_func = v_any_dev_active;
-//}   /* PstRdDisturb2VT0_func */
-//   
-//
-//BoolS PstRdDisturb2VT0OTP_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   IntS tdata,bgdata;
-//   vttype vtcat;
-//   prepostcorner prepost;
-//   BoolS do_ena;
-//
-//   if(OtpBCC.ENA[RDDISTB2VT0][post] or OtpVT.ENA[RDDISTB2VT0][post])  
-//      do_ena = true;
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+   return(final_results);
+}   /* PstRdDisturb2VT0_func */
+   
+
+TMResultM PstRdDisturb2VT0OTP_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   IntS tdata,bgdata;
+   vttype vtcat;
+   prepostcorner prepost;
+   BoolS do_ena;
+   Levels PS_Vmax = "PowerUpAtVmask";
+
+   if(OtpBCC.ENA[RDDISTB2VT0][post] or OtpVT.ENA[RDDISTB2VT0][post])  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVmax_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      tdata   = OTPTYPE;
-//      vtcat   = RDDISTB2VT0;
-//      prepost = post;
-//      
-//      if(GL_DO_VT_FIRST)  
-//      {
-//         tname = PstRDDISTB2VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//         tname = PstRDDISTB2BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//      }
-//      else
-//      {
-//         tname = PstRDDISTB2BCC0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"",final_results);
-//         tname = PstRDDISTB2VT0OTP_Test;
-//         TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"",final_results);
-//      } 
-//   } 
-//   
+      PS_Vmax.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      tdata   = OTPTYPE;
+      vtcat   = RDDISTB2VT0;
+      prepost = post;
+      
+      if(GL_DO_VT_FIRST)  
+      {
+         tname = "PstRDDISTB2VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tname = "PstRDDISTB2BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+      }
+      else
+      {
+         tname = "PstRDDISTB2BCC0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tname = "PstRDDISTB2VT0OTP_Test";
+         final_results=TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+      } 
+   } 
+   
 //   PstRdDisturb2VT0OTP_func = v_any_dev_active;
-//}   /* PstRdDisturb2VT0OTP_func */
-//   
-//
-//BoolS RdDisturb2VT0Delta_func()
-//{
-//   BoolM final_results;
-//   BoolM logsites;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
+   return(final_results);
+}   /* PstRdDisturb2VT0OTP_func */
+   
+
+TMResultM RdDisturb2VT0Delta_func()
+{
+   TMResultM final_results;
+   BoolM logsites;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
 //   logsites = v_dev_active;
 //   final_results = v_dev_active;
-// 
-//   if(MainVT.ENA[RDDISTB2VT0][post])  
-//   {
-//      dlogonly = MainVT.DLOGONLY[RDDISTB2VT0][post];
-//      tname = RdDistb2VT0DLT_Test;
-//      pattype = MainVT.MEMCFG[RDDISTB2VT0];
-//      F021_VT_Delta_func(pattype,RDDISTB2VT0,tname,final_results,dlogonly);
-//   } 
-//
-//   if(MainBCC.ENA[RDDISTB2VT0][post])  
-//   {
-//      dlogonly = MainBCC.DLOGONLY[RDDISTB2VT0][post];
-//      tname = RdDistb2BCC0DLT_Test;
-//      pattype = MainBCC.MEMCFG[RDDISTB2VT0];
-//      F021_BCC_Delta_func(pattype,RDDISTB2VT0,tname,final_results,dlogonly);
-//   } 
-//
-//   if(TI_FlashESDAEna)  
+ 
+   if(MainVT.ENA[RDDISTB2VT0][post])  
+   {
+      dlogonly = MainVT.DLOGONLY[RDDISTB2VT0][post];
+      tname = "RdDistb2VT0DLT_Test";
+      pattype = MainVT.MEMCFG[RDDISTB2VT0];
+      final_results=F021_VT_Delta_func(pattype,RDDISTB2VT0,tname,dlogonly);
+   } 
+
+   if(MainBCC.ENA[RDDISTB2VT0][post])  
+   {
+      dlogonly = MainBCC.DLOGONLY[RDDISTB2VT0][post];
+      tname = "RdDistb2BCC0DLT_Test";
+      pattype = MainBCC.MEMCFG[RDDISTB2VT0];
+      final_results=F021_BCC_Delta_func(pattype,RDDISTB2VT0,tname,dlogonly);
+   } 
+
+   if(TI_FlashESDAEna)  
 //      if(not arraycompareboolean(logsites,final_results,v_sites))  
-//      {
-//         FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_DLT;
-//         F021_CollectESDA(FLEsda.ImageNum);
-//      } 
-//
+   {
+      for(SiteIter si=ActiveSites.Begin(); !si.End(); ++si)
+      {
+         if(final_results[*si] = TM_FAIL)
+         {
+            FLEsda.ImageNum = ESDA_IMG_RDDISTB2_VT0_DLT;
+            F021_CollectESDA(FLEsda.ImageNum);
+         } //if(final_results[*si]
+      } //for(SiteIter si=ActiveSites.Begin
+   } //if(TI_FlashESDAEna)
+
 //   RdDisturb2VT0Delta_func = v_any_dev_active;
-//}   /* RdDisturb2VT0Delta_func */
-//   
-//
-//BoolS RdDisturb2VT0DeltaOTP_func()
-//{
-//   BoolM final_results;
-//   IntS pattype;
-//   StringS tname;
-//   BoolS dlogonly;
-//
-//
-//   if(OtpVT.ENA[RDDISTB2VT0][post])  
-//   {
-//      dlogonly = OtpVT.DLOGONLY[RDDISTB2VT0][post];
-//      tname = RdDistb2VT0DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_VT_Delta_func(pattype,RDDISTB2VT0,tname,final_results,dlogonly);
-//   } 
-//   
-//   if(OtpBCC.ENA[RDDISTB2VT0][post])  
-//   {
-//      dlogonly = OtpBCC.DLOGONLY[RDDISTB2VT0][post];
-//      tname = RdDistb2BCC0DLTOTP_Test;
-//      pattype = OTPTYPE;
-//      F021_BCC_Delta_func(pattype,RDDISTB2VT0,tname,final_results,dlogonly);
-//   } 
-//
+   return(final_results);
+}   /* RdDisturb2VT0Delta_func */
+   
+
+TMResultM RdDisturb2VT0DeltaOTP_func()
+{
+   TMResultM final_results;
+   IntS pattype;
+   StringS tname;
+   BoolS dlogonly;
+
+
+   if(OtpVT.ENA[RDDISTB2VT0][post])  
+   {
+      dlogonly = OtpVT.DLOGONLY[RDDISTB2VT0][post];
+      tname = "RdDistb2VT0DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results=F021_VT_Delta_func(pattype,RDDISTB2VT0,tname,dlogonly);
+   } 
+   
+   if(OtpBCC.ENA[RDDISTB2VT0][post])  
+   {
+      dlogonly = OtpBCC.DLOGONLY[RDDISTB2VT0][post];
+      tname = "RdDistb2BCC0DLTOTP_Test";
+      pattype = OTPTYPE;
+      final_results=F021_BCC_Delta_func(pattype,RDDISTB2VT0,tname,dlogonly);
+   } 
+
 //   RdDisturb2VT0DeltaOTP_func = v_any_dev_active;
-//}   /* RdDisturb2VT0DeltaOTP_func */
+   return(final_results);
+}   /* RdDisturb2VT0DeltaOTP_func */
 //   
 //
 //BoolS RdM1EngRow_func()
@@ -15834,13 +15910,12 @@ TMResultM PstDRLRandCodeVT0Min_func() {
    StringS logstr,vstr;
    BoolM tmp_results;
    BoolS runcode;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
    runcode = MainBCC.ENA[RCODEVT0][post] or MainVT.ENA[RCODEVT0][post];
    GL_FLTESTID = TESTID;
    
-   if (runcode) {
-      PS_Vmax.Execute();
+   if (runcode)  {
+//    PwrupAtVmax_1;
       
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
@@ -16348,7 +16423,7 @@ TMResultM RefreshOTP_func() {
          
 //       devsetholdstates(activesites);
          TL_RunTestNum(TNUM_OTP_ERS_NOPRECON,"");
-         final_results = F021_RestoreOTPInfo_func(tname,false);
+//         final_results = F021_RestoreOTPInfo_func(tname,false);
 //         if ((not TIIgnoreFail) or (not TI_FlashCOFEna)) {
          if ((not TI_FlashCOFEna)) {
             for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
@@ -17358,37 +17433,40 @@ TMResultM TP1TP2_Leak_Pst_func()
 //   PgmOTP_PreEGFG_LF2_func = v_any_dev_active;
 //}   /* PgmOTP_PreEGFG_LF2_func */
 //
-//BoolS PgmOTP_PreEGFG_LF3_func()
-//{
-//   const IntS TESTID = 115; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
-//      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PgmOTP_PreEGFG_LF3_func()
+{
+   const IntS TESTID = 115; 
+
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
+      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      GL_FLTESTID = TESTID;
-//      testnum = TNUM_OTP_PRECON;
-//      tname = PgmOTP_PreEGFG3_Test;
-//      F021_Program_func(testnum,tname,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      GL_FLTESTID = TESTID;
+      testnum = TNUM_OTP_PRECON;
+      tname = "PgmOTP_PreEGFG3_Test";
+      final_results = F021_Program_func(testnum,tname);
+   } 
+   
 //   PgmOTP_PreEGFG_LF3_func = v_any_dev_active;
-//}   /* PgmOTP_PreEGFG_LF3_func */
+   return(final_results);
+}   /* PgmOTP_PreEGFG_LF3_func */
 //
 TMResultM PgmOTP_PreEGFG_LF4_func()
 {
@@ -17522,39 +17600,42 @@ TMResultM PgmOTP_PreCSFG_func()
 //   PgmOTP_PreRdDisturb_func = v_any_dev_active;
 //}   /* PgmOTP_PreRdDisturb_func */
 //
-//BoolS PgmOTP_PreRdDisturb2_func()
-//{
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[RDDISTB2VT0][pre] and (OtpBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
-//      (OtpVT.ENA[RDDISTB2VT0][pre] and (OtpVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+TMResultM PgmOTP_PreRdDisturb2_func()
+{
+   TMResultM final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if((OtpBCC.ENA[RDDISTB2VT0][pre] and (OtpBCC.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)) or
+      (OtpVT.ENA[RDDISTB2VT0][pre] and (OtpVT.PREVTYPE[RDDISTB2VT0]==RDDISTB2VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//
-//       if (TITestType == MP1)  
-//           testnum = TNUM_OTP_PROG ; /*C06 CHANGED to match spec Jamal Sheikh modified Fri, Feb  3 2012 */
-//       else
-//           testnum = TNUM_OTP_PRECON;
-//           
-//      tname = PgmOTP_PreRdDistb2_Test;
-//      F021_Program_func(testnum,tname,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+
+       if (SelectedTITestType == MP1)  
+           testnum = TNUM_OTP_PROG ; /*C06 CHANGED to match spec Jamal Sheikh modified Fri, Feb  3 2012 */
+       else
+           testnum = TNUM_OTP_PRECON;
+           
+      tname = "PgmOTP_PreRdDistb2_Test";
+      final_results=F021_Program_func(testnum,tname);
+   } 
+   
 //   PgmOTP_PreRdDisturb2_func = v_any_dev_active;
-//}   /* PgmOTP_PreRdDisturb2_func */
+   return(final_results);
+}   /* PgmOTP_PreRdDisturb2_func */
 
 TMResultM ErsOTP_PrePgmFF_func() {
    const IntS TESTID = 155; 
@@ -17564,7 +17645,6 @@ TMResultM ErsOTP_PrePgmFF_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
    if ((OtpBCC.ENA[PGMFFVT1][pre] and (OtpBCC.PREVTYPE[PGMFFVT1]==PGMFFVT1)) or
       (OtpVT.ENA[PGMFFVT1][pre] and (OtpVT.PREVTYPE[PGMFFVT1]==PGMFFVT1)))  
@@ -17573,7 +17653,7 @@ TMResultM ErsOTP_PrePgmFF_func() {
       do_ena = false;
 
    if (do_ena) {
-      PS_Vnom.Execute();
+      
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)  
          F021_LoadFlashShell_func();
@@ -17662,16 +17742,15 @@ TMResultM ErsOTP_PreTunOxide_func() {
    IntS testnum;
    StringS tname;
    BoolS do_ena;
-   Levels PS_Vnom = "PowerUpAtVmask";
 
-   if ((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
       do_ena = true;
    else
       do_ena = false;
 
-   if (do_ena) {
-      PS_Vnom.Execute();
+   if(do_ena)  
+   {  
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)  
          F021_LoadFlashShell_func();
@@ -17681,7 +17760,7 @@ TMResultM ErsOTP_PreTunOxide_func() {
       tname = "ErsOTP_PreTunOx_Test";
       final_results = F021_Erase_func(testnum,tname);
    }    
-   return(final_results);
+    return(final_results);
 }   /* ErsOTP_PreTunOxide_func */
    
 TMResultM ErsOTP_PreThinOxide_func()
@@ -20351,45 +20430,48 @@ TMResultM RdM0OTP_PreEGFG_LF4_func()
 //   RdM0OTP_PreEGFG_LF4_func = v_any_dev_active;
    return(final_results);
 }   /* RdM0OTP_PreEGFG_LF4_func */
-//
-//BoolS RdM0OTP_PreEGFG_LF3_func()
-//{
-//   const IntS TESTID = 204; 
-//
-//   BoolM final_results;
-//   StringS current_shell;
-//   IntS testnum;
-//   StringS tname;
-//   BoolS do_ena;
-//
-//   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
-//      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
-//      do_ena = true
-//   else
-//      do_ena = false;
-//
-//   if(do_ena)  
-//   {
+
+TMResultM RdM0OTP_PreEGFG_LF3_func()
+{
+   const IntS TESTID = 204; 
+
+   TMResultM  final_results;
+   StringS current_shell;
+   IntS testnum;
+   StringS tname;
+   BoolS do_ena;
+   Levels PS_Vnom = "PowerUpAtVmask";
+
+   if((OtpBCC.ENA[EGFG3VT0][pre] and (OtpBCC.PREVTYPE[EGFG3VT0]==EGFG3VT0)) or
+      (OtpVT.ENA[EGFG3VT0][pre] and (OtpVT.PREVTYPE[EGFG3VT0]==EGFG3VT0)))  
+      do_ena = true;
+   else
+      do_ena = false;
+
+   if(do_ena)  
+   {
 //      PwrupAtVnom_1;
-//      
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)        
-//         F021_LoadFlashShell_func;
-//      
-//      GL_FLTESTID = TESTID;
-//      if(GL_DO_FL_PBIST)  
-//         testnum = TNUM_PBIST_RDM0S+TNUM_TARGET_OTP;
-//      else
-//         testnum = TNUM_OTP_RDM0s;
-//      
-//      tname = RdM0OTP_PreEGFG_LF3_Test;
-//      
-//      F021_Read_func(testnum,tname,final_results);
-//   } 
-//   
+      PS_Vnom.Execute();
+      
+      current_shell = "FlashShell";
+      if(GL_PREVIOUS_SHELL != current_shell)        
+         F021_LoadFlashShell_func();
+      
+      GL_FLTESTID = TESTID;
+      if(GL_DO_FL_PBIST)  
+         testnum = TNUM_PBIST_RDM0S+TNUM_TARGET_OTP;
+      else
+         testnum = TNUM_OTP_RDM0S;
+      
+      tname = "RdM0OTP_PreEGFG_LF3_Test";
+      
+      final_results=F021_Read_func(testnum,tname);
+   } 
+   
 //   RdM0OTP_PreEGFG_LF3_func = v_any_dev_active;
-//}   /* RdM0OTP_PreEGFG_LF3_func */
-//
+   return(final_results);
+}   /* RdM0OTP_PreEGFG_LF3_func */
+
 
 TMResultM SenAmpNoise_Screen_func() {
    const IntS TESTID = 300; 
@@ -20408,7 +20490,7 @@ TMResultM SenAmpNoise_Screen_func() {
 
    if (do_ena) {
       dopgm = false;
-      Charz_SenAmpNoise_RPC_EF(VMX,dopgm);
+//    Charz_SenAmpNoise_RPC_EF(VMX,dopgm);
       
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
@@ -20424,12 +20506,12 @@ TMResultM SenAmpNoise_Screen_func() {
       redundena = false;
       dopgm = false;  // already pgm in new mp1 flow
       
-      final_results = SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,dopgm,0,0,0,"");
+//      final_results = SAMP_Noise_Screen_func(tname,tcrnum,tdata,ttarget,vcg,redundena,dopgm,0,0,0,"");
    }
    return(final_results);
    
+// SenAmpNoise_Screen_func = v_any_dev_active;
 }   // SenAmpNoise_Screen_func
-
 
 TMResultM PreDRLRandCodeVT0Min_func() {
    const IntS TESTID = 275; 
@@ -20500,7 +20582,6 @@ TMResultM PreDRLRandCodeVT0Min_func() {
    
    return(test_results);
 }   // PreDRLRandCodeVT0Min_func
-   
    
 TMResultM PreDRLRandCodeVT1Max_func() {
    const IntS TESTID = 275; 
@@ -20950,57 +21031,56 @@ TMResultM PreDRLRandCodeVT1Max_func() {
 //   
 //}   /*PgmAnalogTrim*/
 //
-// /*+++++ for catalog flow use only +++++*/
-//#if $FL_USE_AUTO_FLOW=false then
-// /*pgmchkodd main array no disturb for catalog flow*/
-//BoolS PgmChkOdd_func()
-//{
-//   const IntS TESTID = 271; 
-//
-//   BoolM final_results;
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//
+// +++++ for catalog flow use only +++++
+// #if $FL_USE_AUTO_FLOW=false then
+// pgmchkodd main array no disturb for catalog flow
+     
+TMResultM PgmChkOdd_func() {
+   const IntS TESTID = 271; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tname   = PgmChkO_Test;
-//   testnum = TNUM_BANK_PROG_OCHK;
-//   F021_Program_func(testnum,tname,final_results);
-//   
-//   PgmChkOdd_func = v_any_dev_active;
-//} 
-//
-// /*pgmchkodd semiOtp no disturb for catalog flow*/
-//BoolS PgmChkOddOTP_func()
-//{
-//   const IntS TESTID = 271; 
-//
-//   BoolM final_results;
-//   StringS tname;
-//   IntS testnum;
-//   StringS current_shell;
-//
+
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tname   = "PgmChkO_Test";
+   testnum = TNUM_BANK_PROG_OCHK;
+   final_results = F021_Program_func(testnum,tname);
+   
+   return(final_results);
+} 
+
+// pgmchkodd semiOtp no disturb for catalog flow
+TMResultM PgmChkOddOTP_func() {
+   const IntS TESTID = 271; 
+
+   TMResultM final_results;
+   StringS tname;
+   IntS testnum;
+   StringS current_shell;
+
 //   PwrupAtVnom_1;
-//
-//   current_shell = "FlashShell";
-//   if(GL_PREVIOUS_SHELL != current_shell)        
-//      F021_LoadFlashShell_func;
-//
-//   GL_FLTESTID = TESTID;
-//   tname   = PgmChkOSemiOTP_Test;
-//   testnum = TNUM_OTP_PROG_OCHK_SEMI;
-//   F021_Program_func(testnum,tname,final_results);
-//   
-//   PgmChkOddOTP_func = v_any_dev_active;
-//} 
-//   
- /*iterated sector erase for catalog flow*/
+
+   current_shell = "FlashShell";
+   if(GL_PREVIOUS_SHELL != current_shell)        
+      F021_LoadFlashShell_func();
+
+   GL_FLTESTID = TESTID;
+   tname   = "PgmChkOSemiOTP_Test";
+   testnum = TNUM_OTP_PROG_OCHK_SEMI;
+   final_results = F021_Program_func(testnum,tname);
+   
+   return(final_results);
+} 
+
+// iterated sector erase for catalog flow  
 TMResultM IterSectErs_func() {
    const IntS TESTID = 271; 
 
@@ -21075,7 +21155,6 @@ TMResultM PreDRLVT0Min_func() {
    TPModeType tcrmode;
    FloatS vcg;
    StringS logstr,vstr;
-   Levels PS_Vmax = "PowerUpAtVmask";
 
 #if $FL_USE_AUTO_FLOW==false  
    // @mp1 -- not doing vt0, but do pgmchkodd main&semiotp, iterated secters, otprefresh
@@ -21100,7 +21179,7 @@ TMResultM PreDRLVT0Min_func() {
 #endif
 
    if (runena) {
-      PS_Vmax.Execute();
+//    PwrupAtVmax_1;
       
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
@@ -21199,7 +21278,7 @@ TMResultM PreDRLVT0Min_func() {
    }   // if runena
 
    if (runrcode)  {
-//      final_results = :20();
+//      final_results = PreDRLRandCodeVT0Min_func();
    } 
    return(final_results);
 
@@ -21303,11 +21382,13 @@ TMResultM PreDRLVT1Max_func()
 TMResultM PstDRLVT0Min_func() {
    const IntS TESTID = 62; 
 
-   TMResultM final_results, tmp_results;
+   TMResultM final_results;
+   TMResultM tmp_results;
    BoolM logsites;
    StringS current_shell;
    StringS tname;
-   Sites savesites,activesites,disallsites;
+   BoolM savesites,activesites;
+   BoolM disallsites;
    IntS tdata,bgdata;
    vttype vtcat;
    prepostcorner prepost;
@@ -21317,29 +21398,28 @@ TMResultM PstDRLVT0Min_func() {
    TPModeType tcrmode;
    FloatS vcg;
    StringS logstr,vstr;
-   Levels PS_Vmax = "PowerUpAtVmask";
-
 
    GL_FLTESTID = TESTID;
    runena = MainBCC.ENA[CHKVT0DRL][post] or MainVT.ENA[CHKVT0DRL][post];
    runrcode = MainBCC.ENA[RCODEVT0][post] or MainVT.ENA[RCODEVT0][post];
    
-   if (runena) {
-      PS_Vmax.Execute();
+   if (runena)  {
+//    PwrupAtVmax_1;
       
       current_shell = "FlashShell";
       if (GL_PREVIOUS_SHELL != current_shell)        
          F021_LoadFlashShell_func();
 
-//      Arraycopyboolean(savesites,v_dev_active,v_sites);
-//      Arraysetboolean(disallsites,false);
+//    savesites = v_dev_active;
+//    disallsites = false;
       
 //    ArrayXORboolean(activesites,savesites,GL_FLASH_RETEST,v_sites);
 //    ArrayAndboolean(activesites,activesites,savesites,v_sites);
 
-//    if(not Arraycompareboolean(activesites,disallsites,v_sites))
-      if (1) {
+//    if(not Arraycompareboolean(activesites,disallsites,v_sites))  
 //       devsetholdstates(activesites);
+
+      if (1) {
          tdata = BANKTYPE;
          vtcat = CHKVT0DRL;
          prepost = post;
