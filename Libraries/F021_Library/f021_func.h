@@ -689,7 +689,7 @@ TMResultM FlashCode_WR_EXE_func(StringS tname,
 TMResultM F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
-                                   BoolM soft_results);
+                                   TMResultM soft_results);
 
 //void TL_Display_W89();
 //void TL_Display_W34();
