@@ -8050,8 +8050,8 @@ TMResultM Flash_Cycle9X_func() {
    const IntS MINITER = 1; 
    const IntS MAXITER = 9; 
 
-   TMResultM final_results;
-   BoolM logsites,soft_results;
+   TMResultM final_results,soft_results;
+   BoolM logsites;
    StringS current_shell;
    IntS testnum,loop,tid,PPULim,minloop,maxloop;
    StringS tname;
@@ -8115,7 +8115,7 @@ TMResultM Flash_Cycle9X_func() {
 
          if (loop==1) {
             PPULim = 1;
-//            final_results = F021_Special_Program_func(testnum,tname,PPULim,soft_results);
+            final_results = F021_Special_Program_func(testnum,tname,PPULim,soft_results);
             // softbinning
 //          TestOpen(GoodHiPP_Test);
 //          ResultsRecordActive(soft_results, S_NULL);

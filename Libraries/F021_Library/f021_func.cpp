@@ -30324,8 +30324,7 @@ TMResultM FlashCode_WR_EXE_func(StringS tname, FlashCodeType code_type) {
 TMResultM  F021_Special_Program_func(IntS start_testnum,
                                    StringS tname,
                                    IntS PPULimit,
-                                   TMResultM test_results,
-                                   BoolM soft_results) {
+                                   TMResultM soft_results) {
    const IntS none_ena = 0; 
    const IntS cmpress_ena = 1; 
    const IntS avnv_ena = 2; 
@@ -30333,7 +30332,8 @@ TMResultM  F021_Special_Program_func(IntS start_testnum,
    const IntS efchksum_ena = 4;  
    const IntS TOPT_SW_COMPRESS = 0x31; 
 
-   BoolM savesites,logsites,good_results;
+   BoolM savesites,logsites;
+   TMResultM good_results,test_results;
    IntM pgmpulse;
    TMResultM  tmp_results,final_results;
    IntS bankcount,count;
