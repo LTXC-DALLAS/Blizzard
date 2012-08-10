@@ -153,6 +153,7 @@ __ApplicationLibrary Blizzard_Library {
    __Source = "./Libraries/Blizzard_Library/TWFuncTest.cpp";
    __Source = "./Libraries/Blizzard_Library/SearchUtilities.cpp";
    __Source = "./Libraries/Blizzard_Library/efuse.cpp";
+   __Source = "./Libraries/Blizzard_Library/EfuseTrim.cpp";
    __IncludePath = "./Libraries/Blizzard_Library";
    __IncludePath = "./Libraries/TestWare_Library";
    __Include = "CbitCtrl.h";
@@ -162,6 +163,7 @@ __ApplicationLibrary Blizzard_Library {
    __Include = "TWFuncTest.h";
    __Include = "SearchUtilities.h";
    __Include = "efuse.h";
+   __Include = "EfuseTrim.h";
    __CompilerFlags = "-g";
    __DependsOnLibrary = TIDependsLib;
    __DependsOnLibrary = TestWare_Library;

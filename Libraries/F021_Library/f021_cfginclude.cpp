@@ -391,6 +391,9 @@
 
 #include <Unison.h>
 #include <f021_flashvar.h>
+#include <DebugVars.h>
+#include <enums.evo>
+
 using namespace std;
 
 void F021_FlashConfigInclude()

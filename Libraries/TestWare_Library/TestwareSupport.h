@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 //                                     Revision Log                                         //
 //////////////////////////////////////////////////////////////////////////////////////////////
+//  2012-08-09 v1.1    : jat    Added TestBool and TestTMResult                             //
 //  2012-04-24 v1.0    : jat    initial release                                             //
 //                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +155,28 @@ class TIDatalog {
                             const BoolS &useTestware, const EnumS<TWDataType> &testwareDatatype, 
                             const ExpectedResultS &expectedResult = ER_PASS, const BoolS &doClo = true);
                             
+        
+        // TestBool is used to test and datalog a boolean value. Note that 1 will be used for a TRUE value and 0 will be used
+        // for a FALSE value in the datalog. The test limits will be set to 1/1 for trueIsPass of TRUE and 0/0
+        // for trueIsPass of FALSE.
+        TMResultM TestBool (const BoolM &dataToTest, const PinML &testPins, const StringS &testName, const StringS &failBin,
+                           const IntS &minorID, const BoolS &useTestware, const EnumS<TWDataType> &testwareDatatype,
+                           const BoolS trueIsPass = true, const BoolS &doClo = true);
+        
+        
+        // TestTMResult is used to datalog a TMResultM value. It will show in the datalog as an integer. 
+        // The limits will be set to 1/1 with TM_PASS being tested as a 1. 
+        // NOTE: To achieve TM_PASS being 1, 1 is added to the TMResultM, so the logging goes like:
+        // TM_PASS = 1
+        // TM_FAIL = 2
+        // TM_NOTEST = 3
+        // TM_PARAM_FAIL = 4
+        // TM_REPAIRABLE = 5
+        // TM_TIMEOUT = 6
+        TMResultM TestTMResult (const TMResultM &dataToTest, const PinML &testPins, const StringS &testName, const StringS &failBin,
+                               const IntS &minorID, const BoolS &useTestware, const EnumS<TWDataType> &testwareDatatype,
+                               const BoolS &doClo = true);
+        
         // :TODO: Fix FunctionalLS it is not ready yet
 //        TMResultM FunctionalLS (const TMResultM &patResult, LimitStruct &testLimit, const BoolS &useTestware, 
 //               const EnumS<TWDataType> &testwareDatatype, const BoolS &doClo = true, 

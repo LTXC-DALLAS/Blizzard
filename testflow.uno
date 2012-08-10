@@ -1592,6 +1592,7 @@ __SubFlow F021FlashFlow_S {
         EraseRefArray_T_1015 __Port[0] = IrefPMOS_Trim_T_1018;
         IrefPMOS_Trim_T_1018 __Port[0] = F021_Pump_347;
         FOSC_VCO_Vmin_T_539 __Port[0] = VreadBuf_545;
+        FOSC_VCO_Vmin_T_539 __Port[1] = VreadBuf_545;
         VreadBuf_545 __Port[0] = TP1TP2_Leak_555;
         TP1TP2_Leak_555 __Port[0] = IPMOS_Rd_Vfy_567;
         IPMOS_Rd_Vfy_567 __Port[0] = Iref_Rd_Vfy_581;

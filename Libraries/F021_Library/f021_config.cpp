@@ -29,6 +29,9 @@
 
 #include <Unison.h>
 #include <f021_flashvar.h>
+#include <DebugVars.h>
+#include <enums.evo>
+
 using namespace std; 
 
 StringS debug1 = "This is a debug pattern name";

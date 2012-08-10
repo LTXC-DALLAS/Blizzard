@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 //                                     Revision Log                                         //
 //////////////////////////////////////////////////////////////////////////////////////////////
+//  2012-08-09 v1.1    : jat    Added TestBool and TestTMResult                             //
 //  2012-04-24 v1.0    : jat    initial release                                             //
 //                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -873,7 +874,52 @@ TMResultM TIDatalog::Value (const IntM1D &dataToTest, const PinML &testPins, con
     return (test_result);
 }
 
-
+// TestBool is used to test and datalog a boolean value. Note that 1 will be used for a TRUE value and 0 will be used
+// for a FALSE value in the datalog. The test limits will be set to 1/1 for trueIsPass of TRUE and 0/0
+// for trueIsPass of FALSE.
+TMResultM TestBool (const BoolM &dataToTest, const PinML &testPins, const StringS &testName, const StringS &failBin,
+                    const IntS &minorID, const BoolS &useTestware, const EnumS<TWDataType> &testwareDatatype,
+                    const BoolS trueIsPass, const BoolS &doClo)
+{
+   IntM int_results;
+   IntS limit;
+   TMResultM test_result;
+   
+   // convert the BoolM to IntM
+   int_results = IntM(dataToTest);
+   
+   limit = (trueIsPass) ? 1 : 0;
+   test_result = TIDlog.Value(int_results, testPins, limit, limit, "", testName, failBin, minorID, 
+                              useTestware, testwareDatatype, ER_PASS, doClo);
+                
+   return (test_result);
+}
+        
+        
+// TestTMResult is used to datalog a TMResultM value. It will show in the datalog as an integer. 
+// The limits will be set to 1/1 with TM_PASS being tested as a 1. 
+// NOTE: To achieve TM_PASS being 1, 1 is added to the TMResultM, so the logging goes like:
+// TM_PASS = 1
+// TM_FAIL = 2
+// TM_NOTEST = 3
+// TM_PARAM_FAIL = 4
+// TM_REPAIRABLE = 5
+// TM_TIMEOUT = 6
+TMResultM TestTMResult (const TMResultM &dataToTest, const PinML &testPins, const StringS &testName, const StringS &failBin,
+                        const IntS &minorID, const BoolS &useTestware, const EnumS<TWDataType> &testwareDatatype,
+                        const BoolS &doClo)
+{
+   IntM int_results;
+   
+   // convert TMResultM to IntM 
+   int_results = IntM(dataToTest) + 1;
+   IntS limit = IntS(TM_PASS) + 1;
+   TIDlog.Value(int_results, testPins, limit, limit, "", testName, failBin, minorID, 
+                useTestware, testwareDatatype, ER_PASS, doClo);
+   
+   // don't really want to change the TMResult...we are just logging it, really.
+   return (dataToTest);
+}
 
         // :TODO: Fix FunctionalLS it is not ready yet
 //TMResultM TIDatalog::FunctionalLS (const TMResultM &patResult, LimitStruct &testLimit, const BoolS &useTestware, 

@@ -1647,7 +1647,7 @@ TMResultM ProgramFuseROM(const StringS &readCodeOption,
 //                    {
 //                        doDisconnectVPP = true;                     /*not connected*/
 //                        STDSetVI(efuseSupply, 0v, 100na);            /*avoid hot switch*/
-//                        STDConnect(efuseSupply);
+//                        VI.Connect(efuseSupply, VI_TO_DUT, VI_MODE_REMOTE);
 //                        STDSetVI(efuseSupply, vProgVdd+offset, SupplyCurrArray[efuseSupply]);
 //                    } 
 //                } 

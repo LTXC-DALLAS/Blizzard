@@ -20,11 +20,14 @@
 #ifndef F021_FUNC_H
 #define F021_FUNC_H
 
-#include <f021_flashvar.h>
-#include <MultisiteUtils.h>
-#include <std_vi.h>
-#include <SearchMod.h>
-#include <TestwareSupport.h>
+#include <Unison.h>
+#include <f021_flashglobal.h>
+
+//#include <f021_flashvar.h>
+//#include <MultisiteUtils.h>
+//#include <std_vi.h>
+//#include <SearchMod.h>
+//#include <TestwareSupport.h>
 
 //void F021_FlashConfig();
 //
