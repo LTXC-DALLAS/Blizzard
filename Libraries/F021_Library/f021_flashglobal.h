@@ -37,8 +37,8 @@
 #define F021_FLASHGLOBAL_H
 
 #include <Unison.h>
-#include <enums.evo>
-#include <DebugVars.h>
+//#include <enums.evo>
+//#include <DebugVars.h>
 
  /*changed define statement below to 'TRUE' if your hardware has it*/
 #define $ADREFHI_PRESENT  false

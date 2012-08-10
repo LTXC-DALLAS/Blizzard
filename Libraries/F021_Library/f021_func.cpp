@@ -293,6 +293,15 @@
 #include <DspSendUtils.h>
 #include <efuse.h>
 #include <iomanip>
+#include <f021_flashvar.h>
+#include <MultisiteUtils.h>
+#include <std_vi.h>
+#include <SearchMod.h>
+#include <TestwareSupport.h>
+#include <enums.evo>
+#include <DebugVars.h>
+
+
 using namespace std; 
 
 void GetVITypesFromTPMeasType(TPMeasType meastype, VIForceTypeS &viforce_type, 
@@ -7248,7 +7257,7 @@ void F021_Set_TPADS(IntS TCRnum,
       {
          if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
          { 
-            STDConnect(tsupply);
+            VI.Connect(tsupply, VI_TO_DUT, VI_MODE_REMOTE);
          }
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);
@@ -7291,7 +7300,7 @@ void F021_Set_TPADS(IntS TCRnum,
       {
          if (!STDGetConnect(tsupply)) // at least one site not connected to DUT
          { 
-            STDConnect(tsupply);
+            VI.Connect(tsupply, VI_TO_DUT, VI_MODE_REMOTE);
          }
          GetVITypesFromTPMeasType(meastype, viforce_type, vimeas_type);
          STDSetVI(tsupply, vProg, iProg, viforce_type, vimeas_type, vRange);

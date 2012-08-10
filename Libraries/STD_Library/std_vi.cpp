@@ -11,6 +11,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 //                                     Revision Log                                         //
 //////////////////////////////////////////////////////////////////////////////////////////////
+//  2012-08-09 v1.1    : jat    Removed STDConnect. It was confusing once I actually tried  //
+//                              to use it for DCLs. After changing to VI-only, it became    //
+//                              trivial. Also changed STDSetVI to use VI.Force instead of   //
+//                              VI.ForceV and VI.ForceI to avoid ordering of statement      //
+//                              issues with ranging.                                        //
 //  2012-04-12 v1.0    : jat    initial release                                             //
 //                                                                                          //
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,29 +125,6 @@ bool STDGetConnect (const PinM &myPin, const BoolS &checkDCL)
          return (!VI.GetConnectPath(myPin).AnyGreater(VI_TO_DUT));
       default:
          return (false);
-   }
-}
-
-void STDConnect(const PinM &myPin, const VIConnectModeM &connectMode, 
-               const BoolS &connectDCL)
-{
-   PinType my_type = myPin.GetPinType();
-   switch (my_type.GetBasicType())
-   {
-      case PINTYPE_DIGITAL_PIN:
-         if (connectDCL) 
-         {
-            DIGITAL.Connect(myPin, DIGITAL_DCL_TO_DUT);
-            break;
-         }
-         DIGITAL.Disconnect(myPin, DIGITAL_ALL_PATHS);
-         // fall through to connect PPMU
-      case PINTYPE_ANALOG_PIN:
-      case PINTYPE_POWER_PIN:
-         VI.Connect(myPin, VI_TO_DUT, connectMode);
-         break;
-      default:
-         return;
    }
 }
 

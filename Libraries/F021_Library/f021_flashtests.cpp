@@ -198,6 +198,11 @@
 #include <f021_func.h>
 #include <string_utils.h>
 #include <efuse.h>
+#include <f021_flashvar.h>
+#include <DebugVars.h>
+#include <enums.evo>
+#include <MultisiteUtils.h>
+
 using namespace std; 
 
 //#include "$TYPES"
