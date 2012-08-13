@@ -3060,41 +3060,8 @@ void Get_TLogSpace_TNUM(IntM &msw_data, IntM &lsw_data) {
 //   } 
 //}   /* Get_TLogSpace_MSTAT */
 //   
-//void Get_TLogSpace_ErsPulse(    IntM ret_val)
-//{
-//   const IntS X16_IND_ERS_PULSE = 75; 
-//
-//   IntS site,addr;
-//   IntM tdata;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      tdata = 0;
-//
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         tdata = FL_TESTLOG_ARR[X16_IND_ERS_PULSE];
-//      }
-//      else
-//      {
-//         addr = ADDR_ERS_PULSE;
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr,tdata);
-//      } 
-//
-//      ret_val = tdata;
-//
-//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
-//      {
-//         str1 = "FL_ERSPULSE";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,tdata,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_MSTAT */
-   
+
 void Get_TLogSpace_ErsPulse(IntM ret_val) {
-   
    const IntS X16_IND_ERS_PULSE = 75; 
 
    IntS site,addr;
@@ -3102,8 +3069,6 @@ void Get_TLogSpace_ErsPulse(IntM ret_val) {
    StringS str1;
 
    tdata = 0;
-
- 
    addr = ADDR_ERS_PULSE;
 //   GetRamContentDec_16Bit("ramread_nburst_msw_Thrd",addr,tdata);
    GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr,tdata);
@@ -3174,43 +3139,37 @@ void Get_TLogSpace_MaxPPulse(IntM ret_val) {
    } 
 }   // Get_TLogSpace_MaxPPulse
 
-//void Get_TLogSpace_TotPPulse(    IntM msw_data,
-//                                  IntM lsw_data)
-//{
-//   const IntS X16_IND_TOTPP_MSW = 77; 
-//   const IntS X16_IND_TOTPP_LSW = 78; 
-//
-//   IntS addr_loc,site;
-//   IntM msw_val,lsw_val;
-//   StringS str1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(GL_DO_ESDA_WITH_SCRAM)  
-//      {
-//         msw_val = FL_TESTLOG_ARR[X16_IND_TOTPP_MSW];
-//         lsw_val = FL_TESTLOG_ARR[X16_IND_TOTPP_LSW];
-//      }
-//      else
-//      {
-//         addr_loc = ADDR_PROG_TOT_PULSE;
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr_loc,lsw_val);
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr_loc,msw_val);
-//      } 
-//
-//      msw_data = msw_val;
-//      lsw_data = lsw_val;
-//
-//      if(tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT)  
-//      {
-//         str1 = "FL_TOTPPULSE_MSW";
-//          /*PrintHeaderBool(GL_PLELL_FORMAT);*/
-//         PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
-//         str1 = "FL_TOTPPULSE_LSW";
-//         PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
-//      } 
-//   } 
-//}   /* Get_TLogSpace_TotPPulse */
+void Get_TLogSpace_TotPPulse(  IntM msw_data,
+                               IntM lsw_data) {
+   const IntS X16_IND_TOTPP_MSW = 77; 
+   const IntS X16_IND_TOTPP_LSW = 78; 
+
+   IntS addr_loc,site;
+   IntM msw_val,lsw_val;
+   StringS str1;
+
+//   if (GL_DO_ESDA_WITH_SCRAM)
+   if (0) {
+      msw_val = FL_TESTLOG_ARR[X16_IND_TOTPP_MSW];
+      lsw_val = FL_TESTLOG_ARR[X16_IND_TOTPP_LSW];
+   }
+   else {
+      addr_loc = ADDR_PROG_TOT_PULSE;
+      GetRamContentDec_16Bit("ramread_nburst_lsw_v4p0_Thrd",addr_loc,lsw_val);
+      GetRamContentDec_16Bit("ramread_nburst_msw_v4p0_Thrd",addr_loc,msw_val);
+   } 
+
+   msw_data = msw_val;
+   lsw_data = lsw_val;
+
+   if (tistdscreenprint and TI_FlashDebug and TI_FLASHDEBUG_PRINT) {
+      str1 = "FL_TOTPPULSE_MSW";
+      // PrintHeaderBool(GL_PLELL_FORMAT);
+//    PrintResultIntHex(str1,0,msw_val,0,0,GL_PLELL_FORMAT);
+      str1 = "FL_TOTPPULSE_LSW";
+//    PrintResultIntHex(str1,0,lsw_val,0,0,GL_PLELL_FORMAT);
+   } 
+}   // Get_TLogSpace_TotPPulse
    
 void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data) {
 
@@ -9902,156 +9861,153 @@ void TL_DumpOTP() {
    } 
 }   // TL_DumpOTP
    
-// /*extract raw data from FL_SCRAM_CAPT_ARR and output to text file*/
-// /*must run F021_GetESDA_NonSCRAM or Get_Flash_ESDASpace_SCRAM before calling this procedure*/
-//void TL_DumpRawESDA_ToFile(IntS imgnum,
-//                                StringS logstr)
-//{
-//   const IntS IND_DSIZE = 8; 
-//   const IntS IND_FCOUNT_MSW = 9; 
-//   const IntS IND_FCOUNT_LSW = 10; 
-//   const IntS IND_STARTADDR = 11; 
-//   const  STARTFLAG = 0xFEDE;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  ENDFLAG1 = 0xFE9F;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  ENDFLAG2 = 0xCDEF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS DSIZE144 = 160; 
-//   const IntS ROWMAX = 4096; 
-//   const IntS COLMAX = 32; 
-//   const IntS HEADWORD = 10; 
-//type /* didn"t match any chunk types, FIX */
-//   WordType20 = array[1..20] of char; /* :MANUAL FIX REQUIRED: */
-//var
-//   IntS site,count,length,addr,saddr,headwords,i;
-//   IntS sdatalen,edatalen,loop,index,maxfail;
-//   IntM msw_val,lsw_val,failcnt,tmpval,expfailcnt;
-//   BoolM savesites,logsites;
-//   StringS s,str1,str2,pgpathname,datestr;
-//   BoolS dumptofile,pbistena;
-//   StringS Fname,this_wfrid;
-//   IntM xpos,ypos,tnum;
-//   text fileid;
-//   FloatS ttimer1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      timernstart(ttimer1);
-//      savesites = v_dev_active;
-//      logsites = v_dev_active;
-//
-//      maxfail = GL_ESDA_MAXSIZE;
-//      headwords = HEADWORD;
-//
-//      pgpathname = ProgramGetName;
-//      datestr = Date2kGet;
-//
-//       /*get fail count*/
-//      expfailcnt = FL_SCRAM_CAPT_ARR[IND_FCOUNT_MSW];
-//      arraymultintegervalue(expfailcnt,expfailcnt,0x10000,v_sites);
-//      arrayaddinteger(expfailcnt,expfailcnt,FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW],v_sites);
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//            if((expfailcnt[site]<==0) or (FL_SCRAM_CAPT_ARR[2][site]!= STARTFLAG))  
-//            {
-//               logsites[site] = false;
-//               devsetholdstate(site,false);
-//            } 
-//      
-//      if(v_any_dev_active)  
-//      {
-//          /*get data word length*/
-//         tmpval = FL_SCRAM_CAPT_ARR[IND_DSIZE];
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               length = tmpval[site];
-//               switch(length) {
-//                 case DSIZE144 :  
-//                               sdatalen = 1;
-//                               edatalen = 5;
-//                             break; 
-//                 default:  
-//                    sdatalen = 1;
-//                    edatalen = 2;
-//                  break; 
-//               }   /* case */
-//               break;
-//            }   /*if v_dev_active*/
-//
-//          /*get tnum*/
-//         Get_TLogSpace_TNUM(msw_val,lsw_val);
-//         arraymultintegervalue(tnum,msw_val,0x10000,v_sites);
-//         arrayaddinteger(tnum,tnum,lsw_val,v_sites);
-//         
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site] and logsites[site])  
-//            {
-//               if IsProber  
-//               {
-//                  this_wfrid = prober.waferIDStr;
-//                  xpos[site] = STPTWDevX[site];
-//                  ypos[site] = STPTWDevY[site];
-//               }
-//               else
-//               {
-//                  this_wfrid = "C_1234567_25";
-//                  xpos[site] = site;
-//                  ypos[site] = site+1;
-//               } 
-//               
-//               Fname = "./logs/" + this_wfrid;
-//               Fname = Fname + "_ESDA.txt";
-//               RewriteAppend(fileid,Fname);
-//               
-//               cout << fileid << endl;
-//               cout << fileid << pgpathname << endl;
-//               cout << fileid << "TEST DATE :  " << datestr << endl;
-//               cout << fileid << "WAFERID : " << this_wfrid << "  XPOS : " << xpos[site]:-5 << "  YPOS : " << ypos[site]:-5 << endl;
-//               cout << fileid << "ESDA IMAGENUM : " << imgnum:-5 << " TNUM : " << Tnum[site]:s_hex:-12 << " " << logstr << endl;
-//               
-//               str1 = "Header";
-//               write(fileid << str1:-12 << " ";
-//               for (i = 1;i <= headwords;i++)
-//                  write(fileid << FL_SCRAM_CAPT_ARR[i][site]:s_hex:-8 << " ";
-//               cout << fileid << endl;
-//               
-//               index = IND_STARTADDR;
-//               
-//               for (i = 1;i <= expfailcnt[site];i++)
-//               {
-//                  if((index+1)>maxfail)  
-//             break;
-//                  addr = (FL_SCRAM_CAPT_ARR[index][site]<<16) + FL_SCRAM_CAPT_ARR[index+1][site];
-//                  write(fileid << addr:s_hex:-12 << " ";
-//                  index = index+2;
-//
-//                  for (loop = sdatalen;loop <= edatalen;loop++)
-//                  {
-//                     if((index+1) > maxfail)  
-//                        break;
-//                     write(fileid << FL_SCRAM_CAPT_ARR[index][site]:s_hex:-8 << " " << FL_SCRAM_CAPT_ARR[index+1][site]:s_hex:-8 << " ";
-//                     index = index+2;
-//                  } 
-//                  cout << fileid << endl;
-//                  if(index>==maxfail)  
-//                     break;
-//               } 
-//               
-//               str1 = "Footer";
-//               cout << fileid << str1:-12 << " " << ENDFLAG1:s_hex:-8 << " " << ENDFLAG2:s_hex:-8 << endl;
-//               cout << fileid << endl;
-//               cout << fileid << endl;
-//               
-//               FileClose(fileid);
-//            }   /*v_dev_act and logsites*/
-//      }   /*if v_any_dev_act*/
-//      
-//      devsetholdstates(savesites);
-//
-//      if(tistdscreenprint)  
-//         cout << "TL_DumpRawESDA_ToFile TT : " << timernread(ttimer1) << endl;
-//   } 
-//end;  /* didn"t match any chunk types, FIX */ /*TL_DumpRawESDA_ToFile*/
-//
+// extract raw data from FL_SCRAM_CAPT_ARR and output to text file
+// must run F021_GetESDA_NonSCRAM or Get_Flash_ESDASpace_SCRAM before calling this procedure
+void TL_DumpRawESDA_ToFile(IntS imgnum, StringS logstr) {
+
+   const IntS IND_DSIZE = 8; 
+   const IntS IND_FCOUNT_MSW = 9; 
+   const IntS IND_FCOUNT_LSW = 10; 
+   const IntS IND_STARTADDR = 11; 
+   const IntS STARTFLAG = 0xFEDE;
+   const IntS ENDFLAG1 = 0xFE9F;
+   const IntS ENDFLAG2 = 0xCDEF;
+   const int DSIZE144 = 160; 
+   const IntS ROWMAX = 4096; 
+   const IntS COLMAX = 32; 
+   const IntS HEADWORD = 10; 
+
+// WordType20 = array[1..20] of char; /* :MANUAL FIX REQUIRED: */
+
+   IntS site,count,length,addr,saddr,headwords,i;
+   IntS sdatalen,edatalen,loop,index,maxfail;
+   IntM msw_val,lsw_val,failcnt,tmpval,expfailcnt;
+   BoolM savesites,logsites;
+   StringS s,str1,str2,pgpathname,datestr;
+   BoolS dumptofile,pbistena;
+   StringS Fname,this_wfrid;
+   IntM xpos,ypos,tnum;
+   IntS fileid;
+   FloatS ttimer1;
+   UnsignedS Month, Day, Year;
+
+
+   TIME.StartTimer();
+
+// savesites = v_dev_active;
+// logsites = v_dev_active;
+
+   maxfail = GL_ESDA_MAXSIZE;
+   headwords = HEADWORD;
+
+   pgpathname = SYS.GetProgramPath();
+   TIME.GetDate(Month, Day, Year);
+
+   // get fail count
+   expfailcnt = FL_SCRAM_CAPT_ARR[IND_FCOUNT_MSW];
+   expfailcnt *= 0x10000; 
+   expfailcnt += FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW]; 
+
+//   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//      if ((expfailcnt[*si]<=0) or (FL_SCRAM_CAPT_ARR[2][*si] != STARTFLAG)) {
+//         logsites[*si] = false;
+//       devsetholdstate(site,false);
+//      } 
+//   }
+   
+   tmpval = FL_SCRAM_CAPT_ARR[IND_DSIZE];
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      length = tmpval[*si];
+      switch(length) {
+         case DSIZE144 :  
+            sdatalen = 1;
+            edatalen = 5;
+            break; 
+         default:  
+            sdatalen = 1;
+            edatalen = 2;
+            break; 
+      }   // case
+      break;
+   }
+
+   // get tnum
+   Get_TLogSpace_TNUM(msw_val,lsw_val);
+   
+   tnum = msw_val * 0x10000;
+   tnum += lsw_val;
+// arraymultintegervalue(tnum,msw_val,0x10000,v_sites);
+// arrayaddinteger(tnum,tnum,lsw_val,v_sites);
+   
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//      if ( IsProber ) {
+//         this_wfrid = prober.waferIDStr;
+//         xpos[site] = STPTWDevX[site];
+//         ypos[site] = STPTWDevY[site];
+//      }
+//      else {
+         this_wfrid = "C_1234567_25";
+         xpos[*si] = *si;
+         ypos[*si] = *si+1;
+//      } 
+      
+      Fname = "./logs/" + this_wfrid;
+      Fname = Fname + "_ESDA.txt";
+      fileid = IO.Open(Fname,"a");
+//      RewriteAppend(fileid,Fname);
+      
+      IO.Print(fileid, "\n");
+      IO.Print(fileid, "%s\n", pgpathname);
+      IO.Print(fileid, "TEST DATE : %u/%u/%u\n",Month, Day, Year);
+      IO.Print(fileid, "WAFERID : %s   XPOS : %5i   YPOS : %5i\n", this_wfrid, xpos[*si], ypos[*si]);
+      IO.Print(fileid, "ESDA IMAGENUM : %5i  TNUM : %12x\n",imgnum,tnum[*si]);
+      IO.Flush(fileid);
+      
+      str1 = "Header";
+      IO.Print(fileid, "%12s\n",str1);
+      
+      for (i = 1; i <= headwords; ++i)
+         IO.Print(fileid, "%8x ",FL_SCRAM_CAPT_ARR[i][*si]);
+         
+      IO.Print(fileid, "\n");
+      IO.Flush(fileid);
+      
+      index = IND_STARTADDR;
+      
+      for (i = 1; i <= expfailcnt[*si]; ++i) {
+         if ((index+1)>maxfail)  
+            break;
+
+         addr = int((FL_SCRAM_CAPT_ARR[index][*si]<<16) + FL_SCRAM_CAPT_ARR[index+1][*si]);
+         IO.Print(fileid, "%12x ",addr);
+         index = index+2;
+
+         for (loop = sdatalen; loop <= edatalen; ++loop) {
+            if ((index+1) > maxfail)  
+               break;
+            IO.Print(fileid, "%8x ",FL_SCRAM_CAPT_ARR[index][*si]);
+            IO.Print(fileid, "%8x ",FL_SCRAM_CAPT_ARR[index+1][*si]);
+            index = index+2;
+         } 
+         IO.Print(fileid, "\n");
+         if (index>=maxfail)  
+            break;
+      } 
+      
+      str1 = "Footer";
+      IO.Print(fileid, "%12s %8x %8x\n\n\n",str1,ENDFLAG1,ENDFLAG2); 
+      IO.Close(fileid);
+   }
+   
+//   devsetholdstates(savesites);
+
+   ttimer1 = TIME.GetTimer();
+   if (tistdscreenprint)  
+      cout << "TL_DumpRawESDA_ToFile TT : " << ttimer1 << endl;
+
+}   // TL_DumpRawESDA_ToFile
+
 //void TL_SaveESDAImage(IntS imgnum,
 //                           IntS banknum)
 //{
@@ -10230,226 +10186,203 @@ void TL_DumpOTP() {
 //   } 
 //}   /* TL_SaveESDAImage */
 //
-//void F021_GetESDA_NonSCRAM(IntS imgnum,
-//                                IntS banknum)
-//{
-//   const IntS IND_DSIZE = 8; 
-//   const IntS IND_FCOUNT_MSW = 9; 
-//   const IntS IND_FCOUNT_LSW = 10; 
-//   const IntS IND_STARTADDR = 11; 
-//   const  STARTFLAG = 0xFEDE;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  ENDFLAG1 = 0xFE9F;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const  ENDFLAG2 = 0xCDEF;  /* :MANUAL FIX REQUIRED: Unknown const type */
-//   const IntS SADDROFFSET = 5; 
-//   const IntS DSIZEOFFSET = 3; 
-//   const IntS DSIZE144 = 160; 
-//   const IntS ROWMAX = 4096; 
-//   const IntS COLMAX = 32; 
-//   const IntS HEADWORD = 10; 
-//
-//   IntS site,count,length,addr,saddr,headwords;
-//   IntS sdatalen,edatalen,loop,index,maxfail;
-//   IntS i,row,col,j,rmask,rshift,cmask,cshift,k;
-//   IntM msw_val,lsw_val,failcnt,tmpval;
-//   IntM msw_addr,lsw_addr,expfailcnt;
-//   BoolM savesites,logsites,activesites;
-//   BoolM sitedone;
-//   BoolS sbool1,done,debugprint;
-//   StringS s,str1,str2;
-//   BoolS dumptofile,pbistena;
-//   StringS Fname,this_wfrid;
-//   IntM xpos,ypos,tnum;
+void F021_GetESDA_NonSCRAM(IntS imgnum, IntS banknum) {
+
+   const IntS IND_DSIZE = 8; 
+   const IntS IND_FCOUNT_MSW = 9; 
+   const IntS IND_FCOUNT_LSW = 10; 
+   const IntS IND_STARTADDR = 11; 
+   const IntS STARTFLAG = 0xFEDE;
+   const IntS ENDFLAG1 = 0xFE9F;
+   const IntS ENDFLAG2 = 0xCDEF;
+   const IntS SADDROFFSET = 5; 
+   const IntS DSIZEOFFSET = 3; 
+   const int DSIZE144 = 160; 
+   const IntS ROWMAX = 4096; 
+   const IntS COLMAX = 32; 
+   const IntS HEADWORD = 10; 
+
+   IntS site,count,length,addr,saddr,headwords;
+   IntS sdatalen,edatalen,loop,index,maxfail;
+   IntS i,row,col,j,rmask,rshift,cmask,cshift,k;
+   IntM msw_val,lsw_val,failcnt,tmpval;
+   IntM msw_addr,lsw_addr,expfailcnt;
+   BoolM savesites,logsites,activesites;
+   BoolM sitedone;
+   BoolS sbool1,done,debugprint;
+   StringS s,str1,str2;
+   BoolS dumptofile,pbistena;
+   StringS Fname,this_wfrid;
+   IntM xpos,ypos,tnum;
 //   text fileid;
-//   FloatS ttimer1;
-//
-//   if(v_any_dev_active)  
-//   {
-//      timernstart(ttimer1);
-//      savesites = v_dev_active;
-//      logsites = v_dev_active;
-//      activesites = v_dev_active;
-//
-//       /*store raw data to file*/
-//      dumptofile = GL_DUMP_RAWESDA_TOFILE;
-//
-//       /*get tnum*/
-//      addr = ADDR_TEST_INFO;
-//      GetRamContentDec_16bit(ramread_nburst_msw,addr,msw_val);
-//      GetRamContentDec_16bit(ramread_nburst_lsw,addr,lsw_val);
-//
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            tnum[site] = msw_val[site]<<16;
-//            tnum[site] = tnum[site]+lsw_val[site];
-//         } 
-//      
-//      saddr = ADDR_RAM_ESDA;
-//      addr  = saddr;
-//
-//       /*get header info*/
-//      headwords = HEADWORD;
-//      for i = 1 to headwords by 2 do
-//      {
-//         GetRamContentDec_16bit(ramread_nburst_msw,addr,msw_val);
-//         GetRamContentDec_16bit(ramread_nburst_lsw,addr,lsw_val);
-//         FL_SCRAM_CAPT_ARR[i] = msw_val;
-//         FL_SCRAM_CAPT_ARR[i+1] = lsw_val;
-//         addr = addr+ADDR_RAM_INC;
-//      } 
-//
-//       /*check start flag 0xfede*/
-//      sbool1 = true;
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site] and (FL_SCRAM_CAPT_ARR[2][site]!=STARTFLAG))  
-//         {
-//            logsites[site] = false;
-//            sbool1 = false;
-//            if(tistdscreenprint)  
-//               cout << "*** WARNING : Site" << site:-3 << " No Start Flag " << STARTFLAG:s_hex:-8 << 
-//                       " Disable site !!!" << endl;
-//         } 
-//
-//      if(not sbool1)  
-//         devsetholdstates(logsites);
-//
-//       /*check fail count*/
-//      if(v_any_dev_active)  
-//      {
-//         sbool1 = true;
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               expfailcnt[site] = (FL_SCRAM_CAPT_ARR[IND_FCOUNT_MSW][site]<<16)+FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW][site];
-//
-//               if(expfailcnt[site]==0)  
-//               {
-//                  logsites[site] = false;
-//                  sbool1 = false;
-//                  if(tistdscreenprint)  
-//                     cout << "*** WARNING : Site" << site:-3 << " FailCount == 0 so Disable site !!!" << endl;
-//               } 
-//            } 
-//         if(not sbool1)  
-//             /*if(not TIIgnoreFail) then*/
-//               devsetholdstates(logsites);
-//      } 
-//
-//
-//       /*+++ 1 +++*/
-//       /*gather raw data*/
-//      if(v_any_dev_active)  
-//      {
-//          /*get word len*/
-//         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//            if(v_dev_active[site])  
-//            {
-//               length = FL_SCRAM_CAPT_ARR[IND_DSIZE][site];
-//                /*need expand for diff data size later*/
-//               switch(length) {
-//                 case DSIZE144 :  
-//                               sdatalen = 1;
-//                               edatalen = 5;
-//                               pbistena = false;
-//                             break; 
-//                 default:  
-//                               sdatalen = 1;
-//                               edatalen = 2;
-//                               pbistena = true;
-//                             break; 
-//               }   /* case */
-//               break;
-//            } 
-//
-//         activesites = v_dev_active;
-//         sitedone = false;
-//         failcnt = 0;
-//         
-//         addr = saddr+(SADDROFFSET*ADDR_RAM_INC);  /*1st fail addr loc @ 0x514*/
-//         debugprint = false;
-//         maxfail = GL_ESDA_MAXSIZE;
-//
-//          /*+++*/
-//         k = HEADWORD+1;
-//         failcnt = 0;
-//         for (count = 1;count <= maxfail;count++)
-//         {
-//            if(not v_any_dev_active)  
-//               break;
-//             /*abort if s key is pressed*/
-//            if(debugprint or TI_FlashDebug)  
-//               if(Inkey(s))  
-//                  break;
-//
-//            if((k+1) > GL_ESDA_MAXSIZE)  
-//               break;
-//            
-//             /*get fail addr and keep track fail count*/
-//            GetRamContentDec_16bit(ramread_nburst_msw,addr,msw_addr);
-//            GetRamContentDec_16bit(ramread_nburst_lsw,addr,lsw_addr);
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (expfailcnt[site]>0))  
-//               {
-//                  FL_SCRAM_CAPT_ARR[k][site]   = msw_addr[site];
-//                  FL_SCRAM_CAPT_ARR[k+1][site] = lsw_addr[site];
-//               } 
-//
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  failcnt[site] = failcnt[site]+1;
-//                  i = failcnt[site];
-//               } 
-//
-//            k = k+2;
-//            addr = addr+ADDR_RAM_INC;
-//
-//             /*get datasize fail data (10 16bit word or 8 for pbist)*/
-//            for (loop = sdatalen;loop <= edatalen;loop++)
-//            {
-//               if((k+1) > GL_ESDA_MAXSIZE)  
-//                  break;
-//               GetRamContentDec_16bit(ramread_nburst_msw,addr,msw_val);
-//               GetRamContentDec_16bit(ramread_nburst_lsw,addr,lsw_val);
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site] and (expfailcnt[site]>0))  
-//                  {
-//                     i = failcnt[site];
-//                     FL_SCRAM_CAPT_ARR[k][site]   = msw_val[site];
-//                     FL_SCRAM_CAPT_ARR[k+1][site] = lsw_val[site];
-//                  } 
-//               k = k+2;
-//           if(k>==maxfail)  
+   FloatS ttimer1;
+
+   TIME.StartTimer();
+
+// savesites = v_dev_active;
+// logsites = v_dev_active;
+// activesites = v_dev_active;
+
+   // store raw data to file
+   dumptofile = GL_DUMP_RAWESDA_TOFILE;
+
+   // get tnum
+   addr = ADDR_TEST_INFO;
+   GetRamContentDec_16Bit("ramread_nburst_msw",addr,msw_val);
+   GetRamContentDec_16Bit("ramread_nburst_lsw",addr,lsw_val);
+
+   tnum = msw_val << 16;
+   tnum += lsw_val;
+   
+   saddr = ADDR_RAM_ESDA;
+   addr  = saddr;
+
+   // get header info
+   headwords = HEADWORD;
+   for ( i = 1; i <= headwords; i += 2 ) {
+      GetRamContentDec_16Bit("ramread_nburst_msw",addr,msw_val);
+      GetRamContentDec_16Bit("ramread_nburst_lsw",addr,lsw_val);
+      FL_SCRAM_CAPT_ARR.SetValue(i,msw_val);
+      FL_SCRAM_CAPT_ARR.SetValue(i+1,lsw_val);
+      addr = addr+ADDR_RAM_INC;
+   } 
+
+   // check start flag 0xfede
+   sbool1 = true;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      logsites[*si] = false;
+      sbool1 = false;
+      if (tistdscreenprint) {
+         cout << "*** WARNING : Site" << setw(3) << *si << " No Start Flag ";
+         cout << setw(8) << hex << STARTFLAG << " Disable site !!!" << endl;
+      }
+   } 
+
+// if (not sbool1)  
+//    devsetholdstates(logsites);
+
+   // check fail count
+   sbool1 = true;
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      expfailcnt[*si] = int((FL_SCRAM_CAPT_ARR[IND_FCOUNT_MSW][*si]<<16)+FL_SCRAM_CAPT_ARR[IND_FCOUNT_LSW][*si]);
+
+      if (expfailcnt[*si]==0)  {
+         logsites[*si] = false;
+         sbool1 = false;
+         if (tistdscreenprint)  
+            cout << "*** WARNING : Site" << setw(3) << *si << " FailCount == 0 so Disable site !!!" << endl;
+      } 
+   } 
+
+// if (not sbool1)  
+//    // if(not TIIgnoreFail) then
+//       devsetholdstates(logsites);
+
+
+   // +++ 1 +++
+   // gather raw data
+   // get word len
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      length = int(FL_SCRAM_CAPT_ARR[IND_DSIZE][*si]);
+      // need expand for diff data size later
+      switch(length) {
+         case DSIZE144 :  
+            sdatalen = 1;
+            edatalen = 5;
+            pbistena = false;
+            break; 
+         default:  
+            sdatalen = 1;
+            edatalen = 2;
+            pbistena = true;
+            break; 
+      }   // case
+   } 
+
+// activesites = v_dev_active;
+   sitedone = false;
+   failcnt = 0;
+   
+   addr = saddr+(SADDROFFSET*ADDR_RAM_INC);  // 1st fail addr loc @ 0x514
+   debugprint = false;
+   maxfail = GL_ESDA_MAXSIZE;
+
+   // +++
+   k = HEADWORD+1;
+   failcnt = 0;
+   for (count = 1;count <= maxfail;count++) {
+
+      // abort if s key is pressed
+//    if (debugprint or TI_FlashDebug)  
+//       if (Inkey(s))  
 //          break;
-//               addr = addr+ADDR_RAM_INC;
-//            }   /*for loop*/
-//
-//             /*check to see if done*/
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site] and (failcnt[site]==expfailcnt[site]))  
-//               {
-//                  sitedone[site] = true;
-//                  activesites[site] = false;
-//               } 
-//
-//            devsetholdstates(activesites);
-//
-//            if(not v_any_dev_active)  
-//               break;
-//         }   /*for count maxfail*/
-//          /*+++*/
-//      } 
-//       /*+++ 1 +++*/
-//      
-//      devsetholdstates(savesites);
-//
-//       /*TL_SaveESDAImage(imgnum,banknum);*/
-//      
-//      if(tistdscreenprint)  
-//         cout << "F021_GetESDA_NonSCRAM TT : " << timernread(ttimer1) << endl;
-//   } 
-//}   /*F021_GetESDA_NonSCRAM*/
-//
+
+      if ((k+1) > GL_ESDA_MAXSIZE)  
+         break;
+      
+      // get fail addr and keep track fail count
+      GetRamContentDec_16Bit("ramread_nburst_msw",addr,msw_addr);
+      GetRamContentDec_16Bit("ramread_nburst_lsw",addr,lsw_addr);
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         if( expfailcnt[*si]>0 ) {
+            FL_SCRAM_CAPT_ARR.SetValue(k,unsigned(msw_addr[*si]));
+            FL_SCRAM_CAPT_ARR.SetValue(k+1,unsigned(lsw_addr[*si]));
+         } 
+      }
+
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         failcnt[*si] = failcnt[*si]+1;
+         i = failcnt[*si];
+      } 
+
+      k = k+2;
+      addr = addr+ADDR_RAM_INC;
+
+      // get datasize fail data (10 16bit word or 8 for pbist)
+      for (loop = sdatalen; loop <= edatalen; ++loop) {
+         if ((k+1) > GL_ESDA_MAXSIZE)  
+            break;
+         GetRamContentDec_16Bit("ramread_nburst_msw",addr,msw_val);
+         GetRamContentDec_16Bit("ramread_nburst_lsw",addr,lsw_val);
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               i = failcnt[*si];
+               FL_SCRAM_CAPT_ARR.SetValue(k,unsigned(msw_val[*si]));
+               FL_SCRAM_CAPT_ARR.SetValue(k+1,unsigned(lsw_val[*si]));
+         } 
+         k = k+2;
+
+         if (k>=maxfail)  
+            break;
+
+         addr = addr+ADDR_RAM_INC;
+      }  // for loop
+
+      // check to see if done
+      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+         sitedone[*si] = true;
+         activesites[*si] = false;
+      } 
+
+//    devsetholdstates(activesites);
+
+//    if(not v_any_dev_active)  
+//       break;
+
+   }  // for count maxfail
+   // +++
+   // +++ 1 +++
+   
+// devsetholdstates(savesites);
+
+//  /*TL_SaveESDAImage(imgnum,banknum);*/
+   
+   ttimer1 = TIME.GetTimer();
+
+   if (tistdscreenprint)  
+      cout << "F021_GetESDA_NonSCRAM TT : " << ttimer1 << endl;
+
+}  // F021_GetESDA_NonSCRAM
+
 //void F021_Set_TPADS_ESDA(  IntS bank, IntS  sect)
 //{
 //   IntS site,i,j,iratio;
@@ -10746,554 +10679,528 @@ void F021_CollectESDA(IntS imagenum) {
 //      DevSetHoldStates(savesites);
 }   // F021_CollectESDA
    
-//   
-//void TL_BitHistogram(IntS pattype,
-//                          IntS testnum,
-//                          FloatS vcg_start,
-//                          FloatS vcg_stop,
-//                          FloatS vcg_inc,
-//                          FloatS iref_start,
-//                          FloatS iref_stop,
-//                          FloatS iref_inc,
-//                          BoolS logena,
-//                          StringS logstr)
-//{
-//   const IntS OPER_TCR5 = 0x0; 
-//   const IntS OPER_TCR6 = 0x1; 
-//   const IntS OPER_TCR39 = 0x2; 
-//   const IntS OPER_TCR38 = 0x3; 
-//   const IntS MAXBOUND = 4096; 
-//   const IntS IND_DSIZE = 8; 
-//   const IntS IND_STARTADDR = 11; 
-//   const IntS DSIZE144 = 160; 
-//
-//   IntS site,max_bits,exp_max_bits;
-//   IntS tmpint,fdlen1,fdlen2,decpt;
-//   IntS opertype,tnum_fail,dtastrb,invdtastrb;
-//   IntS tnum,addr_loc,bankcount,count;
-//   IntS counter,loop,unitlen,int1;
-//   FloatS tdelay,maxtime,vProg,iProg;
-//   FloatS iref_iProg,iref_vdd,iref_vProg;
-//   FloatS cg_iProg,cg_vProg;   
-//   FloatS vProgunit,iProgunit;
-//   BoolS tp_iref_ena,tp_cg_ena,debugprint;
-//   IntM lsb_val,msb_val,sumbit;
-//   FloatM tt_timer;
-//   BoolM tmp_results;
-//   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
-//   StringS str1,str2,str3,s,vstr,istr,twlogstr;
-//   StringS unitstr,current_shell;
-//   FloatS vProgFloatS,iProgFloatS,tmpFloatS;
-//   PinM tp_iref,tp_cg;
+   
+void TL_BitHistogram(IntS pattype,
+                          IntS testnum,
+                          FloatS vcg_start,
+                          FloatS vcg_stop,
+                          FloatS vcg_inc,
+                          FloatS iref_start,
+                          FloatS iref_stop,
+                          FloatS iref_inc,
+                          BoolS logena,
+                          StringS logstr) {
+
+   const int MAXSITES = 128;
+   const int MAXBOUND = 4096; 
+   const IntS IND_DSIZE = 8; 
+   const IntS IND_STARTADDR = 11; 
+   const int DSIZE144 = 160;
+
+   IntS site,max_bits,exp_max_bits;
+   IntS tmpint,fdlen1,fdlen2,decpt;
+   IntS opertype,tnum_fail,dtastrb,invdtastrb;
+   IntS tnum,addr_loc,bankcount,count;
+   IntS counter,loop,unitlen,int1;
+   FloatS tdelay,maxtime,vProg,iProg;
+   FloatS iref_iProg,iref_vdd,iref_vProg;
+   FloatS cg_iProg,cg_vProg;   
+   FloatS vProgunit,iProgunit;
+   BoolS tp_iref_ena,tp_cg_ena,debugprint;
+   IntM lsb_val,msb_val,sumbit;
+   FloatM tt_timer;
+   TMResultM tmp_results;
+   StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
+   StringS str1,str2,str3,s,vstr,istr,twlogstr;
+   StringS unitstr,current_shell;
+   FloatS vProgFloatS,iProgFloatS,tmpFloatS;
+   PinM tp_iref,tp_cg;
 //   Array[1..NumSites,1..MAXBOUND,1..MAXBOUND] of IntS NumBitFail;
-//   BoolS save_printpass,save_scrnprint,done;
-//   BoolS save_fldbugprint,dumptofile;
+   IntM NumBitFail[MAXBOUND][MAXBOUND];
+   BoolS save_printpass,save_scrnprint,done;
+   BoolS save_fldbugprint,dumptofile;
 //   option vdd_pgmMode,vdd_iGMode;
-//   FloatS vcg_step,iref_step;
-//   BoolM do_once,savesites,activesites;
-//   BoolM allsitefalse;
-//   IntS imagenum;
-//   IntS dlength,i,j,k,sdatalen,edatalen;
-//   BoolM found_wbit,save_wbit;
-//
-//   if(v_any_dev_active)  
-//   {
-//      if(tistdscreenprint)  
-//      {
-//         cout << endl;
-//         cout << "Bitmapping..." << endl;
-//         cout << endl;
-//      } 
-//
-//      vcg_step = vcg_inc;
-//      if(vcg_start==vcg_stop)  
-//         if(vcg_inc<1V)  
-//            vcg_step = 1V;
-//
-//      iref_step = iref_inc;
-//      if(iref_start==iref_stop)  
-//         if(iref_inc<1A)  
-//            iref_step = 1A;
-//
-//      vProgunit = 1V;
-//      iProgunit = 1uA;
-//      debugprint = TI_FlashDebug;
-//      save_fldbugprint = TI_FlashDebug;
-//      TI_FlashDebug = false;
-//      save_printpass = TIPrintPass;
-//      save_scrnprint = TIStdScreenPrint;
-//      if(not debugprint)  
-//      {
-//         TIStdScreenPrint = false;
-//         TIPrintPass = false;
-//      } 
-//      
-//      tdelay = 10ms;
-//      maxtime = GL_F021_MAXTIME;
-//
-//      tnum = (testnum&0xfffcffff)|0x00020000;  /*set esda bit*/
-//      bankcount = (tnum&0x0070)>>4;
-//      count = tnum&0x000F;
-//      opertype = ((testnum&0x03000000) >>24) & 0x3;
-//
-//      dtastrb = (testnum&0x0000f000) >> 12;
-//      if(dtastrb==0)  
-//         invdtastrb = 0x00001000;
-//      else if(dtastrb==1)  
-//         invdtastrb = 0x00000000;
-//      else if(dtastrb==2)  
-//         invdtastrb = 0x00003000;
-//      else
-//         invdtastrb = 0x00002000;
-//      tnum_fail = (tnum&0xffff0fff) | invdtastrb;
-//         
-//      switch(opertype) {
-//        case OPER_TCR5  :  
-//           tp_cg_ena   = true;
-//           tp_iref_ena = false;
-//           tp_cg       = FLTP1;
-//           tmpstr1     = "TCR5_VCG";
-//         break; 
-//        case OPER_TCR6  :  
-//           tp_cg_ena   = true;
-//           tp_iref_ena = true;
-//           tp_cg       = FLTP1;
-//           tp_iref     = FLTP2;
-//           tmpstr1     = "TCR6_VCGIREF";
-//         break; 
-//        case OPER_TCR39 :  
-//           tp_iref     = FLTP1;
-//           tp_cg       = FLTP2;
-//           tp_iref_ena = true;
-//           tp_cg_ena   = true;
-//           tmpstr1     = "TCR39_VCGIREF";
-//         break; 
-//        case OPER_TCR38 :  
-//           tp_iref     = FLTP1;
-//           tp_iref_ena = true;
-//           tp_cg_ena   = false;
-//           tmpstr1     = "TCR38_IREF";
-//         break; 
-//      }   /* case */
-//      
-//       /*KChau - added to check shell vs. device specs*/
-//       /*256KBytes with ECC:    max bits BANKSIZE = 256*1024*8*144/128*/
-//       /*256KBytes with Parity: max bits BANKSIZE = 256*1024*8*132/128*/
-//      if(pattype==BANKTYPE)  
-//         exp_max_bits = F021_Flash.BANKSIZE[bankcount]*8;
-//      else
-//         exp_max_bits = F021_Flash.SECTSIZE[bankcount][count]*8;
-//
-//      if(F021_Flash.ECC_PARITY==1)  
-//         exp_max_bits = trunc((exp_max_bits*(F021_Flash.DATAWIDTH+16)) / F021_Flash.DATAWIDTH);
-//      else
-//         exp_max_bits = trunc((exp_max_bits*(F021_Flash.DATAWIDTH+4)) / F021_Flash.DATAWIDTH);
-//         
-//      current_shell = "FlashShell";
-//      if(GL_PREVIOUS_SHELL != current_shell)  
-//         patternexecute(spareint1,f021_shell_loadpat);
-//
-//       /* find the max number of bits in a bank/sector */
-//      if(dtastrb==0)  
-//      {
-//         vProg = 3V;
-//         iProg = 10nA;
-//      }
-//      else
-//      {
-//         vProg = 0V;
-//         iProg = 10nA;
-//      } 
-//
-//      if(tp_iref_ena)  
-//      {
-//         STDSetVRange(tp_iref,vProg);
-//         STDSetVI(tp_iref,vProg,iProg);
-//      } 
-//
-//      if(tp_cg_ena)  
-//      {
-//         cg_vProg = 4.4V;
-//         cg_iProg = 100mA;
-//         STDSetVRange(tp_cg,cg_vProg);
-//         STDSetVI(tp_cg,cg_vProg,cg_iProg);
-//      } 
-//
-//      TIME.Wait(tdelay);
-//      F021_RunTestNumber(tnum_fail,maxtime,tt_timer,tmp_results);
-//
-//      addr_loc = ADDR_PROG_TOT_PULSE;
-//
-//      Get_TLogSpace_TotPPulse(msb_val,lsb_val);
-//   
-//      for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//         if(v_dev_active[site])  
-//         {
-//            max_bits = (msb_val[site]<<16)+lsb_val[site];
-//            break;
-//         } 
-//
-//      if(save_scrnprint)  
-//         tistdscreenprint = true;
-//      
-//      if(logstr=="")  
-//      {
-//         twlogstr = tmpstr1;
-//         writestring(tmpstr2,bankcount:1);
-//         tmpstr2 = "_B" + tmpstr2;
-//         if(pattype==SECTTYPE)  
-//         {
-//            writestring(tmpstr3,count:1);
-//            tmpstr2 = tmpstr2 + "S";
-//            tmpstr2 = tmpstr2 + tmpstr3;
-//         } 
-//         tmpstr3 = twlogstr + tmpstr2;
-//      }
-//      else
-//      {
-//         twlogstr = logstr;
-//         tmpstr3  = twlogstr;
-//      } 
-//      tmpstr3 = tmpstr3 + "_";
-//
-//
-//      if(tistdscreenprint and TI_FlashDebug)  
-//      {
-//         cout << endl;
-//         cout << tmpstr3 << " max bits == " << max_bits:-10 << endl;
-//         addr_loc = ADDR_RAM_ESDA;
-//         
-//         if(debugprint)  
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  readramaddress(site,0,0xff);
-//                  readramaddress(site,addr_loc,addr_loc+(20*ADDR_RAM_INC));
-//               } 
-//      }       
-//      
-//      if(max_bits != exp_max_bits)  
-//      {
-//         if(tistdscreenprint and TI_FlashDebug)  
-//         {
-//            cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
-//            cout << "EXPECT== " << exp_max_bits:-10 << " ACTUAL== " << max_bits:-10 << endl;
-//         }
-//         else if(TI_FlashDebug)  
-//         {
-//            cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
-//            cout << "EXPECT== " << exp_max_bits:-10 << " ACTUAL== " << max_bits:-10 << endl;
-//         } 
-//      } 
-//
-//       /* Read and store bits in an array */
-//      iref_vdd = 2.5V;
-//      if(tp_iref_ena)  
-//         STDSetVRange(tp_iref,iref_vdd);
-//      
-//      if(tp_cg_ena)  
-//      {
-//         if(vcg_start>vcg_stop)  
-//            STDSetVRange(tp_cg,vcg_start);
-//         else
-//            STDSetVRange(tp_cg,vcg_stop);
-//      } 
-//
-//      if(not debugprint)  
-//         tistdscreenprint = false;
-//   
-//      do_once = false;
-//      allsitefalse = false;
-//      savesites = v_dev_active;
-//      found_wbit = false;
-//
-//      if(GL_DO_GET_WORSTBIT)  
-//      {
-//         FL_WORSTBIT_IREF = 0uA;
-//         FL_WORSTBIT_VCG = 0V;
-//         FL_WORSTBIT_FADDR = 0;
-//         FL_WORSTBIT_FCOUNT = 0;
-//         for (i = 1;i <= 10;i++)
-//            FL_WORSTBIT_FDATA[i] = 0;
-//      } 
-//   
-//      done = false;
-//      loop = 1;
-//      iProg = iref_start;
-//
-//      REPEAT
-//          /*abort if s key is pressed*/
-//         if(TI_FlashDebug)  
-//            if(Inkey(s))   done = true;
-//
-//         if(tp_iref_ena)  
-//            TrealToStr(iProg,istr);
-//         
-//         counter=1;
-//         for vProg = vcg_start to vcg_stop by vcg_step do
-//         {
-//            dumptofile = false;
-//            activesites = false;
-//            
-//             /*abort if s key is pressed*/
-//            if(TI_FlashDebug)  
-//               if(Inkey(s))   break;
-//
-//            if(tp_iref_ena)  
-//               STDSetVI(tp_iref,iref_vdd,iProg);
-//            
-//            if(tp_cg_ena)  
-//               STDSetVI(tp_cg,vProg,cg_iProg);
-//            
-//            TIME.Wait(tdelay); 
-//            F021_RunTestNumber(tnum,maxtime,tt_timer,tmp_results);
-//            Get_TLogSpace_TotPPulse(msb_val,lsb_val);
-//            
-//            if(GL_DO_GET_WORSTBIT)  
-//            {
-//               for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//                  if(v_dev_active[site] and (not found_wbit[site]))  
-//                  {
-//                     if(GL_DO_ESDA_WITH_SCRAM)  
-//                        Get_Flash_ESDASpace_SCRAM;
-//                     else
-//                        F021_GetESDA_NonSCRAM(500,bankcount);
-//                     break;
-//                  } 
-//            }                
-//            
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  sumbit[site] = (msb_val[site]<<16)+lsb_val[site];
-//                  NumBitFail[site][loop][counter] = sumbit[site];
-//                  if((sumbit[site]>0) and (not do_once[site]))  
-//                  {
-//                     do_once[site] = true;
-//                     activesites[site] = true;
-//                     dumptofile = true;
-//                  } 
-//                  if(debugprint and tistdscreenprint)  
-//                     cout << "Site " << site:-5 << " IProg==" << iProg:-6:3 << " VProg==" << vProg:-6:3 << 
-//                             " FAILBITS== " << NumBitFail[site][loop][counter]:-16 << endl;
-//
-//                  if(GL_DO_GET_WORSTBIT)  
-//                  {
-//                     dlength = FL_SCRAM_CAPT_ARR[IND_DSIZE][site];
-//                     switch(dlength) {
-//                       case DSIZE144 :  
-//                                     sdatalen = 1;
-//                                     edatalen = 5;
-//                                   break; 
-//                       default:  
-//                          sdatalen = 1;
-//                          edatalen = 2;
-//                        break; 
-//                     }   /* case */
-//
-//                      /*failcount would be from 0 to some number if doing bcc0 & iref_start>iref_stop*/
-//                     if(not found_wbit[site])  
-//                     {
-//                        if(sumbit[site] != 0)  
-//                           save_wbit[site] = true;
-//                        else
-//                           save_wbit[site] = false;
-//
-//                        if(save_wbit[site])  
-//                        {
-//                           i = IND_STARTADDR;
-//                           FL_WORSTBIT_FADDR[site] = (FL_SCRAM_CAPT_ARR[i][site]<<16) + FL_SCRAM_CAPT_ARR[i+1][site];
-//                           i = i+2;
-//                           k = sdatalen;
-//                           for (j = sdatalen;j <= edatalen;j++)
-//                           {
-//                              FL_WORSTBIT_FCOUNT[site] = sumbit[site];
-//                              FL_WORSTBIT_FDATA[k][site] = FL_SCRAM_CAPT_ARR[i][site];
-//                              FL_WORSTBIT_FDATA[k+1][site] = FL_SCRAM_CAPT_ARR[i+1][site];
-//                              i = i+2;
-//                              k = k+2;
-//                           } 
-//                           FL_WORSTBIT_IREF[site] = iProg;
-//                           FL_WORSTBIT_VCG[site] = vProg;
-//                           
-//                           if(((iref_start>iref_stop) and (sumbit[site]!=0)) or ((iref_start<iref_stop) and (sumbit[site]==0)))  
-//                              found_wbit[site] = true;
-//                        } 
-//                     }   /*if dtastrb=0*/
-//                  }   /*gl_do_get_worstbit*/
-//               }   /*v_dev_active*/
-//
-//            if(tp_cg_ena)  
-//               TRealToStr(vProg,vstr);
-//
-//            str1 = tmpstr3;
-//            if(tp_cg_ena)  
-//               str1 = str1 + vstr;
-//            if(tp_iref_ena)  
-//            {
-//               if(tp_cg_ena)  
-//                  str1 = str1 + "_";
-//               str1 = str1 + istr;
-//            } 
-//            if(logena)  
-//               TWPDLDataLogVariable(str1,sumbit,TWMinimumData);
-//
-//             /*output raw esda to file*/
-//            if(dumptofile and GL_DUMP_RAWESDA_TOFILE)  
-//            {
-//               if(dtastrb==0)  
-//                  imagenum = ESDA_IMG_BLK0 + bankcount;
-//               else if(dtastrb==1)  
-//                  imagenum = ESDA_IMG_BLK1 + bankcount;
-//               else if(dtastrb==2)  
-//                  imagenum = ESDA_IMG_ECHK + bankcount;
-//               else
-//                  imagenum = ESDA_IMG_OCHK + bankcount;
-//                  
-//               devsetholdstates(activesites);
-//               if(not GL_DO_ESDA_WITH_SCRAM)  
-//                  F021_GetESDA_NonSCRAM(imagenum,bankcount);
-//               else
-//                  Get_Flash_ESDASpace_SCRAM;
-//               TL_DumpRawESDA_ToFile(imagenum,str1);
-//               devsetholdstates(savesites);
-//            } 
-//            
-//            counter = counter+1;
-//            if(counter>MAXBOUND)  
-//            {
-//               if(tistdscreenprint)  
-//                  cout << "*** Nunmber of samples exceed " << MAXBOUND:-10 << endl;
-//               break;
-//            } 
-//         }   /*for vProg*/
-//         
-//         if(iref_start>iref_stop)  
-//         {
-//            if(iProg<==iref_stop)  
-//               done = true;
+   FloatS vcg_step,iref_step;
+   BoolM do_once,savesites,activesites;
+   BoolM allsitefalse;
+   IntS imagenum;
+   IntS dlength,i,j,k,sdatalen,edatalen;
+   BoolM found_wbit,save_wbit;
+   FloatM FL_WORSTBIT_IREF, FL_WORSTBIT_VCG;
+   IntM FL_WORSTBIT_FCOUNT;
+
+   if (tistdscreenprint)  {
+      cout << endl;
+      cout << "Bitmapping..." << endl;
+      cout << endl;
+   } 
+
+   vcg_step = vcg_inc;
+   if (vcg_start==vcg_stop)  
+      if (vcg_inc<1V)  
+         vcg_step = 1V;
+
+   iref_step = iref_inc;
+   if (iref_start==iref_stop)  
+      if (iref_inc<1A)  
+         iref_step = 1A;
+
+   vProgunit = 1V;
+   iProgunit = 1uA;
+   debugprint = TI_FlashDebug;
+   save_fldbugprint = TI_FlashDebug;
+   TI_FlashDebug = false;
+   save_printpass = tiprintpass;
+   save_scrnprint = tistdscreenprint;
+   if (not debugprint)  {
+      tistdscreenprint = false;
+      tiprintpass = false;
+   } 
+   
+   tdelay = 10ms;
+   maxtime = GL_F021_MAXTIME;
+
+   tnum = (testnum&int(0xfffcffff))| int(0x00020000);  // set esda bit
+   bankcount = (tnum&0x0070)>>4;
+   count = tnum&0x000F;
+   opertype = ((testnum&0x03000000) >>24) & 0x3;
+
+   dtastrb = (testnum&0x0000f000) >> 12;
+   if (dtastrb==0)  
+      invdtastrb = 0x00001000;
+   else if (dtastrb==1)  
+      invdtastrb = 0x00000000;
+   else if (dtastrb==2)  
+      invdtastrb = 0x00003000;
+   else
+      invdtastrb = 0x00002000;
+   tnum_fail = (tnum& int(0xffff0fff)) | invdtastrb;
+      
+   switch(opertype) {
+      case OPER_TCR5  :  
+         tp_cg_ena   = true;
+         tp_iref_ena = false;
+         tp_cg       = FLTP1;
+         tmpstr1     = "TCR5_VCG";
+         break; 
+      case OPER_TCR6  :  
+         tp_cg_ena   = true;
+         tp_iref_ena = true;
+         tp_cg       = FLTP1;
+         tp_iref     = FLTP2;
+         tmpstr1     = "TCR6_VCGIREF";
+         break; 
+      case OPER_TCR39 :  
+         tp_iref     = FLTP1;
+         tp_cg       = FLTP2;
+         tp_iref_ena = true;
+         tp_cg_ena   = true;
+         tmpstr1     = "TCR39_VCGIREF";
+         break; 
+      case OPER_TCR38 :  
+         tp_iref     = FLTP1;
+         tp_iref_ena = true;
+         tp_cg_ena   = false;
+         tmpstr1     = "TCR38_IREF";
+         break; 
+   }   // case
+   
+   // KChau - added to check shell vs. device specs
+   // 256KBytes with ECC:    max bits BANKSIZE = 256*1024*8*144/128
+   // 256KBytes with Parity: max bits BANKSIZE = 256*1024*8*132/128
+   if (pattype==BANKTYPE)  
+      exp_max_bits = F021_Flash.BANKSIZE[bankcount]*8;
+   else
+      exp_max_bits = F021_Flash.SECTSIZE[bankcount][count]*8;
+
+   if (F021_Flash.ECC_PARITY==1)
+      exp_max_bits = int(MATH.Truncate((exp_max_bits*(F021_Flash.DATAWIDTH+16)) / F021_Flash.DATAWIDTH));
+   else
+      exp_max_bits = int(MATH.Truncate((exp_max_bits*(F021_Flash.DATAWIDTH+4)) / F021_Flash.DATAWIDTH));
+      
+   current_shell = "FlashShell";
+   if (GL_PREVIOUS_SHELL != current_shell)  
+//      patternexecute(spareint1,f021_shell_loadpat);
+
+   //  find the max number of bits in a bank/sector
+   if (dtastrb==0) {
+      vProg = 3V;
+      iProg = 10nA;
+   }
+   else {
+      vProg = 0V;
+      iProg = 10nA;
+   } 
+
+   if (tp_iref_ena) {
+//    STDSetVRange(tp_iref,vProg);
+      STDSetVI(tp_iref,vProg,iProg,VI_FORCE_V,VI_MEASURE_V);
+   } 
+
+   if (tp_cg_ena) {
+      cg_vProg = 4.4V;
+      cg_iProg = 100mA;
+//    STDSetVRange(tp_cg,cg_vProg);
+      STDSetVI(tp_cg,cg_vProg,cg_iProg,VI_FORCE_V,VI_MEASURE_V);
+   } 
+
+   TIME.Wait(tdelay);
+   tmp_results = F021_RunTestNumber(tnum_fail,maxtime,tt_timer);
+
+   addr_loc = ADDR_PROG_TOT_PULSE;
+
+   Get_TLogSpace_TotPPulse(msb_val,lsb_val);
+
+   for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+      max_bits = (msb_val[*si]<<16)+lsb_val[*si];
+   } 
+
+   if (save_scrnprint)  
+      tistdscreenprint = true;
+   
+   if (logstr=="")  {
+      twlogstr = tmpstr1;
+      tmpstr2 = "_B";
+//    tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+      if ( bankcount == 0 ) tmpstr2 += "0";
+      else                  tmpstr2 += CONV.IntToString(bankcount);
+
+      if (pattype==SECTTYPE) {
+         tmpstr2 = "S";
+//       tmpstr2 += CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
+         if ( count == 0 ) tmpstr2 += "0";
+         else              tmpstr2 += CONV.IntToString(count);
+         tmpstr2 = tmpstr2 + tmpstr3;
+      } 
+      tmpstr3 = twlogstr + tmpstr2;
+   }
+   else {
+      twlogstr = logstr;
+      tmpstr3  = twlogstr;
+   } 
+   tmpstr3 += "_";
+
+
+   if (tistdscreenprint and TI_FlashDebug) {
+      cout << endl;
+      cout << tmpstr3 << " max bits == " << setw(10) << max_bits << endl;
+      addr_loc = ADDR_RAM_ESDA;
+      
+      if (debugprint)  
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            ReadRamAddress(0,0xff);
+            ReadRamAddress(addr_loc,addr_loc+(20*ADDR_RAM_INC));
+         } 
+   }       
+   
+   if (max_bits != exp_max_bits)  {
+      if (tistdscreenprint and TI_FlashDebug)  {
+         cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
+         cout << "EXPECT== " << setw(10) << exp_max_bits << " ACTUAL== " << setw(10) << max_bits << endl;
+      }
+      else if (TI_FlashDebug) {
+         cout << "!!! ERROR: FLASH SIZE NOT MATCH IN SHELL VS. SPECS !!!" << endl;
+         cout << "EXPECT== " << setw(10) << exp_max_bits << " ACTUAL== " << setw(10) << max_bits << endl;
+      } 
+   } 
+
+   //  Read and store bits in an array
+   iref_vdd = 2.5V;
+   if (tp_iref_ena)  
+      STDSetVI(tp_iref,iref_vdd,iref_iProg,VI_FORCE_V,VI_MEASURE_V);
+   
+// if (tp_cg_ena) {
+//    if (vcg_start>vcg_stop)  
+//       STDSetVRange(tp_cg,vcg_start);
+//    else
+//       STDSetVRange(tp_cg,vcg_stop);
+// } 
+
+   if (not debugprint)  
+      tistdscreenprint = false;
+
+   do_once = false;
+// allsitefalse = false;
+// savesites = v_dev_active;
+   found_wbit = false;
+
+   if (GL_DO_GET_WORSTBIT)  {
+      FL_WORSTBIT_IREF = 0uA;
+      FL_WORSTBIT_VCG = 0V;
+      FL_WORSTBIT_FADDR = 0;
+      FL_WORSTBIT_FCOUNT = 0;
+      for (i = 1; i <= 10; ++i)
+         FL_WORSTBIT_FDATA.SetValue(i,0);
+   } 
+
+   done = false;
+   loop = 1;
+   iProg = iref_start;
+
+   do {
+      // abort if s key is pressed
+//    if (TI_FlashDebug)  
+//       if (Inkey(s))   done = true;
+
+      if (tp_iref_ena)  
+         istr = CONV.FloatToString(iProg);
+      
+      counter=1;
+      for (vProg = vcg_start; vcg_start <= vcg_stop; vcg_start += vcg_step) {
+         dumptofile = false;
+         activesites = false;
+         
+         // abort if s key is pressed
+//       if (TI_FlashDebug)  
+//          if (Inkey(s))   break;
+
+         if (tp_iref_ena)  
+            STDSetVI(tp_iref,iref_vdd,iProg,VI_FORCE_V,VI_MEASURE_V);
+         
+         if (tp_cg_ena)  
+            STDSetVI(tp_cg,vProg,cg_iProg,VI_FORCE_V,VI_MEASURE_V);
+         
+         TIME.Wait(tdelay); 
+         tmp_results = F021_RunTestNumber(tnum,maxtime,tt_timer);
+         Get_TLogSpace_TotPPulse(msb_val,lsb_val);
+         
+         if (GL_DO_GET_WORSTBIT) {
+            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+               if ( !found_wbit[*si] ) {
+//                  if (GL_DO_ESDA_WITH_SCRAM)
+                  if (0)
+                     ;
+//                    Get_Flash_ESDASpace_SCRAM();
+                  else
+                     ;                  
+//                     F021_GetESDA_NonSCRAM(500,bankcount);
+                  break;
+               }
+            } 
+         }                
+         
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            sumbit[*si] = (msb_val[*si]<<16)+lsb_val[*si];
+            NumBitFail[loop][counter] = sumbit;
+
+            if ((sumbit[*si]>0) and (not do_once[*si])) {
+               do_once[*si] = true;
+               activesites[*si] = true;
+               dumptofile = true;
+            } 
+
+            if (debugprint and tistdscreenprint) {
+               cout << "Site " << setw(5) << *si << " IProg==" << setw(6) << iProg;
+               cout << " VProg==" << setw(6) << vProg;
+               cout << " FAILBITS== " << setw(16) << NumBitFail[loop][counter][*si] << endl;
+            }
+
+            if (GL_DO_GET_WORSTBIT) {
+               dlength = int(FL_SCRAM_CAPT_ARR[IND_DSIZE][*si]);
+               switch(dlength) {
+                  case DSIZE144:  
+                     sdatalen = 1;
+                     edatalen = 5;
+                     break; 
+                  default:  
+                     sdatalen = 1;
+                     edatalen = 2;
+                     break; 
+               }   // case
+
+               // failcount would be from 0 to some number if doing bcc0 & iref_start>iref_stop
+               if (not found_wbit[*si]) {
+                  if (sumbit != 0)  
+                     save_wbit = true;
+                  else
+                     save_wbit = false;
+
+                  if (save_wbit[*si]) {
+                     i = IND_STARTADDR;
+                     FL_WORSTBIT_FADDR = (FL_SCRAM_CAPT_ARR[i]<<16) + FL_SCRAM_CAPT_ARR[i+1];
+                     i = i+2;
+                     k = sdatalen;
+                     for (j = sdatalen; j <= edatalen; ++j) {
+                        FL_WORSTBIT_FCOUNT = sumbit;
+                        FL_WORSTBIT_FDATA.SetValue(k,FL_SCRAM_CAPT_ARR[i]);
+                        FL_WORSTBIT_FDATA.SetValue(k+1,FL_SCRAM_CAPT_ARR[i+1]);
+                        i = i+2;
+                        k = k+2;
+                     } 
+                     FL_WORSTBIT_IREF = iProg;
+                     FL_WORSTBIT_VCG = vProg;
+                     
+                     if (    ((iref_start>iref_stop) and (sumbit!=0))
+                          or ((iref_start<iref_stop) and (sumbit==0)))  
+                        found_wbit = true;
+                  } 
+               }   // if dtastrb=0
+            }   // gl_do_get_worstbit
+         }   // for site
+
+         if (tp_cg_ena)  
+            vstr = CONV.FloatToString(vProg);
+
+         str1 = tmpstr3;
+
+         if (tp_cg_ena) str1 = str1 + vstr;
+
+         if (tp_iref_ena) {
+            if (tp_cg_ena)  
+               str1 = str1 + "_";
+            str1 = str1 + istr;
+         }
+
+//       if (logena)  
+//          TWPDLDataLogVariable(str1,sumbit,TWMinimumData);
+
+         // output raw esda to file
+         if (dumptofile and GL_DUMP_RAWESDA_TOFILE) {
+            if (dtastrb==0)
+               imagenum = ESDA_IMG_BLK0 + bankcount;
+            else if (dtastrb==1)  
+               imagenum = ESDA_IMG_BLK1 + bankcount;
+            else if (dtastrb==2)  
+               imagenum = ESDA_IMG_ECHK + bankcount;
+            else
+               imagenum = ESDA_IMG_OCHK + bankcount;
+               
+//          devsetholdstates(activesites);
+
+//            if (not GL_DO_ESDA_WITH_SCRAM)  
+               F021_GetESDA_NonSCRAM(imagenum,bankcount);
 //            else
-//               iProg = iProg-iref_step;
-//         }
-//         else
-//         {
-//            if(iProg>==iref_stop)  
-//               done = true;
-//            else
-//               iProg = iProg+iref_step;
-//         } 
-//     
-//         loop = loop+1;
-//         if(loop>MAXBOUND)  
-//         {
-//            if(tistdscreenprint)  
-//               cout << "*** Nunmber of samples exceed " << MAXBOUND:-10 << endl;
-//            break;
-//         } 
-//      UNTIL (done);  /*for iProg*/
-//
-//
-//      if(tp_iref_ena)  
-//      {
-//         vProg = 0V;
-//         iProg = 1mA;
-//         STDSetVRange(tp_iref,vProg);
-//         STDSetVI(tp_iref,vProg,iProg);
-//      } 
-//
-//      if(tp_cg_ena)  
-//      {
-//         vProg = 0V;
-//         iProg = 1mA;
-//         STDSetVRange(tp_cg,vProg);
-//         STDSetVI(tp_cg,vProg,iProg);
-//      } 
-//
-//      tistdscreenprint = save_scrnprint;
-//      tiprintpass = save_printpass;
-//      TI_FlashDebug = save_fldbugprint;
-//      
-//       /* Display data as a histogram */
-//      if(tistdscreenprint)  
-//      {
-//         cout << endl;
-//         cout << tmpstr1 << " Bit Histogram " << endl;
-//         PrintHeaderBool(GL_PLELL_FORMAT);
-//         
-//         done = false;
-//         loop = 1;
-//         iProg = iref_start;
-//         REPEAT
-//            if(tp_iref_ena)  
-//               TrealToStr(iProg,istr);
-//
-//            counter=1;
-//            for vProg = vcg_start to vcg_stop by vcg_step do
-//            {
-//               for (site = 1;site <= V_SITES;site++)
-//                  if(v_dev_active[site])  
-//                     sumbit[site] = NumBitFail[site][loop][counter];
-//
-//               if(tp_cg_ena)  
-//                  TRealToStr(vProg,vstr);
-//               str1 = tmpstr3;
-//               if(tp_cg_ena)  
-//                  str1 = str1 + vstr;
-//               if(tp_iref_ena)  
-//               {
-//                  if(tp_cg_ena)  
-//                     str1 = str1 + "_";
-//                  str1 = str1 + istr;
-//               } 
-//               PrintResultInt(str1,testnum,sumbit,0,0,GL_PLELL_FORMAT);
-//               
-//               counter = counter+1;
-//               if(counter>MAXBOUND)  
-//                  break;
-//            }   /*vProg*/
-//            if(vcg_start != vcg_stop)  
-//               cout << endl;
-//
-//            if(iref_start>iref_stop)  
-//            {
-//               if(iProg<==iref_stop)  
-//                  done = true;
-//               else
-//                  iProg = iProg-iref_step;
+//               Get_Flash_ESDASpace_SCRAM;
+
+            TL_DumpRawESDA_ToFile(imagenum,str1);
+//          devsetholdstates(savesites);
+         } 
+         
+         counter = counter+1;
+         if (counter>MAXBOUND) {
+            if(tistdscreenprint)  
+               cout << "*** Nunmber of samples exceed " << setw(10) << MAXBOUND << endl;
+            break;
+         } 
+      }  // for vProg
+      
+      if (iref_start>iref_stop) {
+         if (iProg<=iref_stop)  
+            done = true;
+         else
+            iProg = iProg-iref_step;
+      }
+      else {
+         if (iProg>=iref_stop)  
+            done = true;
+         else
+            iProg = iProg+iref_step;
+      } 
+  
+      loop = loop+1;
+      if (loop>MAXBOUND)  {
+         if (tistdscreenprint)
+            cout << "*** Nunmber of samples exceed " << setw(10) << MAXBOUND << endl;
+         break;
+      } 
+   } while (!done);  // for iProg
+
+
+   if (tp_iref_ena) {
+      vProg = 0V;
+      iProg = 1mA;
+//    STDSetVRange(tp_iref,vProg);
+      STDSetVI(tp_iref,vProg,iProg,VI_FORCE_V,VI_MEASURE_V,vProg);
+   } 
+
+   if (tp_cg_ena) {
+      vProg = 0V;
+      iProg = 1mA;
+//    STDSetVRange(tp_cg,vProg);
+      STDSetVI(tp_cg,vProg,iProg,VI_FORCE_V,VI_MEASURE_V,vProg);
+   } 
+
+   tistdscreenprint = save_scrnprint;
+   tiprintpass = save_printpass;
+   TI_FlashDebug = save_fldbugprint;
+   
+   //  Display data as a histogram
+   if (tistdscreenprint) {
+      cout << endl;
+      cout << tmpstr1 << " Bit Histogram " << endl;
+//    PrintHeaderBool(GL_PLELL_FORMAT);
+      
+      done = false;
+      loop = 1;
+      iProg = iref_start;
+      do {
+         if (tp_iref_ena)  istr = CONV.FloatToString(iProg);
+
+         counter=1;
+               
+         for (vProg = vcg_start; vProg <= vcg_stop; vProg += vcg_step) {
+            sumbit = NumBitFail[loop][counter];
+//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+//               sumbit[*si] = NumBitFail[*si][loop][counter];
 //            }
-//            else
-//            {
-//               if(iProg>==iref_stop)  
-//                  done = true;
-//               else
-//                  iProg = iProg+iref_step;
-//            } 
-//            
-//            loop = loop+1;
-//            if(loop>MAXBOUND)  
-//               break;
-//         UNTIL (done);  /*iProg*/
-//         cout << endl;
-//         if(GL_DO_GET_WORSTBIT)  
-//         {
-//            for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si)
-//               if(v_dev_active[site])  
-//               {
-//                  cout << "Site" << site:-5 << " Found Worst Bit at IREF == " << FL_WORSTBIT_IREF[site] << "  VCG == " << FL_WORSTBIT_VCG[site] << endl;
-//                  cout << FL_SCRAM_CAPT_ARR[IND_STARTADDR][site]:s_hex << "  " << FL_SCRAM_CAPT_ARR[IND_STARTADDR+1][site]:s_hex << endl;
-//                  cout << "FADDR == " << FL_WORSTBIT_FADDR[site]:s_hex << "  FDATA == ";
-//                  k = sdatalen;
-//                  for (j = sdatalen;j <= edatalen;j++)
-//                  {
-//                     cout << FL_WORSTBIT_FDATA[k][site]:s_hex << "  " << FL_WORSTBIT_FDATA[k+1][site]:s_hex << "  ";
-//                     k = k+2;
-//                  } 
-//                  cout << endl;
-//               } 
-//         }                   
-//      }   /*if tistdscreenprint*/
-//   }   /*if v_any_dev_active*/
-//}   /* TL_BitHistogram*/
+
+            if (tp_cg_ena)  vstr = CONV.FloatToString(vProg);
+
+            str1 = tmpstr3;
+            if (tp_cg_ena) str1 = str1 + vstr;
+
+            if (tp_iref_ena) {
+               if (tp_cg_ena) str1 = str1 + "_";
+               str1 = str1 + istr;
+            }
+
+//          PrintResultInt(str1,testnum,sumbit,0,0,GL_PLELL_FORMAT);
+            
+            counter = counter+1;
+            if (counter>MAXBOUND)  
+               break;
+         }   // vProg
+
+         if (vcg_start != vcg_stop)  
+            cout << endl;
+
+         if (iref_start>iref_stop) {
+            if (iProg<=iref_stop)  
+               done = true;
+            else
+               iProg = iProg-iref_step;
+         }
+         else {
+            if (iProg>=iref_stop)  
+               done = true;
+            else
+               iProg = iProg+iref_step;
+         } 
+         
+         loop = loop+1;
+         if (loop>MAXBOUND)  
+            break;
+      } while (!done);  // iProg
+      cout << endl;
+
+      if(GL_DO_GET_WORSTBIT) {
+         for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
+            cout << "Site" << setw(5) << *si << " Found Worst Bit at IREF == " << FL_WORSTBIT_IREF[*si];
+            cout << "  VCG == " << FL_WORSTBIT_VCG[*si] << endl;
+            cout << hex << FL_SCRAM_CAPT_ARR[IND_STARTADDR][*si];
+            cout << "  " << hex << FL_SCRAM_CAPT_ARR[IND_STARTADDR+1][*si] << endl;
+            cout << "FADDR == " << hex << FL_WORSTBIT_FADDR[*si] << "  FDATA == ";
+            k = sdatalen;
+            for (j = sdatalen; j <= edatalen; ++j) {
+               cout << hex << FL_WORSTBIT_FDATA[k][*si] << "  " << hex << FL_WORSTBIT_FDATA[k+1][*si] << "  ";
+               k = k+2;
+            } 
+            cout << endl;
+         } 
+      }                   
+   }  // if tistdscreenprint
+}  //  TL_BitHistogram
+
 FloatM DoVIMeasure(const PinM &testpad, const IntS &tcrnum, 
                 const TPModeType &tcrmode, const IntS &testnum, 
                 const FloatS &maxtime, const FloatS &tdelay) 
@@ -14091,13 +13998,13 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
    IntS count,maxsector,tpnum;
    IntS bankcount,bankstart,bankstop;
    IntS blkcount,blkstart,blkstop;
-   TMResultM tmp_results, test_results;
+   TMResultM tmp_results, test_results, dummy_results;
    TMResultM rtest_results, final_results;
    BoolM allfalse;
    IntS site,pattype,testnum,length;
    IntS opertype;
    FloatS ttimer1,ttimer2;
-   FloatM tt_timer;
+   FloatM tt_timer, dummy_timer;
    StringS tmpstr1,tmpstr2,tmpstr3,tmpstr4;
    FloatM FloatSval;
    StringS unitval;
@@ -14284,7 +14191,7 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 //               STDSetVRange(testpad,vRange);
                STDSetVI(testpad,vProg,iProg,VI_FORCE_V,VI_MEASURE_I,vRange);
                TIME.Wait(stresstime);
-               STDSetVI(testpad,0V,iProg,VI_FORCE_V,VI_MEASURE_I,0V);
+               STDSetVI(testpad,0V,iProg,VI_FORCE_V,VI_MEASURE_V,0V);
                if (tistdscreenprint and TI_FlashDebug)  
                   cout << " EG @ " << vProg << endl;
             }
@@ -14301,8 +14208,7 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
             F021_TurnOff_AllTPADS();
 
             if ((special_opt==2) and ramp3vfl)
-               ;
-//               STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
+               STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg,VI_FORCE_V,VI_MEASURE_V);
 
 //          Disable(s_pmexit);
             tmp_results = Check_RAM_TNUM(testnum);
@@ -14313,22 +14219,22 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
                DLOG.AccumulateResults(final_results,rtest_results);
             } 
             
-//            F021_RunTestNumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+            dummy_results = F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,dummy_timer);
 
             ttimer2 = TIME.GetTimer();
             tt_timer = ttimer2;
 
             // log to TW
             tmpstr2 = "_B";  // _B#
-            //  tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
-            if ( bankcount == 0 ) tmpstr2 = "0";
-            else                  tmpstr2 = CONV.IntToString(bankcount);
+            //  tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+            if ( bankcount == 0 ) tmpstr2 += "0";
+            else                  tmpstr2 += CONV.IntToString(bankcount);
 
             if (pattype==BLOCKTYPE) {
                tmpstr3 = "BLK";
-               //  tmpstr3 = CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
-               if ( count == 0 ) tmpstr3 = "0";
-               else              tmpstr3 = CONV.IntToString(count);
+               //  tmpstr3 += CONV.IntToString(count);  // Bug IntToStr can't convert zero (SPR142812)
+               if ( count == 0 ) tmpstr3 += "0";
+               else              tmpstr3 += CONV.IntToString(count);
                tmpstr2 += tmpstr3;
             } 
             tmpstr3 = tmpstr1 + tmpstr2;  /*now has xx_B#*/
@@ -14352,15 +14258,13 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
             
             testnum = testnum+1;
             
-//          if((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//          if((not RunAllTests) and (not TI_FlashCOFEna))  
 //             Devsetholdstates(final_results);
             
-//          if(not v_any_dev_active)  
-               break;
          }   // for count
 
          // run once only for vhv stress*/
-         if(special_opt == 5)  
+         if (special_opt == 5)  
             break;
          
       }   // for bankcount
@@ -14374,16 +14278,14 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
 
    test_results = final_results;
    
-   if (TI_FlashCOFEna)  
-      ;
+//   if (TI_FlashCOFEna)  
 //      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
 
    if ((special_opt==2) and ramp3vfl)
-      ;
-//      STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg);
+      STDSetVI(FL_PUMP_SUPPLY_NAME,vdds_vProg,vdds_iProg,VI_FORCE_V,VI_MEASURE_V);
    
    F021_TurnOff_AllTPADS();
-//   F021_RunTestNumber(tnum_always_pass,1s,spare_mstreal1,spare_msbool1);
+   dummy_results = F021_RunTestNumber(TNUM_ALWAYS_PASS,1s,dummy_timer);
    
    ttimer1 = TIME.GetTimer();
    tt_timer = ttimer1;
@@ -14400,7 +14302,7 @@ TMResultM F021_Stress_func(IntS start_testnum, StringS tname, IntS TCRnum, TPMod
       cout << endl;
    }   // if tistdscreenprint
    
-//   if ((not TIIgnoreFail) and (not TI_FlashCOFEna))  
+//   if ((not RunAllTests) and (not TI_FlashCOFEna))  
 //      DevSetHoldStates(final_results);
 
    return(final_results);
@@ -15736,8 +15638,7 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
    
 //   TestOpen(fl_testname);
 
-   if (TI_FlashCOFEna)
-      ;
+//   if (TI_FlashCOFEna)
 //      F021_Init_COF_Inst_Str(site_cof_inst_str);
 
 //   savesites = V_dev_active;
@@ -15973,7 +15874,7 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
 //                  } 
 
                 /*not to disable failing site w/ ersstrvt0 type to get all banks vt*/
-//               if ((not tiignorefail) and (not ersstr_ena) and
+//               if ((not RunALLTests) and (not ersstr_ena) and
 //                   (not TI_FlashCOFEna) and (not datalogonly) and (special_opt==0)) 
 //                  Devsetholdstates(final_results);
                
@@ -16015,12 +15916,12 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
 
             DLOG.AccumulateResults(final_results,tmp_results);
 
-//            tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
-            if ( bankcount == 0 ) tmpstr2 = "0";
-            else                  tmpstr2 = CONV.IntToString(bankcount);
-            tmpstr2 = "_B" + tmpstr2;
+            tmpstr2 = "_B";
+//          tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+            if ( bankcount == 0 ) tmpstr2 += "0";
+            else                  tmpstr2 += CONV.IntToString(bankcount);
+
             tmpstr2 = tmpstr1 + tmpstr2;
-            
             tmpstr3 = tmpstr2 + "_MEDIAN";
 //            TWTRealToRealMS(median_values,realval,unitval);
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
@@ -16050,28 +15951,25 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
 //            TWPDLDataLogRealVariable(tmpstr3, unitval,realval,TWMinimumData);
 //            PrintResultParam(tmpstr3,0,tmp_results,0v,ULimit_Median,max_vt_med,GL_PLELL_FORMAT);
             cout << tmpstr3 << "   " << tmp_results << "   " << ULimit_Median << "   " << max_vt_med << endl;
-         }   /*Median*/
+         }   // Median
          
-      }   /*for bankcount*/
-   }   /*-- bank/otp/blk/sect --*/
+      }   // for bankcount
+   }   // -- bank/otp/blk/sect --
 
-    /*restore all active sites*/
+   // restore all active sites
 //   Devsetholdstates(savesites);
 
-    /*binning all vt_type except ersstrvt0*/
-   if ((not ersstr_ena) and (not datalogonly))  
+   // binning all vt_type except ersstrvt0
+//   if ((not ersstr_ena) and (not datalogonly))  
 //      ResultsRecordActive(final_results, S_NULL);
-      ;
-   else
+//   else
 //      ResultsRecordActive(savesites, S_NULL);
-      ;
       
 //   TestClose;
 
    test_results = final_results;
    
-   if (TI_FlashCOFEna)
-      ;
+//   if (TI_FlashCOFEna)
 //      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
    
 //   ttimer1 = timernread(ttimer1);
@@ -16089,15 +15987,13 @@ TMResultM F021_VT_Delta_func( IntS    pattype,
       cout << endl;
    }         /*if tistdscreenprint*/
 
-    /*not to disable site when doing ersstr*/
+   // not to disable site when doing ersstr
 //   if ((not tiignorefail) and (not ersstr_ena) and (not TI_FlashCOFEna)
 //      and (not datalogonly) and (special_opt==0))
 //      DevSetHoldStates(final_results);
             
    return(final_results);
-//   F021_VT_Delta_func = V_any_dev_active;
-}   /*F021_VT_Delta_func*/
-//   
+}  // F021_VT_Delta_func
 
 // Save_FailInfo_To_SAMP_ACCY moved out of F021_BCC_BinSearch_TTR below
 //BoolM Save_FailInfo_To_SAMP_ACCY(IntS testnum, TMResultM test_results, FloatM ivalues) {
@@ -17500,8 +17396,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
    
 //   TestOpen(fl_testname);
 
-   if (TI_FlashCOFEna)
-      ;
+//   if (TI_FlashCOFEna)
 //      F021_Init_COF_Inst_Str(site_cof_inst_str);
 
 // savesites = V_dev_active;
@@ -17522,7 +17417,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
      default:        special_opt = 0; break;
    }  // case
 
-   if(pattype==OTPTYPE) {
+   if (pattype==OTPTYPE) {
       Llimit = OtpBCC.LDELTA[vt_type];
       Ulimit = OtpBCC.UDELTA[vt_type];
       iratio = OtpBCC.IRATIO[vt_type][post];
@@ -17723,9 +17618,8 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
                         } 
                      } 
                      
-                     if (TI_FlashCOFEna)
-                        ;
-//                        F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
+//                   if (TI_FlashCOFEna)
+//                      F021_Update_COF_Inst_Str(tmpstr2,site_cof_inst_str,tmp_results);
 //                } 
 
                // not to disable failing site w/ ersstrvt0 type to get all banks vt
@@ -17825,8 +17719,7 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 
    test_results = final_results;
    
-   if (TI_FlashCOFEna)
-      ;
+//   if (TI_FlashCOFEna)
 //      F021_Save_COF_Info(tmpstr1,site_cof_inst_str,final_results);
    
    ttimer1 = TIME.GetTimer();
@@ -17849,7 +17742,6 @@ TMResultM F021_BCC_Delta_func(  IntS    pattype,
 //    DevSetHoldStates(final_results);
             
      return(test_results);
-//   F021_BCC_Delta_func = V_any_dev_active;
 }  // F021_BCC_Delta_func
    
 //   
@@ -18403,7 +18295,6 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
       
    if (TI_FlashESDAEna) FLEsda.Pattype = pattype;
 
-   
    if(pattype == MODTYPE) {
       // +++ Module operation +++
       final_results = TM_FAIL;
@@ -18424,7 +18315,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
       else
          ers_llimit = 0;
 
-// Set to 1.0s to save debug time
+// :REMOVE: Set to 1.0s to save debug time
 //      maxtime = GL_F021_BANK_ERS_MAXTIME;
         maxtime = 1.0;
 
@@ -18450,11 +18341,10 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
             
             // TW strings
             tmpstr2 = "_B";  // _B#
-//            tmpstr2 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//          tmpstr2 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
             if ( bankcount == 0 ) tmpstr2 += "0";
             else                  tmpstr2 += CONV.IntToString(bankcount);
             
-           
             if ((pattype==BLOCKTYPE) or (pattype==SECTTYPE)) {
             
                if (pattype==BLOCKTYPE)
@@ -18462,7 +18352,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                else
                   tmpstr3 = "S";
                
-//            tmpstr3 = CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
+//             tmpstr3 += CONV.IntToString(bankcount);  // Bug IntToStr can't convert zero (SPR142812)
                if ( count == 0 ) tmpstr3 += "0";
                else              tmpstr3 += CONV.IntToString(count);
                tmpstr2 += tmpstr3;
@@ -18492,7 +18382,7 @@ TMResultM F021_Erase_func( IntS start_testnum, StringS tname) {
                                             UTL_VOID, testnum, false, TWMinimumData, ER_PASS, false);                            
             }
             else { /*fast/slow-ers*/
-               ;
+//             ArrayAndBoolean(ers_results,ers_results,tmp_results,v_sites);;
             }
             
             // log RTI timer (internal vclock cycle value) to tw

@@ -477,6 +477,7 @@ void F021_FlashConfigInclude()
 
    GL_DO_FL_PBIST = false;  /*true};  {use for read} {blizzard specific*/
    GL_DO_PGM_USING_PBIST = false;  /*true};  {use for pgm} {blizzard specific*/
+   GL_ESDA_MAXSIZE = 4096;
 
 #if $GL_USE_DMLED_RAMPMT  
    GL_DO_ERS_BY_SECTOR = false;  /*use for ers: true=do by sector, false=do by bank*/

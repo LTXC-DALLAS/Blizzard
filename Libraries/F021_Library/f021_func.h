@@ -135,8 +135,8 @@ void Get_TLogSpace_TNUM(    IntM &msw_data,
 //void Get_TLogSpace_ErsPulse(    IntM ret_val);
 //void Get_TLogSpace_TRIMSOL(    IntM ret_val);
 //void Get_TLogSpace_MaxPPulse(    IntM ret_val);
-//void Get_TLogSpace_TotPPulse(    IntM msw_data,
-//                                  IntM lsw_data);
+void Get_TLogSpace_TotPPulse(    IntM msw_data,
+                                  IntM lsw_data);
 
 void Get_TLogSpace_MeasFreq(IntM msw_data, IntM lsw_data);
 
