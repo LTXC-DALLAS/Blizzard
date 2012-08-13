@@ -1354,22 +1354,24 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
    int i;
    IntS physaddr;
    UnsignedS shiftbit;
-   UnsignedM1D send_data(1);
 
    TIME.StartTimer();
 
-   cap_name = "CapRam32";
    StringS send_name = "ReadRamAddrSend";
-   StringS sendref_name = "ReadRamAddr_sref";
+   StringS sendref_name;
 
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
     /*-------- use JTAG --------*/
    data_pins = "JTAG_DOUT";
    data_in   = "JTAG_DIN";
+   cap_name = "CapJtag";
+   sendref_name = "SendJtag";
    maxsrccount = 16;
    maxcapcount = 32;
    halfcapcount = maxcapcount / 2;
+   UnsignedM1D send_data(1);
+
 
    if (!IsDspSendDefined(send_name))
    {
@@ -1409,18 +1411,21 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
     /*-------- end of JTAG --------*/
 #else
     /*-------- use DMLED --------*/
-   PinML data_bus   = "DMLED_INBUS";
-   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
+   data_in   = "DMLED_INBUS";
    data_pins = "DMLED_OUTBUS";
+   cap_name = "CapDmled";
+   sendref_name = "SendDmled";
    maxsrccount = 17;
    maxcapcount = 8;
    halfcapcount = maxcapcount / 2;
+   UnsignedM1D send_data(maxsrccount);
+
    
    curraddr = startaddr;
    
    if (!IsDspSendDefined(send_name))
    {
-      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+      DIGITAL.DefineParallelSend(data_in, send_name, sendref_name, maxsrccount);
    }
    
    captured_data.Erase();
@@ -1431,6 +1436,12 @@ void ReadRamAddress(IntS startaddr, IntS  stopaddr)
       evenodd = (curraddr>>2) & 0x1;
       physaddr += (evenodd << 16);  //evenodd is last bit in send, so must be MSB
       send_data.SetValue(0, unsigned(physaddr));
+      
+      for (i = 0; i < maxsrccount; ++i)
+      {
+         send_data.SetValue(i, unsigned(physaddr & 0x1));
+         physaddr >>= 1; //shift off used bit
+      }
 
       DIGITAL.LoadSend(send_name, send_data);
       DIGITAL.StartSend(send_name);
@@ -1860,7 +1871,6 @@ void GetRamContentDec_16Bit(    StringS tpatt,
    UnsignedS address;
    StringS send_name;
    StringS sendref_name;
-   UnsignedM1D send_data(1);
    IntM temp_value = 0;
 
    
@@ -1871,41 +1881,55 @@ void GetRamContentDec_16Bit(    StringS tpatt,
 #if $GL_USE_JTAG_RAMPMT or $GL_USE_DMLED_RAMPMT  
 #if $GL_USE_JTAG_RAMPMT  
     /*-------- use JTAG --------*/
+   UnsignedM1D send_data(1);
+
    data_pins = "JTAG_DOUT";
    data_in   = "JTAG_DIN";
    maxcapcount = 16;
    maxsrccount = 16;
-   cap_name = "CapRam32";
+   cap_name = "CapJtag";
    send_name = "GetRam16bitSend";
-   sendref_name = "ramread_16_sref";
+   sendref_name = "SendJtag";
    
    address = unsigned(addr_loc);
-   /*-------- end of JTAG --------*/
-#else
-    /*-------- use DMLED --------*/
-   PinML data_bus = "DMLED_INBUS";
-   data_in = data_bus[3];
-   data_pins = "DMLED_OUTBUS";
-   cap_name = "CapRam4";
-   send_name = "GetRam16bitSend";
-   sendref_name = "ramread_16_sref";
-   maxcapcount = 4;
-   maxsrccount = 17;
-
-   physaddr = (addr_loc>>3) & 0xFFFF;
-   evenodd = (addr_loc>>2) & 0x1;
-   physaddr += (evenodd << 16); //evenodd is last bit in send, so must be MSB
    
-   address = unsigned(physaddr);
-   /*-------- end of DMLED --------*/
-#endif
-   /*-------- start JTAG/DMLED common --------*/
    if (!IsDspSendDefined(send_name))
    {
       DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
    }
    
    send_data.SetValue(0, address);
+   
+   /*-------- end of JTAG --------*/
+#else
+    /*-------- use DMLED --------*/
+   data_in = "DMLED_INBUS";
+   data_pins = "DMLED_OUTBUS";
+   cap_name = "CapDmled";
+   send_name = "GetRam16bitSend";
+   sendref_name = "SendDmled";
+   maxcapcount = 4;
+   maxsrccount = 17;
+   UnsignedM1D send_data(maxsrccount);
+
+   physaddr = (addr_loc>>3) & 0xFFFF;
+   evenodd = (addr_loc>>2) & 0x1;
+   physaddr += (evenodd << 16); //evenodd is last bit in send, so must be MSB
+      
+   if (!IsDspSendDefined(send_name))
+   {
+      DIGITAL.DefineParallelSend(data_in, send_name, sendref_name, maxsrccount);
+   }
+   
+   for (int i = 0; i < maxsrccount; ++i)
+   {
+      send_data.SetValue(i, unsigned(physaddr & 0x1));
+      physaddr >>= 1; //shift off used bit
+   }
+   
+   /*-------- end of DMLED --------*/
+#endif
+   /*-------- start JTAG/DMLED common --------*/
    
    DIGITAL.LoadSend(send_name, send_data);
    DIGITAL.StartSend(send_name);
@@ -2189,7 +2213,7 @@ void WriteRamContentDec_32Bit(const IntS &addr_loc,
    IntS evenodd;
    IntS physaddr;
    StringS send_name = "AddrPlus32bitData";
-   StringS send_ref = "WriteRam32bit";
+   StringS send_ref;
    IntS num_address;
    IntS num_data;
    IntS num_words; 
@@ -2203,6 +2227,7 @@ void WriteRamContentDec_32Bit(const IntS &addr_loc,
 //    /*-------- use JTAG --------*/
 //    /*lsb 1st - msb last*/
    data_pins = "JTAG_DIN";
+   send_ref = "SendJtag";
    IntS num_bits_per_word = 16;
    num_address = 1;
    num_data = 2;
@@ -2237,6 +2262,7 @@ void WriteRamContentDec_32Bit(const IntS &addr_loc,
 #else
     /*-------- use DMLED --------*/
    data_pins = "DMLED_INBUS";
+   send_ref = "SendDmled";
    num_address = 17;
    num_data = 8;
    num_words = num_address + num_data; 
@@ -2423,9 +2449,8 @@ void GetRamContent_SCRAM(IntS start_addr,
    StringS tpatt, addr_str, str2;
    PinML data_pins,data_in;
    StringS send_name = "RamReadMboxSend";
-   StringS sendref_name = "RamReadMbox_sref";
-   StringS cap_name = "CapRam32";
-   UnsignedM1D send_data(1);
+   StringS sendref_name;
+   StringS cap_name;
    IntS maxsrccount;
 
    if(tistdscreenprint and TI_FlashDebug and tiprintpass)
@@ -2456,6 +2481,9 @@ void GetRamContent_SCRAM(IntS start_addr,
  /*-------- use JTAG --------*/
    data_pins = "JTAG_DOUT";
    data_in   = "JTAG_DIN";
+   cap_name = "CapJtag";
+   sendref_name = "SendJtag";
+   UnsignedM1D send_data(1);
 
    if(store_option < (int(MBOXLOG_ARR)))  
       maxcapcount = X16MAXCNT*16;
@@ -2493,16 +2521,18 @@ void GetRamContent_SCRAM(IntS start_addr,
  /*-------- end of JTAG --------*/
 #else
  /*-------- use DMLED --------*/
-   PinML data_bus   = "DMLED_INBUS";
-   data_in = data_bus[3]; // they hardcoded first 3 bits to low, so only last bit has data
+   data_in   = "DMLED_INBUS";
    data_pins = "DMLED_OUTBUS";
+   cap_name = "CapDmled";
+   sendref_name = "SendDmled";
    UnsignedS send_word;
    maxsrccount = 17;
    istep = 8;   /*8 nibbles or 2 16bit word*/
+   UnsignedM1D send_data(maxsrccount);
    
    if (!IsDspSendDefined(send_name))
    {
-      DIGITAL.DefineSerialSend(data_in, send_name, sendref_name, 1, maxsrccount, WORD_LSB_FIRST);
+      DIGITAL.DefineParallelSend(data_in, send_name, sendref_name, maxsrccount);
    }
    
    if(store_option < (int(MBOXLOG_ARR)))  
@@ -2532,7 +2562,11 @@ void GetRamContent_SCRAM(IntS start_addr,
    for (int i = 1;i <= 2;++i)
    {
       send_word = unsigned(physaddr) + unsigned(evenodd[i] << 16);
-      send_data.SetValue(0, send_word);
+      for (int j = 0; j < maxsrccount; ++j)
+      {
+         send_data.SetValue(j, send_word & 0x1);
+         send_word >>=1;
+      }
       DIGITAL.LoadSend(send_name, send_data);
       DIGITAL.StartSend(send_name);
       
