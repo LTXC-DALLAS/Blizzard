@@ -1288,6 +1288,7 @@ extern    StringM BANK_EFSTR, MAINBG_EFSTR; //, AUXBG_EFSTR, VHV_SLPCT_EFSTR, VS
 
      /*for capture esda*/
 extern     StringS GL_ESDA_PROGID, my_this_wfrid,my_lotid,my_scribeid;
+extern IntS GL_ESDA_MAXSIZE;
 
 extern IntS ESDA_IMG_BLK0,ESDA_IMG_BLK1,ESDA_IMG_ECHK,ESDA_IMG_OCHK;
 extern IntS    ESDA_IMG_PGM0S,ESDA_IMG_RDM0S,ESDA_IMG_ERS,ESDA_IMG_RDM1S,

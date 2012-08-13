@@ -1277,7 +1277,7 @@ void Charz_BCC(VCornerType vcorner,
                    StringS logstr)
 {
    const IntS PW4U_INT = 8; 
-   const FloatS PW4U = 4us;  // :MANUAL FIX REQUIRED: Unknown const type
+   const FloatS PW4U = 4us;
 
    IntS site,bank,count,loop,blkstart,blkstop;
    IntS tcrnum,tcrnum_src,tcrnum_ipmos,testnum;
@@ -1297,6 +1297,10 @@ void Charz_BCC(VCornerType vcorner,
    FloatM vt_values,istart,istop,vforce;
    FloatM vstart,vstop,iforce,vt_intvalues;
    FloatM FloatSval;
+   Levels PS_Vmin = "PowerUpAtVmask";
+   Levels PS_Vnom = "PowerUpAtVmask";
+   Levels PS_Vmax = "PowerUpAtVmask";
+   
 //   TWunit unitval;
 
    if (tistdscreenprint)  {
@@ -1315,29 +1319,20 @@ void Charz_BCC(VCornerType vcorner,
    loc_erspls = ADDR_ERS_PULSE>>2;
 
    switch (vcorner) {
-     case  VMN: case VMNO: case VMNE :   
-//      PowerUpAtVmin(dcsetup_loosevmin,norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//               v[vih_loose_osc_vmin],v[vil_loose]);
-      break; 
-     case  VNM: case VNMO: case VNME :   
-//      PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//               v[vih_loose_osc_vnom],v[vil_loose]);
-      break; 
-     case  VMX: case VMXO: case VMXE :   
-//      PowerUpAtVmax(dcsetup_loosevmax,norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//               v[vih_loose_osc_vmax],v[vil_loose]);
-      break; 
-     default:  
-//      PowerUpAtVnom(dcsetup_loosevnom,norm_fmsu);
-//      ClockSet(S_CLOCK1A,false,GL_F021_PLLENA_SPEED1,
-//               v[vih_loose_osc_vnom],v[vil_loose]);
-      break;            
+      case  VMN: case VMNO: case VMNE :
+         PS_Vmin.Execute();
+         break; 
+      case  VNM: case VNMO: case VNME :
+         PS_Vnom.Execute();
+         break; 
+      case  VMX: case VMXO: case VMXE :
+         PS_Vmax.Execute();
+         break; 
+      default:
+         PS_Vnom.Execute();
+         break;            
    }   // case
 
-// clockpinset(s_clk_1a,s_clock);
    TIME.Wait(tdelay);
 
    current_shell = "FlashShell";
@@ -9724,7 +9719,7 @@ TMResultM BankErs_PrePgmFF_func() {
 TMResultM PrePgmFFVT1_func() {
    const IntS TESTID = 156; 
 
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    BoolM logsites;
    StringS current_shell;
    IntS testnum;
@@ -9755,7 +9750,7 @@ TMResultM PrePgmFFVT1_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PrePgmFFVT1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PrePgmFFBCC1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
@@ -9770,10 +9765,11 @@ TMResultM PrePgmFFVT1_func() {
       }
       else {
          tname = "PrePgmFFBCC1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PrePgmFFVT1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results,tmp_results);
    } 
    return(final_results);
 
@@ -9783,7 +9779,7 @@ TMResultM PrePgmFFVT1_func() {
 TMResultM PrePgmFFVT1OTP_func() {
    const IntS TESTID = 157; 
 
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    StringS current_shell;
    IntS testnum;
    StringS tname;
@@ -9810,16 +9806,17 @@ TMResultM PrePgmFFVT1OTP_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PrePgmFFVT1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
          tname = "PrePgmFFBCC1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
       }
       else {
          tname = "PrePgmFFBCC1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
          tname = "PrePgmFFVT1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results,tmp_results);
    } 
    return(final_results);
 
@@ -9829,7 +9826,7 @@ TMResultM PrePgmFFVT1OTP_func() {
 TMResultM PstPgmFFVT1_func() {
    const IntS TESTID = 159; 
 
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    BoolM logsites;
    StringS current_shell;
    IntS testnum;
@@ -9858,7 +9855,7 @@ TMResultM PstPgmFFVT1_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PstPgmFFVT1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PstPgmFFBCC1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
 //         if(not arraycompareboolean(logsites,final_results,v_sites))  
@@ -9873,10 +9870,11 @@ TMResultM PstPgmFFVT1_func() {
       }
       else {
          tname = "PstPgmFFBCC1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PstPgmFFVT1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results,tmp_results);
    } 
    return(final_results);
 
@@ -9884,7 +9882,7 @@ TMResultM PstPgmFFVT1_func() {
    
 
 TMResultM PstPgmFFVT1OTP_func() {
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    StringS current_shell;
    IntS testnum;
    StringS tname;
@@ -9909,16 +9907,17 @@ TMResultM PstPgmFFVT1OTP_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PstPgmFFVT1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
          tname = "PstPgmFFBCC1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
       }
       else {
          tname = "PstPgmFFBCC1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
          tname = "PstPgmFFVT1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results,tmp_results);
    } 
    return(final_results);
 
@@ -9926,7 +9925,7 @@ TMResultM PstPgmFFVT1OTP_func() {
    
 
 TMResultM PgmFFVT1Delta_func() {
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    BoolM logsites;
    IntS pattype;
    StringS tname;
@@ -9938,7 +9937,7 @@ TMResultM PgmFFVT1Delta_func() {
       dlogonly = MainVT.DLOGONLY[PGMFFVT1][post];
       tname = "PgmFFVT1DLT_Test";
       pattype = MainVT.MEMCFG[PGMFFVT1];
-      final_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+      tmp_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
    } 
 
    if (MainBCC.ENA[PGMFFVT1][post]) {
@@ -9955,14 +9954,15 @@ TMResultM PgmFFVT1Delta_func() {
             }
          }
       }
-   } 
+   }
+   final_results = DLOG.AccumulateResults(final_results,tmp_results);
    return(final_results);
 
 }   // PgmFFVT1Delta_func
    
 
 TMResultM PgmFFVT1DeltaOTP_func() {
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    IntS pattype;
    StringS tname;
    BoolS dlogonly;
@@ -9971,7 +9971,7 @@ TMResultM PgmFFVT1DeltaOTP_func() {
       dlogonly = OtpVT.DLOGONLY[PGMFFVT1][post];
       tname = "PgmFFVT1DLTOTP_Test";
       pattype = OTPTYPE;
-      final_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
+      tmp_results = F021_VT_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
    } 
    
    if (OtpBCC.ENA[PGMFFVT1][post])  
@@ -9981,7 +9981,7 @@ TMResultM PgmFFVT1DeltaOTP_func() {
       pattype = OTPTYPE;
       final_results = F021_BCC_Delta_func(pattype,PGMFFVT1,tname,dlogonly);
    }
-   
+   final_results = DLOG.AccumulateResults(final_results,tmp_results);
    return(final_results);
 
 }   // PgmFFVT1DeltaOTP_func
@@ -10691,11 +10691,11 @@ TMResultM BankErs_PreTunOxide_func() {
    if(do_ena) {
 #if $GL_USE_DMLED_RAMPMT  
       /*KChau 11/22/11 -- Blizzard temporary work around device lock up problem -- to be removed when design is fixed*/
-
+//    PowerDownAll;   (Done as Levels Entry Object)
       TIME.Wait(2ms);
       GL_PREVIOUS_SHELL = "";
 #endif
-      
+//    PwrupAtVnom_1;  (Done as Levels Entry Object)      
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)   
          F021_LoadFlashShell_func();
@@ -10764,9 +10764,7 @@ TMResultM PreTunOxideVT1_func() {
          tname = "PreTunOxVT1_Test";
          tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PreTunOxBCC1_Test";
-         
          test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
-         final_results = DLOG.AccumulateResults(tmp_results, test_results);
          
          if (TI_FlashESDAEna) {
             for (SiteIter si = ActiveSites.Begin(); !si.End(); ++si) {
@@ -10782,8 +10780,8 @@ TMResultM PreTunOxideVT1_func() {
          tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PreTunOxVT1_Test";
          test_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
-         final_results = DLOG.AccumulateResults(tmp_results, test_results);
-      } 
+      }
+      final_results = DLOG.AccumulateResults(tmp_results, test_results);
    } 
       
    return (final_results);
@@ -10791,7 +10789,7 @@ TMResultM PreTunOxideVT1_func() {
    
 
 TMResultM PreTunOxideVT1OTP_func() {
-   TMResultM final_results;
+   TMResultM final_results, tmp_results;
    StringS current_shell;
    IntS testnum;
    StringS tname;
@@ -10817,16 +10815,17 @@ TMResultM PreTunOxideVT1OTP_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PreTunOxVT1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
          tname = "PreTunOxBCC1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
       }
       else {
          tname = "PreTunOxBCC1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
          tname = "PreTunOxVT1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
    
    return(final_results);
@@ -10834,7 +10833,7 @@ TMResultM PreTunOxideVT1OTP_func() {
 
 //
 TMResultM PstTunOxideVT1_func() {
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    BoolM logsites;
    StringS current_shell;
    IntS testnum;
@@ -10864,7 +10863,7 @@ TMResultM PstTunOxideVT1_func() {
       
       if (GL_DO_VT_FIRST) {
          tname = "PstTunOxVT1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
          tname = "PstTunOxBCC1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          
@@ -10879,10 +10878,11 @@ TMResultM PstTunOxideVT1_func() {
       }
       else {
          tname = "PstTunOxBCC1_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,IsBcc,"");
          tname = "PstTunOxVT1_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,IsMainArray,not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
    
    return(final_results);
@@ -10891,7 +10891,7 @@ TMResultM PstTunOxideVT1_func() {
    
 
 TMResultM PstTunOxideVT1OTP_func() {
-   TMResultM final_results;
+   TMResultM final_results,tmp_results;
    StringS current_shell;
    IntS testnum;
    StringS tname;
@@ -10917,16 +10917,17 @@ TMResultM PstTunOxideVT1OTP_func() {
       
       if(GL_DO_VT_FIRST) {
          tname = "PstTunOxVT1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
          tname = "PstTunOxBCC1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
       }
       else {
          tname = "PstTunOxBCC1OTP_Test";
-         final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
+         tmp_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),IsBcc,"");
          tname = "PstTunOxVT1OTP_Test";
          final_results = TL_Run_BCCVT(tname,vtcat,prepost,not(IsMainArray),not(IsBcc),"");
-      } 
+      }
+      final_results = DLOG.AccumulateResults(final_results, tmp_results);
    } 
    return(final_results);
 
@@ -17743,14 +17744,13 @@ TMResultM ErsOTP_PreTunOxide_func() {
    StringS tname;
    BoolS do_ena;
 
-   if((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
+   if ((OtpBCC.ENA[TUNOXVT1][pre] and (OtpBCC.PREVTYPE[TUNOXVT1]==TUNOXVT1)) or
       (OtpVT.ENA[TUNOXVT1][pre] and (OtpVT.PREVTYPE[TUNOXVT1]==TUNOXVT1)))  
       do_ena = true;
    else
       do_ena = false;
 
-   if(do_ena)  
-   {  
+   if (do_ena) {  
       current_shell = "FlashShell";
       if(GL_PREVIOUS_SHELL != current_shell)  
          F021_LoadFlashShell_func();
